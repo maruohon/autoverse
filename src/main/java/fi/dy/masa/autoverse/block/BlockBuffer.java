@@ -20,6 +20,7 @@ import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockBuffer extends BlockAutoverseInventory
 {
@@ -102,6 +103,23 @@ public class BlockBuffer extends BlockAutoverseInventory
         {
             list.add(new ItemStack(item, 1, meta));
         }
+    }
+
+    @Override
+    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
+    {
+        if (blockState.getValue(TYPE) == EnumMachineType.FIFO)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityBufferFifo)
+            {
+                return InventoryUtils.calcRedstoneFromInventory(((TileEntityBufferFifo)te).getBaseItemHandler());
+            }
+
+            return 0;
+        }
+
+        return super.getComparatorInputOverride(blockState, worldIn, pos);
     }
 
     public static enum EnumMachineType implements IStringSerializable

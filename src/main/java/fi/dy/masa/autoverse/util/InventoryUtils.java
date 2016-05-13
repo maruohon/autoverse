@@ -236,7 +236,27 @@ public class InventoryUtils
      */
     public static ItemStack tryInsertItemStackToInventory(IItemHandler inv, ItemStack stackIn)
     {
-        return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, new SlotRange(inv));
+        return tryInsertItemStackToInventory(inv, stackIn, false);
+    }
+
+    /**
+     * Tries to insert the given ItemStack stack to the target inventory.
+     * The return value is a stack of the remaining items that couldn't be inserted.
+     * If all items were successfully inserted, then null is returned.
+     */
+    public static ItemStack tryInsertItemStackToInventory(IItemHandler inv, ItemStack stackIn, boolean simulate)
+    {
+        return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, new SlotRange(inv), simulate);
+    }
+
+    /**
+     * Tries to insert the given ItemStack stack to the target inventory.
+     * The return value is a stack of the remaining items that couldn't be inserted.
+     * If all items were successfully inserted, then null is returned.
+     */
+    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IItemHandler inv, ItemStack stackIn, SlotRange slotRange)
+    {
+        return tryInsertItemStackToInventoryWithinSlotRange(inv, stackIn, new SlotRange(inv), false);
     }
 
     /**
@@ -244,7 +264,7 @@ public class InventoryUtils
      * The return value is a stack of the remaining items that couldn't be inserted.
      * If all items were successfully inserted, then null is returned.
      */
-    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IItemHandler inv, ItemStack stackIn, SlotRange slotRange)
+    public static ItemStack tryInsertItemStackToInventoryWithinSlotRange(IItemHandler inv, ItemStack stackIn, SlotRange slotRange, boolean simulate)
     {
         int max = Math.min(slotRange.lastInc, inv.getSlots() - 1);
 
@@ -253,7 +273,7 @@ public class InventoryUtils
         {
             if (inv.getStackInSlot(slot) != null)
             {
-                stackIn = inv.insertItem(slot, stackIn, false);
+                stackIn = inv.insertItem(slot, stackIn, simulate);
 
                 if (stackIn == null)
                 {
@@ -265,7 +285,7 @@ public class InventoryUtils
         // Second round, try to add to any slot
         for (int slot = slotRange.first; slot <= max; slot++)
         {
-            stackIn = inv.insertItem(slot, stackIn, false);
+            stackIn = inv.insertItem(slot, stackIn, simulate);
 
             if (stackIn == null)
             {

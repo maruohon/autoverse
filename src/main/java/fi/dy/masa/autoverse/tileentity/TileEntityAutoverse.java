@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -7,6 +8,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public class TileEntityAutoverse extends TileEntity
@@ -34,6 +37,8 @@ public class TileEntityAutoverse extends TileEntity
     {
         return this.rotation;
     }
+
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) { }
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {

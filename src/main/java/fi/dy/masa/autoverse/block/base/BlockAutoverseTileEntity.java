@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.block.base;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
@@ -64,6 +65,23 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
     public boolean isTileEntityValid(TileEntity te)
     {
         return te != null && te.isInvalid() == false;
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
+    {
+        super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
+
+        if (worldIn.isRemote == true)
+        {
+            return;
+        }
+
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityAutoverse)
+        {
+            ((TileEntityAutoverse)te).onNeighborBlockChange(worldIn, pos, state, neighborBlock);
+        }
     }
 
     @Override

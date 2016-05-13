@@ -14,7 +14,7 @@ public class GuiAutoverse extends GuiContainer
     protected final ContainerAutoverse container;
     protected final EntityPlayer player;
     protected final ResourceLocation guiTexture;
-    //protected final ResourceLocation guiTextureWidgets;
+    protected final ResourceLocation guiTextureWidgets;
     protected int backgroundU;
     protected int backgroundV;
 
@@ -26,7 +26,7 @@ public class GuiAutoverse extends GuiContainer
         this.xSize = xSize;
         this.ySize = ySize;
         this.guiTexture = ReferenceTextures.getGuiTexture(textureName);
-        //this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
+        this.guiTextureWidgets = ReferenceTextures.getGuiTexture("gui.widgets");
     }
 
     @Override
