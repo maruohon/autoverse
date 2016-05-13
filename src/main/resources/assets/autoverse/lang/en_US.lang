@@ -1,3 +1,7 @@
 language.name=English
 language.region=US
 language.code=en_US
+
+tile.autoverse.buffer_fifo.name=FIFO Buffer
+
+autoverse.container.buffer_fifo=FIFO Buffer
