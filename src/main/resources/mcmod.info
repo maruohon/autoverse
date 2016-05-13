@@ -1,0 +1,16 @@
+[
+{
+  "modid": "autoverse",
+  "name": "Autoverse",
+  "description": "Adds some blocks for automation-type things",
+  "version": "${mod_version}",
+  "mcversion": "${minecraft_version}",
+  "url": "http://minecraft.curseforge.com/projects/autoverse",
+  "updateUrl": "",
+  "authorList": ["masa"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
