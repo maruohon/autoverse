@@ -1,19 +1,18 @@
 package fi.dy.masa.autoverse.block.base;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
 
@@ -35,6 +34,11 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
+        this.onBlockPlacedBy(worldIn, pos, EnumFacing.UP, state, placer, stack);
+    }
+
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te == null || (te instanceof TileEntityAutoverse) == false)
         {
@@ -42,23 +46,14 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
         }
 
         TileEntityAutoverse teav = (TileEntityAutoverse)te;
-        NBTTagCompound nbt = stack.getTagCompound();
 
-        // If the ItemStack has a tag containing saved TE data, restore it to the just placed block/TE
-        if (nbt != null && nbt.hasKey("BlockEntityData", Constants.NBT.TAG_COMPOUND) == true)
+        if (teav instanceof TileEntityAutoverseInventory && stack.hasDisplayName())
         {
-            teav.readFromNBTCustom(nbt.getCompoundTag("BlockEntityData"));
-        }
-        else
-        {
-            if (teav instanceof TileEntityAutoverseInventory && stack.hasDisplayName())
-            {
-                ((TileEntityAutoverseInventory)teav).setInventoryName(stack.getDisplayName());
-            }
+            ((TileEntityAutoverseInventory)teav).setInventoryName(stack.getDisplayName());
         }
 
-        // FIXME add the 24-way rotation stuff
-        teav.setFacing(placer.getHorizontalFacing().getOpposite());
+        //teav.setFacing(side.getOpposite());
+        teav.setFacing(BlockPistonBase.getFacingFromEntity(pos, placer));
     }
 
     public boolean isTileEntityValid(TileEntity te)

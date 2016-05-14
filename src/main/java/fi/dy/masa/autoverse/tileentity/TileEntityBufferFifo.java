@@ -75,8 +75,13 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     private Vec3d getItemPosition()
     {
         double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
-        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.625;
+        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.5;
         double z = this.getPos().getZ() + 0.5 + this.facing.getFrontOffsetZ() * 0.625;
+
+        if (this.facing == EnumFacing.DOWN)
+        {
+            y -= 0.25;
+        }
 
         return new Vec3d(x, y, z);
     }
