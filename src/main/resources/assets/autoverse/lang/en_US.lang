@@ -2,6 +2,8 @@ language.name=English
 language.region=US
 language.code=en_US
 
+commands.loadconfig.success=Autoverse: Loaded configuration
+
 tile.autoverse.buffer_fifo.name=FIFO Buffer
 tile.autoverse.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
 

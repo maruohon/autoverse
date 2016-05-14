@@ -26,16 +26,21 @@ public class Configs
         }
     }
 
-    public static void loadConfigsFromFile(File configFile)
+    public static void loadConfigsFromFile()
     {
-        configurationFile = configFile;
-        config = new Configuration(configFile, null, true);
+        config = new Configuration(configurationFile, null, true);
         config.load();
 
         loadConfigs(config);
     }
 
-    public static void loadConfigs(Configuration conf)
+    public static void loadConfigsFromFile(File configFile)
+    {
+        configurationFile = configFile;
+        loadConfigsFromFile();
+    }
+
+    private static void loadConfigs(Configuration conf)
     {
         Property prop;
 

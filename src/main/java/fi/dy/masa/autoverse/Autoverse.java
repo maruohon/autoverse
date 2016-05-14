@@ -6,8 +6,10 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
+import fi.dy.masa.autoverse.commands.CommandLoadConfigs;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.AutoverseGuiHandler;
 import fi.dy.masa.autoverse.network.PacketHandler;
@@ -42,5 +44,11 @@ public class Autoverse
         proxy.registerTileEntities();
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new AutoverseGuiHandler());
+    }
+
+    @EventHandler
+    public void onServerStart(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new CommandLoadConfigs());
     }
 }
