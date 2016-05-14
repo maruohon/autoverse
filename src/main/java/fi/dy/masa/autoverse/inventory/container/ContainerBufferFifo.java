@@ -186,7 +186,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
         {
             case 0: this.tefifo.setInsertSlot(data); break;
             case 1: this.tefifo.setExtractSlot(data); break;
-            case 2: this.offsetSlots = data != 0; break;
+            case 2: Configs.fifoBufferUseWrappedInventory = data != 0; break;
             default:
         }
     }
