@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.AutoverseGuiHandler;
+import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.proxy.CommonProxy;
 import fi.dy.masa.autoverse.reference.Reference;
 
@@ -34,6 +35,7 @@ public class Autoverse
         logger = event.getModLog();
         Configs.loadConfigsFromFile(event.getSuggestedConfigurationFile());
         AutoverseBlocks.init();
+        PacketHandler.init();
 
         proxy.registerEventHandlers();
         proxy.registerModels();

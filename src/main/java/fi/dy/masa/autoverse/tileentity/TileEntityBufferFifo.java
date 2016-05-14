@@ -14,11 +14,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -66,10 +67,25 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return this.extractSlot;
     }
 
+    public void setInsertSlot(int slot)
+    {
+        this.insertSlot = slot;
+    }
+
+    public void setExtractSlot(int slot)
+    {
+        this.extractSlot = slot;
+    }
+
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
-        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(), this.getBaseItemHandler());
+        if (Configs.fifoBufferUseWrappedInventory)
+        {
+            return new ItemHandlerWrapperOffset(this.getBaseItemHandler());
+        }
+
+        return this.getBaseItemHandler();
     }
 
     @Override
@@ -171,6 +187,19 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return true;
     }
 
+    public int getOffsetSlot(int slot)
+    {
+        int numSlots = this.getBaseItemHandler().getSlots();
+        slot += this.extractSlot;
+
+        if (slot >= numSlots)
+        {
+            slot -= numSlots;
+        }
+
+        return slot;
+    }
+
     private class ItemHandlerWrapperFifo extends ItemHandlerWrapperSelective
     {
         public ItemHandlerWrapperFifo(IItemHandler baseHandler)
@@ -221,6 +250,40 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             }
 
             return stackRet;
+        }
+    }
+
+    private class ItemHandlerWrapperOffset extends ItemHandlerWrapperSelectiveModifiable
+    {
+        public ItemHandlerWrapperOffset(IItemHandlerModifiable baseHandler)
+        {
+            super(baseHandler);
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot)
+        {
+            return super.getStackInSlot(TileEntityBufferFifo.this.getOffsetSlot(slot));
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack)
+        {
+            //System.out.printf("setting slot %d (offset: %d) to: %s\n", slot, TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
+            super.setStackInSlot(TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+        {
+            //System.out.printf("inserting to slot %d (offset: %d) to: %s\n", slot, TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
+            return super.insertItem(TileEntityBufferFifo.this.getOffsetSlot(slot), stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate)
+        {
+            return super.extractItem(TileEntityBufferFifo.this.getOffsetSlot(slot), amount, simulate);
         }
     }
 

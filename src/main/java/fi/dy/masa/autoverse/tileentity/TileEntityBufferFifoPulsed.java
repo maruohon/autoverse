@@ -18,7 +18,8 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     public TileEntityBufferFifoPulsed()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
-        this.extractSlot = 1; // Initialize to the last slot to be read after the first insertion
+        // Start extracting from slot 1, so that slot 0 will be extracted last (ie. after one full cycle through the inventory)
+        this.extractSlot = 1;
     }
 
     @Override

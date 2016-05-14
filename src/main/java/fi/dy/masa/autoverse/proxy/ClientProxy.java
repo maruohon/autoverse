@@ -4,16 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.config.Configs;
 
 public class ClientProxy extends CommonProxy
 {
+    @Override
+    public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
+    {
+        switch (ctx.side)
+        {
+            case CLIENT:
+                return FMLClientHandler.instance().getClientPlayerEntity();
+            case SERVER:
+                return ctx.getServerHandler().playerEntity;
+            default:
+                Autoverse.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
+                return null;
+        }
+    }
 
     @Override
     public boolean isShiftKeyDown()

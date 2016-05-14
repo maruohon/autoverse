@@ -106,7 +106,8 @@ public class BlockBuffer extends BlockAutoverseInventory
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        if (blockState.getValue(TYPE) == EnumMachineType.FIFO)
+        EnumMachineType type = blockState.getValue(TYPE);
+        if (type == EnumMachineType.FIFO || type == EnumMachineType.FIFO_PULSED)
         {
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileEntityBufferFifo)
