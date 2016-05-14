@@ -26,10 +26,11 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick
     {
         int posX = 12;
         int posY = 13;
+        int slot = 0;
 
         for (int row = 0; row <= 8; row++)
         {
-            for (int col = 0; col <= 12; col++)
+            for (int col = 0; col <= 12 && slot < TileEntityBufferFifo.NUM_SLOTS; col++, slot++)
             {
                 this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, row * 13 + col, posX + col * 18, posY + row * 18));
             }

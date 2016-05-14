@@ -15,6 +15,16 @@
                     "left":     "autoverse:blocks/buffer_fifo_side",
                     "right":    "autoverse:blocks/buffer_fifo_side"
                 }
+            },
+            "buffer_fifo_pulsed":    {
+                "textures": {
+                    "front":    "autoverse:blocks/buffer_fifo_pulsed_front",
+                    "back":     "autoverse:blocks/buffer_fifo_pulsed_back",
+                    "top":      "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "bottom":   "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "left":     "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "right":    "autoverse:blocks/buffer_fifo_pulsed_side"
+                }
             }
         },
         "facing": {

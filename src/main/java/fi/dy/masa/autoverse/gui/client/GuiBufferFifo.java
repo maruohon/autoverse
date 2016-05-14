@@ -11,7 +11,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
     public GuiBufferFifo(ContainerBufferFifo container, TileEntityBufferFifo te)
     {
-        super(container, 256, 256, "gui.container." + te.getTEName());
+        super(container, 256, 256, "gui.container.buffer_fifo");
         this.te = te;
         this.containerBF = container;
     }

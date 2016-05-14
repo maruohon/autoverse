@@ -3,5 +3,7 @@ language.region=US
 language.code=en_US
 
 tile.autoverse.buffer_fifo.name=FIFO Buffer
+tile.autoverse.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
 
 autoverse.container.buffer_fifo=FIFO Buffer
+autoverse.container.buffer_fifo_pulsed=Pulsed FIFO Buffer

@@ -17,6 +17,7 @@ public class TileEntityAutoverse extends TileEntity
 {
     protected String tileEntityName;
     protected EnumFacing facing;
+    protected boolean redstoneState;
 
     public TileEntityAutoverse(String name)
     {
@@ -39,11 +40,27 @@ public class TileEntityAutoverse extends TileEntity
         return this.facing;
     }
 
-    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) { }
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
+    {
+        boolean redstone = this.worldObj.isBlockPowered(this.getPos());
+
+        if (redstone != this.redstoneState && redstone == true)
+        {
+            this.onRedstonePulse();
+        }
+
+        this.redstoneState = redstone;
+    }
+
+    protected boolean onRedstonePulse()
+    {
+        return false;
+    }
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.facing = EnumFacing.getFront(nbt.getByte("Facing"));
+        this.redstoneState = nbt.getBoolean("Redstone");
     }
 
     @Override
@@ -60,6 +77,7 @@ public class TileEntityAutoverse extends TileEntity
 
         nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Facing", (byte)this.facing.getIndex());
+        nbt.setBoolean("Redstone", this.redstoneState);
     }
 
     public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)

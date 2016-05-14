@@ -20,6 +20,7 @@ import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
+import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockBuffer extends BlockAutoverseInventory
@@ -46,7 +47,8 @@ public class BlockBuffer extends BlockAutoverseInventory
     public String[] getUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO
+                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO,
+                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED
         };
     }
 
@@ -56,7 +58,8 @@ public class BlockBuffer extends BlockAutoverseInventory
         EnumMachineType type = state.getValue(TYPE);
         switch (type)
         {
-            case FIFO: return new TileEntityBufferFifo();
+            case FIFO:              return new TileEntityBufferFifo();
+            case FIFO_PULSED:       return new TileEntityBufferFifoPulsed();
         }
 
         return new TileEntityBufferFifo();
@@ -119,7 +122,8 @@ public class BlockBuffer extends BlockAutoverseInventory
 
     public static enum EnumMachineType implements IStringSerializable
     {
-        FIFO (ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
+        FIFO (ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO),
+        FIFO_PULSED (ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
 
         private final String name;
 

@@ -1,7 +1,5 @@
 package fi.dy.masa.autoverse.tileentity;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -11,7 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -29,21 +27,33 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
-    private int insertSlot;
-    private int extractSlot;
-    private boolean redstoneState;
-    EnumFacing facingOpposite;
-    BlockPos posFront;
-    BlockPos posBack;
+    public static final int NUM_SLOTS = 26; // FIXME debug: change back to 117
+
+    protected int insertSlot;
+    protected int extractSlot;
+    protected EnumFacing facingOpposite;
+    protected BlockPos posFront;
+    protected BlockPos posBack;
 
     public TileEntityBufferFifo()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 117, 1, false, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.getBaseItemHandler());
+        this(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
+    }
+
+    public TileEntityBufferFifo(String name)
+    {
+        super(name);
+
         this.facingOpposite = EnumFacing.DOWN;
         this.posFront = this.getPos().offset(this.facing);
         this.posBack = this.getPos().offset(this.facingOpposite);
+        this.initInventories();
+    }
+
+    protected void initInventories()
+    {
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
+        this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.getBaseItemHandler());
     }
 
     public int getInsertSlot()
@@ -72,7 +82,31 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
-    private Vec3d getItemPosition()
+    @Override
+    public void readFromNBTCustom(NBTTagCompound nbt)
+    {
+        super.readFromNBTCustom(nbt);
+
+        this.insertSlot = nbt.getByte("InsertPos");
+
+        if (nbt.hasKey("ExtractPos", Constants.NBT.TAG_BYTE) == true)
+        {
+            this.extractSlot = nbt.getByte("ExtractPos");
+        }
+
+        this.setFacing(this.facing); // Update the opposite and the front and back BlockPos
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+
+        nbt.setByte("InsertPos", (byte)this.insertSlot);
+        nbt.setByte("ExtractPos", (byte)this.extractSlot);
+    }
+
+    protected Vec3d getItemPosition()
     {
         double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
         double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.5;
@@ -87,43 +121,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void readFromNBTCustom(NBTTagCompound nbt)
-    {
-        super.readFromNBTCustom(nbt);
-
-        this.insertSlot = nbt.getInteger("InsertPos");
-        this.extractSlot = nbt.getInteger("ExtractPos");
-        this.redstoneState = nbt.getBoolean("Redstone");
-
-        this.setFacing(this.facing); // Update the opposite and the front and back BlockPos
-    }
-
-    @Override
-    public void writeToNBT(NBTTagCompound nbt)
-    {
-        super.writeToNBT(nbt);
-
-        nbt.setInteger("InsertPos", this.insertSlot);
-        nbt.setInteger("ExtractPos", this.extractSlot);
-        nbt.setBoolean("Redstone", this.redstoneState);
-    }
-
-    @Override
-    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
-    {
-        super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
-
-        boolean redstone = this.worldObj.isBlockPowered(this.getPos());
-
-        if (redstone != this.redstoneState && redstone == true)
-        {
-            this.popItem();
-        }
-
-        this.redstoneState = redstone;
-    }
-
-    private boolean popItem()
+    protected boolean onRedstonePulse()
     {
         ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
 
