@@ -35,7 +35,7 @@ public class BlockAutoverseInventory extends BlockAutoverseTileEntity
 
             for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
             {
-                EntityUtils.dropItemStacksInWorld(worldIn, pos, itemHandler.getStackInSlot(i), -1, false);
+                EntityUtils.dropItemStacksInWorld(worldIn, pos, itemHandler.getStackInSlot(i), -1, false, true);
             }
 
             worldIn.updateComparatorOutputLevel(pos, this);

@@ -58,8 +58,7 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
         }
 
         // FIXME add the 24-way rotation stuff
-        EnumFacing facing = placer.getHorizontalFacing().getOpposite();
-        teav.setRotation(facing.getIndex());
+        teav.setFacing(placer.getHorizontalFacing().getOpposite());
     }
 
     public boolean isTileEntityValid(TileEntity te)

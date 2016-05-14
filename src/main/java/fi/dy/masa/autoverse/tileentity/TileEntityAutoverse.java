@@ -8,6 +8,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.reference.Reference;
@@ -15,11 +16,11 @@ import fi.dy.masa.autoverse.reference.Reference;
 public class TileEntityAutoverse extends TileEntity
 {
     protected String tileEntityName;
-    protected int rotation;
+    protected EnumFacing facing;
 
     public TileEntityAutoverse(String name)
     {
-        this.rotation = 0;
+        this.facing = EnumFacing.NORTH;
         this.tileEntityName = name;
     }
 
@@ -28,21 +29,21 @@ public class TileEntityAutoverse extends TileEntity
         return this.tileEntityName;
     }
 
-    public void setRotation(int rot)
+    public void setFacing(EnumFacing facing)
     {
-        this.rotation = rot;
+        this.facing = facing;
     }
 
-    public int getRotation()
+    public EnumFacing getFacing()
     {
-        return this.rotation;
+        return this.facing;
     }
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) { }
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.rotation = nbt.getByte("Rotation");
+        this.facing = EnumFacing.getFront(nbt.getByte("Facing"));
     }
 
     @Override
@@ -58,12 +59,12 @@ public class TileEntityAutoverse extends TileEntity
         super.writeToNBT(nbt);
 
         nbt.setString("Version", Reference.MOD_VERSION);
-        nbt.setByte("Rotation", (byte)this.rotation);
+        nbt.setByte("Facing", (byte)this.facing.getIndex());
     }
 
     public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
     {
-        nbt.setByte("r", (byte)(this.getRotation() & 0x07));
+        nbt.setByte("f", (byte)(this.getFacing().getIndex() & 0x07));
         return nbt;
     }
 
@@ -83,9 +84,9 @@ public class TileEntityAutoverse extends TileEntity
     {
         NBTTagCompound nbt = packet.getNbtCompound();
 
-        if (nbt.hasKey("r") == true)
+        if (nbt.hasKey("f") == true)
         {
-            this.setRotation((byte)(nbt.getByte("r") & 0x07));
+            this.setFacing(EnumFacing.getFront((byte)(nbt.getByte("f") & 0x07)));
         }
 
         IBlockState state = this.worldObj.getBlockState(this.getPos());

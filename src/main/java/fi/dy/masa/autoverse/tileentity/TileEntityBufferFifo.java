@@ -3,16 +3,20 @@ package fi.dy.masa.autoverse.tileentity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperContainer;
@@ -25,27 +29,31 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
-    private int insertPos;
-    private int extractPos;
+    private int insertSlot;
+    private int extractSlot;
     private boolean redstoneState;
-    EnumFacing facing;
+    EnumFacing facingOpposite;
+    BlockPos posFront;
+    BlockPos posBack;
 
     public TileEntityBufferFifo()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 117, 1, false, "Items", this);
         this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.getBaseItemHandler());
-        this.facing = EnumFacing.UP;
+        this.facingOpposite = EnumFacing.DOWN;
+        this.posFront = this.getPos().offset(this.facing);
+        this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
-    public int getInsertPos()
+    public int getInsertSlot()
     {
-        return this.insertPos;
+        return this.insertSlot;
     }
 
-    public int getExtractPos()
+    public int getExtractSlot()
     {
-        return this.extractPos;
+        return this.extractSlot;
     }
 
     @Override
@@ -55,15 +63,34 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void setFacing(EnumFacing facing)
+    {
+        super.setFacing(facing);
+
+        this.facingOpposite = this.facing.getOpposite();
+        this.posFront = this.getPos().offset(this.facing);
+        this.posBack = this.getPos().offset(this.facingOpposite);
+    }
+
+    private Vec3d getItemPosition()
+    {
+        double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
+        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.625;
+        double z = this.getPos().getZ() + 0.5 + this.facing.getFrontOffsetZ() * 0.625;
+
+        return new Vec3d(x, y, z);
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         super.readFromNBTCustom(nbt);
 
-        this.insertPos = nbt.getInteger("InsertPos");
-        this.extractPos = nbt.getInteger("ExtractPos");
+        this.insertSlot = nbt.getInteger("InsertPos");
+        this.extractSlot = nbt.getInteger("ExtractPos");
         this.redstoneState = nbt.getBoolean("Redstone");
 
-        this.facing = EnumFacing.getFront(this.rotation);
+        this.setFacing(this.facing); // Update the opposite and the front and back BlockPos
     }
 
     @Override
@@ -71,8 +98,8 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger("InsertPos", this.insertPos);
-        nbt.setInteger("ExtractPos", this.extractPos);
+        nbt.setInteger("InsertPos", this.insertSlot);
+        nbt.setInteger("ExtractPos", this.extractSlot);
         nbt.setBoolean("Redstone", this.redstoneState);
     }
 
@@ -100,12 +127,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             return false;
         }
 
-        BlockPos pos = this.getPos().offset(this.facing);
-        TileEntity te = this.worldObj.getTileEntity(pos);
+        TileEntity te = this.worldObj.getTileEntity(this.posFront);
 
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facing.getOpposite()))
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite))
         {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facing.getOpposite());
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite);
 
             if (inv != null)
             {
@@ -118,6 +144,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
                     stack = this.itemHandlerExternal.extractItem(0, 1, false);
                     InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
 
+                    if (Configs.disableSounds == false)
+                    {
+                        this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+                    }
+
                     return true;
                 }
 
@@ -125,8 +156,14 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             }
         }
 
+        // No adjacent inventory, drop the item in world
         stack = this.itemHandlerExternal.extractItem(0, 1, false);
-        EntityUtils.dropItemStacksInWorld(this.worldObj, pos, stack, -1, true);
+        EntityUtils.dropItemStacksInWorld(this.worldObj, this.getItemPosition(), stack, -1, true, false);
+
+        if (Configs.disableSounds == false)
+        {
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+        }
 
         return true;
     }
@@ -147,7 +184,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         @Override
         public ItemStack getStackInSlot(int slot)
         {
-            return super.getStackInSlot(TileEntityBufferFifo.this.extractPos);
+            return super.getStackInSlot(TileEntityBufferFifo.this.extractSlot);
         }
 
         @Override
@@ -160,11 +197,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
             int sizeOrig = stack.stackSize;
 
-            ItemStack stackRet = super.insertItem(TileEntityBufferFifo.this.insertPos, stack, simulate);
+            ItemStack stackRet = super.insertItem(TileEntityBufferFifo.this.insertSlot, stack, simulate);
 
-            if (simulate == false && (stackRet == null || stackRet.stackSize != sizeOrig) && ++TileEntityBufferFifo.this.insertPos >= super.getSlots())
+            if (simulate == false && (stackRet == null || stackRet.stackSize != sizeOrig) && ++TileEntityBufferFifo.this.insertSlot >= super.getSlots())
             {
-                TileEntityBufferFifo.this.insertPos = 0;
+                TileEntityBufferFifo.this.insertSlot = 0;
             }
 
             return stackRet;
@@ -173,11 +210,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            ItemStack stackRet = super.extractItem(TileEntityBufferFifo.this.extractPos, amount, simulate);
+            ItemStack stackRet = super.extractItem(TileEntityBufferFifo.this.extractSlot, amount, simulate);
 
-            if (simulate == false && stackRet != null && ++TileEntityBufferFifo.this.extractPos >= super.getSlots())
+            if (simulate == false && stackRet != null && ++TileEntityBufferFifo.this.extractSlot >= super.getSlots())
             {
-                TileEntityBufferFifo.this.extractPos = 0;
+                TileEntityBufferFifo.this.extractSlot = 0;
             }
 
             return stackRet;

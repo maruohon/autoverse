@@ -80,12 +80,7 @@ public class BlockBuffer extends BlockAutoverseInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityAutoverse)
         {
-            EnumFacing facing = EnumFacing.getFront(((TileEntityAutoverse)te).getRotation());
-
-            if (facing.getAxis().isHorizontal() == true)
-            {
-                state = state.withProperty(FACING, facing);
-            }
+            state = state.withProperty(FACING, ((TileEntityAutoverse)te).getFacing());
         }
 
         return state;

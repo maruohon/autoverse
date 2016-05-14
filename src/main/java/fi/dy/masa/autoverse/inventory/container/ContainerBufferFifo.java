@@ -56,19 +56,19 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick
         {
             ICrafting listener = this.listeners.get(i);
 
-            if (this.tefifo.getInsertPos() != this.insertPos)
+            if (this.tefifo.getInsertSlot() != this.insertPos)
             {
-                listener.sendProgressBarUpdate(this, 0, this.tefifo.getInsertPos());
+                listener.sendProgressBarUpdate(this, 0, this.tefifo.getInsertSlot());
             }
 
-            if (this.tefifo.getExtractPos() != this.extractPos)
+            if (this.tefifo.getExtractSlot() != this.extractPos)
             {
-                listener.sendProgressBarUpdate(this, 1, this.tefifo.getExtractPos());
+                listener.sendProgressBarUpdate(this, 1, this.tefifo.getExtractSlot());
             }
         }
 
-        this.insertPos = this.tefifo.getInsertPos();
-        this.extractPos = this.tefifo.getExtractPos();
+        this.insertPos = this.tefifo.getInsertSlot();
+        this.extractPos = this.tefifo.getExtractSlot();
     }
 
     @Override
