@@ -1,17 +1,12 @@
 package fi.dy.masa.autoverse.tileentity;
 
-import net.minecraft.init.SoundEvents;
+import java.util.Random;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.EntityUtils;
-import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
 {
@@ -30,49 +25,9 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     }
 
     @Override
-    protected boolean onRedstonePulse()
+    public void onBlockTick(IBlockState state, Random rand)
     {
-        ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
-        TileEntity te = this.worldObj.getTileEntity(this.posFront);
-        boolean ret = false;
-
-        if (stack != null)
-        {
-            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite) : null;
-
-            if (inv != null)
-            {
-                // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
-                // TODO Add a version of the method that doesn't try to stack first
-                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
-
-                if (stack == null)
-                {
-                    stack = this.itemHandlerExternal.extractItem(0, 1, false);
-                    InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
-
-                    if (Configs.disableSounds == false)
-                    {
-                        this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                    }
-
-                    ret = true;
-                }
-            }
-            else
-            {
-                // No adjacent inventory, drop the item in world
-                stack = this.itemHandlerExternal.extractItem(0, 1, false);
-                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getItemPosition(), stack, -1, true, false);
-
-                if (Configs.disableSounds == false)
-                {
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                }
-
-                ret = true;
-            }
-        }
+        super.onBlockTick(state, rand);
 
         if (++this.insertSlot >= this.itemHandlerBase.getSlots())
         {
@@ -83,8 +38,6 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
         {
             this.extractSlot = 0;
         }
-
-        return ret;
     }
 
     private class ItemHandlerWrapperFifoPulsed extends ItemHandlerWrapperSelective

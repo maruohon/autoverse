@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,17 +45,20 @@ public class TileEntityAutoverse extends TileEntity
     {
         boolean redstone = this.worldObj.isBlockPowered(this.getPos());
 
-        if (redstone != this.redstoneState && redstone == true)
+        if (redstone != this.redstoneState)
         {
-            this.onRedstonePulse();
+            this.onRedstoneChange(redstone);
         }
 
         this.redstoneState = redstone;
     }
 
-    protected boolean onRedstonePulse()
+    protected void onRedstoneChange(boolean state)
     {
-        return false;
+    }
+
+    public void onBlockTick(IBlockState state, Random rand)
+    {
     }
 
     public void readFromNBTCustom(NBTTagCompound nbt)

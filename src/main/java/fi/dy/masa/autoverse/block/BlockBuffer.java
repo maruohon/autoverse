@@ -90,8 +90,27 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public void randomDisplayTick(IBlockState state, World worldIn, BlockPos pos, Random rand)
+    public int tickRate(World worldIn)
     {
+        return 1;
+    }
+
+    @Override
+    public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
+    {
+    }
+
+    @Override
+    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    {
+        if (worldIn.isRemote == false)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityAutoverse)
+            {
+                ((TileEntityAutoverse)te).onBlockTick(state, rand);
+            }
+        }
     }
 
     @Override

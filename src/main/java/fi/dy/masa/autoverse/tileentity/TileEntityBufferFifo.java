@@ -1,5 +1,7 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import java.util.Random;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -137,20 +139,23 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
-    protected boolean onRedstonePulse()
+    protected void onRedstoneChange(boolean state)
+    {
+        if (state == true)
+        {
+            this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), 1);
+        }
+    }
+
+    @Override
+    public void onBlockTick(IBlockState state, Random rand)
     {
         ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
 
-        if (stack == null)
+        if (stack != null)
         {
-            return false;
-        }
-
-        TileEntity te = this.worldObj.getTileEntity(this.posFront);
-
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite))
-        {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite);
+            TileEntity te = this.worldObj.getTileEntity(this.posFront);
+            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite) : null;
 
             if (inv != null)
             {
@@ -167,24 +172,20 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
                     {
                         this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
                     }
-
-                    return true;
                 }
+            }
+            else
+            {
+                // No adjacent inventory, drop the item in world
+                stack = this.itemHandlerExternal.extractItem(0, 1, false);
+                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getItemPosition(), stack, -1, true, false);
 
-                return false;
+                if (Configs.disableSounds == false)
+                {
+                    this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+                }
             }
         }
-
-        // No adjacent inventory, drop the item in world
-        stack = this.itemHandlerExternal.extractItem(0, 1, false);
-        EntityUtils.dropItemStacksInWorld(this.worldObj, this.getItemPosition(), stack, -1, true, false);
-
-        if (Configs.disableSounds == false)
-        {
-            this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-        }
-
-        return true;
     }
 
     public int getOffsetSlot(int slot)
