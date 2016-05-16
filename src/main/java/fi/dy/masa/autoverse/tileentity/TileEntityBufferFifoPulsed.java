@@ -1,7 +1,5 @@
 package fi.dy.masa.autoverse.tileentity;
 
-import java.util.Random;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
@@ -25,19 +23,26 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     }
 
     @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    protected boolean handleItemsOnRedstonePulse()
     {
-        super.onBlockTick(state, rand);
+        boolean ret = super.handleItemsOnRedstonePulse();
 
-        if (++this.insertSlot >= this.itemHandlerBase.getSlots())
+        if (ret == false)
         {
-            this.insertSlot = 0;
+            return false;
         }
 
         if (++this.extractSlot >= this.itemHandlerBase.getSlots())
         {
             this.extractSlot = 0;
         }
+
+        if (++this.insertSlot >= this.itemHandlerBase.getSlots())
+        {
+            this.insertSlot = 0;
+        }
+
+        return true;
     }
 
     private class ItemHandlerWrapperFifoPulsed extends ItemHandlerWrapperSelective

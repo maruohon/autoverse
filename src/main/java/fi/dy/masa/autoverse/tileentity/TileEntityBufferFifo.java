@@ -147,8 +147,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         }
     }
 
-    @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    /**
+     * Tries to do whatever action is appropriate on a redstone pulse.
+     * @return whether the action succeeded
+     */
+    protected boolean handleItemsOnRedstonePulse()
     {
         ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
 
@@ -172,7 +175,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
                     {
                         this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
                     }
+
+                    return true;
                 }
+
+                return false;
             }
             else
             {
@@ -184,8 +191,18 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
                 {
                     this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
                 }
+
+                return true;
             }
         }
+
+        return true;
+    }
+
+    @Override
+    public void onBlockTick(IBlockState state, Random rand)
+    {
+        this.handleItemsOnRedstonePulse();
     }
 
     public int getOffsetSlot(int slot)
