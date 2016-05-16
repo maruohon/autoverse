@@ -8,6 +8,11 @@ autoverse.container.buffer_fifo=FIFO Buffer
 autoverse.container.buffer_fifo_pulsed=Pulsed FIFO Buffer
 autoverse.container.filter=Programmable Filter
 
+autoverse.gui.label.filteritems=Filter items
+autoverse.gui.label.filteroutbuffer=Filter output buffer
+autoverse.gui.label.nonmatchoutbuffer=Non-matching items buffer
+autoverse.gui.label.resetsequence=Reset sequence
+
 autoverse.tile.buffer_fifo.name=FIFO Buffer
 autoverse.tile.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
 autoverse.tile.filter_0.name=Programmable Filter (2R - 1F)
