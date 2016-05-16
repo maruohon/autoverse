@@ -3,15 +3,11 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.SoundCategory;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
@@ -22,8 +18,6 @@ import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.EntityUtils;
-import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
@@ -108,66 +102,14 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         if (state == true)
         {
-            this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), 1);
+            this.scheduleBlockTick(1);
         }
-    }
-
-    /**
-     * Tries to do whatever action is appropriate on a redstone pulse.
-     * @return whether the action succeeded
-     */
-    protected boolean handleItemsOnRedstonePulse()
-    {
-        ItemStack stack = this.itemHandlerExternal.getStackInSlot(0);
-
-        if (stack != null)
-        {
-            TileEntity te = this.worldObj.getTileEntity(this.posFront);
-            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facingOpposite) : null;
-
-            if (inv != null)
-            {
-                // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
-                // TODO Add a version of the method that doesn't try to stack first
-                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
-
-                if (stack == null)
-                {
-                    stack = this.itemHandlerExternal.extractItem(0, 1, false);
-                    InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
-
-                    if (Configs.disableSounds == false)
-                    {
-                        this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                    }
-
-                    return true;
-                }
-
-                return false;
-            }
-            else
-            {
-                // No adjacent inventory, drop the item in world
-                stack = this.itemHandlerExternal.extractItem(0, 1, false);
-                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
-
-                if (Configs.disableSounds == false)
-                {
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                }
-
-                return true;
-            }
-        }
-
-        return true;
     }
 
     @Override
     public void onBlockTick(IBlockState state, Random rand)
     {
-        this.handleItemsOnRedstonePulse();
+        this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, true);
     }
 
     public int getOffsetSlot(int slot)

@@ -1,20 +1,28 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperContainer;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerAutoverse;
 import fi.dy.masa.autoverse.reference.Reference;
+import fi.dy.masa.autoverse.util.EntityUtils;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityAutoverseInventory extends TileEntityAutoverse
 {
@@ -94,6 +102,59 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
         {
             nbt.setString("CustomName", this.customInventoryName);
         }
+    }
+
+    /**
+     * Tries to push items from the given inventory into an adjacent inventory.
+     * If there is no adjacent inventory on the front facing side, then it will spawn the item as an EntityItem.
+     * @return whether the action succeeded
+     */
+    protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos pos, EnumFacing side, boolean spawnInWorld)
+    {
+        ItemStack stack = invSrc.getStackInSlot(0);
+
+        if (stack != null)
+        {
+            TileEntity te = this.worldObj.getTileEntity(pos);
+            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) : null;
+
+            if (inv != null)
+            {
+                // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
+                // TODO Add a version of the method that doesn't try to stack first
+                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
+
+                if (stack == null)
+                {
+                    stack = invSrc.extractItem(0, 1, false);
+                    InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+
+                    if (Configs.disableSounds == false)
+                    {
+                        this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+            else if (spawnInWorld == true)
+            {
+                // No adjacent inventory, drop the item in world
+                stack = invSrc.extractItem(0, 1, false);
+                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
+
+                if (Configs.disableSounds == false)
+                {
+                    this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+                }
+
+                return true;
+            }
+        }
+
+        return true;
     }
 
     @Override

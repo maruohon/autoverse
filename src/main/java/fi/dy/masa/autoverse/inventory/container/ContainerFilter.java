@@ -51,7 +51,7 @@ public class ContainerFilter extends ContainerCustomSlotClick
         inv = this.tefi.getFilteredItemsInventory();
 
         // Add the filter buffer slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
+        for (int slot = 0; slot < 9; slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }
@@ -60,7 +60,7 @@ public class ContainerFilter extends ContainerCustomSlotClick
         inv = this.tefi.getOutputInventory();
 
         // Add the output buffer slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
+        for (int slot = 0; slot < 9; slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }

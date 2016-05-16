@@ -21,16 +21,13 @@ public class TileEntityAutoverse extends TileEntity
     protected EnumFacing facing;
     protected EnumFacing facingOpposite;
     protected BlockPos posFront;
-    protected BlockPos posBack;
+    //protected BlockPos posBack;
     protected boolean redstoneState;
+    protected boolean tickScheduled;
 
     public TileEntityAutoverse(String name)
     {
         this.tileEntityName = name;
-        this.facing = EnumFacing.NORTH;
-        this.facingOpposite = EnumFacing.SOUTH;
-        this.posFront = this.getPos().offset(this.facing);
-        this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
     public String getTEName()
@@ -43,7 +40,7 @@ public class TileEntityAutoverse extends TileEntity
         this.facing = facing;
         this.facingOpposite = this.facing.getOpposite();
         this.posFront = this.getPos().offset(this.facing);
-        this.posBack = this.getPos().offset(this.facingOpposite);
+        //this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
     public EnumFacing getFacing()
@@ -83,6 +80,15 @@ public class TileEntityAutoverse extends TileEntity
 
     public void onBlockTick(IBlockState state, Random rand)
     {
+    }
+
+    public void scheduleBlockTick(int delay)
+    {
+        if (this.tickScheduled == false)
+        {
+            this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), delay);
+            this.tickScheduled = true;
+        }
     }
 
     public void readFromNBTCustom(NBTTagCompound nbt)

@@ -1,6 +1,8 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -23,9 +25,9 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     }
 
     @Override
-    protected boolean handleItemsOnRedstonePulse()
+    protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos pos, EnumFacing side, boolean spawnInWorld)
     {
-        boolean ret = super.handleItemsOnRedstonePulse();
+        boolean ret = super.pushItemsToAdjacentInventory(invSrc, slot, pos, side, spawnInWorld);
 
         if (ret == false)
         {
