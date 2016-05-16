@@ -3,9 +3,11 @@ package fi.dy.masa.autoverse.reference;
 public class ReferenceNames
 {
     public static final String NAME_BLOCK_BUFFER                    = "buffer";
+    public static final String NAME_BLOCK_FILTER                    = "filter";
 
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO         = "buffer_fifo";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
+    public static final String NAME_TILE_ENTITY_FILTER              = "filter";
 
 
     public static String getPrefixedName(String name)

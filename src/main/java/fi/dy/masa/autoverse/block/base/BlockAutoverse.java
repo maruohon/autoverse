@@ -32,4 +32,9 @@ public class BlockAutoverse extends Block
     {
         return new String[] { this.blockName };
     }
+
+    public String[] getItemBlockVariantStrings()
+    {
+        return this.getUnlocalizedNames();
+    }
 }

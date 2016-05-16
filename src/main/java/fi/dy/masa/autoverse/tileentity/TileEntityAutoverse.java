@@ -11,6 +11,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.reference.Reference;
 
@@ -18,12 +19,18 @@ public class TileEntityAutoverse extends TileEntity
 {
     protected String tileEntityName;
     protected EnumFacing facing;
+    protected EnumFacing facingOpposite;
+    protected BlockPos posFront;
+    protected BlockPos posBack;
     protected boolean redstoneState;
 
     public TileEntityAutoverse(String name)
     {
-        this.facing = EnumFacing.NORTH;
         this.tileEntityName = name;
+        this.facing = EnumFacing.NORTH;
+        this.facingOpposite = EnumFacing.SOUTH;
+        this.posFront = this.getPos().offset(this.facing);
+        this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
     public String getTEName()
@@ -34,11 +41,28 @@ public class TileEntityAutoverse extends TileEntity
     public void setFacing(EnumFacing facing)
     {
         this.facing = facing;
+        this.facingOpposite = this.facing.getOpposite();
+        this.posFront = this.getPos().offset(this.facing);
+        this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
     public EnumFacing getFacing()
     {
         return this.facing;
+    }
+
+    protected Vec3d getSpawnedItemPosition()
+    {
+        double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
+        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.5;
+        double z = this.getPos().getZ() + 0.5 + this.facing.getFrontOffsetZ() * 0.625;
+
+        if (this.facing == EnumFacing.DOWN)
+        {
+            y -= 0.25;
+        }
+
+        return new Vec3d(x, y, z);
     }
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
@@ -63,8 +87,10 @@ public class TileEntityAutoverse extends TileEntity
 
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.facing = EnumFacing.getFront(nbt.getByte("Facing"));
         this.redstoneState = nbt.getBoolean("Redstone");
+
+        // Update the opposite and the front and back BlockPos
+        this.setFacing(EnumFacing.getFront(nbt.getByte("Facing")));
     }
 
     @Override

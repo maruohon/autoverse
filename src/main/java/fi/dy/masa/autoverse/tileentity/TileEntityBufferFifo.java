@@ -7,10 +7,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -34,9 +31,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
     protected int insertSlot;
     protected int extractSlot;
-    protected EnumFacing facingOpposite;
-    protected BlockPos posFront;
-    protected BlockPos posBack;
 
     public TileEntityBufferFifo()
     {
@@ -47,9 +41,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         super(name);
 
-        this.facingOpposite = EnumFacing.DOWN;
-        this.posFront = this.getPos().offset(this.facing);
-        this.posBack = this.getPos().offset(this.facingOpposite);
         this.initInventories();
     }
 
@@ -91,16 +82,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void setFacing(EnumFacing facing)
-    {
-        super.setFacing(facing);
-
-        this.facingOpposite = this.facing.getOpposite();
-        this.posFront = this.getPos().offset(this.facing);
-        this.posBack = this.getPos().offset(this.facingOpposite);
-    }
-
-    @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         super.readFromNBTCustom(nbt);
@@ -111,8 +92,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         {
             this.extractSlot = nbt.getByte("ExtractPos");
         }
-
-        this.setFacing(this.facing); // Update the opposite and the front and back BlockPos
     }
 
     @Override
@@ -122,20 +101,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
         nbt.setByte("InsertPos", (byte)this.insertSlot);
         nbt.setByte("ExtractPos", (byte)this.extractSlot);
-    }
-
-    protected Vec3d getItemPosition()
-    {
-        double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
-        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.5;
-        double z = this.getPos().getZ() + 0.5 + this.facing.getFrontOffsetZ() * 0.625;
-
-        if (this.facing == EnumFacing.DOWN)
-        {
-            y -= 0.25;
-        }
-
-        return new Vec3d(x, y, z);
     }
 
     @Override
@@ -185,7 +150,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             {
                 // No adjacent inventory, drop the item in world
                 stack = this.itemHandlerExternal.extractItem(0, 1, false);
-                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getItemPosition(), stack, -1, true, false);
+                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
 
                 if (Configs.disableSounds == false)
                 {

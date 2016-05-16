@@ -59,6 +59,7 @@ public class ClientProxy extends CommonProxy
     private void registerItemBlockModels()
     {
         this.registerAllItemBlockModels(AutoverseBlocks.blockBuffer, "facing=north,type=", "");
+        this.registerAllItemBlockModels(AutoverseBlocks.blockFilter, "facing=north,tier=", "");
     }
 
     /*private void registerItemBlockModel(BlockAutoverse blockIn, int meta, String fullVariant)
@@ -71,7 +72,7 @@ public class ClientProxy extends CommonProxy
     {
         List<ItemStack> stacks = new ArrayList<ItemStack>();
         blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
-        String[] names = blockIn.getUnlocalizedNames();
+        String[] names = blockIn.getItemBlockVariantStrings();
 
         for (ItemStack stack : stacks)
         {

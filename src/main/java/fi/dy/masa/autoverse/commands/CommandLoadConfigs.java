@@ -30,6 +30,6 @@ public class CommandLoadConfigs extends CommandBase
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         Configs.loadConfigsFromFile();
-        notifyCommandListener(sender, this, "commands.loadconfig.success", new Object[0]);
+        notifyCommandListener(sender, this, "autoverse.commands.loadconfig.success", new Object[0]);
     }
 }

@@ -72,7 +72,7 @@ public class ItemBlockAutoverse extends ItemBlock
     {
         if (this.blockNames != null && stack.getMetadata() < this.blockNames.length)
         {
-            return "tile." + ReferenceNames.getDotPrefixedName(this.blockNames[stack.getMetadata()]);
+            return ReferenceNames.getDotPrefixedName("tile." + this.blockNames[stack.getMetadata()]);
         }
 
         return super.getUnlocalizedName(stack);
@@ -92,7 +92,7 @@ public class ItemBlockAutoverse extends ItemBlock
 
             if (verbose == false && tmpList.size() > 2)
             {
-                list.add(I18n.translateToLocal("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.translateToLocal("autoverse.tooltip.item.holdshiftfordescription"));
             }
             else
             {

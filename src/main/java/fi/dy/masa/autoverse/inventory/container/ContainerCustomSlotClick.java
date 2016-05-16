@@ -19,7 +19,7 @@ public class ContainerCustomSlotClick extends ContainerAutoverse
 
     public ContainerCustomSlotClick(EntityPlayer player, TileEntityAutoverseInventory te)
     {
-        super(player, te.getWrappedInventoryForContainer());
+        super(player, te);
     }
 
     public int getSelectedSlot()

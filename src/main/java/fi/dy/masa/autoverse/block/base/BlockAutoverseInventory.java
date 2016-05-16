@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.block.base;
 
+import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,7 +10,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
@@ -65,6 +65,30 @@ public class BlockAutoverseInventory extends BlockAutoverseTileEntity
     }
 
     @Override
+    public int tickRate(World worldIn)
+    {
+        return 1;
+    }
+
+    @Override
+    public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
+    {
+    }
+
+    @Override
+    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    {
+        if (worldIn.isRemote == false)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityAutoverse)
+            {
+                ((TileEntityAutoverse)te).onBlockTick(state, rand);
+            }
+        }
+    }
+
+    @Override
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return true;
@@ -73,7 +97,7 @@ public class BlockAutoverseInventory extends BlockAutoverseTileEntity
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        /*TileEntity te = worldIn.getTileEntity(pos);
         if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN) == false)
         {
             return 0;
@@ -81,6 +105,14 @@ public class BlockAutoverseInventory extends BlockAutoverseTileEntity
 
         IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
 
-        return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
+        return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;*/
+
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityAutoverseInventory)
+        {
+            return InventoryUtils.calcRedstoneFromInventory(((TileEntityAutoverseInventory)te).getBaseItemHandler());
+        }
+
+        return 0;
     }
 }

@@ -16,25 +16,30 @@ import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.slot.SlotRange;
+import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
 
 public class ContainerAutoverse extends Container
 {
+    protected final TileEntityAutoverseInventory te;
     public final EntityPlayer player;
     protected final InventoryPlayer inventoryPlayer;
     protected final IItemHandlerModifiable playerInv;
     public final IItemHandler inventory;
+    protected final IItemHandlerModifiable inventoryBase;
     protected MergeSlotRange customInventorySlots;
     protected MergeSlotRange playerArmorSlots;
     protected MergeSlotRange playerMainSlots;
-    protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
-    protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
+    protected final List<MergeSlotRange> mergeSlotRangesExtToPlayer;
+    protected final List<MergeSlotRange> mergeSlotRangesPlayerToExt;
 
-    public ContainerAutoverse(EntityPlayer player, IItemHandler inventory)
+    public ContainerAutoverse(EntityPlayer player, TileEntityAutoverseInventory te)
     {
+        this.te = te;
         this.player = player;
         this.inventoryPlayer = player.inventory;
         this.playerInv = (IItemHandlerModifiable) player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        this.inventory = inventory;
+        this.inventory = te.getWrappedInventoryForContainer();
+        this.inventoryBase = te.getBaseItemHandler();
         this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
         this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
         this.customInventorySlots = new MergeSlotRange(0, 0); // Init the ranges to an empty range by default
@@ -98,7 +103,7 @@ public class ContainerAutoverse extends Container
     @Override
     public boolean canInteractWith(EntityPlayer player)
     {
-        return true;
+        return this.te.isInvalid() == false;
     }
 
     @Override

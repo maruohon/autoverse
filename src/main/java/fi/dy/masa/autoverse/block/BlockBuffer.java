@@ -1,7 +1,6 @@
 package fi.dy.masa.autoverse.block;
 
 import java.util.List;
-import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -21,7 +20,6 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
-import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockBuffer extends BlockAutoverseInventory
 {
@@ -90,54 +88,12 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public int tickRate(World worldIn)
-    {
-        return 1;
-    }
-
-    @Override
-    public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
-    {
-    }
-
-    @Override
-    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
-    {
-        if (worldIn.isRemote == false)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityAutoverse)
-            {
-                ((TileEntityAutoverse)te).onBlockTick(state, rand);
-            }
-        }
-    }
-
-    @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
         for (int meta = 0; meta < EnumMachineType.values().length; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
-    }
-
-    @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
-    {
-        EnumMachineType type = blockState.getValue(TYPE);
-        if (type == EnumMachineType.FIFO || type == EnumMachineType.FIFO_PULSED)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityBufferFifo)
-            {
-                return InventoryUtils.calcRedstoneFromInventory(((TileEntityBufferFifo)te).getBaseItemHandler());
-            }
-
-            return 0;
-        }
-
-        return super.getComparatorInputOverride(blockState, worldIn, pos);
     }
 
     public static enum EnumMachineType implements IStringSerializable
