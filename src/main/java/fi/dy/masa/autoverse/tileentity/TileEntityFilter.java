@@ -131,7 +131,16 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.setFacing(facing);
 
-        this.facingFilteredOut = this.getFacing().rotateYCCW();
+        if (facing.getAxis().isHorizontal() == true)
+        {
+            this.facingFilteredOut = facing.rotateYCCW();
+        }
+        else
+        {
+            // FIXME add 24-way rotation?
+            this.facingFilteredOut = EnumFacing.WEST;
+        }
+
         this.facingFilteredOutOpposite = this.facingFilteredOut.getOpposite();
         this.posFilteredOut = this.getPos().offset(this.facingFilteredOut);
     }
