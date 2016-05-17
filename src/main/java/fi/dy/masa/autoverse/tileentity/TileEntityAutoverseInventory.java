@@ -111,7 +111,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
      */
     protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos pos, EnumFacing side, boolean spawnInWorld)
     {
-        ItemStack stack = invSrc.getStackInSlot(0);
+        ItemStack stack = invSrc.getStackInSlot(slot);
 
         if (stack != null)
         {
@@ -126,13 +126,13 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
 
                 if (stack == null)
                 {
-                    stack = invSrc.extractItem(0, 1, false);
+                    stack = invSrc.extractItem(slot, 1, false);
                     InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
 
-                    if (Configs.disableSounds == false)
+                    /*if (Configs.disableSounds == false)
                     {
                         this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                    }
+                    }*/
 
                     return true;
                 }
@@ -142,7 +142,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
             else if (spawnInWorld == true)
             {
                 // No adjacent inventory, drop the item in world
-                stack = invSrc.extractItem(0, 1, false);
+                stack = invSrc.extractItem(slot, 1, false);
                 EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
 
                 if (Configs.disableSounds == false)
@@ -151,6 +151,13 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
                 }
 
                 return true;
+            }
+        }
+        else
+        {
+            if (Configs.disableSounds == false)
+            {
+                this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_FAIL, SoundCategory.BLOCKS, 0.3f, 1f);
             }
         }
 

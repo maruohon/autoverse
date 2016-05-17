@@ -50,7 +50,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     protected void initInventories()
     {
-        System.out.printf("========= inv INIT ============\n");
         this.inventoryReset         = new ItemStackHandlerTileEntity(0, this.getNumResetSlots(),   1, false, "ResetItems", this);
         this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1, this.getNumFilterSlots(),  1, false, "FilterItems", this);
         this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,                       31, 64, false, "FilteredItems", this);
@@ -122,7 +121,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public void setFilterTier(int tier)
     {
-        System.out.printf("========= set tier ============\n");
         this.filterTier = MathHelper.clamp_int(tier, 0, 2);
 
         this.initInventories();
@@ -131,7 +129,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public void setFacing(EnumFacing facing)
     {
-        System.out.printf("========= set facing ============\n");
         super.setFacing(facing);
 
         this.facingFilteredOut = this.getFacing().rotateYCCW();
@@ -156,28 +153,40 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         int slot1 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
         if (slot1 != -1)
         {
-            this.pushItemsToAdjacentInventory(this.wrappedInventoryOtherOut, slot1,
-                    this.posFront, this.facingOpposite, this.redstoneState);
+            for (int slot = slot1; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
+            {
+                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryOtherOut, slot,
+                        this.posFront, this.facingOpposite, this.redstoneState) == true)
+                {
+                    break;
+                }
+            }
         }
 
         int slot2 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryFilterered);
         if (slot2 != -1)
         {
-            this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot2,
-                    this.posFilteredOut, this.facingFilteredOutOpposite, this.redstoneState);
+            //System.out.printf("block tick - pos: %s\n", this.getPos());
+            for (int slot = slot2; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
+            {
+                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot,
+                        this.posFilteredOut, this.facingFilteredOutOpposite, this.redstoneState) == true)
+                {
+                    break;
+                }
+            }
         }
 
         // Lazy check for if there WERE some items, then schedule a new tick
         if (slot1 != -1 || slot2 != -1)
         {
-            this.scheduleBlockTick(1);
+            this.scheduleBlockTick(4);
         }
     }
 
     @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
-        System.out.printf("========= readFromNBTCustom ============\n");
         super.readFromNBTCustom(tag);
 
         // Setting the tier and thus initializing the inventories needs to
@@ -442,8 +451,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            System.out.printf("%d : insert - simulate: %s stack: %s mode: %s pos: %d\n",
-                    TileEntityFilter.this.getWorld().getTotalWorldTime(), simulate, stack, this.mode, this.slotPosition);
+            //System.out.printf("%d : insert - simulate: %s stack: %s mode: %s pos: %d\n",
+                    //TileEntityFilter.this.getWorld().getTotalWorldTime(), simulate, stack, this.mode, this.slotPosition);
 
             switch (this.mode)
             {
@@ -472,11 +481,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                 case ACCEPT_FILTER_ITEMS:
                     if (this.filterItems.getStackInSlot(this.slotPosition) != null)
                     {
-                        System.out.printf("filt - item found\n");
                         this.slotPosition = InventoryUtils.getFirstEmptySlot(this.filterItems);
                         if (this.slotPosition == -1)
                         {
-                            System.out.printf("filt - no empty slots\n");
                             this.mode = EnumMode.SORT_ITEMS;
                             this.slotPosition = 0;
                         }
@@ -488,7 +495,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
                     if (simulate == false && ++this.slotPosition >= this.filterItems.getSlots())
                     {
-                        System.out.printf("filt - last slot, sorting\n");
                         this.mode = EnumMode.SORT_ITEMS;
                         this.slotPosition = 0;
                     }
@@ -507,13 +513,13 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                                 this.seqBufWrite++;
                             }
 
-                            System.out.printf("%d : rst match, slot: %d stack: %s mode: %s pos: %d\n", TileEntityFilter.this.getWorld().getTotalWorldTime(), slot, stack, this.mode, this.slotPosition);
+                            //System.out.printf("%d : rst match, slot: %d stack: %s mode: %s pos: %d\n", TileEntityFilter.this.getWorld().getTotalWorldTime(), slot, stack, this.mode, this.slotPosition);
                             if (this.seqBufWrite >= this.resetItems.getSlots())
                             {
-                                System.out.printf("%d : RESET\n", TileEntityFilter.this.getWorld().getTotalWorldTime());
+                                //System.out.printf("%d : RESET\n", TileEntityFilter.this.getWorld().getTotalWorldTime());
                                 // Dump the reset sequence inventory and the filter item inventory into the output inventory
                                 InventoryUtils.tryMoveAllItems(this.resetItems, this.othersOut);
-                                InventoryUtils.tryMoveAllItems(this.filterItems, this.othersOut);
+                                InventoryUtils.tryMoveAllItems(this.filterItems, this.filteredOut);
                                 this.mode = EnumMode.RESET;
                                 this.slotPosition = 0;
                                 this.seqBufWrite = 0;
@@ -535,14 +541,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
                             do
                             {
-                                System.out.printf("reset sequence broken, shifting buffer...\n");
+                                //System.out.printf("reset sequence broken, shifting buffer...\n");
                                 //this.seqBufRead = this.getNextSequenceStartIndex(this.resetSequenceBuffer);
                                 this.shiftSequenceBuffer(this.resetSequenceBuffer);
                             } while (this.sequenceBufferMatches(this.resetSequenceBuffer) == false);
 
-                            // Set the on-the-fly index to the amount of matching data in the sequence buffer
-                            //this.slotPosition = this.seqBufWrite;
-                            System.out.printf("reset sequence broken, new wr pos: %d\n", this.seqBufWrite);
+                            //System.out.printf("reset sequence broken, new wr pos: %d\n", this.seqBufWrite);
                         }
 
                         TileEntityFilter.this.scheduleBlockTick(1);
