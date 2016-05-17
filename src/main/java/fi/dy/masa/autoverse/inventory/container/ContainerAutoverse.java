@@ -2,9 +2,12 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -16,15 +19,19 @@ import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.slot.SlotRange;
+import fi.dy.masa.autoverse.network.PacketHandler;
+import fi.dy.masa.autoverse.network.message.MessageSyncSpecialSlot;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
 
 public class ContainerAutoverse extends Container
 {
+    public final List<Slot> specialSlots = Lists.<Slot>newArrayList();
+    public final List<ItemStack> specialSlotItemStacks = Lists.<ItemStack>newArrayList();
+    protected final EntityPlayer player;
     protected final TileEntityAutoverseInventory te;
-    public final EntityPlayer player;
     protected final InventoryPlayer inventoryPlayer;
     protected final IItemHandlerModifiable playerInv;
-    public final IItemHandler inventory;
+    protected final IItemHandler inventory;
     protected final IItemHandlerModifiable inventoryBase;
     protected MergeSlotRange customInventorySlots;
     protected MergeSlotRange playerArmorSlots;
@@ -85,6 +92,17 @@ public class ContainerAutoverse extends Container
         this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
     }
 
+    /**
+     * Adds a special slot to the Container, which can't be interacted with
+     */
+    protected Slot addSpecialSlot(Slot slotIn)
+    {
+        slotIn.slotNumber = this.inventorySlots.size();
+        this.specialSlots.add(slotIn);
+        this.specialSlotItemStacks.add(null);
+        return slotIn;
+    }
+
     public EntityPlayer getPlayer()
     {
         return this.player;
@@ -132,6 +150,61 @@ public class ContainerAutoverse extends Container
     {
         this.transferStackFromSlot(player, slotNum);
         return null;
+    }
+
+    protected void forceSyncSpecialSlots()
+    {
+        for (int slot = 0; slot < this.specialSlots.size(); slot++)
+        {
+            ItemStack oldStack = ItemStack.copyItemStack(this.specialSlots.get(slot).getStack());
+            this.specialSlotItemStacks.set(slot, oldStack);
+
+            for (int i = 0; i < this.listeners.size(); i++)
+            {
+                ICrafting listener = this.listeners.get(i);
+                if (listener instanceof EntityPlayerMP)
+                {
+                    PacketHandler.INSTANCE.sendTo(
+                        new MessageSyncSpecialSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onCraftGuiOpened(ICrafting listener)
+    {
+        super.onCraftGuiOpened(listener);
+
+        this.forceSyncSpecialSlots();
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        super.detectAndSendChanges();
+
+        for (int slot = 0; slot < this.specialSlots.size(); slot++)
+        {
+            ItemStack currentStack = this.specialSlots.get(slot).getStack();
+            ItemStack oldStack = this.specialSlotItemStacks.get(slot);
+
+            if (ItemStack.areItemStacksEqual(oldStack, currentStack) == false)
+            {
+                oldStack = ItemStack.copyItemStack(currentStack);
+                this.specialSlotItemStacks.set(slot, oldStack);
+
+                for (int i = 0; i < this.listeners.size(); i++)
+                {
+                    ICrafting listener = this.listeners.get(i);
+                    if (listener instanceof EntityPlayerMP)
+                    {
+                        PacketHandler.INSTANCE.sendTo(
+                            new MessageSyncSpecialSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
+                    }
+                }
+            }
+        }
     }
 
     /**

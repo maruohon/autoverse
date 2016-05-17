@@ -1,10 +1,15 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import java.io.IOException;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.autoverse.inventory.container.ContainerAutoverse;
 import fi.dy.masa.autoverse.reference.ReferenceTextures;
@@ -22,7 +27,7 @@ public class GuiAutoverse extends GuiContainer
     {
         super(container);
         this.container = container;
-        this.player = container.player;
+        this.player = container.getPlayer();
         this.xSize = xSize;
         this.ySize = ySize;
         this.guiTexture = ReferenceTextures.getGuiTexture(textureName);
@@ -33,7 +38,51 @@ public class GuiAutoverse extends GuiContainer
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
         super.drawScreen(mouseX, mouseY, gameTicks);
+
+        this.drawSpecialSlots();
         this.drawTooltips(mouseX, mouseY);
+    }
+
+    protected void drawSpecialSlots()
+    {
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.pushMatrix();
+        //GlStateManager.translate((float)this.guiLeft, (float)this.guiTop, 0.0F);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableRescaleNormal();
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+
+        this.zLevel = 100.0F;
+        this.itemRender.zLevel = 100.0F;
+
+        for (int slot = 0; slot < this.container.specialSlots.size(); slot++)
+        {
+            this.drawSpecialSlot(this.container.specialSlots.get(slot));
+        }
+
+        this.itemRender.zLevel = 0.0F;
+        this.zLevel = 0.0F;
+
+        GlStateManager.popMatrix();
+        GlStateManager.disableBlend();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void drawSpecialSlot(Slot slotIn)
+    {
+        int x = this.guiLeft + slotIn.xDisplayPosition;
+        int y = this.guiTop + slotIn.yDisplayPosition;
+        ItemStack stack = slotIn.getStack();
+
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        GlStateManager.enableBlend();
+        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+        //this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY, str);
     }
 
     @Override
@@ -86,6 +135,6 @@ public class GuiAutoverse extends GuiContainer
 
     protected void bindTexture(ResourceLocation rl)
     {
-        this.mc.renderEngine.bindTexture(rl);
+        this.mc.getTextureManager().bindTexture(rl);
     }
 }

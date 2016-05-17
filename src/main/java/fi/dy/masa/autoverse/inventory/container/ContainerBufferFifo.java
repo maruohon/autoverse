@@ -66,12 +66,12 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             for (int i = 0; i < this.listeners.size(); i++)
             {
-                ICrafting crafter = this.listeners.get(i);
+                ICrafting listener = this.listeners.get(i);
 
-                if (crafter instanceof EntityPlayerMP)
+                if (listener instanceof EntityPlayerMP)
                 {
-                    EntityPlayerMP player = (EntityPlayerMP)crafter;
-                    PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, oldStack), player);
+                    PacketHandler.INSTANCE.sendTo(
+                        new MessageSyncSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
                 }
             }
         }
@@ -92,12 +92,12 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
-                    ICrafting crafter = this.listeners.get(i);
+                    ICrafting listener = this.listeners.get(i);
 
-                    if (crafter instanceof EntityPlayerMP)
+                    if (listener instanceof EntityPlayerMP)
                     {
-                        EntityPlayerMP player = (EntityPlayerMP)crafter;
-                        PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, oldStack), player);
+                        PacketHandler.INSTANCE.sendTo(
+                            new MessageSyncSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
                     }
                 }
             }
@@ -135,7 +135,8 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             if (listener instanceof EntityPlayerMP)
             {
-                ((EntityPlayerMP)listener).playerNetServerHandler.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)listener).inventory.getItemStack()));
+                ((EntityPlayerMP)listener).playerNetServerHandler.sendPacket(
+                    new SPacketSetSlot(-1, -1, ((EntityPlayerMP)listener).inventory.getItemStack()));
             }
         }
 

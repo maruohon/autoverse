@@ -3,28 +3,28 @@ package fi.dy.masa.autoverse.network.message;
 import java.io.IOException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.inventory.container.IBaseInventory;
+import fi.dy.masa.autoverse.inventory.container.ContainerAutoverse;
 import io.netty.buffer.ByteBuf;
 
-public class MessageSyncSlot implements IMessage
+public class MessageSyncSpecialSlot implements IMessage
 {
     private int windowId;
     private int slotNum;
     private ItemStack stack;
 
-    public MessageSyncSlot()
+    public MessageSyncSpecialSlot()
     {
     }
 
-    public MessageSyncSlot(int windowId, int slotNum, ItemStack stack)
+    public MessageSyncSpecialSlot(int windowId, int slotNum, ItemStack stack)
     {
         this.windowId = windowId;
         this.slotNum = slotNum;
@@ -42,7 +42,7 @@ public class MessageSyncSlot implements IMessage
         }
         catch (IOException e)
         {
-            Autoverse.logger.warn("MessageSyncSlot: Exception while reading data from buffer");
+            Autoverse.logger.warn("MessageSyncSpecialSlot: Exception while reading data from buffer");
             e.printStackTrace();
         }
     }
@@ -55,14 +55,14 @@ public class MessageSyncSlot implements IMessage
         AutoverseByteBufUtils.writeItemStackToBuffer(buf, this.stack);
     }
 
-    public static class Handler implements IMessageHandler<MessageSyncSlot, IMessage>
+    public static class Handler implements IMessageHandler<MessageSyncSpecialSlot, IMessage>
     {
         @Override
-        public IMessage onMessage(final MessageSyncSlot message, MessageContext ctx)
+        public IMessage onMessage(final MessageSyncSpecialSlot message, MessageContext ctx)
         {
             if (ctx.side != Side.CLIENT)
             {
-                Autoverse.logger.error("Wrong side in MessageSyncSlot: " + ctx.side);
+                Autoverse.logger.error("Wrong side in MessageSyncSpecialSlot: " + ctx.side);
                 return null;
             }
 
@@ -70,7 +70,7 @@ public class MessageSyncSlot implements IMessage
             final EntityPlayer player = Autoverse.proxy.getPlayerFromMessageContext(ctx);
             if (mc == null || player == null)
             {
-                Autoverse.logger.error("Minecraft or player was null in MessageSyncSlot");
+                Autoverse.logger.error("Minecraft or player was null in MessageSyncSpecialSlot");
                 return null;
             }
 
@@ -85,14 +85,14 @@ public class MessageSyncSlot implements IMessage
             return null;
         }
 
-        protected void processMessage(final MessageSyncSlot message, EntityPlayer player)
+        protected void processMessage(final MessageSyncSpecialSlot message, EntityPlayer player)
         {
-            if (player.openContainer instanceof IBaseInventory && message.windowId == player.openContainer.windowId)
+            if (player.openContainer instanceof ContainerAutoverse && message.windowId == player.openContainer.windowId)
             {
-                IBaseInventory container = (IBaseInventory)player.openContainer;
-                IItemHandlerModifiable inv = container.getBaseInventory();
-                //System.out.printf("MessageSyncSlot slot: %d stack: %s\n", message.slotNum, message.stack);
-                inv.setStackInSlot(message.slotNum, message.stack);
+                //System.out.printf("MessageSyncSpecialSlot - slot: %d stack: %s\n", message.slotNum, message.stack);
+                ContainerAutoverse container = (ContainerAutoverse) player.openContainer;
+                Slot slot = container.specialSlots.get(message.slotNum);
+                slot.putStack(message.stack);
             }
         }
     }
