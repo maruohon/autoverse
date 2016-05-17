@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -17,8 +16,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
+import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperExtractOnly;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -56,8 +55,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3,                       13, 64, false, "OutputItems", this);
         this.itemHandlerBase        = this.inventoryOtherOut;
 
-        this.wrappedInventoryFilterered    = new ItemHandlerWrapperOutputBuffer(this.inventoryFilterered);
-        this.wrappedInventoryOtherOut      = new ItemHandlerWrapperOutputBuffer(this.inventoryOtherOut);
+        this.wrappedInventoryFilterered    = new ItemHandlerWrapperExtractOnly(this.inventoryFilterered);
+        this.wrappedInventoryOtherOut      = new ItemHandlerWrapperExtractOnly(this.inventoryOtherOut);
         this.inventoryInput                = new ItemHandlerWrapperFilter(this.inventoryReset, this.inventoryFilterItems,
                                                 this.inventoryFilterered, this.inventoryOtherOut, this);
     }
@@ -197,6 +196,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         {
             this.scheduleBlockTick(4, false);
         }
+        // The usefulness of this is questionable...
+        else if (this.inventoryInput.getMode() == ItemHandlerWrapperFilter.EnumMode.RESET)
+        {
+            this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.ACCEPT_RESET_ITEMS);
+        }
     }
 
     @Override
@@ -309,43 +313,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         if (inventoryId == 9)
         {
             this.scheduleBlockTick(1, true);
-        }
-    }
-
-    private class ItemHandlerWrapperOutputBuffer extends ItemHandlerWrapperSelective
-    {
-        public ItemHandlerWrapperOutputBuffer(IItemHandler baseInventory)
-        {
-            super(baseInventory);
-        }
-
-        @Override
-        public int getSlots()
-        {
-            return super.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            // TODO: cache the index?
-            //slot = InventoryUtils.getFirstNonEmptySlot(this.baseHandler);
-            return super.getStackInSlot(slot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            //System.out.printf("inserting to slot %d (offset: %d) to: %s\n", slot, TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
-            return stack;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            // TODO: cache the index?
-            //slot = InventoryUtils.getFirstNonEmptySlot(this.baseHandler);
-            return super.extractItem(slot, amount, simulate);
         }
     }
 

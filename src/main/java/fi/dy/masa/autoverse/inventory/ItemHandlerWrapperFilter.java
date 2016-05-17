@@ -97,11 +97,9 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        //System.out.printf("%6d : insert - simulate: %s stack: %s mode: %s slotPos: %d wrPos: %d\n",
-        //        System.currentTimeMillis() % 100000, simulate, stack, this.mode, this.slotPosition, this.seqBufWrite);
-        String side = this.te.getWorld().isRemote ? "client" : "server";
-        System.out.printf("%s - %s - INSERT - wrPos: %d stack: %s mode: %s\n",
-                side, simulate, this.seqBufWrite, stack, this.mode);
+        //String side = this.te.getWorld().isRemote ? "client" : "server";
+        //System.out.printf("%s - %s - INSERT - wrPos: %d stack: %s mode: %s\n",
+        //        side, simulate, this.seqBufWrite, stack, this.mode);
 
         switch (this.mode)
         {
@@ -127,7 +125,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
             default:
         }
 
-        System.out.printf("======== insert end ========\n");
+        //System.out.printf("======== insert end ========\n");
         return stack;
     }
 
@@ -191,7 +189,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
             if ((this.seqBufWrite + 1) >= invReferenceSequence.getSlots())
             {
-                System.out.printf("=== RESET ===\n");
+                //System.out.printf("=== RESET ===\n");
                 // Dump the reset sequence inventory and the filter item inventory into the output inventory
                 InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
                 InventoryUtils.tryMoveAllItems(this.filterItems, this.filteredOut);
