@@ -38,8 +38,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
         this.seqBufWrite = 0;
         this.slotPosition = 0;
         this.mode = EnumMode.ACCEPT_RESET_ITEMS;
-
-        this.initMode();
     }
 
     public EnumMode getMode()
@@ -50,30 +48,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
     public void setMode(EnumMode mode)
     {
         this.mode = mode;
-    }
-
-    protected void initMode()
-    {
-        switch (this.mode)
-        {
-            case ACCEPT_RESET_ITEMS:
-                this.seqBufWrite = InventoryUtils.getFirstEmptySlot(this.resetItems);
-                if (this.seqBufWrite < 0)
-                {
-                    this.mode = EnumMode.ACCEPT_FILTER_ITEMS;
-                    this.seqBufWrite = 0;
-                }
-                break;
-            case ACCEPT_FILTER_ITEMS:
-                this.seqBufWrite = InventoryUtils.getFirstEmptySlot(this.filterItems);
-                if (this.seqBufWrite < 0)
-                {
-                    this.mode = EnumMode.SORT_ITEMS;
-                    this.seqBufWrite = 0;
-                }
-                break;
-            default:
-        }
     }
 
     public IItemHandler getSequenceBuffer()

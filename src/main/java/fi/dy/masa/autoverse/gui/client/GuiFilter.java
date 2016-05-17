@@ -68,9 +68,5 @@ public class GuiFilter extends GuiAutoverse
             this.drawTexturedModalRect(x +   7, y + 83, 3, 33, 5 * 18, 18);
             this.drawTexturedModalRect(x +  97, y + 83, 3, 33, 4 * 18, 18);
         }
-
-        /*this.bindTexture(this.guiTextureWidgets);
-
-        this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 102, 54, 18, 18);*/
     }
 }

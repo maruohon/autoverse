@@ -173,9 +173,9 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt)
+    public void deserializeNBT(NBTTagCompound tag)
     {
-        NBTUtils.readStoredItemsFromTag(nbt, this.items, this.tagName);
+        NBTUtils.readStoredItemsFromTag(tag, this.items, this.tagName);
     }
 
     public void onContentsChanged(int slot)

@@ -38,7 +38,6 @@ public class ContainerFilter extends ContainerCustomSlotClick
 
         posY = 36;
         inv = this.tefi.getResetSequenceBuffer();
-        //this.sequenceBufferSlots = new SlotRange(this.inventorySlots.size(), inv.getSlots());
 
         // Add the Reset Sequence matcher slots
         for (int slot = 0; slot < inv.getSlots(); slot++)

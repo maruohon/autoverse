@@ -15,7 +15,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter;
@@ -28,6 +27,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityFilter extends TileEntityAutoverseInventory
 {
+    protected ItemStackHandlerTileEntity inventoryInputManual;
     protected ItemStackHandlerTileEntity inventoryReset;
     protected ItemStackHandlerTileEntity inventoryFilterItems;
 
@@ -49,13 +49,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     protected void initInventories()
     {
+        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,                        1,  1, false, "InputItems", this);
         this.inventoryReset         = new ItemStackHandlerTileEntity(0, this.getNumResetSlots(),   1, false, "ResetItems", this);
         this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1, this.getNumFilterSlots(),  1, false, "FilterItems", this);
-        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,                       31, 64, false, "FilteredItems", this);
-        this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3,                       31, 64, false, "OutputItems", this);
+        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,                       27, 64, false, "FilteredItems", this);
+        this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3,                       13, 64, false, "OutputItems", this);
         this.itemHandlerBase        = this.inventoryOtherOut;
-
-        // 31 slots = 9 buffer slots + max 22 reset + filter-item slots when doing a reset cycle
 
         this.wrappedInventoryFilterered    = new ItemHandlerWrapperOutputBuffer(this.inventoryFilterered);
         this.wrappedInventoryOtherOut      = new ItemHandlerWrapperOutputBuffer(this.inventoryOtherOut);
@@ -71,7 +70,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public IItemHandler getInputInventory()
     {
-        return new ItemHandlerWrapperInputModifiable(this.inventoryInput);
+        return this.inventoryInputManual;
     }
 
     public IItemHandler getResetInventory()
@@ -160,6 +159,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.onBlockTick(state, rand);
 
+        // Items in the manual input inventory, try to pull them in
+        if (this.inventoryInputManual.getStackInSlot(0) != null)
+        {
+            InventoryUtils.tryMoveAllItems(this.inventoryInputManual, this.inventoryInput);
+        }
+
         int slot1 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
         if (slot1 != -1)
         {
@@ -203,6 +208,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         // happen before reading the inventories!
         this.setFilterTier(tag.getByte("Tier"));
 
+        this.inventoryInputManual.deserializeNBT(tag);
         this.inventoryReset.deserializeNBT(tag);
         this.inventoryFilterItems.deserializeNBT(tag);
         this.inventoryFilterered.deserializeNBT(tag);
@@ -229,6 +235,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.writeItemsToNBT(nbt);
 
+        nbt.merge(this.inventoryInputManual.serializeNBT());
         nbt.merge(this.inventoryReset.serializeNBT());
         nbt.merge(this.inventoryFilterItems.serializeNBT());
         nbt.merge(this.inventoryFilterered.serializeNBT());
@@ -295,44 +302,13 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOtherOut, true, true);
     }
 
-    private class ItemHandlerWrapperInputModifiable implements IItemHandlerModifiable
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
     {
-        private final IItemHandler parent;
-
-        public ItemHandlerWrapperInputModifiable(IItemHandler parent)
+        // Manual input inventory
+        if (inventoryId == 9)
         {
-            this.parent = parent;
-        }
-
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack)
-        {
-            // This is a dummy method to satisfy the Container#putStack()
-            // Nothing will ever be stored in the virtual input slot itself anyway
-        }
-
-        @Override
-        public int getSlots()
-        {
-            return this.parent.getSlots();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.parent.getStackInSlot(slot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            return this.parent.insertItem(slot, stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return this.parent.extractItem(slot, amount, simulate);
+            this.scheduleBlockTick(1, true);
         }
     }
 
