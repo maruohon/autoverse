@@ -92,6 +92,19 @@ public class BlockFilter extends BlockAutoverseInventory
     }
 
     @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityFilter)
+        {
+            ((TileEntityFilter) te).dropInventories();
+            worldIn.updateComparatorOutputLevel(pos, this);
+        }
+
+        worldIn.removeTileEntity(pos);
+    }
+
+    @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);

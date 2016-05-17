@@ -5,9 +5,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
 
 public class EntityUtils
 {
+    public static void dropAllItemInWorld(World worldIn, BlockPos pos, IItemHandler inv, boolean dropFullStacks, boolean randomMotion)
+    {
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+            if (stack != null)
+            {
+                dropItemStacksInWorld(worldIn, pos, stack, -1, dropFullStacks, randomMotion);
+            }
+        }
+    }
+
     /**
      * Drops/spawns EntityItems to the world from the provided ItemStack stack.
      * The number of items dropped is dictated by the parameter amount.

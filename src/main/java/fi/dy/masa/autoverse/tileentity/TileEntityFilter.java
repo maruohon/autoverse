@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
@@ -23,6 +24,7 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityFilter extends TileEntityAutoverseInventory
@@ -75,6 +77,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public IItemHandler getResetInventory()
     {
         return this.inventoryReset;
+    }
+
+    public IItemHandler getResetSequenceBuffer()
+    {
+        return this.inventoryInput.getSequenceBuffer();
     }
 
     public IItemHandler getFilterItemsInventory()
@@ -261,6 +268,14 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return super.getCapability(capability, facing);
     }
 
+    public void dropInventories()
+    {
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryReset, true, true);
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterItems, true, true);
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterered, true, true);
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOtherOut, true, true);
+    }
+
     private class ItemHandlerWrapperInput implements IItemHandler, INBTSerializable<NBTTagCompound>
     {
         private final IItemHandler resetItems;
@@ -269,9 +284,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         private final IItemHandler othersOut;
         private final ItemStackHandlerBasic resetSequenceBuffer;
         private int slotPosition;
-        private int seqBufRead;
         private int seqBufWrite;
-        private int seqBufLength;
         private EnumMode mode;
 
         public ItemHandlerWrapperInput(
@@ -285,7 +298,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
             this.filteredOut = filteredOut;
             this.othersOut = othersOut;
             this.resetSequenceBuffer = new ItemStackHandlerBasic(this.resetItems.getSlots() + 1, 1, false, "InputItems");
-            this.seqBufLength = this.resetItems.getSlots();
             this.slotPosition = 0;
             this.mode = EnumMode.ACCEPT_RESET_ITEMS;
 
@@ -326,12 +338,16 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
             }
         }
 
+        public IItemHandler getSequenceBuffer()
+        {
+            return this.resetSequenceBuffer;
+        }
+
         @Override
         public NBTTagCompound serializeNBT()
         {
             NBTTagCompound tag = new NBTTagCompound();
-            tag.setByte("slotPos", (byte)this.slotPosition);
-            tag.setByte("SeqRd", (byte)this.seqBufRead);
+            tag.setByte("SlotPos", (byte)this.slotPosition);
             tag.setByte("SeqWr", (byte)this.seqBufWrite);
             tag.merge(this.resetSequenceBuffer.serializeNBT());
 
@@ -341,8 +357,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         @Override
         public void deserializeNBT(NBTTagCompound tag)
         {
-            this.slotPosition = tag.getByte("slotPos");
-            this.seqBufRead   = tag.getByte("SeqRd");
+            this.slotPosition = tag.getByte("SlotPos");
             this.seqBufWrite  = tag.getByte("SeqWr");
             this.resetSequenceBuffer.deserializeNBT(tag);
         }
@@ -365,23 +380,14 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
             return null;
         }
 
-        private int incrementSequenceBufferIndex(int index)
-        {
-            return (index + 1) % this.seqBufLength;
-        }
-
         private boolean sequenceBufferMatches(IItemHandler inv)
         {
-            int rd = this.seqBufRead;
-
-            for (int i = 0; i < inv.getSlots() && rd != this.seqBufWrite; i++)
+            for (int slot = 0; slot < inv.getSlots() && slot != this.seqBufWrite; slot++)
             {
-                if (InventoryUtils.areItemStacksEqual(this.resetSequenceBuffer.getStackInSlot(rd), inv.getStackInSlot(i)) == false)
+                if (InventoryUtils.areItemStacksEqual(this.resetSequenceBuffer.getStackInSlot(slot), inv.getStackInSlot(slot)) == false)
                 {
                     return false;
                 }
-
-                rd = this.incrementSequenceBufferIndex(rd);
             }
 
             return true;
@@ -389,29 +395,71 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         private int getNextSequenceStartIndex(IItemHandler inv)
         {
-            int rd = this.seqBufRead;
-
-            for (int i = 0; i < inv.getSlots() && rd != this.seqBufWrite; i++)
+            for (int slot = 1 ; slot < inv.getSlots() && slot < this.seqBufWrite; slot++)
             {
-                if (InventoryUtils.areItemStacksEqual(this.resetSequenceBuffer.getStackInSlot(rd), inv.getStackInSlot(0)) == true)
+                if (InventoryUtils.areItemStacksEqual(this.resetSequenceBuffer.getStackInSlot(slot), inv.getStackInSlot(0)) == true)
                 {
-                    return rd;
+                    return slot;
                 }
-
-                rd = this.incrementSequenceBufferIndex(rd);
             }
 
-            return rd;
+            return -1;
+        }
+
+        private void shiftSequenceBuffer(IItemHandlerModifiable inv)
+        {
+            // Find a valid start position
+            int rd = this.getNextSequenceStartIndex(inv);
+            int wr = 0;
+            int num = inv.getSlots();
+
+            if (rd >= 0)
+            {
+                // Shift the items starting from that valid start position, into the start of the buffer
+                while (wr < num && rd < num)
+                {
+                    if (rd == this.seqBufWrite)
+                    {
+                        this.seqBufWrite = wr;
+                        break;
+                    }
+                    inv.setStackInSlot(wr, inv.getStackInSlot(rd));
+                    rd++;
+                    wr++;
+                }
+            }
+            else
+            {
+                this.seqBufWrite = 0;
+            }
+
+            for ( ; wr < num; wr++)
+            {
+                inv.setStackInSlot(wr, null);
+            }
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            System.out.printf("%d : insert - simulate: %s slot: %d stack: %s mode: %s pos: %d\n", TileEntityFilter.this.getWorld().getTotalWorldTime(), simulate, slot, stack, this.mode, this.slotPosition);
+            System.out.printf("%d : insert - simulate: %s stack: %s mode: %s pos: %d\n",
+                    TileEntityFilter.this.getWorld().getTotalWorldTime(), simulate, stack, this.mode, this.slotPosition);
 
             switch (this.mode)
             {
                 case ACCEPT_RESET_ITEMS:
+                    if (this.resetItems.getStackInSlot(this.slotPosition) != null)
+                    {
+                        this.slotPosition = InventoryUtils.getFirstEmptySlot(this.resetItems);
+                        if (this.slotPosition == -1)
+                        {
+                            this.mode = EnumMode.ACCEPT_FILTER_ITEMS;
+                            this.slotPosition = 0;
+                        }
+
+                        break;
+                    }
+
                     stack = this.resetItems.insertItem(this.slotPosition, stack, simulate);
 
                     if (simulate == false && ++this.slotPosition >= this.resetItems.getSlots())
@@ -422,10 +470,25 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                     break;
 
                 case ACCEPT_FILTER_ITEMS:
+                    if (this.filterItems.getStackInSlot(this.slotPosition) != null)
+                    {
+                        System.out.printf("filt - item found\n");
+                        this.slotPosition = InventoryUtils.getFirstEmptySlot(this.filterItems);
+                        if (this.slotPosition == -1)
+                        {
+                            System.out.printf("filt - no empty slots\n");
+                            this.mode = EnumMode.SORT_ITEMS;
+                            this.slotPosition = 0;
+                        }
+
+                        break;
+                    }
+
                     stack = this.filterItems.insertItem(this.slotPosition, stack, simulate);
 
                     if (simulate == false && ++this.slotPosition >= this.filterItems.getSlots())
                     {
+                        System.out.printf("filt - last slot, sorting\n");
                         this.mode = EnumMode.SORT_ITEMS;
                         this.slotPosition = 0;
                     }
@@ -434,19 +497,18 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                 case SORT_ITEMS:
                     if (simulate == false)
                     {
-                        if (InventoryUtils.areItemStacksEqual(stack, this.resetItems.getStackInSlot(this.slotPosition)) == true)
+                        if (InventoryUtils.areItemStacksEqual(stack, this.resetItems.getStackInSlot(this.seqBufWrite)) == true)
                         {
                             // Already storing an input sequence, or on-the-fly matching a reset sequence and the current item
                             // is a possible new start to a reset sequence in case the currently matched sequence doesn't match
-                            if (this.seqBufRead != this.seqBufWrite || 
-                                (this.slotPosition > 0 && InventoryUtils.areItemStacksEqual(stack, this.resetItems.getStackInSlot(0))))
+                            //if (InventoryUtils.areItemStacksEqual(stack, this.resetItems.getStackInSlot(0)) == true)
                             {
                                 this.resetSequenceBuffer.setStackInSlot(this.seqBufWrite, stack.copy());
-                                this.seqBufWrite = this.incrementSequenceBufferIndex(this.seqBufWrite);
+                                this.seqBufWrite++;
                             }
 
                             System.out.printf("%d : rst match, slot: %d stack: %s mode: %s pos: %d\n", TileEntityFilter.this.getWorld().getTotalWorldTime(), slot, stack, this.mode, this.slotPosition);
-                            if (++this.slotPosition >= this.resetItems.getSlots())
+                            if (this.seqBufWrite >= this.resetItems.getSlots())
                             {
                                 System.out.printf("%d : RESET\n", TileEntityFilter.this.getWorld().getTotalWorldTime());
                                 // Dump the reset sequence inventory and the filter item inventory into the output inventory
@@ -454,23 +516,33 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                                 InventoryUtils.tryMoveAllItems(this.filterItems, this.othersOut);
                                 this.mode = EnumMode.RESET;
                                 this.slotPosition = 0;
-                                this.seqBufRead = 0;
                                 this.seqBufWrite = 0;
+
+                                for (int i = 0; i < this.resetSequenceBuffer.getSlots(); i++)
+                                {
+                                    this.resetSequenceBuffer.setStackInSlot(i, null);
+                                }
                             }
                         }
                         // Encountered an item that breaks the currently monitored sequence
-                        else if (this.slotPosition > 0)
+                        else if (this.seqBufWrite > 0)
                         {
-                            while (this.seqBufRead != this.seqBufWrite)
+                            // Add the latest item to the buffer, if it's a new start
+                            if (InventoryUtils.areItemStacksEqual(stack, this.resetItems.getStackInSlot(0)) == true)
                             {
-                                if (this.sequenceBufferMatches(this.resetSequenceBuffer) == false)
-                                {
-                                    this.seqBufRead = this.getNextSequenceStartIndex(this.resetSequenceBuffer);
-                                }
+                                this.resetSequenceBuffer.setStackInSlot(this.seqBufWrite++, stack.copy());
                             }
 
+                            do
+                            {
+                                System.out.printf("reset sequence broken, shifting buffer...\n");
+                                //this.seqBufRead = this.getNextSequenceStartIndex(this.resetSequenceBuffer);
+                                this.shiftSequenceBuffer(this.resetSequenceBuffer);
+                            } while (this.sequenceBufferMatches(this.resetSequenceBuffer) == false);
+
                             // Set the on-the-fly index to the amount of matching data in the sequence buffer
-                            this.slotPosition = (this.seqBufWrite - this.seqBufRead) % this.seqBufLength;
+                            //this.slotPosition = this.seqBufWrite;
+                            System.out.printf("reset sequence broken, new wr pos: %d\n", this.seqBufWrite);
                         }
 
                         TileEntityFilter.this.scheduleBlockTick(1);
@@ -491,6 +563,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                         this.mode = EnumMode.ACCEPT_RESET_ITEMS;
                     }
                     break;
+
                 default:
             }
 

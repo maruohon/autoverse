@@ -1,14 +1,18 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.autoverse.inventory.slot.SlotRange;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
 public class ContainerFilter extends ContainerCustomSlotClick
 {
     private final TileEntityFilter tefi;
+    private SlotRange sequenceBufferSlots;
 
     public ContainerFilter(EntityPlayer player, TileEntityFilter te)
     {
@@ -30,6 +34,15 @@ public class ContainerFilter extends ContainerCustomSlotClick
         for (int slot = 0; slot < inv.getSlots(); slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
+        }
+
+        inv = this.tefi.getResetSequenceBuffer();
+        this.sequenceBufferSlots = new SlotRange(this.inventorySlots.size(), inv.getSlots());
+
+        // Add the Reset Sequence slots
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + (slot + 5) * 18, posY));
         }
 
         posY = 62;
@@ -66,5 +79,16 @@ public class ContainerFilter extends ContainerCustomSlotClick
         }
 
         this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    {
+        if (this.sequenceBufferSlots.contains(slotNum) == true)
+        {
+            return null;
+        }
+
+        return super.slotClick(slotNum, dragType, clickType, player);
     }
 }

@@ -42,6 +42,9 @@ public class GuiFilter extends GuiAutoverse
             // Reset sequence slots
             this.drawTexturedModalRect(x + 43, y + 28, 7, 3, 2 * 18, 18);
 
+            // Reset sequence buffer slots
+            this.drawTexturedModalRect(x + 133, y + 28, 7, 3, 2 * 18, 18);
+
             // First row of filter slots
             this.drawTexturedModalRect(x + 25, y + 61, 7, 3, 8 * 18, 18);
 
@@ -51,7 +54,10 @@ public class GuiFilter extends GuiAutoverse
         else if (tier == 1)
         {
             // Reset sequence slots
-            this.drawTexturedModalRect(x + 61, y + 28, 7, 3, 1 * 18, 18);
+            this.drawTexturedModalRect(x + 61, y + 28, 7, 3, 18, 18);
+
+            // Reset sequence buffer slots
+            this.drawTexturedModalRect(x + 151, y + 28, 7, 3, 18, 18);
 
             // Second row of filter slots
             this.drawTexturedModalRect(x +  7, y + 79, 7, 3, 9 * 18, 18);
