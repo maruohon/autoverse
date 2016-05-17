@@ -80,11 +80,12 @@ public class TileEntityAutoverse extends TileEntity
 
     public void onBlockTick(IBlockState state, Random rand)
     {
+        this.tickScheduled = false;
     }
 
-    public void scheduleBlockTick(int delay)
+    public void scheduleBlockTick(int delay, boolean force)
     {
-        if (this.tickScheduled == false)
+        if (this.tickScheduled == false || force == true)
         {
             this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), delay);
             this.tickScheduled = true;

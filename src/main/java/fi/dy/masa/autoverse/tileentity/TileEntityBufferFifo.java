@@ -102,13 +102,15 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         if (state == true)
         {
-            this.scheduleBlockTick(1);
+            this.scheduleBlockTick(1, true);
         }
     }
 
     @Override
     public void onBlockTick(IBlockState state, Random rand)
     {
+        super.onBlockTick(state, rand);
+
         this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, true);
     }
 

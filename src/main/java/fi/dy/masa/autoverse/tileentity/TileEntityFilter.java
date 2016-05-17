@@ -141,14 +141,14 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         if (state == true)
         {
-            this.scheduleBlockTick(1);
+            this.scheduleBlockTick(1, true);
         }
     }
 
     @Override
     public void onBlockTick(IBlockState state, Random rand)
     {
-        this.tickScheduled = false;
+        super.onBlockTick(state, rand);
 
         int slot1 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
         if (slot1 != -1)
@@ -180,7 +180,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         // Lazy check for if there WERE some items, then schedule a new tick
         if (slot1 != -1 || slot2 != -1)
         {
-            this.scheduleBlockTick(4);
+            this.scheduleBlockTick(4, false);
         }
     }
 
@@ -549,7 +549,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                             //System.out.printf("reset sequence broken, new wr pos: %d\n", this.seqBufWrite);
                         }
 
-                        TileEntityFilter.this.scheduleBlockTick(1);
+                        TileEntityFilter.this.scheduleBlockTick(1, false);
                     }
 
                     if (InventoryUtils.getSlotOfFirstMatchingItemStack(this.filterItems, stack) != -1)

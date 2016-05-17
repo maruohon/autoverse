@@ -153,13 +153,6 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
                 return true;
             }
         }
-        else
-        {
-            if (Configs.disableSounds == false)
-            {
-                this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_FAIL, SoundCategory.BLOCKS, 0.3f, 1f);
-            }
-        }
 
         return true;
     }
