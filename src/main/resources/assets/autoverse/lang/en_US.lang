@@ -7,6 +7,7 @@ autoverse.commands.loadconfig.success=Autoverse: Loaded configuration
 autoverse.container.buffer_fifo=FIFO Buffer
 autoverse.container.buffer_fifo_pulsed=Pulsed FIFO Buffer
 autoverse.container.filter=Programmable Filter
+autoverse.container.filter_sequential=Sequential Prog. Filter
 
 autoverse.gui.label.filteritems=Filter items
 autoverse.gui.label.filteroutbuffer=Filtered items buffer
@@ -20,5 +21,7 @@ autoverse.tile.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
 autoverse.tile.filter_0.name=Programmable Filter (2R - 1F)
 autoverse.tile.filter_1.name=Programmable Filter (3R - 9F)
 autoverse.tile.filter_2.name=Programmable Filter (4R - 18F)
+autoverse.tile.filter_sequential_0.name=Sequential Programmable Filter (3R - 9F)
+autoverse.tile.filter_sequential_1.name=Sequential Programmable Filter (4R - 18F)
 
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description

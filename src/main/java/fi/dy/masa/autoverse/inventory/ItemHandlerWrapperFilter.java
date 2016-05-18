@@ -18,7 +18,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
     protected final IItemHandler filteredOut;
     protected final IItemHandler othersOut;
     protected final ItemStackHandlerBasic resetSequenceBuffer;
-    protected int slotPosition;
     protected int seqBufWrite;
     protected EnumMode mode;
 
@@ -36,7 +35,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
         this.te = te;
         this.resetSequenceBuffer = new ItemStackHandlerBasic(this.resetItems.getSlots(), 1, false, "MatchedItems");
         this.seqBufWrite = 0;
-        this.slotPosition = 0;
         this.mode = EnumMode.ACCEPT_RESET_ITEMS;
     }
 
@@ -59,7 +57,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound tag = new NBTTagCompound();
-        //tag.setByte("SlotPos", (byte)this.slotPosition);
         tag.setByte("SeqWr", (byte)this.seqBufWrite);
         tag.setByte("Mode", (byte)this.mode.getId());
         tag.merge(this.resetSequenceBuffer.serializeNBT());
@@ -70,7 +67,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
     @Override
     public void deserializeNBT(NBTTagCompound tag)
     {
-        //this.slotPosition = tag.getByte("SlotPos");
         this.seqBufWrite  = tag.getByte("SeqWr");
         this.mode = EnumMode.fromId(tag.getByte("Mode"));
         this.resetSequenceBuffer.deserializeNBT(tag);
@@ -177,6 +173,21 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
         return InventoryUtils.tryInsertItemStackToInventory(this.othersOut, stack, simulate);
     }
 
+    protected void reset(IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
+    {
+        //System.out.printf("=== RESET ===\n");
+        // Dump the reset sequence inventory and the filter item inventory into the output inventory
+        InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
+        InventoryUtils.tryMoveAllItems(this.filterItems, this.filteredOut);
+        this.mode = EnumMode.RESET;
+        this.seqBufWrite = 0;
+
+        for (int i = 0; i < invSequenceBuffer.getSlots(); i++)
+        {
+            invSequenceBuffer.setStackInSlot(i, null);
+        }
+    }
+
     protected void checkForSequenceMatch(ItemStack stack, IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
     {
         //System.out.printf("checking item at pos: %d\n", this.seqBufWrite);
@@ -189,18 +200,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
             if ((this.seqBufWrite + 1) >= invReferenceSequence.getSlots())
             {
-                //System.out.printf("=== RESET ===\n");
-                // Dump the reset sequence inventory and the filter item inventory into the output inventory
-                InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
-                InventoryUtils.tryMoveAllItems(this.filterItems, this.filteredOut);
-                this.mode = EnumMode.RESET;
-                this.seqBufWrite = 0;
-                //this.slotPosition = 0;
-
-                for (int i = 0; i < invSequenceBuffer.getSlots(); i++)
-                {
-                    invSequenceBuffer.setStackInSlot(i, null);
-                }
+                this.reset(invSequenceBuffer, invReferenceSequence);
             }
             else
             {

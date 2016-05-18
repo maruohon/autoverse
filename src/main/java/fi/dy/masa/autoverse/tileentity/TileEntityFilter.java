@@ -43,7 +43,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public TileEntityFilter()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_FILTER);
+        this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
+    }
+
+    public TileEntityFilter(String name)
+    {
+        super(name);
     }
 
     protected void initInventories()
@@ -57,8 +62,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         this.wrappedInventoryFilterered    = new ItemHandlerWrapperExtractOnly(this.inventoryFilterered);
         this.wrappedInventoryOtherOut      = new ItemHandlerWrapperExtractOnly(this.inventoryOtherOut);
-        this.inventoryInput                = new ItemHandlerWrapperFilter(this.inventoryReset, this.inventoryFilterItems,
-                                                this.inventoryFilterered, this.inventoryOtherOut, this);
+    }
+
+    protected void initFilterInventory()
+    {
+        this.inventoryInput = new ItemHandlerWrapperFilter(this.inventoryReset, this.inventoryFilterItems,
+                                     this.inventoryFilterered, this.inventoryOtherOut, this);
     }
 
     @Override
@@ -97,12 +106,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return this.inventoryOtherOut;
     }
 
-    private int getNumResetSlots()
+    protected int getNumResetSlots()
     {
         return 2 + this.getFilterTier();
     }
 
-    private int getNumFilterSlots()
+    protected int getNumFilterSlots()
     {
         int tier = this.getFilterTier();
         if (tier == 2)
@@ -123,6 +132,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.filterTier = MathHelper.clamp_int(tier, 0, 2);
 
         this.initInventories();
+        this.initFilterInventory();
     }
 
     @Override
@@ -322,8 +332,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return new ContainerFilter(player, this);
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
         return new GuiFilter(this.getContainer(player), this);

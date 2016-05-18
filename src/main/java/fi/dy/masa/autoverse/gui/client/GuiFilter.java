@@ -30,6 +30,11 @@ public class GuiFilter extends GuiAutoverse
         this.fontRendererObj.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
     }
 
+    protected int getTier()
+    {
+        return this.te.getFilterTier();
+    }
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
@@ -37,7 +42,7 @@ public class GuiFilter extends GuiAutoverse
 
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
-        int tier = this.te.getFilterTier();
+        int tier = this.getTier();
 
         // Cover the unavailable slots for the lower tier blocks (the GUI texture is for the highest tier variant)
         if (tier == 0)
