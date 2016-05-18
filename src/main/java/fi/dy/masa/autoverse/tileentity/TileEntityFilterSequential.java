@@ -31,11 +31,13 @@ public class TileEntityFilterSequential extends TileEntityFilter
         return this.inventoryInputSequential.getFilterPosition();
     }
 
+    @Override
     protected int getNumResetSlots()
     {
         return 3 + this.getFilterTier();
     }
 
+    @Override
     protected int getNumFilterSlots()
     {
         int tier = this.getFilterTier();

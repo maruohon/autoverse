@@ -35,6 +35,10 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
         super(name);
     }
 
+    protected void initInventories()
+    {
+    }
+
     public void setInventoryName(String name)
     {
         this.customInventoryName = name;

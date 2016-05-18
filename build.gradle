@@ -13,6 +13,9 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 ext.configFile = file "build.properties"
 
 configFile.withReader {
@@ -51,7 +54,7 @@ minecraft {
     }
 
     // For JEI
-    // useDepAts = true
+    useDepAts = true
 }
 
 dependencies {
@@ -78,6 +81,9 @@ processResources
     // Exclude the GIMP image files
     exclude '**/*.xcf'
 
+    // Exclude the Cubik model files
+    exclude '**/*.bdc3D'
+
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
@@ -96,33 +102,11 @@ processResources
     }
 
     // Move access transformers to META-INF
-    // rename '(' + config.mod_id + '_at.cfg)', 'META-INF/$1'
+    rename '(' + config.mod_id + '_at.cfg)', 'META-INF/$1'
 }
 
-/*
 jar {
     manifest {
         attributes 'FMLAT': config.mod_id + '_at.cfg'
     }
 }
-
-// This task creates a jar file containing the source files of this project
-task sourcesJar(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allSource
-    // This classifier is standard and should not be changed
-    classifier = 'sources'
-}
-
-// This task creates a jar file containing the unobfuscated class files of the project
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    // This classifier is standard and should not be changed
-    classifier = 'deobf'
-}
-
-// This section enables the last two tasks
-artifacts {
-    archives sourcesJar
-    archives deobfJar
-}
-*/

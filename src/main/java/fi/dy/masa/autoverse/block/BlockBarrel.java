@@ -1,0 +1,197 @@
+package fi.dy.masa.autoverse.block;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
+
+public class BlockBarrel extends BlockAutoverseInventory
+{
+    protected static final AxisAlignedBB BARREL_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 1.0D, 0.9375D);
+    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 15);
+
+    public BlockBarrel(String name, float hardness, int harvestLevel, Material material)
+    {
+        super(name, hardness, harvestLevel, material);
+
+        this.setDefaultState(this.blockState.getBaseState().withProperty(TIER, 0));
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState()
+    {
+        return new BlockStateContainer(this, new IProperty[] { TIER });
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        return BARREL_AABB;
+    }
+
+    @Override
+    public String[] getUnlocalizedNames()
+    {
+        String[] names = new String[16];
+
+        for (int i = 0; i < 16; i++)
+        {
+            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_" + i;
+        }
+
+        return names;
+    }
+
+    @Override
+    public String[] getItemBlockVariantStrings()
+    {
+        return null;
+    }
+
+    @Override
+    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    {
+        return new TileEntityBarrel();
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta)
+    {
+        //return this.getDefaultState().withProperty(TIER, meta & 0xF);
+        return this.getDefaultState();
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state)
+    {
+        //return state.getValue(TIER) & 0xF;
+        return 0;
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityBarrel)
+        {
+            return state.withProperty(TIER, ((TileEntityBarrel)te).getTier());
+        }
+
+        return state;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
+        super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);
+
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityBarrel)
+        {
+            ((TileEntityBarrel)te).setTier(stack.getMetadata());
+        }
+    }
+
+    @Override
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    {
+        if (willHarvest == true)
+        {
+            this.onBlockHarvested(world, pos, state, player);
+            return true;
+        }
+
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
+    {
+        // This will cascade down to getDrops()
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
+
+        worldIn.setBlockToAir(pos);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    {
+        List<ItemStack> items = new ArrayList<ItemStack>();
+
+        items.add(this.getDroppedItem(worldIn, pos, state, fortune));
+
+        return items;
+    }
+
+    @Override
+    public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
+    {
+        return this.getDroppedItem(worldIn, pos, state, 0);
+    }
+
+    protected ItemStack getDroppedItem(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    {
+        Random rand = worldIn instanceof World ? ((World)worldIn).rand : RANDOM;
+        TileEntity te = worldIn.getTileEntity(pos);
+
+        if (te instanceof TileEntityBarrel)
+        {
+            int meta = ((TileEntityBarrel)te).getTier() & 0xF;
+            ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, meta);
+            return ((TileEntityBarrel)te).addBlockEntityTag(stack);
+        }
+
+        return new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    {
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te instanceof TileEntityBarrel)
+        {
+            worldIn.updateComparatorOutputLevel(pos, this);
+        }
+
+        worldIn.removeTileEntity(pos);
+    }
+
+    @Override
+    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    {
+        for (int meta = 0; meta < 16; meta++)
+        {
+            list.add(new ItemStack(item, 1, meta));
+        }
+    }
+}

@@ -3,6 +3,8 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -28,6 +30,7 @@ public class TileEntityAutoverse extends TileEntity
     public TileEntityAutoverse(String name)
     {
         this.tileEntityName = name;
+        this.facing = EnumFacing.UP;
     }
 
     public String getTEName()
@@ -50,17 +53,24 @@ public class TileEntityAutoverse extends TileEntity
 
     protected Vec3d getSpawnedItemPosition()
     {
-        double x = this.getPos().getX() + 0.5 + this.facing.getFrontOffsetX() * 0.625;
-        double y = this.getPos().getY() + 0.5 + this.facing.getFrontOffsetY() * 0.5;
-        double z = this.getPos().getZ() + 0.5 + this.facing.getFrontOffsetZ() * 0.625;
+        return this.getSpawnedItemPosition(this.facing);
+    }
 
-        if (this.facing == EnumFacing.DOWN)
+    protected Vec3d getSpawnedItemPosition(EnumFacing side)
+    {
+        double x = this.getPos().getX() + 0.5 + side.getFrontOffsetX() * 0.625;
+        double y = this.getPos().getY() + 0.5 + side.getFrontOffsetY() * 0.5;
+        double z = this.getPos().getZ() + 0.5 + side.getFrontOffsetZ() * 0.625;
+
+        if (side == EnumFacing.DOWN)
         {
             y -= 0.25;
         }
 
         return new Vec3d(x, y, z);
     }
+
+    public void onLeftClickBlock(EntityPlayer player) { }
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
@@ -108,19 +118,46 @@ public class TileEntityAutoverse extends TileEntity
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public void writeToNBT(NBTTagCompound tag)
     {
-        super.writeToNBT(nbt);
+        super.writeToNBT(tag);
 
-        nbt.setString("Version", Reference.MOD_VERSION);
-        nbt.setByte("Facing", (byte)this.facing.getIndex());
-        nbt.setBoolean("Redstone", this.redstoneState);
+        tag.setString("Version", Reference.MOD_VERSION);
+        tag.setByte("Facing", (byte)this.facing.getIndex());
+        tag.setBoolean("Redstone", this.redstoneState);
     }
 
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    protected NBTTagCompound getBlockEntityTag()
     {
-        nbt.setByte("f", (byte)(this.getFacing().getIndex() & 0x07));
+        NBTTagCompound nbt = new NBTTagCompound();
+        this.writeToNBT(nbt);
+
+        nbt.removeTag("id");
+        nbt.removeTag("x");
+        nbt.removeTag("y");
+        nbt.removeTag("z");
+
         return nbt;
+    }
+
+    /**
+     * Adds the BlockEntityTag to the provided ItemStack, if one exists
+     */
+    public ItemStack addBlockEntityTag(ItemStack stack)
+    {
+        NBTTagCompound nbt = this.getBlockEntityTag();
+        if (nbt.hasNoTags() == false)
+        {
+            stack.setTagInfo("BlockEntityTag", nbt);
+        }
+
+        return stack;
+    }
+
+    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound tag)
+    {
+        tag.setByte("f", (byte)(this.getFacing().getIndex() & 0x07));
+        return tag;
     }
 
     @Override

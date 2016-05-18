@@ -51,6 +51,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super(name);
     }
 
+    @Override
     protected void initInventories()
     {
         this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,                        1,  1, false, "InputItems", this);

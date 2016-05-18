@@ -94,6 +94,10 @@ public class MessageSyncSlot implements IMessage
                 //System.out.printf("MessageSyncSlot slot: %d stack: %s\n", message.slotNum, message.stack);
                 inv.setStackInSlot(message.slotNum, message.stack);
             }
+            else if (message.windowId == player.openContainer.windowId)
+            {
+                player.openContainer.putStackInSlot(message.slotNum, message.stack);
+            }
         }
     }
 }

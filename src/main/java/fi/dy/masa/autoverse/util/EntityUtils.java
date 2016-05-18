@@ -1,8 +1,12 @@
 package fi.dy.masa.autoverse.util;
 
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -85,5 +89,26 @@ public class EntityUtils
 
             worldIn.spawnEntityInWorld(entityItem);
         }
+    }
+
+    public static RayTraceResult getRayTraceFromPlayer(World world, EntityPlayer player, boolean useLiquids)
+    {
+        Vec3d vec3d = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
+        float f2 = MathHelper.cos(player.rotationYaw * -0.017453292F - (float)Math.PI);
+        float f3 = MathHelper.sin(player.rotationYaw * -0.017453292F - (float)Math.PI);
+        float f4 = -MathHelper.cos(player.rotationPitch * -0.017453292F);
+        double f5 = MathHelper.sin(player.rotationPitch * -0.017453292F);
+        double f6 = f3 * f4;
+        double f7 = f2 * f4;
+        double reach = 5.0D;
+
+        if (player instanceof EntityPlayerMP)
+        {
+            reach = ((EntityPlayerMP) player).interactionManager.getBlockReachDistance();
+        }
+
+        Vec3d vec3d1 = vec3d.addVector(f6 * reach, f5 * reach, f7 * reach);
+
+        return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false);
     }
 }

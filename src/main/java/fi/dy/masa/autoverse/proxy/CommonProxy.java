@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
@@ -34,6 +35,7 @@ public class CommonProxy
 
     public void registerTileEntities()
     {
+        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
         this.registerTileEntity(TileEntityBufferFifo.class,             ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
         this.registerTileEntity(TileEntityBufferFifoPulsed.class,       ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
         this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_TILE_ENTITY_FILTER);

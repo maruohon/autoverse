@@ -58,6 +58,7 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
+        this.registerAllItemBlockModels(AutoverseBlocks.blockBarrel, "tier=", "");
         this.registerAllItemBlockModels(AutoverseBlocks.blockBuffer, "facing=north,type=", "");
         this.registerAllItemBlockModels(AutoverseBlocks.blockFilter, "facing=north,tier=", "");
         this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSequential, "facing=north,tier=", "");
@@ -79,7 +80,8 @@ public class ClientProxy extends CommonProxy
         {
             Item item = stack.getItem();
             int meta = stack.getMetadata();
-            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + names[meta] + variantPost);
+            String name = names != null ? names[meta] : String.valueOf(meta);
+            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + name + variantPost);
             ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }

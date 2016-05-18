@@ -43,6 +43,14 @@ public class GuiAutoverse extends GuiContainer
         this.drawTooltips(mouseX, mouseY);
     }
 
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
+    {
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        this.bindTexture(this.guiTexture);
+        this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
+    }
+
     protected void drawSpecialSlots()
     {
         RenderHelper.enableGUIStandardItemLighting();
@@ -83,14 +91,6 @@ public class GuiAutoverse extends GuiContainer
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
         //this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY, str);
-    }
-
-    @Override
-    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
-    {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        this.bindTexture(this.guiTexture);
-        this.drawTexturedModalRect(this.guiLeft, this.guiTop, this.backgroundU, this.backgroundV, this.xSize, this.ySize);
     }
 
     protected void drawTooltips(int mouseX, int mouseY)

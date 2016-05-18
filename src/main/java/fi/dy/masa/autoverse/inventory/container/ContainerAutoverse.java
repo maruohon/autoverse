@@ -92,6 +92,11 @@ public class ContainerAutoverse extends Container
         this.playerMainSlots = new MergeSlotRange(playerInvStart, 36);
     }
 
+    public IItemHandler getCustomInventory()
+    {
+        return this.te.getBaseItemHandler();
+    }
+
     /**
      * Adds a special slot to the Container, which can't be interacted with
      */

@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.block.base;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import fi.dy.masa.autoverse.block.BlockBarrel;
 import fi.dy.masa.autoverse.block.BlockBuffer;
 import fi.dy.masa.autoverse.block.BlockFilter;
 import fi.dy.masa.autoverse.block.BlockFilterSequential;
@@ -10,12 +11,14 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class AutoverseBlocks
 {
+    public static final BlockAutoverse blockBarrel = new BlockBarrel(ReferenceNames.NAME_BLOCK_BARREL, 4.0f, 1, Material.ROCK);
     public static final BlockAutoverse blockBuffer = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER, 4.0f, 1, Material.ROCK);
     public static final BlockAutoverse blockFilter = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER, 4.0f, 1, Material.ROCK);
     public static final BlockAutoverse blockFilterSequential = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL, 4.0f, 1, Material.ROCK);
 
     public static void init()
     {
+        registerBlock(blockBarrel, ReferenceNames.NAME_BLOCK_BARREL, false);
         registerBlock(blockBuffer, ReferenceNames.NAME_BLOCK_BUFFER, false);
         registerBlock(blockFilter, ReferenceNames.NAME_BLOCK_FILTER, false);
         registerBlock(blockFilterSequential, ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL, false);

@@ -57,12 +57,6 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        /*EnumMachineType type = state.getValue(TYPE);
-        switch (type)
-        {
-            case FILTER: return new TileEntityFilter();
-        }*/
-
         return new TileEntityFilter();
     }
 

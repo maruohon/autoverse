@@ -21,7 +21,7 @@ public class GuiBufferFifo extends GuiAutoverse
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 4, 0x404025);
+        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 4, 0x404040);
     }
 
     @Override

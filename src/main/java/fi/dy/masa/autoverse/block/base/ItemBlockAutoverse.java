@@ -52,8 +52,6 @@ public class ItemBlockAutoverse extends ItemBlock
         IBlockState state = world.getBlockState(pos);
         if (state.getBlock() == this.block)
         {
-            setTileEntityNBT(world, player, pos, stack);
-
             if (this.block instanceof BlockAutoverseTileEntity)
             {
                 ((BlockAutoverseTileEntity) this.block).onBlockPlacedBy(world, pos, side, state, player, stack);
@@ -62,6 +60,8 @@ public class ItemBlockAutoverse extends ItemBlock
             {
                 this.block.onBlockPlacedBy(world, pos, state, player, stack);
             }
+
+            setTileEntityNBT(world, player, pos, stack);
         }
 
         return true;

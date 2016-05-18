@@ -38,10 +38,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         this.initInventories();
     }
 
+    @Override
     protected void initInventories()
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.getBaseItemHandler());
+        this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.itemHandlerBase);
     }
 
     public int getInsertSlot()

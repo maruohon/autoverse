@@ -6,6 +6,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -54,6 +55,19 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
 
         //teav.setFacing(side.getOpposite());
         teav.setFacing(BlockPistonBase.getFacingFromEntity(pos, placer));
+    }
+
+    @Override
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn)
+    {
+        if (worldIn.isRemote == false)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+            if (te instanceof TileEntityAutoverse)
+            {
+                ((TileEntityAutoverse)te).onLeftClickBlock(playerIn);
+            }
+        }
     }
 
     public boolean isTileEntityValid(TileEntity te)
