@@ -221,8 +221,8 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return new ContainerBufferFifo(player, this);
     }
 
-    @Override
     @SideOnly(Side.CLIENT)
+    @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
         return new GuiBufferFifo(this.getContainer(player), this);

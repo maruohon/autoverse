@@ -14,6 +14,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
@@ -219,6 +221,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         return new ContainerBarrel(player, this);
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {

@@ -2,6 +2,8 @@ package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilterSequentialSmart;
@@ -72,6 +74,7 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
         }
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
