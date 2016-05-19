@@ -42,6 +42,12 @@ public class GuiFilter extends GuiAutoverse
 
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
+
+        this.coverSlots(x, y);
+    }
+
+    protected void coverSlots(int x, int y)
+    {
         int tier = this.getTier();
 
         // Cover the unavailable slots for the lower tier blocks (the GUI texture is for the highest tier variant)
@@ -50,7 +56,7 @@ public class GuiFilter extends GuiAutoverse
             // Reset sequence slots
             this.drawTexturedModalRect(x + 133, y + 15, 3, 33, 2 * 18, 18);
 
-            // Reset sequence buffer slots
+            // Reset sequence matcher slots
             this.drawTexturedModalRect(x + 133, y + 35, 3, 33, 2 * 18, 18);
 
             // First row of filter slots
@@ -66,7 +72,7 @@ public class GuiFilter extends GuiAutoverse
             // Reset sequence slots
             this.drawTexturedModalRect(x + 151, y + 15, 3, 33, 18, 18);
 
-            // Reset sequence buffer slots
+            // Reset sequence matcher slots
             this.drawTexturedModalRect(x + 151, y + 35, 3, 33, 18, 18);
 
             // Second row of filter slots

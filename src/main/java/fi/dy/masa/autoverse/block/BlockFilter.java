@@ -15,17 +15,22 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
-import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
 public class BlockFilter extends BlockAutoverseInventory
 {
-    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 2);
+    protected static final int NUM_TIERS = 3;
+    protected static final PropertyInteger TIER = PropertyInteger.create("tier", 0, NUM_TIERS - 1);
+    protected final Class <? extends TileEntityAutoverseInventory> teClass;
 
-    public BlockFilter(String name, float hardness, int harvestLevel, Material material)
+    public BlockFilter(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass)
     {
         super(name, hardness, harvestLevel, material);
+
+        this.teClass = teClass;
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TIER, 0)
@@ -39,37 +44,56 @@ public class BlockFilter extends BlockAutoverseInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    public void createUnlocalizedNames()
     {
-        return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_FILTER + "_0",
-                ReferenceNames.NAME_TILE_ENTITY_FILTER + "_1",
-                ReferenceNames.NAME_TILE_ENTITY_FILTER + "_2"
-        };
+        String[] names = new String[NUM_TIERS];
+
+        for (int i = 0; i < NUM_TIERS; i++)
+        {
+            names[i] = this.blockName + "_" + i;
+        }
+
+        this.unlocalizedNames = names;
     }
 
     @Override
     public String[] getItemBlockVariantStrings()
     {
-        return new String[] { "0", "1", "2" };
+        String[] strings = new String[NUM_TIERS];
+
+        for (int i = 0; i < NUM_TIERS; i++)
+        {
+            strings[i] = String.valueOf(i);
+        }
+
+        return strings;
     }
 
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        return new TileEntityFilter();
+        try
+        {
+            return this.teClass.newInstance();
+        }
+        catch (Throwable e)
+        {
+            Autoverse.logger.fatal("BlockFilter: Failed to create a TileEntity for " + this.teClass.getSimpleName());
+        }
+
+        return null;
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, meta & 0x3);
+        return this.getDefaultState().withProperty(TIER, meta);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER) & 0x3;
+        return state.getValue(TIER);
     }
 
     @Override
@@ -113,7 +137,7 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < 3; meta++)
+        for (int meta = 0; meta < NUM_TIERS; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
@@ -122,18 +146,6 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        /*EnumMachineType type = blockState.getValue(TYPE);
-        if (type == EnumMachineType.FILTER)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityFilter)
-            {
-                return InventoryUtils.calcRedstoneFromInventory(((TileEntityFilter)te).getBaseItemHandler());
-            }
-
-            return 0;
-        }*/
-
         return super.getComparatorInputOverride(blockState, worldIn, pos);
     }
 }

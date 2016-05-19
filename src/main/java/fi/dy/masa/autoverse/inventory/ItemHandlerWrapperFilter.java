@@ -2,17 +2,16 @@ package fi.dy.masa.autoverse.inventory;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<NBTTagCompound>
 {
-    protected final TileEntityAutoverse te;
+    protected final TileEntityFilter te;
     protected final IItemHandler resetItems;
     protected final IItemHandler filterItems;
     protected final IItemHandler filteredOut;
@@ -26,7 +25,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
             IItemHandler filterItems,
             IItemHandler filteredOut,
             IItemHandler othersOut,
-            TileEntityAutoverse te)
+            TileEntityFilter te)
     {
         this.resetItems = resetItems;
         this.filterItems = filterItems;
@@ -109,6 +108,10 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
             case SORT_ITEMS:
                 stack = this.sortItem(stack, simulate);
+                if (simulate == false)
+                {
+                    this.te.scheduleBlockTick(1, false);
+                }
                 break;
 
             case RESET:
@@ -230,8 +233,6 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
             //System.out.printf("reset sequence broken - new wr pos: %d\n", this.seqBufWrite);
         }
-
-        this.te.scheduleBlockTick(1, false);
     }
 
     protected boolean sequenceBufferMatches(IItemHandler invSequenceBuffer, IItemHandler invReference, int length)
@@ -309,7 +310,8 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
         ACCEPT_RESET_ITEMS (0),
         ACCEPT_FILTER_ITEMS (1),
         SORT_ITEMS (2),
-        RESET (3);
+        OUTPUT_ITEMS (3),
+        RESET (10);
 
         private final int id;
 
@@ -325,7 +327,15 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
         public static EnumMode fromId(int id)
         {
-            return values()[MathHelper.clamp_int(id, 0, values().length - 1)];
+            for (EnumMode mode : values())
+            {
+                if (mode.getId() == id)
+                {
+                    return mode;
+                }
+            }
+
+            return ACCEPT_RESET_ITEMS;
         }
     }
 }

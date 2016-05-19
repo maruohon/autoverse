@@ -5,6 +5,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 
 public class ContainerFilter extends ContainerCustomSlotClick
 {
@@ -63,9 +64,10 @@ public class ContainerFilter extends ContainerCustomSlotClick
 
         posY = 114;
         inv = this.tefi.getFilteredItemsInventory();
+        int num = this.tefi.getClass() == TileEntityFilterSequentialSmart.class && this.tefi.getFilterTier() == 0 ? 4 : 9;
 
         // Add the filter buffer slots
-        for (int slot = 0; slot < 9; slot++)
+        for (int slot = 0; slot < num; slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }

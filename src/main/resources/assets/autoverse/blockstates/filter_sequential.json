@@ -8,6 +8,16 @@
         "tier": {
             "0": {
                 "textures": {
+                    "front":    "autoverse:blocks/filter_sequential_0_out",
+                    "back":     "autoverse:blocks/filter_sequential_0_in",
+                    "top":      "autoverse:blocks/filter_sequential_0_side",
+                    "bottom":   "autoverse:blocks/filter_sequential_0_side",
+                    "left":     "autoverse:blocks/filter_sequential_0_side",
+                    "right":    "autoverse:blocks/filter_sequential_0_filter_out"
+                }
+            },
+            "1": {
+                "textures": {
                     "front":    "autoverse:blocks/filter_sequential_1_out",
                     "back":     "autoverse:blocks/filter_sequential_1_in",
                     "top":      "autoverse:blocks/filter_sequential_1_side",
@@ -16,7 +26,7 @@
                     "right":    "autoverse:blocks/filter_sequential_1_filter_out"
                 }
             },
-            "1": {
+            "2": {
                 "textures": {
                     "front":    "autoverse:blocks/filter_sequential_2_out",
                     "back":     "autoverse:blocks/filter_sequential_2_in",

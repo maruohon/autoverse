@@ -5,7 +5,7 @@ import net.minecraftforge.items.IItemHandler;
 
 public class ItemHandlerWrapperExtractOnly implements IItemHandler
 {
-    private final IItemHandler parent;
+    protected final IItemHandler parent;
 
     public ItemHandlerWrapperExtractOnly(IItemHandler baseInventory)
     {

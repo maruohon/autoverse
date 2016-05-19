@@ -13,23 +13,45 @@ public class GuiFilterSequential extends GuiFilter
         this.containerFS = container;
     }
 
-    @Override
-    protected int getTier()
+    protected void drawFilterPosition(int x, int y)
     {
-        return super.getTier() + 1;
-    }
-
-    @Override
-    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
-    {
-        super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
-
-        int x = ((this.width - this.xSize) / 2) + (this.containerFS.filterPosition % 9) * 18 + 7;
-        int y = ((this.height - this.ySize) / 2) + (this.containerFS.filterPosition / 9) * 18 + 65;
-
         this.bindTexture(this.guiTextureWidgets);
+
+        x += (this.containerFS.filterPosition % 9) * 18 + 7;
+        y += (this.containerFS.filterPosition / 9) * 18 + 65;
 
         // Draw the colored background for the currently checked filter item
         this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
+    }
+
+    @Override
+    protected void coverSlots(int x, int y)
+    {
+        int tier = this.getTier();
+
+        // Reset sequence slots
+        this.drawTexturedModalRect(x + 133 + tier * 18, y + 15, 3, 33, (2 - tier) * 18, 18);
+
+        // Reset sequence matcher slots
+        this.drawTexturedModalRect(x + 133 + tier * 18, y + 35, 3, 33, (2 - tier) * 18, 18);
+
+        // Cover the unavailable slots for the lower tier blocks (the GUI texture is for the highest tier variant)
+        if (tier == 0)
+        {
+            // First row of filter slots
+            this.drawTexturedModalRect(x +  79, y + 65, 3, 33, 5 * 18, 18);
+
+            // Second row of filter slots
+            this.drawTexturedModalRect(x +   7, y + 83, 3, 33, 5 * 18, 18);
+            this.drawTexturedModalRect(x +  97, y + 83, 3, 33, 4 * 18, 18);
+        }
+        else if (tier == 1)
+        {
+            // Second row of filter slots
+            this.drawTexturedModalRect(x +   7, y + 83, 3, 33, 5 * 18, 18);
+            this.drawTexturedModalRect(x +  97, y + 83, 3, 33, 4 * 18, 18);
+        }
+
+        this.drawFilterPosition(x, y);
     }
 }

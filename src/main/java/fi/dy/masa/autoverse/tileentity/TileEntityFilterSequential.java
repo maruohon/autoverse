@@ -15,7 +15,12 @@ public class TileEntityFilterSequential extends TileEntityFilter
 
     public TileEntityFilterSequential()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTTIAL);
+        this(ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
+    }
+
+    public TileEntityFilterSequential(String name)
+    {
+        super(name);
     }
 
     @Override
@@ -32,16 +37,15 @@ public class TileEntityFilterSequential extends TileEntityFilter
     }
 
     @Override
-    protected int getNumResetSlots()
-    {
-        return 3 + this.getFilterTier();
-    }
-
-    @Override
     protected int getNumFilterSlots()
     {
         int tier = this.getFilterTier();
-        return tier == 1 ? 18 : 9;
+        if (tier == 2)
+        {
+            return 18;
+        }
+
+        return tier == 1 ? 9 : 4;
     }
 
     @Override

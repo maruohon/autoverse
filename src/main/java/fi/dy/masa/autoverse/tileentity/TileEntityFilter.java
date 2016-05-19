@@ -44,6 +44,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public TileEntityFilter()
     {
         this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
+
+        //this.setFilterTier(2); // just-in-case init
     }
 
     public TileEntityFilter(String name)
@@ -54,11 +56,13 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,                        1,  1, false, "InputItems", this);
-        this.inventoryReset         = new ItemStackHandlerTileEntity(0, this.getNumResetSlots(),   1, false, "ResetItems", this);
-        this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1, this.getNumFilterSlots(),  1, false, "FilterItems", this);
-        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,                       27, 64, false, "FilteredItems", this);
-        this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3,                       13, 64, false, "OutputItems", this);
+        int rst = this.getNumResetSlots();
+        int flt = this.getNumFilterSlots();
+        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,             1,  1, false, "InputItems", this);
+        this.inventoryReset         = new ItemStackHandlerTileEntity(0,           rst,  1, false, "ResetItems", this);
+        this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1,           flt,  1, false, "FilterItems", this);
+        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,       flt + 9, 64, false, "FilteredItems", this);
+        this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3, rst + flt + 9, 64, false, "OutputItems", this);
         this.itemHandlerBase        = this.inventoryOtherOut;
 
         this.wrappedInventoryFilterered    = new ItemHandlerWrapperExtractOnly(this.inventoryFilterered);
@@ -69,6 +73,22 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         this.inventoryInput = new ItemHandlerWrapperFilter(this.inventoryReset, this.inventoryFilterItems,
                                      this.inventoryFilterered, this.inventoryOtherOut, this);
+    }
+
+    protected int getNumResetSlots()
+    {
+        return 2 + this.getFilterTier();
+    }
+
+    protected int getNumFilterSlots()
+    {
+        int tier = this.getFilterTier();
+        if (tier == 2)
+        {
+            return 18;
+        }
+
+        return tier == 1 ? 9 : 1;
     }
 
     @Override
@@ -105,22 +125,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public IItemHandler getOutputInventory()
     {
         return this.inventoryOtherOut;
-    }
-
-    protected int getNumResetSlots()
-    {
-        return 2 + this.getFilterTier();
-    }
-
-    protected int getNumFilterSlots()
-    {
-        int tier = this.getFilterTier();
-        if (tier == 2)
-        {
-            return 18;
-        }
-
-        return tier == 1 ? 9 : 1;
     }
 
     public int getFilterTier()
@@ -164,6 +168,45 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
+    protected boolean tryOutputNonMatchingItems()
+    {
+        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
+
+        if (slot != -1)
+        {
+            for ( ; slot < this.wrappedInventoryOtherOut.getSlots(); slot++)
+            {
+                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryOtherOut, slot,
+                        this.posFront, this.facingOpposite, this.redstoneState) == true)
+                {
+                    break;
+                }
+            }
+        }
+
+        return slot != -1;
+    }
+
+    protected boolean tryOutputFilteredItems()
+    {
+        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryFilterered);
+
+        if (slot != -1)
+        {
+            //System.out.printf("block tick - pos: %s\n", this.getPos());
+            for ( ; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
+            {
+                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot,
+                        this.posFilteredOut, this.facingFilteredOutOpposite, this.redstoneState) == true)
+                {
+                    break;
+                }
+            }
+        }
+
+        return slot != -1;
+    }
+
     @Override
     public void onBlockTick(IBlockState state, Random rand)
     {
@@ -175,39 +218,15 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
             InventoryUtils.tryMoveAllItems(this.inventoryInputManual, this.inventoryInput);
         }
 
-        int slot1 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
-        if (slot1 != -1)
-        {
-            for (int slot = slot1; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
-            {
-                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryOtherOut, slot,
-                        this.posFront, this.facingOpposite, this.redstoneState) == true)
-                {
-                    break;
-                }
-            }
-        }
-
-        int slot2 = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryFilterered);
-        if (slot2 != -1)
-        {
-            //System.out.printf("block tick - pos: %s\n", this.getPos());
-            for (int slot = slot2; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
-            {
-                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot,
-                        this.posFilteredOut, this.facingFilteredOutOpposite, this.redstoneState) == true)
-                {
-                    break;
-                }
-            }
-        }
+        boolean flag1 = this.tryOutputNonMatchingItems();
+        boolean flag2 = this.tryOutputFilteredItems();
 
         // Lazy check for if there WERE some items, then schedule a new tick
-        if (slot1 != -1 || slot2 != -1)
+        if (flag1 || flag2)
         {
             this.scheduleBlockTick(4, false);
         }
-        // The usefulness of this is questionable...
+        // The usefulness of this is questionable... It speeds up the transition from RESET by one item insertion attempt
         else if (this.inventoryInput.getMode() == ItemHandlerWrapperFilter.EnumMode.RESET)
         {
             this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.ACCEPT_RESET_ITEMS);

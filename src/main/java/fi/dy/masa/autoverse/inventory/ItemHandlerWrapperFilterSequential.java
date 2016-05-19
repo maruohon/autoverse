@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
@@ -12,7 +12,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     protected int filterPosition;
 
     public ItemHandlerWrapperFilterSequential(IItemHandler resetItems, IItemHandler filterItems,
-            IItemHandler filteredOut, IItemHandler othersOut, TileEntityAutoverse te)
+            IItemHandler filteredOut, IItemHandler othersOut, TileEntityFilter te)
     {
         super(resetItems, filterItems, filteredOut, othersOut, te);
     }

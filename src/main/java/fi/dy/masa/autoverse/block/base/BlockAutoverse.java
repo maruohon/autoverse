@@ -8,7 +8,7 @@ import fi.dy.masa.autoverse.gui.client.CreativeTab;
 
 public class BlockAutoverse extends Block
 {
-    protected String blockName;
+    protected final String blockName;
     protected String[] unlocalizedNames;
 
     public BlockAutoverse(String name, float hardness, int harvestLevel, Material material)
@@ -19,7 +19,7 @@ public class BlockAutoverse extends Block
         this.setCreativeTab(CreativeTab.AUTOVERSE_TAB);
         this.setSoundType(SoundType.STONE);
         this.blockName = name;
-        this.unlocalizedNames = this.getUnlocalizedNames();
+        this.createUnlocalizedNames();
     }
 
     @Override
@@ -28,9 +28,14 @@ public class BlockAutoverse extends Block
         return this.getMetaFromState(state);
     }
 
+    public void createUnlocalizedNames()
+    {
+        this.unlocalizedNames = new String[] { this.blockName };
+    }
+
     public String[] getUnlocalizedNames()
     {
-        return new String[] { this.blockName };
+        return this.unlocalizedNames;
     }
 
     public String[] getItemBlockVariantStrings()
