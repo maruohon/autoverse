@@ -32,7 +32,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting iCrafting)
+    public void addListener(ICrafting iCrafting)
     {
         if (this.listeners.contains(iCrafting))
         {
@@ -45,7 +45,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
             if (iCrafting instanceof EntityPlayerMP)
             {
                 this.syncAllSlots((EntityPlayerMP)iCrafting);
-                ((EntityPlayerMP)iCrafting).playerNetServerHandler.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
+                ((EntityPlayerMP)iCrafting).connection.sendPacket(new SPacketSetSlot(-1, -1, ((EntityPlayerMP)iCrafting).inventory.getItemStack()));
             }
 
             this.detectAndSendChanges();

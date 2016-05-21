@@ -123,7 +123,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting listener)
+    public void addListener(ICrafting listener)
     {
         if (this.listeners.contains(listener))
         {
@@ -135,7 +135,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             if (listener instanceof EntityPlayerMP)
             {
-                ((EntityPlayerMP)listener).playerNetServerHandler.sendPacket(
+                ((EntityPlayerMP)listener).connection.sendPacket(
                     new SPacketSetSlot(-1, -1, ((EntityPlayerMP)listener).inventory.getItemStack()));
             }
         }

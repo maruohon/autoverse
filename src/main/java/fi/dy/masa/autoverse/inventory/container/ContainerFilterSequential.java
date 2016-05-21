@@ -16,9 +16,9 @@ public class ContainerFilterSequential extends ContainerFilter
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting listener)
+    public void addListener(ICrafting listener)
     {
-        super.onCraftGuiOpened(listener);
+        super.addListener(listener);
 
         listener.sendProgressBarUpdate(this, 0, this.tefiseq.getFilterPosition());
     }

@@ -177,9 +177,9 @@ public class ContainerAutoverse extends Container
     }
 
     @Override
-    public void onCraftGuiOpened(ICrafting listener)
+    public void addListener(ICrafting listener)
     {
-        super.onCraftGuiOpened(listener);
+        super.addListener(listener);
 
         this.forceSyncSpecialSlots();
     }
