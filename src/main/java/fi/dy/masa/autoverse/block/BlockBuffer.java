@@ -44,7 +44,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public String[] getUnlocalizedNames()
+    protected String[] createUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO,
@@ -55,8 +55,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     @Override
     public TileEntity createTileEntity(World worldIn, IBlockState state)
     {
-        EnumMachineType type = state.getValue(TYPE);
-        switch (type)
+        switch (state.getValue(TYPE))
         {
             case FIFO:              return new TileEntityBufferFifo();
             case FIFO_PULSED:       return new TileEntityBufferFifoPulsed();

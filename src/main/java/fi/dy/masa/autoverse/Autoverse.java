@@ -19,7 +19,8 @@ import fi.dy.masa.autoverse.reference.Reference;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
     guiFactory = "fi.dy.masa.autoverse.config.AutoverseGuiFactory",
     updateJSON = "https://raw.githubusercontent.com/maruohon/autoverse/master/update.json",
-    acceptedMinecraftVersions = "1.9")
+    dependencies = "required-after:Forge@[12.17.0.1922,);",
+    acceptedMinecraftVersions = "1.9.4")
 public class Autoverse
 {
     @Instance(Reference.MOD_ID)

@@ -35,18 +35,18 @@ public class BlockFilter extends BlockAutoverseInventory
         this.teClass = teClass;
 
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(TIER, 0)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(TIER, 0));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TIER, FACING });
+        return new BlockStateContainer(this, new IProperty[] { FACING, TIER });
     }
 
     @Override
-    public void createUnlocalizedNames()
+    protected String[] createUnlocalizedNames()
     {
         String[] names = new String[NUM_TIERS];
 
@@ -55,7 +55,7 @@ public class BlockFilter extends BlockAutoverseInventory
             names[i] = this.blockName + "_" + i;
         }
 
-        this.unlocalizedNames = names;
+        return names;
     }
 
     @Override

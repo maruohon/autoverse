@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -166,7 +166,7 @@ public class ContainerAutoverse extends Container
 
             for (int i = 0; i < this.listeners.size(); i++)
             {
-                ICrafting listener = this.listeners.get(i);
+                IContainerListener listener = this.listeners.get(i);
                 if (listener instanceof EntityPlayerMP)
                 {
                     PacketHandler.INSTANCE.sendTo(
@@ -177,7 +177,7 @@ public class ContainerAutoverse extends Container
     }
 
     @Override
-    public void addListener(ICrafting listener)
+    public void addListener(IContainerListener listener)
     {
         super.addListener(listener);
 
@@ -201,7 +201,7 @@ public class ContainerAutoverse extends Container
 
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
-                    ICrafting listener = this.listeners.get(i);
+                    IContainerListener listener = this.listeners.get(i);
                     if (listener instanceof EntityPlayerMP)
                     {
                         PacketHandler.INSTANCE.sendTo(

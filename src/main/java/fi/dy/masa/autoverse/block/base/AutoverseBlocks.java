@@ -13,11 +13,11 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 
 public class AutoverseBlocks
 {
-    public static final BlockAutoverse blockBarrel = new BlockBarrel(ReferenceNames.NAME_BLOCK_BARREL, 4.0f, 1, Material.ROCK);
-    public static final BlockAutoverse blockBuffer = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER, 4.0f, 1, Material.ROCK);
-    public static final BlockAutoverse blockFilter = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER, 4.0f, 1, Material.ROCK, TileEntityFilter.class);
-    public static final BlockAutoverse blockFilterSeq = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL, 4.0f, 1, Material.ROCK, TileEntityFilterSequential.class);
-    public static final BlockAutoverse blockFilterSeqSmart = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER_SEQ_SMART, 4.0f, 1, Material.ROCK, TileEntityFilterSequentialSmart.class);
+    public static final BlockAutoverse blockBarrel = new BlockBarrel(ReferenceNames.NAME_BLOCK_BARREL, 4.0f, 1, Material.IRON);
+    public static final BlockAutoverse blockBuffer = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER, 4.0f, 1, Material.IRON);
+    public static final BlockAutoverse blockFilter = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER, 4.0f, 1, Material.IRON, TileEntityFilter.class);
+    public static final BlockAutoverse blockFilterSeq = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL, 4.0f, 1, Material.IRON, TileEntityFilterSequential.class);
+    public static final BlockAutoverse blockFilterSeqSmart = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER_SEQ_SMART, 4.0f, 1, Material.IRON, TileEntityFilterSequentialSmart.class);
 
     public static void init()
     {

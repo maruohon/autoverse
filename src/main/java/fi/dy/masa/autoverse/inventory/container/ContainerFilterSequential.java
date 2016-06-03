@@ -1,7 +1,7 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 
 public class ContainerFilterSequential extends ContainerFilter
@@ -16,7 +16,7 @@ public class ContainerFilterSequential extends ContainerFilter
     }
 
     @Override
-    public void addListener(ICrafting listener)
+    public void addListener(IContainerListener listener)
     {
         super.addListener(listener);
 
@@ -30,7 +30,7 @@ public class ContainerFilterSequential extends ContainerFilter
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting listener = this.listeners.get(i);
+            IContainerListener listener = this.listeners.get(i);
 
             if (this.tefiseq.getFilterPosition() != this.filterPosition)
             {

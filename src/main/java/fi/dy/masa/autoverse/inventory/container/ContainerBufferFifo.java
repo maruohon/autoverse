@@ -2,7 +2,7 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -66,7 +66,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             for (int i = 0; i < this.listeners.size(); i++)
             {
-                ICrafting listener = this.listeners.get(i);
+                IContainerListener listener = this.listeners.get(i);
 
                 if (listener instanceof EntityPlayerMP)
                 {
@@ -92,7 +92,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
                 for (int i = 0; i < this.listeners.size(); i++)
                 {
-                    ICrafting listener = this.listeners.get(i);
+                    IContainerListener listener = this.listeners.get(i);
 
                     if (listener instanceof EntityPlayerMP)
                     {
@@ -123,7 +123,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
     }
 
     @Override
-    public void addListener(ICrafting listener)
+    public void addListener(IContainerListener listener)
     {
         if (this.listeners.contains(listener))
         {
@@ -153,7 +153,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
     {
         for (int i = 0; i < this.listeners.size(); ++i)
         {
-            ICrafting listener = this.listeners.get(i);
+            IContainerListener listener = this.listeners.get(i);
 
             if (this.tefifo.getInsertSlot() != this.insertPos)
             {

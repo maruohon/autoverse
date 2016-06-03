@@ -4,8 +4,6 @@ import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -252,12 +250,14 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(tag);
+        super.writeToNBT(nbt);
 
-        tag.setByte("Tier", (byte)this.getFilterTier());
-        tag.merge(this.inventoryInput.serializeNBT());
+        nbt.setByte("Tier", (byte)this.getFilterTier());
+        nbt.merge(this.inventoryInput.serializeNBT());
+
+        return nbt;
     }
 
     @Override
@@ -278,23 +278,21 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound nbt)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        nbt = super.getDescriptionPacketTag(nbt);
-        nbt.setByte("t", (byte)this.getFilterTier());
-        nbt.setByte("m", (byte)this.inventoryInput.getMode().getId());
-        return nbt;
+        tag = super.getUpdatePacketTag(tag);
+        tag.setByte("t", (byte)this.getFilterTier());
+        tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
+        return tag;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
+        this.setFilterTier(tag.getByte("t"));
+        this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
 
-        this.setFilterTier(nbt.getByte("t"));
-        this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(nbt.getByte("m")));
-
-        super.onDataPacket(net, packet);
+        super.handleUpdateTag(tag);
     }
 
     @Override

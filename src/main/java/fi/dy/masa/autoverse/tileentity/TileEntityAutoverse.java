@@ -1,14 +1,13 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -118,13 +117,15 @@ public class TileEntityAutoverse extends TileEntity
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(tag);
+        super.writeToNBT(nbt);
 
-        tag.setString("Version", Reference.MOD_VERSION);
-        tag.setByte("Facing", (byte)this.facing.getIndex());
-        tag.setBoolean("Redstone", this.redstoneState);
+        nbt.setString("Version", Reference.MOD_VERSION);
+        nbt.setByte("Facing", (byte)this.facing.getIndex());
+        nbt.setBoolean("Redstone", this.redstoneState);
+
+        return nbt;
     }
 
     protected NBTTagCompound getBlockEntityTag()
@@ -154,35 +155,59 @@ public class TileEntityAutoverse extends TileEntity
         return stack;
     }
 
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound tag)
+    /**
+     * Get the data used for syncing the TileEntity to the client.
+     * The data returned from this method doesn't have the position,
+     * the position will be added in getUpdateTag() which calls this method.
+     */
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag.setByte("f", (byte)(this.getFacing().getIndex() & 0x07));
         return tag;
     }
 
     @Override
-    public Packet<INetHandlerPlayClient> getDescriptionPacket()
+    public NBTTagCompound getUpdateTag()
+    {
+        // The tag from this method is used for the initial chunk packet,
+        // and it needs to have the TE position!
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("x", this.getPos().getX());
+        nbt.setInteger("y", this.getPos().getY());
+        nbt.setInteger("z", this.getPos().getZ());
+
+        // Add the per-block data to the tag
+        return this.getUpdatePacketTag(nbt);
+    }
+
+    @Override
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         if (this.worldObj != null)
         {
-            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getDescriptionPacketTag(new NBTTagCompound()));
+            return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdatePacketTag(new NBTTagCompound()));
         }
 
         return null;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        NBTTagCompound nbt = packet.getNbtCompound();
-
-        if (nbt.hasKey("f") == true)
+        if (tag.hasKey("f") == true)
         {
-            this.setFacing(EnumFacing.getFront((byte)(nbt.getByte("f") & 0x07)));
+            this.setFacing(EnumFacing.getFront((byte)(tag.getByte("f") & 0x07)));
         }
 
         IBlockState state = this.worldObj.getBlockState(this.getPos());
         this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    {
+        this.handleUpdateTag(packet.getNbtCompound());
     }
 
     @Override

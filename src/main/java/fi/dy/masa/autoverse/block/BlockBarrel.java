@@ -40,6 +40,19 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
+    protected String[] createUnlocalizedNames()
+    {
+        String[] names = new String[16];
+
+        for (int i = 0; i < 16; i++)
+        {
+            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_" + i;
+        }
+
+        return names;
+    }
+
+    @Override
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] { TIER });
@@ -61,19 +74,6 @@ public class BlockBarrel extends BlockAutoverseInventory
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return BARREL_AABB;
-    }
-
-    @Override
-    public String[] getUnlocalizedNames()
-    {
-        String[] names = new String[16];
-
-        for (int i = 0; i < 16; i++)
-        {
-            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_" + i;
-        }
-
-        return names;
     }
 
     @Override

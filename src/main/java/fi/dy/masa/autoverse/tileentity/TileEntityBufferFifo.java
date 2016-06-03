@@ -90,12 +90,14 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
         nbt.setByte("InsertPos", (byte)this.insertSlot);
         nbt.setByte("ExtractPos", (byte)this.extractSlot);
+
+        return nbt;
     }
 
     @Override

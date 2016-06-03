@@ -7,8 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
@@ -140,11 +138,13 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
         nbt.setByte("Tier", (byte)this.tier);
+
+        return nbt;
     }
 
     @Override
@@ -156,19 +156,19 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     }
 
     @Override
-    public NBTTagCompound getDescriptionPacketTag(NBTTagCompound tag)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        tag = super.getDescriptionPacketTag(tag);
+        tag = super.getUpdatePacketTag(tag);
         tag.setByte("t", (byte)this.tier);
         return tag;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
+    public void handleUpdateTag(NBTTagCompound tag)
     {
-        super.onDataPacket(net, packet);
+        super.handleUpdateTag(tag);
 
-        this.setTier(packet.getNbtCompound().getByte("t"));
+        this.setTier(tag.getByte("t"));
     }
 
     private class ItemHandlerWrapperExternal implements IItemHandler

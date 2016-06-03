@@ -2,7 +2,7 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
@@ -32,7 +32,7 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
     }
 
     @Override
-    public void addListener(ICrafting iCrafting)
+    public void addListener(IContainerListener iCrafting)
     {
         if (this.listeners.contains(iCrafting))
         {
@@ -74,12 +74,12 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
                 prevStack = ItemStack.copyItemStack(currentStack);
                 this.inventoryItemStacks.set(slot, prevStack);
 
-                for (int j = 0; j < this.listeners.size(); ++j)
+                for (int i = 0; i < this.listeners.size(); ++i)
                 {
-                    ICrafting ic = (ICrafting)this.listeners.get(j);
-                    if (ic instanceof EntityPlayerMP)
+                    IContainerListener listener = this.listeners.get(i);
+                    if (listener instanceof EntityPlayerMP)
                     {
-                        EntityPlayerMP player = (EntityPlayerMP)ic;
+                        EntityPlayerMP player = (EntityPlayerMP)listener;
                         PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), player);
                     }
                 }
