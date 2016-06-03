@@ -46,6 +46,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
 
         //this.setFilterTier(2); // just-in-case init
+        this.initInventories();
     }
 
     public TileEntityFilter(String name)

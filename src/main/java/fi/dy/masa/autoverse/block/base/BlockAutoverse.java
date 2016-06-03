@@ -17,7 +17,7 @@ public class BlockAutoverse extends Block
         this.setHardness(hardness);
         this.setHarvestLevel("pickaxe", harvestLevel);
         this.setCreativeTab(CreativeTab.AUTOVERSE_TAB);
-        this.setSoundType(SoundType.STONE);
+        this.setSoundType(SoundType.METAL);
         this.blockName = name;
         this.createUnlocalizedNames();
     }

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -57,10 +57,12 @@ public class ItemAutoverse extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
+    @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
@@ -74,7 +76,7 @@ public class ItemAutoverse extends Item
 
             if (verbose == false && tmpList.size() > 1)
             {
-                list.add(I18n.translateToLocal("autoverse.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format("autoverse.tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -95,7 +97,7 @@ public class ItemAutoverse extends Item
             {
                 list.add(tmpList.get(0));
             }
-            list.add(I18n.translateToLocal("autoverse.tooltip.item.holdshift"));
+            list.add(I18n.format("autoverse.tooltip.item.holdshift"));
         }
         else
         {
@@ -103,9 +105,10 @@ public class ItemAutoverse extends Item
         }
     }
 
+    @SideOnly(Side.CLIENT)
     public static void addTooltips(String key, List<String> list, boolean verbose)
     {
-        String translated = I18n.translateToLocal(key);
+        String translated = I18n.format(key);
         // Translation found
         if (translated.equals(key) == false)
         {
@@ -125,6 +128,7 @@ public class ItemAutoverse extends Item
         }
     }
 
+    @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
