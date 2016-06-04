@@ -48,3 +48,5 @@ autoverse.tile.filter_sequential_smart_1.name=Smart Sequential Programmable Filt
 autoverse.tile.filter_sequential_smart_2.name=Smart Sequential Programmable Filter (4R - 18F)
 
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description
+autoverse.tooltip.item.storeditem=Stored item
+autoverse.tooltip.item.storedamount=Amount

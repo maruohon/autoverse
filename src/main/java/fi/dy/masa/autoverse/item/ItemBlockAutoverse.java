@@ -1,4 +1,4 @@
-package fi.dy.masa.autoverse.block.base;
+package fi.dy.masa.autoverse.item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +10,22 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.item.ItemAutoverse;
+import fi.dy.masa.autoverse.block.base.BlockAutoverse;
+import fi.dy.masa.autoverse.block.base.BlockAutoverseTileEntity;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class ItemBlockAutoverse extends ItemBlock
 {
+    public static final String PRE_BLUE = TextFormatting.BLUE.toString();
+    public static final String PRE_GREEN = TextFormatting.GREEN.toString();
+    public static final String RST_GRAY = TextFormatting.RESET.toString() + TextFormatting.GRAY.toString();
+    public static final String RST_WHITE = TextFormatting.RESET.toString() + TextFormatting.WHITE.toString();
+
     protected String[] blockNames;
 
     public ItemBlockAutoverse(Block block)
@@ -78,6 +85,14 @@ public class ItemBlockAutoverse extends ItemBlock
         return super.getUnlocalizedName(stack);
     }
 
+    /**
+     * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
+     */
+    @SideOnly(Side.CLIENT)
+    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    {
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
@@ -86,11 +101,11 @@ public class ItemBlockAutoverse extends ItemBlock
         boolean verbose = Autoverse.proxy.isShiftKeyDown();
 
         // "Fresh" items without NBT data: display the tips before the usual tooltip data
-        if (stack != null && stack.getTagCompound() == null)
+        if (stack.getTagCompound() == null)
         {
             this.addTooltips(stack, tmpList, verbose);
 
-            if (verbose == false && tmpList.size() > 2)
+            if (verbose == false && tmpList.size() > 1)
             {
                 list.add(I18n.format("autoverse.tooltip.item.holdshiftfordescription"));
             }
@@ -98,6 +113,26 @@ public class ItemBlockAutoverse extends ItemBlock
             {
                 list.addAll(tmpList);
             }
+        }
+
+        tmpList.clear();
+        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
+        // plus the "Hold Shift for more" tooltip.
+        if (verbose == false && tmpList.size() > 2)
+        {
+            tmpList.clear();
+            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            if (tmpList.size() > 0)
+            {
+                list.add(tmpList.get(0));
+            }
+            list.add(I18n.format("autoverse.tooltip.item.holdshift"));
+        }
+        else
+        {
+            list.addAll(tmpList);
         }
     }
 
