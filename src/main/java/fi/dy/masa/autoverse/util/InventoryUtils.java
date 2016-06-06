@@ -297,6 +297,53 @@ public class InventoryUtils
     }
 
     /**
+     * Tries to insert the given ItemStack stack to the target inventory.
+     * The return value is a stack of the remaining items that couldn't be inserted.
+     * If all items were successfully inserted, then null is returned.
+     */
+    public static ItemStack tryInsertItemStackToInventoryStackFirst(IItemHandler inv, ItemStack stackIn, boolean simulate)
+    {
+        return tryInsertItemStackToInventoryWithinSlotRangeStackFirst(inv, stackIn, new SlotRange(inv), simulate);
+    }
+
+    /**
+     * Tries to insert the given ItemStack stack to the target inventory, inside the given slot range.
+     * The return value is a stack of the remaining items that couldn't be inserted.
+     * If all items were successfully inserted, then null is returned.
+     */
+    public static ItemStack tryInsertItemStackToInventoryWithinSlotRangeStackFirst(IItemHandler inv, ItemStack stackIn, SlotRange slotRange, boolean simulate)
+    {
+        int max = Math.min(slotRange.lastInc, inv.getSlots() - 1);
+
+        // First try to add to existing stacks
+        for (int slot = slotRange.first; slot <= max; slot++)
+        {
+            if (inv.getStackInSlot(slot) != null)
+            {
+                stackIn = inv.insertItem(slot, stackIn, simulate);
+
+                if (stackIn == null)
+                {
+                    return null;
+                }
+            }
+        }
+
+        // Second round, try to add to any slot
+        for (int slot = slotRange.first; slot <= max; slot++)
+        {
+            stackIn = inv.insertItem(slot, stackIn, simulate);
+
+            if (stackIn == null)
+            {
+                return null;
+            }
+        }
+
+        return stackIn;
+    }
+
+    /**
      * Try insert the items in <b>stackIn</b> into existing stacks with identical items in the inventory <b>inv</b>.
      * @return null if all items were successfully inserted, otherwise the stack containing the remaining items
      */

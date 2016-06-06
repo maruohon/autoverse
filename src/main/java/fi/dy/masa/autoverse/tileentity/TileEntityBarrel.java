@@ -2,13 +2,17 @@ package fi.dy.masa.autoverse.tileentity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -27,8 +31,10 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBarrel extends TileEntityAutoverseInventory
 {
+    protected boolean isPulsed;
     protected int tier;
     protected final Map<UUID, Long> clickTimes;
+    private BlockPos posBottom;
 
     public TileEntityBarrel()
     {
@@ -42,7 +48,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     protected void initInventories()
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 1, this.getMaxStackSize(), true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperExternal(this.itemHandlerBase);
+        this.itemHandlerExternal = new ItemHandlerWrapperExternal(this.itemHandlerBase, this);
     }
 
     public void setTier(int tier)
@@ -56,9 +62,51 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         return this.tier;
     }
 
+    public void setIsPulsed(boolean isPulsed)
+    {
+        this.isPulsed = isPulsed;
+    }
+
+    public boolean isPulsed()
+    {
+        return this.isPulsed;
+    }
+
     public int getMaxStackSize()
     {
         return (int)Math.pow(2, this.tier);
+    }
+
+    @Override
+    public void onLoad()
+    {
+        this.posBottom = this.getPos().down();
+    }
+
+    @Override
+    protected void onRedstoneChange(boolean state)
+    {
+        if (this.isPulsed == true && state == true)
+        {
+            this.scheduleBlockTick(1, true);
+        }
+    }
+
+    @Override
+    public void onBlockTick(IBlockState state, Random rand)
+    {
+        super.onBlockTick(state, rand);
+
+        if (this.isPulsed)
+        {
+            this.pushItemsToAdjacentInventory(this.itemHandlerBase, 0, this.posBottom, EnumFacing.UP, true);
+        }
+    }
+
+    @Override
+    protected Vec3d getSpawnedItemPosition()
+    {
+        return this.getSpawnedItemPosition(EnumFacing.DOWN);
     }
 
     @Override
@@ -142,6 +190,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         super.writeToNBT(nbt);
 
+        nbt.setBoolean("Pulsed", this.isPulsed);
         nbt.setByte("Tier", (byte)this.tier);
 
         return nbt;
@@ -150,6 +199,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
+        this.isPulsed = nbt.getBoolean("Pulsed");
         this.setTier(nbt.getByte("Tier"));
 
         super.readFromNBTCustom(nbt);
@@ -159,7 +209,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag = super.getUpdatePacketTag(tag);
-        tag.setByte("t", (byte)this.tier);
+        tag.setByte("d", (byte)(this.tier | (this.isPulsed ? 0x10 : 0)));
         return tag;
     }
 
@@ -168,15 +218,19 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         super.handleUpdateTag(tag);
 
-        this.setTier(tag.getByte("t"));
+        byte data = tag.getByte("d");
+        this.setTier(data & 0xF);
+        this.setIsPulsed(data >= 16);
     }
 
     private class ItemHandlerWrapperExternal implements IItemHandler
     {
+        private final TileEntityBarrel te;
         private final IItemHandler parent;
 
-        public ItemHandlerWrapperExternal(IItemHandler parent)
+        public ItemHandlerWrapperExternal(IItemHandler parent, TileEntityBarrel te)
         {
+            this.te = te;
             this.parent = parent;
         }
 
@@ -195,7 +249,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            if (TileEntityBarrel.this.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
+            if (this.te.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
             {
                 return stack;
             }
@@ -206,7 +260,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            if (TileEntityBarrel.this.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
+            if (this.te.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
             {
                 return null;
             }

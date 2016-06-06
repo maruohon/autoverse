@@ -170,10 +170,10 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
         if (InventoryUtils.getSlotOfFirstMatchingItemStack(this.filterItems, stack) != -1)
         {
-            return InventoryUtils.tryInsertItemStackToInventory(this.filteredOut, stack, simulate);
+            return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stack, simulate);
         }
 
-        return InventoryUtils.tryInsertItemStackToInventory(this.othersOut, stack, simulate);
+        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
     }
 
     protected void reset(IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)

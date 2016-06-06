@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -30,23 +31,29 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
 public class BlockBarrel extends BlockAutoverseInventory
 {
     protected static final AxisAlignedBB BARREL_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 1.0D, 0.9375D);
+    public static final PropertyBool PULSED = PropertyBool.create("pulsed");
     public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 15);
 
     public BlockBarrel(String name, float hardness, int harvestLevel, Material material)
     {
         super(name, hardness, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(TIER, 0));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(PULSED, false).withProperty(TIER, 0));
     }
 
     @Override
     protected String[] createUnlocalizedNames()
     {
-        String[] names = new String[16];
+        String[] names = new String[32];
 
         for (int i = 0; i < 16; i++)
         {
             names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_" + i;
+        }
+
+        for (int i = 16; i < 32; i++)
+        {
+            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_pulsed_" + (i - 16);
         }
 
         return names;
@@ -55,7 +62,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TIER });
+        return new BlockStateContainer(this, new IProperty[] { PULSED, TIER });
     }
 
     @Override
@@ -108,7 +115,7 @@ public class BlockBarrel extends BlockAutoverseInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityBarrel)
         {
-            return state.withProperty(TIER, ((TileEntityBarrel)te).getTier());
+            return state.withProperty(PULSED, ((TileEntityBarrel) te).isPulsed()).withProperty(TIER, ((TileEntityBarrel) te).getTier());
         }
 
         return state;
@@ -122,7 +129,8 @@ public class BlockBarrel extends BlockAutoverseInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityBarrel)
         {
-            ((TileEntityBarrel)te).setTier(stack.getMetadata());
+            ((TileEntityBarrel) te).setTier(stack.getMetadata() & 0xF);
+            ((TileEntityBarrel) te).setIsPulsed(stack.getMetadata() >= 16);
         }
     }
 
@@ -170,9 +178,15 @@ public class BlockBarrel extends BlockAutoverseInventory
 
         if (te instanceof TileEntityBarrel)
         {
-            int meta = ((TileEntityBarrel)te).getTier() & 0xF;
+            int meta = ((TileEntityBarrel) te).getTier() & 0xF;
+
+            if (((TileEntityBarrel) te).isPulsed())
+            {
+                meta += 16;
+            }
+
             ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, meta);
-            return ((TileEntityBarrel)te).addBlockEntityTag(stack);
+            return ((TileEntityBarrel) te).addBlockEntityTag(stack);
         }
 
         return new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
@@ -206,7 +220,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < 16; meta++)
+        for (int meta = 0; meta < 32; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }

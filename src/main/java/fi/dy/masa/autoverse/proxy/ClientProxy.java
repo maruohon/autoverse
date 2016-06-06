@@ -58,7 +58,7 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
-        this.registerAllItemBlockModels(AutoverseBlocks.blockBarrel, "tier=", "");
+        this.registerBarrelItemBlockModels(AutoverseBlocks.blockBarrel);
         this.registerAllItemBlockModels(AutoverseBlocks.blockBuffer, "facing=north,type=", "");
         this.registerAllItemBlockModels(AutoverseBlocks.blockFilter, "facing=north,tier=", "");
         this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSeqSmart, "facing=north,tier=", "");
@@ -83,6 +83,22 @@ public class ClientProxy extends CommonProxy
             int meta = stack.getMetadata();
             String name = names != null ? names[meta] : String.valueOf(meta);
             ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + name + variantPost);
+            ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
+        }
+    }
+
+    private void registerBarrelItemBlockModels(BlockAutoverse blockIn)
+    {
+        List<ItemStack> stacks = new ArrayList<ItemStack>();
+        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
+
+        for (ItemStack stack : stacks)
+        {
+            Item item = stack.getItem();
+            int meta = stack.getMetadata();
+            int tier = meta & 0xF;
+            boolean pulsed = meta >= 16;
+            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), "pulsed=" + pulsed + ",tier=" + tier);
             ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }

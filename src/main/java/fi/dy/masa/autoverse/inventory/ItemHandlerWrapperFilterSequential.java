@@ -55,7 +55,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
             {
                 ItemStack stackTmp = stack.copy();
                 stackTmp.stackSize = 1;
-                stackTmp = InventoryUtils.tryInsertItemStackToInventory(this.filteredOut, stackTmp, simulate);
+                stackTmp = InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stackTmp, simulate);
 
                 if (stackTmp == null)
                 {
@@ -65,7 +65,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
             }
             else
             {
-                stack = InventoryUtils.tryInsertItemStackToInventory(this.filteredOut, stack, simulate);
+                stack = InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stack, simulate);
             }
 
             if (simulate == false && (stack == null || stack.stackSize < sizeOrig))
@@ -79,7 +79,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
             return stack;
         }
 
-        return InventoryUtils.tryInsertItemStackToInventory(this.othersOut, stack, simulate);
+        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
     }
 
     @Override

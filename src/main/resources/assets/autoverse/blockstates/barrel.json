@@ -5,6 +5,10 @@
         "transform": "forge:default-block"
     },
     "variants": {
+        "pulsed": {
+            "false": { },
+            "true": { "textures": { "side": "autoverse:blocks/barrel_side_pulsed" } }
+        },
         "tier": {
             "0":  { "textures": { "rim": "minecraft:blocks/wool_colored_white"      } },
             "1":  { "textures": { "rim": "minecraft:blocks/wool_colored_orange"     } },

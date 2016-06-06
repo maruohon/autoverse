@@ -123,11 +123,11 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
         {
             TileEntity te = this.worldObj.getTileEntity(pos);
             IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) : null;
+            stack = invSrc.extractItem(slot, 1, true);
 
-            if (inv != null)
+            if (inv != null && stack != null)
             {
                 // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
-                // TODO Add a version of the method that doesn't try to stack first
                 stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
 
                 if (stack == null)

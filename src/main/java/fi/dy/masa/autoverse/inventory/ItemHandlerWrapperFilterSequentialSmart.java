@@ -80,7 +80,7 @@ public class ItemHandlerWrapperFilterSequentialSmart extends ItemHandlerWrapperF
             return stack;
         }
 
-        return InventoryUtils.tryInsertItemStackToInventory(this.othersOut, stack, simulate);
+        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
     }
 
     protected int getValidPositionForItem(ItemStack stack)
