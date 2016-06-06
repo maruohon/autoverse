@@ -8,11 +8,15 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,16 +28,28 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
 public class BlockFilter extends BlockAutoverseInventory
 {
-    protected static final int NUM_TIERS = 3;
-    protected static final PropertyInteger TIER = PropertyInteger.create("tier", 0, NUM_TIERS - 1);
+    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 4);
     protected final Class <? extends TileEntityAutoverseInventory> teClass;
+    protected int tiers;
 
     public BlockFilter(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass)
+    {
+        this(name, hardness, harvestLevel, material, teClass, 5);
+    }
+
+    protected BlockFilter(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass, int tiers)
     {
         super(name, hardness, harvestLevel, material);
 
         this.teClass = teClass;
+        this.tiers = tiers;
+        this.unlocalizedNames = this.createUnlocalizedNames(); // Needs to happen after setting the tiers count
 
+        this.setFilterDefaultState();
+    }
+
+    protected void setFilterDefaultState()
+    {
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
                 .withProperty(TIER, 0));
@@ -43,47 +59,6 @@ public class BlockFilter extends BlockAutoverseInventory
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] { FACING, TIER });
-    }
-
-    @Override
-    protected String[] createUnlocalizedNames()
-    {
-        String[] names = new String[NUM_TIERS];
-
-        for (int i = 0; i < NUM_TIERS; i++)
-        {
-            names[i] = this.blockName + "_" + i;
-        }
-
-        return names;
-    }
-
-    @Override
-    public String[] getItemBlockVariantStrings()
-    {
-        String[] strings = new String[NUM_TIERS];
-
-        for (int i = 0; i < NUM_TIERS; i++)
-        {
-            strings[i] = String.valueOf(i);
-        }
-
-        return strings;
-    }
-
-    @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
-    {
-        try
-        {
-            return this.teClass.newInstance();
-        }
-        catch (Throwable e)
-        {
-            Autoverse.logger.fatal("BlockFilter: Failed to create a TileEntity for " + this.teClass.getSimpleName());
-        }
-
-        return null;
     }
 
     @Override
@@ -112,6 +87,47 @@ public class BlockFilter extends BlockAutoverseInventory
     }
 
     @Override
+    protected String[] createUnlocalizedNames()
+    {
+        String[] names = new String[this.tiers];
+
+        for (int i = 0; i < this.tiers; i++)
+        {
+            names[i] = this.blockName + "_" + i;
+        }
+
+        return names;
+    }
+
+    @Override
+    public String[] getItemBlockVariantStrings()
+    {
+        String[] strings = new String[this.tiers];
+
+        for (int i = 0; i < this.tiers; i++)
+        {
+            strings[i] = String.valueOf(i);
+        }
+
+        return strings;
+    }
+
+    @Override
+    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    {
+        try
+        {
+            return this.teClass.newInstance();
+        }
+        catch (Throwable e)
+        {
+            Autoverse.logger.fatal("BlockFilter: Failed to create a TileEntity for " + this.teClass.getSimpleName());
+        }
+
+        return null;
+    }
+
+    @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
     {
         TileEntity te = worldIn.getTileEntity(pos);
@@ -132,15 +148,38 @@ public class BlockFilter extends BlockAutoverseInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityFilter)
         {
-            ((TileEntityFilter)te).setFilterTier(stack.getMetadata());
+            int tier = MathHelper.clamp_int(stack.getMetadata() & 0xF, 0, this.tiers - 1);
+            ((TileEntityFilter) te).setFilterTier(tier);
         }
+    }
+
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (heldItem != null && heldItem.getItem() == Items.STICK)
+        {
+            if (worldIn.isRemote == false)
+            {
+                TileEntity te = worldIn.getTileEntity(pos);
+                if (te instanceof TileEntityFilter)
+                {
+                    ((TileEntityFilter) te).setFilterOutputSide(side);
+                    worldIn.notifyBlockUpdate(pos, state, state, 3);
+                }
+            }
+
+            return true;
+        }
+
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
     {
-        for (int meta = 0; meta < NUM_TIERS; meta++)
+        for (int meta = 0; meta < this.tiers; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
@@ -149,6 +188,7 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
+        // TODO
         return super.getComparatorInputOverride(blockState, worldIn, pos);
     }
 }

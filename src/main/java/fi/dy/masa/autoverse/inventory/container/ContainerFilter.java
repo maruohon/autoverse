@@ -5,7 +5,6 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 
 public class ContainerFilter extends ContainerCustomSlotClick
 {
@@ -37,7 +36,7 @@ public class ContainerFilter extends ContainerCustomSlotClick
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }
 
-        posY = 36;
+        posY = 34;
         inv = this.tefi.getResetSequenceBuffer();
 
         // Add the Reset Sequence matcher slots
@@ -47,7 +46,7 @@ public class ContainerFilter extends ContainerCustomSlotClick
         }
 
         posX = 8;
-        posY = 66;
+        posY = 56;
         inv = this.tefi.getFilterItemsInventory();
 
         // Add the Filter slots
@@ -62,21 +61,27 @@ public class ContainerFilter extends ContainerCustomSlotClick
             }
         }
 
-        posY = 114;
+        posY = 103;
         inv = this.tefi.getFilteredItemsInventory();
-        int num = this.tefi.getClass() == TileEntityFilterSequentialSmart.class && this.tefi.getFilterTier() == 0 ? 4 : 9;
+        //int num = this.tefi.getClass() == TileEntityFilterSequentialSmart.class && this.tefi.getFilterTier() == 0 ? 4 : 9;
+        //int num = this.tefi.getNumFilterSlots();
 
         // Add the filter buffer slots
-        for (int slot = 0; slot < num; slot++)
+        for (int slot = 0; slot < inv.getSlots(); slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
+            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + (slot % 9) * 18, posY));
+
+            if (slot == 8)
+            {
+                posY += 18;
+            }
         }
 
-        posY = 144;
+        posY = 151;
         inv = this.tefi.getOutputInventory();
 
         // Add the output buffer slots
-        for (int slot = 0; slot < 9; slot++)
+        for (int slot = 0; slot < 9 && slot < inv.getSlots(); slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }

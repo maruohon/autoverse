@@ -1,6 +1,7 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
@@ -31,21 +32,52 @@ public class TileEntityFilterSequential extends TileEntityFilter
         this.inventoryInput = this.inventoryInputSequential;
     }
 
+    @Override
+    public void setFilterTier(int tier)
+    {
+        this.filterTier = MathHelper.clamp_int(tier, 0, 2);
+
+        this.initInventories();
+        this.initFilterInventory();
+    }
+
     public int getFilterPosition()
     {
         return this.inventoryInputSequential.getFilterPosition();
     }
 
     @Override
-    protected int getNumFilterSlots()
+    protected int getFilterBufferSize()
+    {
+        return this.getNumFilterSlots();
+    }
+
+    @Override
+    public int getNumResetSlots()
     {
         int tier = this.getFilterTier();
-        if (tier == 2)
-        {
-            return 18;
-        }
 
-        return tier == 1 ? 9 : 4;
+        switch (tier)
+        {
+            case 0: return 2;
+            case 1: return 3;
+            case 2: return 4;
+            default: return 2;
+        }
+    }
+
+    @Override
+    public int getNumFilterSlots()
+    {
+        int tier = this.getFilterTier();
+
+        switch (tier)
+        {
+            case 0: return 4;
+            case 1: return 9;
+            case 2: return 18;
+            default: return 4;
+        }
     }
 
     @Override
@@ -58,6 +90,6 @@ public class TileEntityFilterSequential extends TileEntityFilter
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
-        return new GuiFilterSequential(this.getContainer(player), this);
+        return new GuiFilterSequential(this.getContainer(player), this, false);
     }
 }

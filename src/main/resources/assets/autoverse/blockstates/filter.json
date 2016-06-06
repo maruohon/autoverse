@@ -2,14 +2,14 @@
     "forge_marker": 1,
     "defaults": {
         "model": "autoverse:orientable_directional_individual",
-        "transform": "forge:default-block"
+        "transform": "forge:default-block",
+        "textures": { "back": "autoverse:blocks/filter_base" }
     },
     "variants": {
         "tier": {
             "0": {
                 "textures": {
                     "front":    "autoverse:blocks/filter_0_out",
-                    "back":     "autoverse:blocks/filter_0_in",
                     "top":      "autoverse:blocks/filter_0_side",
                     "bottom":   "autoverse:blocks/filter_0_side",
                     "left":     "autoverse:blocks/filter_0_side",
@@ -19,7 +19,6 @@
             "1": {
                 "textures": {
                     "front":    "autoverse:blocks/filter_1_out",
-                    "back":     "autoverse:blocks/filter_1_in",
                     "top":      "autoverse:blocks/filter_1_side",
                     "bottom":   "autoverse:blocks/filter_1_side",
                     "left":     "autoverse:blocks/filter_1_side",
@@ -29,11 +28,28 @@
             "2": {
                 "textures": {
                     "front":    "autoverse:blocks/filter_2_out",
-                    "back":     "autoverse:blocks/filter_2_in",
                     "top":      "autoverse:blocks/filter_2_side",
                     "bottom":   "autoverse:blocks/filter_2_side",
                     "left":     "autoverse:blocks/filter_2_side",
                     "right":    "autoverse:blocks/filter_2_filter_out"
+                }
+            },
+            "3": {
+                "textures": {
+                    "front":    "autoverse:blocks/filter_3_out",
+                    "top":      "autoverse:blocks/filter_3_side",
+                    "bottom":   "autoverse:blocks/filter_3_side",
+                    "left":     "autoverse:blocks/filter_3_side",
+                    "right":    "autoverse:blocks/filter_3_filter_out"
+                }
+            },
+            "4": {
+                "textures": {
+                    "front":    "autoverse:blocks/filter_4_out",
+                    "top":      "autoverse:blocks/filter_4_side",
+                    "bottom":   "autoverse:blocks/filter_4_side",
+                    "left":     "autoverse:blocks/filter_4_side",
+                    "right":    "autoverse:blocks/filter_4_filter_out"
                 }
             }
         },

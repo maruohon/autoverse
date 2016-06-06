@@ -22,12 +22,12 @@ public class GuiFilter extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
         this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.input"),              8,  35, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.resetsequence"),     42,  23, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  43, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  56, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8, 104, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.nonmatchoutbuffer"),  8, 134, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.resetsequence"),     42,  16, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  35, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  46, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8,  93, 0x404040);
+        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.nonmatchoutbuffer"),  8, 141, 0x404040);
+        //this.fontRendererObj.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
     }
 
     protected int getTier()
@@ -48,36 +48,39 @@ public class GuiFilter extends GuiAutoverse
 
     protected void coverSlots(int x, int y)
     {
-        int tier = this.getTier();
+        int resetSlots = this.te.getNumResetSlots();
+        int filterSlots = this.te.getNumFilterSlots();
 
-        // Cover the unavailable slots for the lower tier blocks (the GUI texture is for the highest tier variant)
-        if (tier == 0)
+        if (resetSlots < 4)
         {
             // Reset sequence slots
-            this.drawTexturedModalRect(x + 133, y + 15, 3, 33, 2 * 18, 18);
+            this.drawTexturedModalRect(x + 133 + (resetSlots - 2) * 18, y + 15, 3, 33, (4 - resetSlots) * 18, 18);
 
             // Reset sequence matcher slots
-            this.drawTexturedModalRect(x + 133, y + 35, 3, 33, 2 * 18, 18);
-
-            // First row of filter slots
-            this.drawTexturedModalRect(x +  25, y + 65, 3, 33, 5 * 18, 18);
-            this.drawTexturedModalRect(x + 115, y + 65, 3, 33, 3 * 18, 18);
-
-            // Second row of filter slots
-            this.drawTexturedModalRect(x +   7, y + 83, 3, 33, 5 * 18, 18);
-            this.drawTexturedModalRect(x +  97, y + 83, 3, 33, 4 * 18, 18);
+            this.drawTexturedModalRect(x + 133 + (resetSlots - 2) * 18, y + 33, 3, 33, (4 - resetSlots) * 18, 18);
         }
-        else if (tier == 1)
+
+        // First row of filter slots
+        for (int i = filterSlots; i < 9; i++)
         {
-            // Reset sequence slots
-            this.drawTexturedModalRect(x + 151, y + 15, 3, 33, 18, 18);
+            this.drawTexturedModalRect(x + 7 + i * 18, y + 55, 3, 33, 18, 18);
+        }
 
-            // Reset sequence matcher slots
-            this.drawTexturedModalRect(x + 151, y + 35, 3, 33, 18, 18);
-
+        if (filterSlots < 18)
+        {
             // Second row of filter slots
-            this.drawTexturedModalRect(x +   7, y + 83, 3, 33, 5 * 18, 18);
-            this.drawTexturedModalRect(x +  97, y + 83, 3, 33, 4 * 18, 18);
+            this.drawTexturedModalRect(x +   7, y + 73, 3, 33, 5 * 18, 18);
+            this.drawTexturedModalRect(x +  97, y + 73, 3, 33, 4 * 18, 18);
+
+            // Second row of filtered items buffer slots
+            this.drawTexturedModalRect(x +   7, y + 120, 3, 33, 5 * 18, 18);
+            this.drawTexturedModalRect(x +  97, y + 120, 3, 33, 4 * 18, 18);
+        }
+
+        // Filtered items buffer slots (first row)
+        for (int i = filterSlots; i < 9; i++)
+        {
+            this.drawTexturedModalRect(x + 7 + i * 18, y + 102, 3, 33, 18, 18);
         }
     }
 }

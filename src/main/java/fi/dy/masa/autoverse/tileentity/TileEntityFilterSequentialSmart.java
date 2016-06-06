@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiFilterSequentialSmart;
+import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperExtractOnly;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter.EnumMode;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilterSequentialSmart;
@@ -78,6 +78,6 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
-        return new GuiFilterSequentialSmart(this.getContainer(player), this);
+        return new GuiFilterSequential(this.getContainer(player), this, true);
     }
 }

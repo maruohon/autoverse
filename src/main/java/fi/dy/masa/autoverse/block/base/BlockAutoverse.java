@@ -13,7 +13,7 @@ public class BlockAutoverse extends Block
 {
     public static final PropertyDirection FACING = BlockProperties.FACING;
 
-    protected final String blockName;
+    public final String blockName;
     protected String[] unlocalizedNames;
 
     public BlockAutoverse(String name, float hardness, int harvestLevel, Material material)
