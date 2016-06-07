@@ -1,8 +1,10 @@
 package fi.dy.masa.autoverse.block;
 
 import java.util.List;
+import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -28,6 +30,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
 public class BlockFilter extends BlockAutoverseInventory
 {
+    public static final PropertyDirection FACING_FILTER = PropertyDirection.create("facing_filter");
     public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 4);
     protected final Class <? extends TileEntityAutoverseInventory> teClass;
     protected int tiers;
@@ -52,13 +55,14 @@ public class BlockFilter extends BlockAutoverseInventory
     {
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(FACING_FILTER, EnumFacing.EAST)
                 .withProperty(TIER, 0));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TIER });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, TIER });
     }
 
     @Override
@@ -80,7 +84,10 @@ public class BlockFilter extends BlockAutoverseInventory
         if (te instanceof TileEntityFilter)
         {
             TileEntityFilter tefi = (TileEntityFilter)te;
-            state = state.withProperty(FACING, tefi.getFacing()).withProperty(TIER, tefi.getFilterTier());
+            state = state
+                    .withProperty(FACING,           tefi.getFacing())
+                    .withProperty(FACING_FILTER,    tefi.getFilterOutRelativeFacing())
+                    .withProperty(TIER,             tefi.getFilterTier());
         }
 
         return state;
@@ -150,6 +157,23 @@ public class BlockFilter extends BlockAutoverseInventory
         {
             int tier = MathHelper.clamp_int(stack.getMetadata() & 0xF, 0, this.tiers - 1);
             ((TileEntityFilter) te).setFilterTier(tier);
+
+            EnumFacing filterFacing = BlockPistonBase.getFacingFromEntity(pos, placer);
+            if (filterFacing.getAxis().isVertical())
+            {
+                filterFacing = placer.getHorizontalFacing().rotateY();
+            }
+            else
+            {
+                filterFacing = filterFacing.rotateYCCW();
+            }
+
+            /*if (placer.isSneaking())
+            {
+                filterFacing = filterFacing.getOpposite();
+            }*/
+
+            ((TileEntityFilter) te).setFilterOutputSide(filterFacing);
         }
     }
 

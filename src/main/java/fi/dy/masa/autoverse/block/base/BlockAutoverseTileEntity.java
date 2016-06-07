@@ -48,8 +48,14 @@ public class BlockAutoverseTileEntity extends BlockAutoverse
             ((TileEntityAutoverseInventory)teav).setInventoryName(stack.getDisplayName());
         }
 
-        //teav.setFacing(side.getOpposite());
-        teav.setFacing(BlockPistonBase.getFacingFromEntity(pos, placer));
+        EnumFacing facing = BlockPistonBase.getFacingFromEntity(pos, placer);
+
+        /*if (placer.isSneaking())
+        {
+            facing = facing.getOpposite();
+        }*/
+
+        teav.setFacing(facing);
     }
 
     @Override

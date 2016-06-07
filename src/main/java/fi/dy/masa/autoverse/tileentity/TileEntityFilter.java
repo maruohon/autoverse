@@ -21,6 +21,7 @@ import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
+import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityFilter extends TileEntityAutoverseInventory
 {
@@ -42,7 +43,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
 
-        //this.setFilterTier(2); // just-in-case init
+        this.facingFilteredOut = EnumFacing.WEST;
         this.initInventories();
     }
 
@@ -109,12 +110,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
-    public void setFilterOutputSide(EnumFacing side)
-    {
-        this.facingFilteredOut = side;
-        this.posFilteredOut = this.getPos().offset(side);
-    }
-
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
@@ -164,22 +159,39 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.initFilterInventory();
     }
 
-    @Override
-    public void setFacing(EnumFacing facing)
+    public void setFilterOutputSide(EnumFacing side)
     {
-        super.setFacing(facing);
-
-        if (facing.getAxis().isHorizontal() == true)
+        if (side != this.facing)
         {
-            this.facingFilteredOut = facing.rotateYCCW();
+            this.facingFilteredOut = side;
+            this.posFilteredOut = this.getPos().offset(side);
         }
-        else
-        {
-            // FIXME add 24-way rotation?
-            this.facingFilteredOut = EnumFacing.WEST;
-        }
+    }
 
-        this.posFilteredOut = this.getPos().offset(this.facingFilteredOut);
+    public EnumFacing getFilterOutRelativeFacing()
+    {
+        switch (this.facing)
+        {
+            // North is the default model rotation, don't modify the filter-out for this facing
+            case NORTH: return this.facingFilteredOut;
+            case SOUTH:
+                if (this.facingFilteredOut.getAxis().isHorizontal())
+                {
+                    return this.facingFilteredOut.getOpposite();
+                }
+                return this.facingFilteredOut;
+            default:
+                EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, this.facing).getOpposite();
+
+                if (this.facingFilteredOut.getAxis() != axis.getAxis())
+                {
+                    EnumFacing result = PositionUtils.rotateAround(this.facingFilteredOut, axis);
+                    //System.out.printf("facing: %s axis: %s filter: %s result: %s\n", facing, axis, facingFilteredOut, result);
+                    return result;
+                }
+
+                return facingFilteredOut;
+        }
     }
 
     @Override
@@ -289,6 +301,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
+        // Do nothing here, see readFromNBTCustom() above...
     }
 
     @Override
@@ -306,17 +319,24 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        tag = super.getUpdatePacketTag(tag);
+        //tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
+        tag.setByte("f", (byte)((this.facingFilteredOut.getIndex() << 4) | this.facing.getIndex()));
         tag.setByte("t", (byte)this.getFilterTier());
-        tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
         return tag;
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
+        //this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
+        int facings = tag.getByte("f");
+        this.setFacing(EnumFacing.getFront(facings & 0x7));
+        this.setFilterOutputSide(EnumFacing.getFront(facings >> 4));
+
         this.setFilterTier(tag.getByte("t"));
-        this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
+
+        IBlockState state = this.worldObj.getBlockState(this.getPos());
+        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
 
         super.handleUpdateTag(tag);
     }

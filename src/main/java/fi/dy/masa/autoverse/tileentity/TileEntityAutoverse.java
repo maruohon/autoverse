@@ -22,7 +22,6 @@ public class TileEntityAutoverse extends TileEntity
     protected EnumFacing facing;
     protected EnumFacing facingOpposite;
     protected BlockPos posFront;
-    //protected BlockPos posBack;
     protected boolean redstoneState;
     protected boolean tickScheduled;
 
@@ -40,9 +39,8 @@ public class TileEntityAutoverse extends TileEntity
     public void setFacing(EnumFacing facing)
     {
         this.facing = facing;
-        this.facingOpposite = this.facing.getOpposite();
-        this.posFront = this.getPos().offset(this.facing);
-        //this.posBack = this.getPos().offset(this.facingOpposite);
+        this.facingOpposite = facing.getOpposite();
+        this.posFront = this.getPos().offset(facing);
     }
 
     public EnumFacing getFacing()
@@ -198,10 +196,9 @@ public class TileEntityAutoverse extends TileEntity
         if (tag.hasKey("f") == true)
         {
             this.setFacing(EnumFacing.getFront((byte)(tag.getByte("f") & 0x07)));
+            IBlockState state = this.worldObj.getBlockState(this.getPos());
+            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
         }
-
-        IBlockState state = this.worldObj.getBlockState(this.getPos());
-        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     @Override

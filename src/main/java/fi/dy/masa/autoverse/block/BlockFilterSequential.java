@@ -20,23 +20,21 @@ public class BlockFilterSequential extends BlockFilter
     public BlockFilterSequential(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass)
     {
         super(name, hardness, harvestLevel, material, teClass, NUM_TIERS);
-
-        this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(FACING, EnumFacing.NORTH)
-                .withProperty(TIER, 0));
     }
 
+    @Override
     protected void setFilterDefaultState()
     {
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(FACING_FILTER, EnumFacing.EAST)
                 .withProperty(TIER, 0));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TIER });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, TIER });
     }
 
     @Override
@@ -58,7 +56,10 @@ public class BlockFilterSequential extends BlockFilter
         if (te instanceof TileEntityFilter)
         {
             TileEntityFilter tefi = (TileEntityFilter)te;
-            state = state.withProperty(FACING, tefi.getFacing()).withProperty(TIER, tefi.getFilterTier());
+            state = state
+                    .withProperty(FACING,           tefi.getFacing())
+                    .withProperty(FACING_FILTER,    tefi.getFilterOutRelativeFacing())
+                    .withProperty(TIER,             tefi.getFilterTier());
         }
 
         return state;

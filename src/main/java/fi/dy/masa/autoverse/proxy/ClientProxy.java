@@ -60,9 +60,9 @@ public class ClientProxy extends CommonProxy
     {
         this.registerBarrelItemBlockModels(AutoverseBlocks.blockBarrel);
         this.registerAllItemBlockModels(AutoverseBlocks.blockBuffer, "facing=north,type=", "");
-        this.registerAllItemBlockModels(AutoverseBlocks.blockFilter, "facing=north,tier=", "");
-        this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSeqSmart, "facing=north,tier=", "");
-        this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSeq, "facing=north,tier=", "");
+        this.registerAllItemBlockModels(AutoverseBlocks.blockFilter, "facing=north,facing_filter=east,tier=", "");
+        this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSeqSmart, "facing=north,facing_filter=east,tier=", "");
+        this.registerAllItemBlockModels(AutoverseBlocks.blockFilterSeq, "facing=north,facing_filter=east,tier=", "");
     }
 
     /*private void registerItemBlockModel(BlockAutoverse blockIn, int meta, String fullVariant)

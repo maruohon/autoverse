@@ -63,8 +63,6 @@ public class ContainerFilter extends ContainerCustomSlotClick
 
         posY = 103;
         inv = this.tefi.getFilteredItemsInventory();
-        //int num = this.tefi.getClass() == TileEntityFilterSequentialSmart.class && this.tefi.getFilterTier() == 0 ? 4 : 9;
-        //int num = this.tefi.getNumFilterSlots();
 
         // Add the filter buffer slots
         for (int slot = 0; slot < inv.getSlots(); slot++)
