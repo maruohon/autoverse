@@ -5,7 +5,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -13,7 +12,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelective;
+import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
@@ -22,6 +21,7 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
     public static final int NUM_SLOTS = 26; // FIXME debug: change back to 117
+    private ItemHandlerWrapperFifo itemHandlerFifo;
 
     protected int insertSlot;
     protected int extractSlot;
@@ -42,9 +42,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     protected void initInventories()
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperFifo(this.itemHandlerBase);
+        this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
+        this.itemHandlerExternal = this.itemHandlerFifo;
     }
 
+    // These are only used for the GUI
     public int getInsertSlot()
     {
         return this.insertSlot;
@@ -65,6 +67,11 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         this.extractSlot = slot;
     }
 
+    public ItemHandlerWrapperFifo getFifoInventory()
+    {
+        return this.itemHandlerFifo;
+    }
+
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
@@ -74,30 +81,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         }
 
         return this.getBaseItemHandler();
-    }
-
-    @Override
-    public void readFromNBTCustom(NBTTagCompound nbt)
-    {
-        super.readFromNBTCustom(nbt);
-
-        this.insertSlot = nbt.getByte("InsertPos");
-
-        if (nbt.hasKey("ExtractPos", Constants.NBT.TAG_BYTE) == true)
-        {
-            this.extractSlot = nbt.getByte("ExtractPos");
-        }
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
-        super.writeToNBT(nbt);
-
-        nbt.setByte("InsertPos", (byte)this.insertSlot);
-        nbt.setByte("ExtractPos", (byte)this.extractSlot);
-
-        return nbt;
     }
 
     @Override
@@ -130,57 +113,16 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return slot;
     }
 
-    private class ItemHandlerWrapperFifo extends ItemHandlerWrapperSelective
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        public ItemHandlerWrapperFifo(IItemHandler baseHandler)
-        {
-            super(baseHandler);
-        }
+        this.itemHandlerFifo.deserializeNBT(nbt);
+    }
 
-        @Override
-        public int getSlots()
-        {
-            return 1;
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return super.getStackInSlot(TileEntityBufferFifo.this.extractSlot);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (stack == null)
-            {
-                return null;
-            }
-
-            int sizeOrig = stack.stackSize;
-
-            ItemStack stackRet = super.insertItem(TileEntityBufferFifo.this.insertSlot, stack, simulate);
-
-            if (simulate == false && (stackRet == null || stackRet.stackSize != sizeOrig) && ++TileEntityBufferFifo.this.insertSlot >= super.getSlots())
-            {
-                TileEntityBufferFifo.this.insertSlot = 0;
-            }
-
-            return stackRet;
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            ItemStack stackRet = super.extractItem(TileEntityBufferFifo.this.extractSlot, amount, simulate);
-
-            if (simulate == false && stackRet != null && ++TileEntityBufferFifo.this.extractSlot >= super.getSlots())
-            {
-                TileEntityBufferFifo.this.extractSlot = 0;
-            }
-
-            return stackRet;
-        }
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        nbt.merge(this.itemHandlerFifo.serializeNBT());
     }
 
     private class ItemHandlerWrapperOffset extends ItemHandlerWrapperSelectiveModifiable

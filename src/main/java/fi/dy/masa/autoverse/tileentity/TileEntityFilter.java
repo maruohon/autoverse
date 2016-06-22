@@ -30,9 +30,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected ItemStackHandlerTileEntity inventoryFilterItems;
 
     protected ItemStackHandlerTileEntity inventoryFilterered;
-    protected ItemStackHandlerTileEntity inventoryOtherOut;
+    protected ItemStackHandlerTileEntity inventoryNonmatchOut;
     protected IItemHandler wrappedInventoryFilterered;
-    protected IItemHandler wrappedInventoryOtherOut;
+    protected IItemHandler wrappedInventoryNonmatchOut;
     protected ItemHandlerWrapperFilter inventoryInput;
 
     protected EnumFacing facingFilteredOut;
@@ -58,21 +58,39 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         int rst = this.getNumResetSlots();
         int flt = this.getNumFilterSlots();
         int fltBuf = this.getFilterBufferSize();
+        int fm = this.getFilteredBufferMaxStackSize();
+        int nm = this.getNonmatchBufferMaxStackSize();
         this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,             1,  1, false, "InputItems", this);
         this.inventoryReset         = new ItemStackHandlerTileEntity(0,           rst,  1, false, "ResetItems", this);
         this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1,           flt,  1, false, "FilterItems", this);
-        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,        fltBuf,  1, false, "FilteredItems", this);
-        this.inventoryOtherOut      = new ItemStackHandlerTileEntity(3, rst + flt + 9,  1, false, "OutputItems", this);
-        this.itemHandlerBase        = this.inventoryOtherOut;
+        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,        fltBuf, fm, false, "FilteredItems", this);
+        this.inventoryNonmatchOut   = new ItemStackHandlerTileEntity(3, rst + flt + 9, nm, false, "OutputItems", this);
+        this.itemHandlerBase        = this.inventoryNonmatchOut;
 
         this.wrappedInventoryFilterered    = new ItemHandlerWrapperExtractOnly(this.inventoryFilterered);
-        this.wrappedInventoryOtherOut      = new ItemHandlerWrapperExtractOnly(this.inventoryOtherOut);
+        this.wrappedInventoryNonmatchOut   = new ItemHandlerWrapperExtractOnly(this.inventoryNonmatchOut);
+
+        this.initFilterInventory();
     }
 
     protected void initFilterInventory()
     {
-        this.inventoryInput = new ItemHandlerWrapperFilter(this.inventoryReset, this.inventoryFilterItems,
-                                     this.inventoryFilterered, this.inventoryOtherOut, this);
+        this.inventoryInput = new ItemHandlerWrapperFilter(
+                this.inventoryReset,
+                this.inventoryFilterItems,
+                this.inventoryFilterered,
+                this.inventoryNonmatchOut,
+                this);
+    }
+
+    protected int getFilteredBufferMaxStackSize()
+    {
+        return 64;
+    }
+
+    protected int getNonmatchBufferMaxStackSize()
+    {
+        return 64;
     }
 
     public int getNumResetSlots()
@@ -143,7 +161,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public IItemHandler getOutputInventory()
     {
-        return this.inventoryOtherOut;
+        return this.inventoryNonmatchOut;
     }
 
     public int getFilterTier()
@@ -151,12 +169,17 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return this.filterTier;
     }
 
+    protected int getMaxFilterTier()
+    {
+        return 4;
+    }
+
     public void setFilterTier(int tier)
     {
-        this.filterTier = MathHelper.clamp_int(tier, 0, 4);
+        this.filterTier = MathHelper.clamp_int(tier, 0, this.getMaxFilterTier());
 
         this.initInventories();
-        this.initFilterInventory();
+        //this.initFilterInventory(); // TODO remove?
     }
 
     public void setFilterOutputSide(EnumFacing side)
@@ -168,6 +191,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
+    /**
+     * This returns the filter-out side's facing as what it would be if the non-match-out
+     * side was North, which is the default rotation for the model.
+     * That way the filter-out side's texture will be placed on the correct face
+     * of the non-rotated model, before the primary facing's rotation is applied to the entire model.
+     */
     public EnumFacing getFilterOutRelativeFacing()
     {
         switch (this.facing)
@@ -205,13 +234,13 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     protected boolean tryOutputNonMatchingItems()
     {
-        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryOtherOut);
+        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryNonmatchOut);
 
         if (slot != -1)
         {
-            for ( ; slot < this.wrappedInventoryOtherOut.getSlots(); slot++)
+            for ( ; slot < this.wrappedInventoryNonmatchOut.getSlots(); slot++)
             {
-                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryOtherOut, slot,
+                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryNonmatchOut, slot,
                         this.posFront, this.facingOpposite, this.redstoneState) == true)
                 {
                     break;
@@ -250,7 +279,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         // Items in the manual input inventory, try to pull them in
         if (this.inventoryInputManual.getStackInSlot(0) != null)
         {
-            InventoryUtils.tryMoveAllItems(this.inventoryInputManual, this.inventoryInput);
+            InventoryUtils.tryMoveStackToOtherInventory(this.inventoryInputManual, this.inventoryInput, 0, false);
         }
 
         boolean flag1 = this.tryOutputNonMatchingItems();
@@ -282,7 +311,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.inventoryReset.deserializeNBT(tag);
         this.inventoryFilterItems.deserializeNBT(tag);
         this.inventoryFilterered.deserializeNBT(tag);
-        this.inventoryOtherOut.deserializeNBT(tag);
+        this.inventoryNonmatchOut.deserializeNBT(tag);
         this.inventoryInput.deserializeNBT(tag);
     }
 
@@ -313,7 +342,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryReset.serializeNBT());
         nbt.merge(this.inventoryFilterItems.serializeNBT());
         nbt.merge(this.inventoryFilterered.serializeNBT());
-        nbt.merge(this.inventoryOtherOut.serializeNBT());
+        nbt.merge(this.inventoryNonmatchOut.serializeNBT());
     }
 
     @Override
@@ -359,7 +388,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         {
             if (facing == this.facing)
             {
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryOtherOut);
+                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryNonmatchOut);
             }
 
             if (facing == this.facingFilteredOut)
@@ -378,7 +407,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryReset, true, true);
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterItems, true, true);
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterered, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOtherOut, true, true);
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryNonmatchOut, true, true);
     }
 
     @Override

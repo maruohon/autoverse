@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
@@ -45,7 +44,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
 
         if (simulate == false)
         {
-            this.checkForSequenceMatch(stack, this.resetSequenceBuffer, this.resetItems);
+            this.checkForSequenceMatch(stack);
         }
 
         if (InventoryUtils.areItemStacksEqual(stack, this.filterItems.getStackInSlot(this.filterPosition)) == true)
@@ -83,19 +82,15 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     }
 
     @Override
-    protected void reset(IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
+    protected IItemHandler getResetPhaseFilterItemsOutInventory()
     {
-        //System.out.printf("=== RESET ===\n");
-        // Dump the reset sequence inventory and the filter item inventory into the output inventory
-        InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
-        InventoryUtils.tryMoveAllItems(this.filterItems, this.othersOut);
-        this.mode = EnumMode.RESET;
-        this.seqBufWrite = 0;
+        return this.othersOut;
+    }
 
-        for (int i = 0; i < invSequenceBuffer.getSlots(); i++)
-        {
-            invSequenceBuffer.setStackInSlot(i, null);
-        }
+    @Override
+    protected void reset()
+    {
+        super.reset();
 
         this.filterPosition = 0;
     }

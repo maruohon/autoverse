@@ -161,39 +161,11 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
         return stack;
     }
 
-    protected ItemStack sortItem(ItemStack stack, boolean simulate)
-    {
-        if (simulate == false)
-        {
-            this.checkForSequenceMatch(stack, this.resetSequenceBuffer, this.resetItems);
-        }
-
-        if (InventoryUtils.getSlotOfFirstMatchingItemStack(this.filterItems, stack) != -1)
-        {
-            return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stack, simulate);
-        }
-
-        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
-    }
-
-    protected void reset(IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
-    {
-        //System.out.printf("=== RESET ===\n");
-        // Dump the reset sequence inventory and the filter item inventory into the output inventory
-        InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
-        InventoryUtils.tryMoveAllItems(this.filterItems, this.filteredOut);
-        this.mode = EnumMode.RESET;
-        this.seqBufWrite = 0;
-
-        for (int i = 0; i < invSequenceBuffer.getSlots(); i++)
-        {
-            invSequenceBuffer.setStackInSlot(i, null);
-        }
-    }
-
-    protected void checkForSequenceMatch(ItemStack stack, IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
+    protected void checkForSequenceMatch(ItemStack stack)
     {
         //System.out.printf("checking item at pos: %d\n", this.seqBufWrite);
+        IItemHandlerModifiable invSequenceBuffer = this.resetSequenceBuffer;
+        IItemHandler invReferenceSequence = this.resetItems;
 
         if (this.seqBufWrite < invReferenceSequence.getSlots() && // FIXME remove this check after the bugs are gone...
             InventoryUtils.areItemStacksEqual(stack, invReferenceSequence.getStackInSlot(this.seqBufWrite)) == true)
@@ -203,7 +175,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
             if ((this.seqBufWrite + 1) >= invReferenceSequence.getSlots())
             {
-                this.reset(invSequenceBuffer, invReferenceSequence);
+                this.reset();
             }
             else
             {
@@ -225,6 +197,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
                 this.seqBufWrite++;
             }
 
+            // Shift out the "matched sequence" buffer until the next possible start sequence in it, if any
             do
             {
                 //System.out.printf("reset sequence broken, shifting buffer...\n");
@@ -299,9 +272,47 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
 
         //System.out.printf("shiftSequenceBuffer() middle - readPos: %d writePos: %d numSlots: %d seqBufWr: %d\n", readPos, writePos, numSlots, this.seqBufWrite);
 
+        // Clear the end of the buffer where the old matched items were
         for ( ; writePos < numSlots; writePos++)
         {
             invSequenceBuffer.setStackInSlot(writePos, null);
+        }
+    }
+
+    protected ItemStack sortItem(ItemStack stack, boolean simulate)
+    {
+        if (simulate == false)
+        {
+            this.checkForSequenceMatch(stack);
+        }
+
+        if (InventoryUtils.getSlotOfFirstMatchingItemStack(this.filterItems, stack) != -1)
+        {
+            return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stack, simulate);
+        }
+
+        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
+    }
+
+    protected IItemHandler getResetPhaseFilterItemsOutInventory()
+    {
+        return this.filteredOut;
+    }
+
+    protected void reset()
+    {
+        //System.out.printf("=== RESET ===\n");
+        IItemHandlerModifiable invSequenceBuffer = this.resetSequenceBuffer;
+        IItemHandler invReferenceSequence = this.resetItems;
+        // Dump the reset sequence inventory and the filter item inventory into the output inventory
+        InventoryUtils.tryMoveAllItems(invReferenceSequence, this.othersOut);
+        InventoryUtils.tryMoveAllItems(this.filterItems, this.getResetPhaseFilterItemsOutInventory());
+        this.mode = EnumMode.RESET;
+        this.seqBufWrite = 0;
+
+        for (int i = 0; i < invSequenceBuffer.getSlots(); i++)
+        {
+            invSequenceBuffer.setStackInSlot(i, null);
         }
     }
 

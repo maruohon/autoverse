@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.inventory;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
@@ -32,9 +31,8 @@ public class ItemHandlerWrapperFilterSequentialSmart extends ItemHandlerWrapperF
             else
             {
                 this.te.scheduleBlockTick(1, false);
+                return stack;
             }
-
-            return stack;
         }
 
         return super.insertItem(slot, stack, simulate);
@@ -47,7 +45,7 @@ public class ItemHandlerWrapperFilterSequentialSmart extends ItemHandlerWrapperF
 
         if (simulate == false)
         {
-            this.checkForSequenceMatch(stack, this.resetSequenceBuffer, this.resetItems);
+            this.checkForSequenceMatch(stack);
         }
 
         int slot = this.getValidPositionForItem(stack);
@@ -141,9 +139,9 @@ public class ItemHandlerWrapperFilterSequentialSmart extends ItemHandlerWrapperF
     }
 
     @Override
-    protected void reset(IItemHandlerModifiable invSequenceBuffer, IItemHandler invReferenceSequence)
+    protected void reset()
     {
-        super.reset(invSequenceBuffer, invReferenceSequence);
+        super.reset();
 
         this.resetSlotIndices();
     }

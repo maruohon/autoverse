@@ -7,11 +7,13 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 
 public class GuiBufferFifo extends GuiAutoverse
 {
+    private final ContainerBufferFifo containerFifo;
     private final TileEntityBufferFifo te;
 
     public GuiBufferFifo(ContainerBufferFifo container, TileEntityBufferFifo te)
     {
         super(container, 256, 256, "gui.container.buffer_fifo");
+        this.containerFifo = container;
         this.te = te;
     }
 
@@ -34,13 +36,15 @@ public class GuiBufferFifo extends GuiAutoverse
         int y = (this.height - this.ySize) / 2;
 
         // Draw a green background for the current extract slot
-        int slot = Configs.fifoBufferUseWrappedInventory ? this.getOffsetSlot(this.te.getExtractSlot()) : this.te.getExtractSlot();
+        int slot = Configs.fifoBufferUseWrappedInventory ? 0 : this.containerFifo.extractPos;
+
         int exRow = slot / 13;
         int exCol = slot % 13;
         this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 102, 54, 18, 18);
 
         // Draw a purple background for the current insert slot
-        slot = Configs.fifoBufferUseWrappedInventory ? this.getOffsetSlot(this.te.getInsertSlot()) : this.te.getInsertSlot();
+        slot = Configs.fifoBufferUseWrappedInventory ? this.getOffsetSlot(this.containerFifo.insertPos) : this.containerFifo.insertPos;
+
         int inRow = slot / 13;
         int inCol = slot % 13;
         this.drawTexturedModalRect(x + 11 + inCol * 18, y + 12 + inRow * 18, 102, 36, 18, 18);
@@ -48,7 +52,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
     private int getOffsetSlot(int slot)
     {
-        slot -= this.te.getExtractSlot();
+        slot -= this.containerFifo.extractPos;
 
         if (slot < 0)
         {

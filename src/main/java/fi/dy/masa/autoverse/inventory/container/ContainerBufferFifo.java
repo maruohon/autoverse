@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.network.PacketHandler;
@@ -16,17 +17,17 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBaseInventory
 {
     protected final IItemHandlerModifiable inventoryBase;
-    private final TileEntityBufferFifo tefifo;
-    private int insertPos;
-    private int extractPos;
+    protected final ItemHandlerWrapperFifo inventoryFifo;
+    public int insertPos;
+    public int extractPos;
     public boolean offsetSlots;
 
     public ContainerBufferFifo(EntityPlayer player, TileEntityBufferFifo te)
     {
         super(player, te);
 
-        this.tefifo = te;
         this.inventoryBase = te.getBaseItemHandler();
+        this.inventoryFifo = te.getFifoInventory();
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(48, 177);
     }
@@ -53,6 +54,26 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
     public IItemHandlerModifiable getBaseInventory()
     {
         return this.inventoryBase;
+    }
+
+    protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
+    {
+        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+        if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
+        {
+            return false;
+        }
+
+        // This will try to only insert items into the insertPosition slot
+        int size = slot.getStack().stackSize;
+        MergeSlotRange range = new MergeSlotRange(this.insertPos, 1); // FIXME how does this go with the wrapping?
+
+        for (int i = 0; i < size; i++)
+        {
+            this.transferStackToSlotRange(player, slotNum, range, false);
+        }
+
+        return true;
     }
 
     protected void forceSyncSlots()
@@ -140,8 +161,8 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
             }
         }
 
-        listener.sendProgressBarUpdate(this, 0, this.tefifo.getInsertSlot());
-        listener.sendProgressBarUpdate(this, 1, this.tefifo.getExtractSlot());
+        listener.sendProgressBarUpdate(this, 0, this.inventoryFifo.getInsertSlot());
+        listener.sendProgressBarUpdate(this, 1, this.inventoryFifo.getExtractSlot());
         listener.sendProgressBarUpdate(this, 2, Configs.fifoBufferUseWrappedInventory ? 1 : 0);
 
         this.forceSyncSlots();
@@ -155,14 +176,14 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
         {
             IContainerListener listener = this.listeners.get(i);
 
-            if (this.tefifo.getInsertSlot() != this.insertPos)
+            if (this.inventoryFifo.getInsertSlot() != this.insertPos)
             {
-                listener.sendProgressBarUpdate(this, 0, this.tefifo.getInsertSlot());
+                listener.sendProgressBarUpdate(this, 0, this.inventoryFifo.getInsertSlot());
             }
 
-            if (this.tefifo.getExtractSlot() != this.extractPos)
+            if (this.inventoryFifo.getExtractSlot() != this.extractPos)
             {
-                listener.sendProgressBarUpdate(this, 1, this.tefifo.getExtractSlot());
+                listener.sendProgressBarUpdate(this, 1, this.inventoryFifo.getExtractSlot());
             }
 
             if (Configs.fifoBufferUseWrappedInventory != this.offsetSlots)
@@ -171,8 +192,8 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
             }
         }
 
-        this.insertPos = this.tefifo.getInsertSlot();
-        this.extractPos = this.tefifo.getExtractSlot();
+        this.insertPos = this.inventoryFifo.getInsertSlot();
+        this.extractPos = this.inventoryFifo.getExtractSlot();
         this.offsetSlots = Configs.fifoBufferUseWrappedInventory;
 
         this.syncInventory();
@@ -185,8 +206,8 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
         switch (id)
         {
-            case 0: this.tefifo.setInsertSlot(data); break;
-            case 1: this.tefifo.setExtractSlot(data); break;
+            case 0: this.insertPos = data; break;
+            case 1: this.extractPos = data; break;
             case 2: Configs.fifoBufferUseWrappedInventory = data != 0; break;
             default:
         }

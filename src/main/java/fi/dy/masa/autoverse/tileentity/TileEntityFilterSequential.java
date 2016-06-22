@@ -1,7 +1,6 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
@@ -27,29 +26,26 @@ public class TileEntityFilterSequential extends TileEntityFilter
     @Override
     protected void initFilterInventory()
     {
-        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequential(this.inventoryReset, this.inventoryFilterItems,
-                                             this.inventoryFilterered, this.inventoryOtherOut, this);
+        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequential(
+                this.inventoryReset,
+                this.inventoryFilterItems,
+                this.inventoryFilterered,
+                this.inventoryNonmatchOut,
+                this);
+
         this.inventoryInput = this.inventoryInputSequential;
     }
 
     @Override
-    public void setFilterTier(int tier)
+    protected int getMaxFilterTier()
     {
-        this.filterTier = MathHelper.clamp_int(tier, 0, 2);
-
-        this.initInventories();
-        this.initFilterInventory();
-    }
-
-    public int getFilterPosition()
-    {
-        return this.inventoryInputSequential.getFilterPosition();
+        return 2;
     }
 
     @Override
-    protected int getFilterBufferSize()
+    protected int getFilteredBufferMaxStackSize()
     {
-        return this.getNumFilterSlots();
+        return 1;
     }
 
     @Override
@@ -78,6 +74,11 @@ public class TileEntityFilterSequential extends TileEntityFilter
             case 2: return 18;
             default: return 4;
         }
+    }
+
+    public int getFilterPosition()
+    {
+        return this.inventoryInputSequential.getFilterPosition();
     }
 
     @Override

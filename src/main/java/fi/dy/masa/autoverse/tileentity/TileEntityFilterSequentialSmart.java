@@ -32,8 +32,13 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
     @Override
     protected void initFilterInventory()
     {
-        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequentialSmart(this.inventoryReset, this.inventoryFilterItems,
-                                             this.inventoryFilterered, this.inventoryOtherOut, this);
+        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequentialSmart(
+                this.inventoryReset,
+                this.inventoryFilterItems,
+                this.inventoryFilterered,
+                this.inventoryNonmatchOut,
+                this);
+
         this.inventoryInput = this.inventoryInputSequential;
     }
 
