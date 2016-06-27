@@ -12,13 +12,13 @@ public class ContainerBarrel extends ContainerLargeStacks
         super(player, te);
 
         this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 45);
+        this.addPlayerInventorySlots(8, 51);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.te.getBaseItemHandler(), 0, 80, 17));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.te.getBaseItemHandler(), 0, 80, 19));
 
         this.customInventorySlots = new MergeSlotRange(0, 1);
     }
