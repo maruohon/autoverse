@@ -1,0 +1,57 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:orientable_directional_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "front":            "#out",
+            "top":              "#side",
+            "bottom":           "#side",
+            "left":             "#side",
+            "right":            "#side",
+            "back":             "autoverse:blocks/sequencer_base"
+        }
+    },
+    "variants": {
+        "tier": {
+            "0": {
+                "textures": {
+                    "out":  "autoverse:blocks/sequencer_0_out",
+                    "side": "autoverse:blocks/sequencer_0_side"
+                }
+            },
+            "1": {
+                "textures": {
+                    "out":  "autoverse:blocks/sequencer_1_out",
+                    "side": "autoverse:blocks/sequencer_1_side"
+                }
+            },
+            "2": {
+                "textures": {
+                    "out":  "autoverse:blocks/sequencer_2_out",
+                    "side": "autoverse:blocks/sequencer_2_side"
+                }
+            },
+            "3": {
+                "textures": {
+                    "out":  "autoverse:blocks/sequencer_3_out",
+                    "side": "autoverse:blocks/sequencer_3_side"
+                }
+            },
+            "4": {
+                "textures": {
+                    "out":  "autoverse:blocks/sequencer_4_out",
+                    "side": "autoverse:blocks/sequencer_4_side"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 },
+            "up":    { "x": 270 },
+            "down":  { "x":  90 }
+        }
+    }
+}

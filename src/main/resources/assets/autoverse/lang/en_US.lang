@@ -10,6 +10,7 @@ autoverse.container.buffer_fifo_pulsed=Pulsed FIFO Buffer
 autoverse.container.filter=Programmable Filter
 autoverse.container.filter_sequential=Sequential Prog. Filter
 autoverse.container.filter_sequential_smart=Smart Sequential Prog. Filter
+autoverse.container.sequencer=Sequencer
 
 autoverse.gui.label.filteritems=Filter items
 autoverse.gui.label.filteroutbuffer=Filtered items buffer
@@ -64,6 +65,11 @@ autoverse.tile.filter_sequential_2.name=Sequential Programmable Filter (4R - 18F
 autoverse.tile.filter_sequential_smart_0.name=Smart Sequential Programmable Filter (2R - 4F)
 autoverse.tile.filter_sequential_smart_1.name=Smart Sequential Programmable Filter (3R - 9F)
 autoverse.tile.filter_sequential_smart_2.name=Smart Sequential Programmable Filter (4R - 18F)
+autoverse.tile.sequencer_0.name=Sequencer (2 slots)
+autoverse.tile.sequencer_1.name=Sequencer (3 slots)
+autoverse.tile.sequencer_2.name=Sequencer (6 slots)
+autoverse.tile.sequencer_3.name=Sequencer (9 slots)
+autoverse.tile.sequencer_4.name=Sequencer (16 slots)
 
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description
 autoverse.tooltip.item.storeditem=Stored item

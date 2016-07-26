@@ -7,6 +7,7 @@ import fi.dy.masa.autoverse.block.BlockBarrel;
 import fi.dy.masa.autoverse.block.BlockBuffer;
 import fi.dy.masa.autoverse.block.BlockFilter;
 import fi.dy.masa.autoverse.block.BlockFilterSequential;
+import fi.dy.masa.autoverse.block.BlockSequencer;
 import fi.dy.masa.autoverse.item.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.item.ItemBlockBarrel;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -21,6 +22,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse blockFilter          = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER, 4.0f, 1, Material.IRON, TileEntityFilter.class);
     public static final BlockAutoverse blockFilterSeq       = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL, 4.0f, 1, Material.IRON, TileEntityFilterSequential.class);
     public static final BlockAutoverse blockFilterSeqSmart  = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQ_SMART, 4.0f, 1, Material.IRON, TileEntityFilterSequentialSmart.class);
+    public static final BlockAutoverse blockSequencer       = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER, 4.0f, 1, Material.IRON);
 
     public static void init()
     {
@@ -29,6 +31,7 @@ public class AutoverseBlocks
         registerBlock(blockFilter,          ReferenceNames.NAME_BLOCK_FILTER,               false);
         registerBlock(blockFilterSeq,       ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL,    false);
         registerBlock(blockFilterSeqSmart,  ReferenceNames.NAME_BLOCK_FILTER_SEQ_SMART,     false);
+        registerBlock(blockSequencer,       ReferenceNames.NAME_BLOCK_SEQUENCER,            false);
 
         GameRegistry.register(new ItemBlockBarrel(blockBarrel).setRegistryName(blockBarrel.getRegistryName()));
     }

@@ -117,23 +117,29 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
      */
     protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos pos, EnumFacing side, boolean spawnInWorld)
     {
-        ItemStack stack = invSrc.getStackInSlot(slot);
+        ItemStack stack = invSrc.extractItem(slot, 1, true);
 
         if (stack != null)
         {
             TileEntity te = this.worldObj.getTileEntity(pos);
             IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) : null;
-            stack = invSrc.extractItem(slot, 1, true);
 
-            if (inv != null && stack != null)
+            if (inv != null)
             {
                 // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
                 stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
 
+                // Simulating item insertion succeeded
                 if (stack == null)
                 {
                     stack = invSrc.extractItem(slot, 1, false);
-                    InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+                    stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+
+                    // Failed, try to return the item
+                    if (stack != null)
+                    {
+                        invSrc.insertItem(slot, stack, false);
+                    }
 
                     /*if (Configs.disableSounds == false)
                     {
@@ -149,6 +155,12 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
             {
                 // No adjacent inventory, drop the item in world
                 stack = invSrc.extractItem(slot, 1, false);
+
+                if (stack == null)
+                {
+                    return false;
+                }
+
                 EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
 
                 if (Configs.disableSounds == false)
@@ -160,7 +172,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
             }
         }
 
-        return true;
+        return false;
     }
 
     @Override
