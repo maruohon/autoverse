@@ -28,14 +28,14 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
     public TileEntityBufferFifo()
     {
-        this(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
+        super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
+
+        this.initInventories();
     }
 
     public TileEntityBufferFifo(String name)
     {
         super(name);
-
-        this.initInventories();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
-        this.itemHandlerExternal = this.itemHandlerFifo;
+        this.itemHandlerExternal = this.getFifoInventory();
     }
 
     // These are only used for the GUI
@@ -116,13 +116,13 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        this.itemHandlerFifo.deserializeNBT(nbt);
+        this.getFifoInventory().deserializeNBT(nbt);
     }
 
     @Override
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        nbt.merge(this.itemHandlerFifo.serializeNBT());
+        nbt.merge(this.getFifoInventory().serializeNBT());
     }
 
     private class ItemHandlerWrapperOffset extends ItemHandlerWrapperSelectiveModifiable

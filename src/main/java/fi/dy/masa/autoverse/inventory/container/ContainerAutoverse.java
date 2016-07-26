@@ -18,7 +18,6 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.autoverse.inventory.slot.SlotRange;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageSyncSpecialSlot;
 import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
@@ -113,12 +112,12 @@ public class ContainerAutoverse extends Container
         return this.player;
     }
 
-    public SlotRange getPlayerMainInventorySlotRange()
+    public MergeSlotRange getPlayerMainInventorySlotRange()
     {
         return this.playerMainSlots;
     }
 
-    public SlotRange getCustomInventorySlotRange()
+    public MergeSlotRange getCustomInventorySlotRange()
     {
         return this.customInventorySlots;
     }
@@ -246,7 +245,7 @@ public class ContainerAutoverse extends Container
                 return true;
             }
 
-            return this.transferStackToSlotRange(player, slotNum, this.customInventorySlots, false);
+            return this.transferStackToSlotRange(player, slotNum, this.getCustomInventorySlotRange(), false);
         }
 
         // From external inventory to player inventory

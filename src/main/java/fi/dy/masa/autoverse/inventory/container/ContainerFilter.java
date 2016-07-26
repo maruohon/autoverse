@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
@@ -22,8 +21,9 @@ public class ContainerFilter extends ContainerCustomSlotClick
     @Override
     protected void addCustomInventorySlots()
     {
-        // Add the input slot
+        // Add the input slot as a merge slot range, but no other slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 1, false);
+
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInputInventory(), 0, 8, 16));
 
         int posX = 98;
@@ -83,7 +83,5 @@ public class ContainerFilter extends ContainerCustomSlotClick
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }
-
-        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
     }
 }

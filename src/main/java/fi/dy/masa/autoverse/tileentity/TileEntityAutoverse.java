@@ -27,6 +27,8 @@ public class TileEntityAutoverse extends TileEntity
 
     public TileEntityAutoverse(String name)
     {
+        super();
+
         this.tileEntityName = name;
         this.facing = EnumFacing.UP;
     }
