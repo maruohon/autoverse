@@ -92,6 +92,20 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         }
     }
 
+    public boolean fillBarrel()
+    {
+        ItemStack stack = this.getBaseItemHandler().extractItem(0, 1, true);
+
+        if (stack != null)
+        {
+            stack.stackSize = this.getMaxStackSize();
+            this.getBaseItemHandler().setStackInSlot(0, stack);
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public void onBlockTick(IBlockState state, Random rand)
     {

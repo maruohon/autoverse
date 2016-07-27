@@ -30,6 +30,12 @@ public class ItemBlockBarrel extends ItemBlockAutoverse
     }
 
     @Override
+    public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
+    {
+        ItemAutoverse.addTooltips("autoverse.tile.barrel.tooltips", list, verbose);
+    }
+
+    @Override
     public String getItemStackDisplayName(ItemStack stack)
     {
         String name = super.getItemStackDisplayName(stack);

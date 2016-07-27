@@ -74,3 +74,7 @@ autoverse.tile.sequencer_4.name=Sequencer (16 slots)
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description
 autoverse.tooltip.item.storeditem=Stored item
 autoverse.tooltip.item.storedamount=Amount
+
+autoverse.tile.barrel.tooltips=- Right click with a Nether Star in Creative mode|lf  to completely fill with the item already stored
+
+autoverse.chat.barrel.filled=Barrel filled

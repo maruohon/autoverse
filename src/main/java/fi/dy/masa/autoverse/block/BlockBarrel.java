@@ -12,14 +12,17 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -190,6 +193,31 @@ public class BlockBarrel extends BlockAutoverseInventory
         }
 
         return new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
+    }
+
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
+            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        if (worldIn.isRemote == false && playerIn.capabilities.isCreativeMode &&
+            heldItem != null && heldItem.getItem() == Items.NETHER_STAR)
+        {
+            TileEntity te = worldIn.getTileEntity(pos);
+
+            if (te instanceof TileEntityBarrel)
+            {
+                boolean success = ((TileEntityBarrel) te).fillBarrel();
+
+                if (success)
+                {
+                    playerIn.addChatMessage(new TextComponentTranslation("autoverse.chat.barrel.filled"));
+                }
+
+                return success;
+            }
+        }
+
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @Override
