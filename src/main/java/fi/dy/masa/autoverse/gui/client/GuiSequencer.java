@@ -6,11 +6,13 @@ import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 
 public class GuiSequencer extends GuiAutoverse
 {
+    private final ContainerSequencer containrSeq;
     private final TileEntitySequencer teseq;
 
     public GuiSequencer(ContainerSequencer container, TileEntitySequencer te)
     {
-        super(container, 176, 155, "gui.container.sequencer");
+        super(container, 176, 156, "gui.container.sequencer");
+        this.containrSeq = container;
         this.teseq = te;
     }
 
@@ -37,13 +39,14 @@ public class GuiSequencer extends GuiAutoverse
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        this.coverSlots(x, y);
-    }
-
-    protected void coverSlots(int x, int y)
-    {
         int numSlots = this.teseq.getBaseItemHandler().getSlots();
 
+        this.coverSlots(x, y, numSlots);
+        this.hilightOutputSlot(x, y, numSlots);
+    }
+
+    protected void coverSlots(int x, int y, int numSlots)
+    {
         // First row of slots
         if (numSlots < 9)
         {
@@ -59,6 +62,21 @@ public class GuiSequencer extends GuiAutoverse
         if (numSlots < 16)
         {
             this.drawTexturedModalRect(x + 7, y + 39, 7, 3, 8 * 18, 18);
+        }
+    }
+
+    protected void hilightOutputSlot(int x, int y, int numSlots)
+    {
+        int slot = this.containrSeq.getExtractSlot();
+
+        if (numSlots <= 9)
+        {
+            this.drawTexturedModalRect(x + 7 + slot * 18, y + 21, 176, 0, 18, 18);
+        }
+        else
+        {
+            // For the 16-slot variant the slots are in two rows of 8
+            this.drawTexturedModalRect(x + 7 + (slot % 8) * 18, y + 21 + (slot / 8) * 18, 176, 0, 18, 18);
         }
     }
 }

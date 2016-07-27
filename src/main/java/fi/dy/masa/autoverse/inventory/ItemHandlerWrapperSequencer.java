@@ -16,6 +16,11 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
         this.baseHandler = baseHandler;
     }
 
+    public int getOutputSlot()
+    {
+        return this.outputSlot;
+    }
+
     @Override
     public int getSlots()
     {

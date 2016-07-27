@@ -58,6 +58,11 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         }
     }
 
+    public int getOutputSlot()
+    {
+        return this.inventorySequencer.getOutputSlot();
+    }
+
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
@@ -121,6 +126,8 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
+        tag = super.getUpdatePacketTag(tag);
+
         tag.setByte("t", (byte) this.getTier());
 
         return tag;
