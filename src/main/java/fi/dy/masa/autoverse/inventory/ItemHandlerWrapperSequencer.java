@@ -48,7 +48,8 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return this.baseHandler.getStackInSlot(this.outputSlot);
+        slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.outputSlot);
+        return slot != -1 ? this.baseHandler.getStackInSlot(slot) : null;
     }
 
     @Override
@@ -60,11 +61,23 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        ItemStack stackRet = this.baseHandler.extractItem(this.outputSlot, 1, simulate);
+        slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.outputSlot);
 
-        if (simulate == false && stackRet != null && ++this.outputSlot >= this.baseHandler.getSlots())
+        if (slot == -1)
         {
-            this.outputSlot = 0;
+            return null;
+        }
+
+        ItemStack stackRet = this.baseHandler.extractItem(slot, 1, simulate);
+
+        if (simulate == false && stackRet != null)
+        {
+            slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, slot + 1);
+
+            if (slot != -1)
+            {
+                this.outputSlot = slot;
+            }
         }
 
         return stackRet;

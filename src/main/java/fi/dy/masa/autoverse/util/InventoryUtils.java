@@ -22,6 +22,39 @@ public class InventoryUtils
 {
     public static final int SLOT_ITER_LIMIT = 128;
 
+    /**
+     * Returns the slot number of the next non-empty slot, starting from startSlot and wrapping
+     * around the end of the inventory. If no items are found, -1 is returned.
+     * @param inv
+     * @param startSlot
+     * @return the slot number of the next non-empty slot, or -1
+     */
+    public static int getNextNonEmptySlot(IItemHandler inv, int startSlot)
+    {
+        int slot = startSlot;
+
+        if (slot >= inv.getSlots())
+        {
+            slot = 0;
+        }
+
+        do
+        {
+            if (inv.getStackInSlot(slot) != null)
+            {
+                return slot;
+            }
+
+            if (++slot >= inv.getSlots())
+            {
+                slot = 0;
+            }
+
+        } while(slot != startSlot);
+
+        return -1;
+    }
+
     public static int calcRedstoneFromInventory(IItemHandler inv)
     {
         int slots = inv.getSlots();
