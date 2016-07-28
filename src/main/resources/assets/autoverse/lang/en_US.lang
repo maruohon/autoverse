@@ -11,14 +11,18 @@ autoverse.container.filter=Programmable Filter
 autoverse.container.filter_sequential=Sequential Prog. Filter
 autoverse.container.filter_sequential_smart=Smart Sequential Prog. Filter
 autoverse.container.sequencer=Sequencer
+autoverse.container.splitter=Splitter
 
 autoverse.gui.label.filteritems=Filter items
 autoverse.gui.label.filteroutbuffer=Filtered items buffer
 autoverse.gui.label.input=Input
-autoverse.gui.label.max=Max: 
 autoverse.gui.label.matchedsequence=Matched
+autoverse.gui.label.max=Max: 
 autoverse.gui.label.nonmatchoutbuffer=No-match items buffer
 autoverse.gui.label.resetsequence=Reset seq.
+autoverse.gui.label.sequenceitems=Sequence
+autoverse.gui.label.splitter.out1=Out 1
+autoverse.gui.label.splitter.out2=Out 2
 
 autoverse.tile.barrel_0.name=Barrel (max: 1)
 autoverse.tile.barrel_1.name=Barrel (max: 2)
@@ -70,6 +74,7 @@ autoverse.tile.sequencer_1.name=Sequencer (3 slots)
 autoverse.tile.sequencer_2.name=Sequencer (6 slots)
 autoverse.tile.sequencer_3.name=Sequencer (9 slots)
 autoverse.tile.sequencer_4.name=Sequencer (16 slots)
+autoverse.tile.splitter.name=Splitter (basic)
 
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description
 autoverse.tooltip.item.storeditem=Stored item

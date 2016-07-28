@@ -13,6 +13,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
+import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
 public class CommonProxy
 {
@@ -44,6 +45,7 @@ public class CommonProxy
         this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
         this.registerTileEntity(TileEntityFilterSequentialSmart.class,  ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQ_SMART);
         this.registerTileEntity(TileEntitySequencer.class,              ReferenceNames.NAME_TILE_ENTITY_SEQUENCER);
+        this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
     }
 
     public void registerModels() { }

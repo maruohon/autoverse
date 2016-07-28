@@ -6,12 +6,12 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<NBTTagCompound>
 {
-    protected final TileEntityFilter te;
+    protected final TileEntityAutoverse te;
     protected final IItemHandler resetItems;
     protected final IItemHandler filterItems;
     protected final IItemHandler filteredOut;
@@ -25,7 +25,7 @@ public class ItemHandlerWrapperFilter implements IItemHandler, INBTSerializable<
             IItemHandler filterItems,
             IItemHandler filteredOut,
             IItemHandler othersOut,
-            TileEntityFilter te)
+            TileEntityAutoverse te)
     {
         this.resetItems = resetItems;
         this.filterItems = filterItems;
