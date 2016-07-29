@@ -30,7 +30,11 @@ public class ItemHandlerWrapperFilterSequentialSmart extends ItemHandlerWrapperF
             }
             else
             {
-                this.te.scheduleBlockTick(1, false);
+                if (simulate == false)
+                {
+                    this.te.scheduleBlockTick(1, false);
+                }
+
                 return stack;
             }
         }

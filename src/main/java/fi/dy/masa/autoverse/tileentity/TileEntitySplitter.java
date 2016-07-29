@@ -26,9 +26,9 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     protected ItemStackHandlerTileEntity inventoryInputManual;
     protected ItemStackHandlerTileEntity inventoryReset;
     protected ItemStackHandlerTileEntity inventorySequence;
-
     protected ItemStackHandlerTileEntity inventoryOut1;
     protected ItemStackHandlerTileEntity inventoryOut2;
+
     protected IItemHandler wrappedInventoryOut1;
     protected IItemHandler wrappedInventoryOut2;
     protected ItemHandlerWrapperFilter inventoryInput;
@@ -57,7 +57,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.inventorySequence      = new ItemStackHandlerTileEntity(1,             2, 64, false, "SequenceItems", this);
         this.inventoryOut1          = new ItemStackHandlerTileEntity(2,             1,  1, false, "OutItems1", this);
         this.inventoryOut2          = new ItemStackHandlerTileEntity(3,             1,  1, false, "OutItems2", this);
-        //this.inventoryNonmatchOut   = new ItemStackHandlerTileEntity(3, rst + flt + 9, nm, false, "OutputItems", this);
         this.itemHandlerBase        = this.inventoryOut1;
 
         this.wrappedInventoryOut1   = new ItemHandlerWrapperExtractOnly(this.inventoryOut1);
@@ -271,6 +270,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public void dropInventories()
     {
+        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryInputManual, true, true);
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryReset, true, true);
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventorySequence, true, true);
         EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOut1, true, true);

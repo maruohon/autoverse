@@ -23,7 +23,6 @@ public class TileEntityAutoverse extends TileEntity
     protected EnumFacing facingOpposite;
     protected BlockPos posFront;
     protected boolean redstoneState;
-    protected boolean tickScheduled;
 
     public TileEntityAutoverse(String name)
     {
@@ -89,15 +88,13 @@ public class TileEntityAutoverse extends TileEntity
 
     public void onBlockTick(IBlockState state, Random rand)
     {
-        this.tickScheduled = false;
     }
 
     public void scheduleBlockTick(int delay, boolean force)
     {
-        if (this.tickScheduled == false || force == true)
+        if (force == true || this.getWorld().isBlockTickPending(this.getPos(), this.getBlockType()) == false)
         {
             this.getWorld().scheduleUpdate(this.getPos(), this.getBlockType(), delay);
-            this.tickScheduled = true;
         }
     }
 
