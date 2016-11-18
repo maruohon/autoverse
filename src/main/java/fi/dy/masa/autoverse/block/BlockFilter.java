@@ -155,7 +155,7 @@ public class BlockFilter extends BlockAutoverseInventory
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileEntityFilter)
         {
-            int tier = MathHelper.clamp_int(stack.getMetadata() & 0xF, 0, this.tiers - 1);
+            int tier = MathHelper.clamp(stack.getMetadata() & 0xF, 0, this.tiers - 1);
             ((TileEntityFilter) te).setFilterTier(tier);
 
             EnumFacing filterFacing = BlockPistonBase.getFacingFromEntity(pos, placer);

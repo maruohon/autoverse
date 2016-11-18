@@ -87,7 +87,7 @@ public class EntityUtils
                 entityItem.motionZ = 0d;
             }
 
-            worldIn.spawnEntityInWorld(entityItem);
+            worldIn.spawnEntity(entityItem);
         }
     }
 

@@ -53,7 +53,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     public void setTier(int tier)
     {
-        this.tier = MathHelper.clamp_int(tier, 0, 15);
+        this.tier = MathHelper.clamp(tier, 0, 15);
         this.initInventories();
     }
 
@@ -126,7 +126,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public void onLeftClickBlock(EntityPlayer player)
     {
-        if (this.worldObj.isRemote == true)
+        if (this.getWorld().isRemote == true)
         {
             return;
         }
@@ -166,7 +166,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
             if (isDoubleClick == true && barrelInv.getStackInSlot(0) != null)
             {
                 InventoryUtils.tryMoveMatchingItems(playerInv, barrelInv);
-                player.worldObj.playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
+                player.getEntityWorld().playSound(null, this.getPos(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.BLOCKS, 0.2f, 1.8f);
             }
         }
         // Not sneaking, take items out of the Barrel

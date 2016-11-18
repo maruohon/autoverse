@@ -81,7 +81,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
 
     public void setTier(int tier)
     {
-        this.tier = MathHelper.clamp_int(tier, 0, this.getMaxTier());
+        this.tier = MathHelper.clamp(tier, 0, this.getMaxTier());
 
         this.initInventories();
     }

@@ -72,7 +72,7 @@ public class TileEntityAutoverse extends TileEntity
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
-        boolean redstone = this.worldObj.isBlockPowered(this.getPos());
+        boolean redstone = this.getWorld().isBlockPowered(this.getPos());
 
         if (redstone != this.redstoneState)
         {
@@ -181,7 +181,7 @@ public class TileEntityAutoverse extends TileEntity
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket()
     {
-        if (this.worldObj != null)
+        if (this.getWorld() != null)
         {
             return new SPacketUpdateTileEntity(this.getPos(), 0, this.getUpdatePacketTag(new NBTTagCompound()));
         }
@@ -195,8 +195,8 @@ public class TileEntityAutoverse extends TileEntity
         if (tag.hasKey("f") == true)
         {
             this.setFacing(EnumFacing.getFront((byte)(tag.getByte("f") & 0x07)));
-            IBlockState state = this.worldObj.getBlockState(this.getPos());
-            this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+            IBlockState state = this.getWorld().getBlockState(this.getPos());
+            this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
         }
     }
 

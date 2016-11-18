@@ -51,7 +51,7 @@ public class BlockSequencer extends BlockAutoverseInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, MathHelper.clamp_int(meta, 0, MAX_TIER));
+        return this.getDefaultState().withProperty(TIER, MathHelper.clamp(meta, 0, MAX_TIER));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class BlockSequencer extends BlockAutoverseInventory
 
         if (te instanceof TileEntitySequencer)
         {
-            int tier = MathHelper.clamp_int(stack.getMetadata() & 0xF, 0, MAX_TIER);
+            int tier = MathHelper.clamp(stack.getMetadata() & 0xF, 0, MAX_TIER);
             ((TileEntitySequencer) te).setTier(tier);
         }
     }

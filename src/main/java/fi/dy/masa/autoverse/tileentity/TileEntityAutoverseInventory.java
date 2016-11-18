@@ -121,7 +121,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
 
         if (stack != null)
         {
-            TileEntity te = this.worldObj.getTileEntity(pos);
+            TileEntity te = this.getWorld().getTileEntity(pos);
             IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) : null;
 
             if (inv != null)
@@ -161,7 +161,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
                     return false;
                 }
 
-                EntityUtils.dropItemStacksInWorld(this.worldObj, this.getSpawnedItemPosition(), stack, -1, true, false);
+                EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(), stack, -1, true, false);
 
                 if (Configs.disableSounds == false)
                 {
@@ -201,7 +201,7 @@ public class TileEntityAutoverseInventory extends TileEntityAutoverse
 
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        if (this.worldObj.getTileEntity(this.getPos()) != this)
+        if (this.getWorld().getTileEntity(this.getPos()) != this)
         {
             return false;
         }

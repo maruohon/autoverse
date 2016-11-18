@@ -214,8 +214,8 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.setFacing(EnumFacing.getFront(facings & 0x7));
         this.setOutputSide2(EnumFacing.getFront((facings >>> 4) & 0x7));
 
-        IBlockState state = this.worldObj.getBlockState(this.getPos());
-        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
     }
 
     @Override

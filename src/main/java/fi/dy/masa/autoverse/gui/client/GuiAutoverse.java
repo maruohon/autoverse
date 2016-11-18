@@ -80,8 +80,8 @@ public class GuiAutoverse extends GuiContainer
 
     public void drawSpecialSlot(Slot slotIn)
     {
-        int x = this.guiLeft + slotIn.xDisplayPosition;
-        int y = this.guiTop + slotIn.yDisplayPosition;
+        int x = this.guiLeft + slotIn.xPos;
+        int y = this.guiTop + slotIn.yPos;
         ItemStack stack = slotIn.getStack();
 
         GlStateManager.enableLighting();

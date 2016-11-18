@@ -210,7 +210,7 @@ public class BlockBarrel extends BlockAutoverseInventory
 
                 if (success)
                 {
-                    playerIn.addChatMessage(new TextComponentTranslation("autoverse.chat.barrel.filled"));
+                    playerIn.sendMessage(new TextComponentTranslation("autoverse.chat.barrel.filled"));
                 }
 
                 return success;

@@ -9,15 +9,15 @@ import fi.dy.masa.autoverse.config.Configs;
 public class CommandLoadConfigs extends CommandBase
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "autoverse-loadconfigs";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender sender)
+    public String getUsage(ICommandSender sender)
     {
-        return "/" + this.getCommandName();
+        return "/" + this.getName();
     }
 
     @Override

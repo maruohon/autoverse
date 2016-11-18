@@ -176,7 +176,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public void setFilterTier(int tier)
     {
-        this.filterTier = MathHelper.clamp_int(tier, 0, this.getMaxFilterTier());
+        this.filterTier = MathHelper.clamp(tier, 0, this.getMaxFilterTier());
 
         this.initInventories();
         //this.initFilterInventory(); // TODO remove?
@@ -364,8 +364,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         this.setFilterTier(tag.getByte("t"));
 
-        IBlockState state = this.worldObj.getBlockState(this.getPos());
-        this.worldObj.notifyBlockUpdate(this.getPos(), state, state, 3);
+        IBlockState state = this.getWorld().getBlockState(this.getPos());
+        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
 
         super.handleUpdateTag(tag);
     }
