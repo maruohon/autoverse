@@ -72,12 +72,12 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
 
         if (simulate == false && stackRet != null)
         {
-            slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, slot + 1);
-
-            if (slot != -1)
+            if (++slot >= this.baseHandler.getSlots())
             {
-                this.outputSlot = slot;
+                slot = 0;
             }
+
+            this.outputSlot = slot;
         }
 
         return stackRet;
