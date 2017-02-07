@@ -33,24 +33,18 @@ public class InventoryUtils
     {
         int slot = startSlot;
 
-        if (slot >= inv.getSlots())
+        for (int i = 0; i < inv.getSlots(); i++)
         {
-            slot = 0;
-        }
-
-        do
-        {
-            if (inv.getStackInSlot(slot) != null)
-            {
-                return slot;
-            }
-
-            if (++slot >= inv.getSlots())
+            if (slot >= inv.getSlots())
             {
                 slot = 0;
             }
 
-        } while(slot != startSlot);
+            if (inv.getStackInSlot(slot) != null)
+            {
+                return slot;
+            }
+        }
 
         return -1;
     }
