@@ -54,11 +54,17 @@ public class ItemBlockAutoverse extends ItemBlock
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
     {
-        if (! world.setBlockState(pos, newState, 3)) return false;
+        if (world.setBlockState(pos, newState, 3) == false)
+        {
+            return false;
+        }
 
         IBlockState state = world.getBlockState(pos);
+
         if (state.getBlock() == this.block)
         {
+            setTileEntityNBT(world, player, pos, stack);
+
             if (this.block instanceof BlockAutoverseTileEntity)
             {
                 ((BlockAutoverseTileEntity) this.block).onBlockPlacedBy(world, pos, side, state, player, stack);
@@ -67,8 +73,6 @@ public class ItemBlockAutoverse extends ItemBlock
             {
                 this.block.onBlockPlacedBy(world, pos, state, player, stack);
             }
-
-            setTileEntityNBT(world, player, pos, stack);
         }
 
         return true;
