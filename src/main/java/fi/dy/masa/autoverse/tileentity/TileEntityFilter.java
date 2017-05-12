@@ -35,21 +35,20 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected IItemHandler wrappedInventoryNonmatchOut;
     protected ItemHandlerWrapperFilter inventoryInput;
 
-    protected EnumFacing facingFilteredOut;
+    protected EnumFacing facingFilteredOut = EnumFacing.WEST;
     protected BlockPos posFilteredOut;
     protected int filterTier;
 
     public TileEntityFilter()
     {
         this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
-
-        this.facingFilteredOut = EnumFacing.WEST;
-        this.initInventories();
     }
 
     public TileEntityFilter(String name)
     {
         super(name);
+
+        this.initInventories();
     }
 
     @Override

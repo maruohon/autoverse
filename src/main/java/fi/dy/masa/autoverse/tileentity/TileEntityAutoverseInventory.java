@@ -24,7 +24,7 @@ import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-public class TileEntityAutoverseInventory extends TileEntityAutoverse
+public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 {
     protected ItemStackHandlerTileEntity itemHandlerBase;
     protected IItemHandler itemHandlerExternal;

@@ -16,11 +16,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.reference.Reference;
 
-public class TileEntityAutoverse extends TileEntity
+public abstract class TileEntityAutoverse extends TileEntity
 {
     protected String tileEntityName;
-    protected EnumFacing facing;
-    protected EnumFacing facingOpposite;
+    protected EnumFacing facing = EnumFacing.UP;
+    protected EnumFacing facingOpposite = EnumFacing.DOWN;
     protected BlockPos posFront;
     protected boolean redstoneState;
 
@@ -29,7 +29,6 @@ public class TileEntityAutoverse extends TileEntity
         super();
 
         this.tileEntityName = name;
-        this.facing = EnumFacing.UP;
     }
 
     public String getTEName()
