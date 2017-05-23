@@ -1,7 +1,5 @@
 package fi.dy.masa.autoverse.block;
 
-import java.util.List;
-import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -17,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -158,7 +157,7 @@ public class BlockFilter extends BlockAutoverseInventory
             int tier = MathHelper.clamp(stack.getMetadata() & 0xF, 0, this.tiers - 1);
             ((TileEntityFilter) te).setFilterTier(tier);
 
-            EnumFacing filterFacing = BlockPistonBase.getFacingFromEntity(pos, placer);
+            EnumFacing filterFacing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
             if (filterFacing.getAxis().isVertical())
             {
                 filterFacing = placer.getHorizontalFacing().rotateY();
@@ -179,9 +178,11 @@ public class BlockFilter extends BlockAutoverseInventory
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (heldItem != null && heldItem.getItem() == Items.STICK)
+        ItemStack stack = playerIn.getHeldItem(hand);
+
+        if (stack.isEmpty() == false && stack.getItem() == Items.STICK)
         {
             if (worldIn.isRemote == false)
             {
@@ -196,12 +197,12 @@ public class BlockFilter extends BlockAutoverseInventory
             return true;
         }
 
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int meta = 0; meta < this.tiers; meta++)
         {

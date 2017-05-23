@@ -12,13 +12,13 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
-
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+apply plugin: 'maven'
 
 repositories {
     // JEI
-    maven { url "http://dvs1.progwml6.com/files/maven" }
+    maven {
+        url "http://dvs1.progwml6.com/files/maven"
+    }
 }
 
 ext.configFile = file "build.properties"
@@ -31,6 +31,15 @@ configFile.withReader {
 
 group = config.group + config.mod_id // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = config.mod_id + '-' + config.minecraft_version_out
+
+// Need this here so eclipse task generates correctly.
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
@@ -64,8 +73,8 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    //deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}:api"
-    //runtime "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
+    deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}:api"
+    runtime      "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}"
 }
 
 version = project.minecraft.mod_version

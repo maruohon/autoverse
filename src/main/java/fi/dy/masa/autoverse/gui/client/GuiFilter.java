@@ -20,14 +20,14 @@ public class GuiFilter extends GuiAutoverse
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.input"),              8,  35, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.resetsequence"),     42,  16, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  35, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  46, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8,  93, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("autoverse.gui.label.nonmatchoutbuffer"),  8, 141, 0x404040);
-        //this.fontRendererObj.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),              8,  35, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.resetsequence"),     42,  16, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  35, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  46, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8,  93, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.nonmatchoutbuffer"),  8, 141, 0x404040);
+        //this.fontRenderer.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
     }
 
     protected int getTier()

@@ -22,8 +22,8 @@ public class GuiSequencer extends GuiAutoverse
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.teseq.hasCustomName() ? this.teseq.getName() : I18n.format(this.teseq.getName());
-        this.fontRendererObj.drawString(s, this.xSize / 2 - this.fontRendererObj.getStringWidth(s) / 2, 6, 0x404040);
-        this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, 60, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 60, 0x404040);
     }
 
     protected int getTier()

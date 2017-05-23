@@ -1,6 +1,5 @@
 package fi.dy.masa.autoverse.block;
 
-import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
@@ -92,7 +91,7 @@ public class BlockSplitter extends BlockAutoverseInventory
 
         if (te instanceof TileEntitySplitter)
         {
-            EnumFacing facing2 = BlockPistonBase.getFacingFromEntity(pos, placer);
+            EnumFacing facing2 = EnumFacing.getDirectionFromEntityLiving(pos, placer);
             if (facing2.getAxis().isVertical())
             {
                 facing2 = placer.getHorizontalFacing().rotateY();
@@ -108,9 +107,11 @@ public class BlockSplitter extends BlockAutoverseInventory
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        if (heldItem != null && heldItem.getItem() == Items.STICK)
+        ItemStack stack = playerIn.getHeldItem(hand);
+
+        if (stack.isEmpty() == false && stack.getItem() == Items.STICK)
         {
             if (worldIn.isRemote == false)
             {
@@ -126,6 +127,6 @@ public class BlockSplitter extends BlockAutoverseInventory
             return true;
         }
 
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
     }
 }

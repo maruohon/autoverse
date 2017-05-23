@@ -1,10 +1,10 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public class CreativeTab
@@ -13,9 +13,9 @@ public class CreativeTab
     {
         @SideOnly(Side.CLIENT)
         @Override
-        public Item getTabIconItem()
+        public ItemStack getTabIconItem()
         {
-            return Item.getItemFromBlock(Blocks.DROPPER);
+            return new ItemStack(AutoverseBlocks.blockFilterSeqSmart, 1, 3);
         }
 
         @SideOnly(Side.CLIENT)

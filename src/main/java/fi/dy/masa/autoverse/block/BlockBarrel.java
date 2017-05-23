@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -197,10 +198,12 @@ public class BlockBarrel extends BlockAutoverseInventory
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = playerIn.getHeldItem(hand);
+
         if (worldIn.isRemote == false && playerIn.capabilities.isCreativeMode &&
-            heldItem != null && heldItem.getItem() == Items.NETHER_STAR)
+            stack.isEmpty() == false && stack.getItem() == Items.NETHER_STAR)
         {
             TileEntity te = worldIn.getTileEntity(pos);
 
@@ -217,7 +220,7 @@ public class BlockBarrel extends BlockAutoverseInventory
             }
         }
 
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -246,7 +249,7 @@ public class BlockBarrel extends BlockAutoverseInventory
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, List<ItemStack> list)
+    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int meta = 0; meta < 32; meta++)
         {

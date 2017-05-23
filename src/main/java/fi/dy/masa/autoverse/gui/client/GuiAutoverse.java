@@ -90,7 +90,7 @@ public class GuiAutoverse extends GuiContainer
         OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
-        //this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, slotPosX, slotPosY, str);
+        //this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
     }
 
     protected void drawTooltips(int mouseX, int mouseY)
@@ -103,7 +103,7 @@ public class GuiAutoverse extends GuiContainer
             // Mouse is over the button
             if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY) == true)
             {
-                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRendererObj);
+                this.drawHoveringText(((GuiButtonHoverText)button).getHoverStrings(), mouseX, mouseY, this.fontRenderer);
             }
         }
         */

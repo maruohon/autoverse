@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse;
 
 import org.apache.logging.log4j.Logger;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -19,8 +18,7 @@ import fi.dy.masa.autoverse.reference.Reference;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
     guiFactory = "fi.dy.masa.autoverse.config.AutoverseGuiFactory",
     updateJSON = "https://raw.githubusercontent.com/maruohon/autoverse/master/update.json",
-    dependencies = "required-after:Forge@[12.17.0.1922,);",
-    acceptedMinecraftVersions = "1.9.4")
+    acceptedMinecraftVersions = "1.11.2")
 public class Autoverse
 {
     @Instance(Reference.MOD_ID)
@@ -31,7 +29,7 @@ public class Autoverse
 
     public static Logger logger;
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         instance = this;
@@ -47,7 +45,7 @@ public class Autoverse
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new AutoverseGuiHandler());
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void onServerStart(FMLServerStartingEvent event)
     {
         event.registerServerCommand(new CommandLoadConfigs());

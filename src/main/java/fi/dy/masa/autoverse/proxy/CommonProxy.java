@@ -22,7 +22,7 @@ public class CommonProxy
         switch (ctx.side)
         {
             case SERVER:
-                return ctx.getServerHandler().playerEntity;
+                return ctx.getServerHandler().player;
             default:
                 Autoverse.logger.warn("Invalid side in getPlayerFromMessageContext(): " + ctx.side);
                 return null;
