@@ -9,10 +9,17 @@ import net.minecraft.item.ItemStack;
 public class ItemType
 {
     private final ItemStack stack;
+    private final boolean checkNBT;
 
     public ItemType(ItemStack stack)
     {
-        this.stack = stack.copy();
+        this(stack, true);
+    }
+
+    public ItemType(ItemStack stack, boolean checkNBT)
+    {
+        this.stack = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+        this.checkNBT = checkNBT;
     }
 
     public ItemStack getStack()
@@ -20,15 +27,24 @@ public class ItemType
         return this.stack;
     }
 
+    public boolean checkNBT()
+    {
+        return this.checkNBT;
+    }
+
     @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
-        //result = prime * result + ((stack == null) ? 0 : stack.hashCode());
         result = prime * result + this.stack.getMetadata();
         result = prime * result + this.stack.getItem().hashCode();
-        result = prime * result + (this.stack.getTagCompound() != null ? this.stack.getTagCompound().hashCode() : 0);
+
+        if (this.checkNBT())
+        {
+            result = prime * result + (this.stack.getTagCompound() != null ? this.stack.getTagCompound().hashCode() : 0);
+        }
+
         return result;
     }
 
@@ -44,10 +60,12 @@ public class ItemType
 
         ItemType other = (ItemType) obj;
 
-        if (this.stack == null || other.stack == null)
+        if (this.stack.isEmpty() || other.stack.isEmpty())
         {
-            if (this.stack != other.stack)
+            if (this.stack.isEmpty() != other.stack.isEmpty())
+            {
                 return false;
+            }
         }
         else
         {
@@ -61,9 +79,22 @@ public class ItemType
                 return false;
             }
 
-            return ItemStack.areItemStackTagsEqual(this.stack, other.stack);
+            return this.checkNBT() == false || ItemStack.areItemStackTagsEqual(this.stack, other.stack);
         }
 
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        if (this.checkNBT())
+        {
+            return this.stack.getItem().getRegistryName() + "@" + this.stack.getMetadata() + this.stack.getTagCompound();
+        }
+        else
+        {
+            return this.stack.getItem().getRegistryName() + "@" + this.stack.getMetadata();
+        }
     }
 }

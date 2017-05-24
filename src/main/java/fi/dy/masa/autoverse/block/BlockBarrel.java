@@ -12,25 +12,24 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.Mirror;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.item.block.ItemBlockStorage;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
+import fi.dy.masa.autoverse.util.InventoryUtils;
+import fi.dy.masa.autoverse.util.TileUtils;
 
 public class BlockBarrel extends BlockAutoverseInventory
 {
@@ -38,15 +37,18 @@ public class BlockBarrel extends BlockAutoverseInventory
     public static final PropertyBool PULSED = PropertyBool.create("pulsed");
     public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 15);
 
-    public BlockBarrel(String name, float hardness, int harvestLevel, Material material)
+    public BlockBarrel(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(PULSED, false).withProperty(TIER, 0));
+        this.hasFacing = false;
+        this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(PULSED, false)
+                .withProperty(TIER, 0));
     }
 
     @Override
-    protected String[] createUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         String[] names = new String[32];
 
@@ -70,6 +72,20 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
+    protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
+    {
+        TileEntityBarrel te = new TileEntityBarrel();
+        te.setTier(state.getValue(TIER));
+        return te;
+    }
+
+    @Override
+    public ItemBlock createItemBlock()
+    {
+        return new ItemBlockStorage(this);
+    }
+
+    @Override
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -88,60 +104,47 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
-    public String[] getItemBlockVariantStrings()
-    {
-        return null;
-    }
-
-    @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
-    {
-        return new TileEntityBarrel();
-    }
-
-    @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        //return this.getDefaultState().withProperty(TIER, meta & 0xF);
-        return this.getDefaultState();
+        return this.getDefaultState().withProperty(TIER, meta & 0xF);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        //return state.getValue(TIER) & 0xF;
-        return 0;
+        return state.getValue(TIER);
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityBarrel)
+        TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+        if (te != null)
         {
-            return state.withProperty(PULSED, ((TileEntityBarrel) te).isPulsed()).withProperty(TIER, ((TileEntityBarrel) te).getTier());
+            return state.withProperty(PULSED, te.isPulsed());
         }
 
         return state;
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);
+        super.onBlockPlacedBy(world, pos, state, placer, stack);
 
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityBarrel)
+        TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+        if (te != null)
         {
-            ((TileEntityBarrel) te).setTier(stack.getMetadata() & 0xF);
-            ((TileEntityBarrel) te).setIsPulsed(stack.getMetadata() >= 16);
+            te.setIsPulsed(stack.getMetadata() >= 16);
         }
     }
 
     @Override
     public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
-        if (willHarvest == true)
+        if (willHarvest)
         {
             this.onBlockHarvested(world, pos, state, player);
             return true;
@@ -151,20 +154,20 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
+    public void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
     {
         // This will cascade down to getDrops()
-        super.harvestBlock(worldIn, player, pos, state, te, stack);
+        super.harvestBlock(world, player, pos, state, te, stack);
 
-        worldIn.setBlockToAir(pos);
+        world.setBlockToAir(pos);
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
     {
         List<ItemStack> items = new ArrayList<ItemStack>();
 
-        items.add(this.getDroppedItem(worldIn, pos, state, fortune));
+        items.add(this.getDroppedItemWithNBT(world, pos, state, false));
 
         return items;
     }
@@ -172,79 +175,35 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
-        return this.getDroppedItem(worldIn, pos, state, 0);
+        return this.getDroppedItemWithNBT(worldIn, pos, state, false);
     }
 
-    protected ItemStack getDroppedItem(IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
+    protected ItemStack getDroppedItemWithNBT(IBlockAccess world, BlockPos pos, IBlockState state, boolean addNBTLore)
     {
-        Random rand = worldIn instanceof World ? ((World)worldIn).rand : RANDOM;
-        TileEntity te = worldIn.getTileEntity(pos);
+        Random rand = world instanceof World ? ((World) world).rand : RANDOM;
+        int meta = state.getValue(TIER);
+        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, meta);
 
-        if (te instanceof TileEntityBarrel)
+        TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+        if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
         {
-            int meta = ((TileEntityBarrel) te).getTier() & 0xF;
-
-            if (((TileEntityBarrel) te).isPulsed())
+            if (te.isPulsed())
             {
-                meta += 16;
+                stack.setItemDamage(meta + 16);
             }
 
-            ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, meta);
-            return ((TileEntityBarrel) te).addBlockEntityTag(stack);
+            return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
         }
 
-        return new ItemStack(this.getItemDropped(state, rand, 0), 1, 0);
+        return stack;
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
     {
-        ItemStack stack = playerIn.getHeldItem(hand);
-
-        if (worldIn.isRemote == false && playerIn.capabilities.isCreativeMode &&
-            stack.isEmpty() == false && stack.getItem() == Items.NETHER_STAR)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-
-            if (te instanceof TileEntityBarrel)
-            {
-                boolean success = ((TileEntityBarrel) te).fillBarrel();
-
-                if (success)
-                {
-                    playerIn.sendMessage(new TextComponentTranslation("autoverse.chat.barrel.filled"));
-                }
-
-                return success;
-            }
-        }
-
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
-    }
-
-    @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityBarrel)
-        {
-            worldIn.updateComparatorOutputLevel(pos, this);
-        }
-
-        worldIn.removeTileEntity(pos);
-    }
-
-    @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
-    {
-        return state;
-    }
-
-    @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
-    {
-        return state;
+        world.updateComparatorOutputLevel(pos, this);
+        world.removeTileEntity(pos);
     }
 
     @SideOnly(Side.CLIENT)

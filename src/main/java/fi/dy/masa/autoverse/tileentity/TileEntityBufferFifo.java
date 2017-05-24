@@ -3,20 +3,18 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFifo;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSelectiveModifiable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
@@ -28,9 +26,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
     public TileEntityBufferFifo()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
-
-        this.initInventories();
+        this(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
     }
 
     public TileEntityBufferFifo(String name)
@@ -72,6 +68,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return this.itemHandlerFifo;
     }
 
+    /*
     @Override
     public IItemHandler getWrappedInventoryForContainer()
     {
@@ -82,35 +79,21 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
         return this.getBaseItemHandler();
     }
+    */
 
     @Override
     protected void onRedstoneChange(boolean state)
     {
         if (state == true)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 
     @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        super.onBlockTick(state, rand);
-
         this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, true);
-    }
-
-    public int getOffsetSlot(int slot)
-    {
-        int numSlots = this.getBaseItemHandler().getSlots();
-        slot += this.extractSlot;
-
-        if (slot >= numSlots)
-        {
-            slot -= numSlots;
-        }
-
-        return slot;
     }
 
     @Override
@@ -123,6 +106,20 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
         nbt.merge(this.getFifoInventory().serializeNBT());
+    }
+
+    /*
+    public int getOffsetSlot(int slot)
+    {
+        int numSlots = this.getBaseItemHandler().getSlots();
+        slot += this.extractSlot;
+
+        if (slot >= numSlots)
+        {
+            slot -= numSlots;
+        }
+
+        return slot;
     }
 
     private class ItemHandlerWrapperOffset extends ItemHandlerWrapperSelectiveModifiable
@@ -158,6 +155,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             return super.extractItem(TileEntityBufferFifo.this.getOffsetSlot(slot), amount, simulate);
         }
     }
+    */
 
     @Override
     public ContainerBufferFifo getContainer(EntityPlayer player)

@@ -1,12 +1,12 @@
 package fi.dy.masa.autoverse.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
+import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class AutoverseGuiHandler implements IGuiHandler
 {
@@ -21,11 +21,13 @@ public class AutoverseGuiHandler implements IGuiHandler
         switch (id)
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-                if (te != null && te instanceof TileEntityAutoverseInventory)
+                TileEntityAutoverse te = BlockAutoverse.getTileEntitySafely(world, new BlockPos(x, y, z), TileEntityAutoverse.class);
+
+                if (te != null)
                 {
-                    return ((TileEntityAutoverseInventory)te).getContainer(player);
+                    return te.getContainer(player);
                 }
+
                 break;
 
             default:
@@ -45,11 +47,13 @@ public class AutoverseGuiHandler implements IGuiHandler
         switch (id)
         {
             case ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC:
-                TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-                if (te != null && te instanceof TileEntityAutoverseInventory)
+                TileEntityAutoverse te = BlockAutoverse.getTileEntitySafely(world, new BlockPos(x, y, z), TileEntityAutoverse.class);
+
+                if (te != null)
                 {
-                    return ((TileEntityAutoverseInventory)te).getGui(player);
+                    return te.getGui(player);
                 }
+
                 break;
 
             default:

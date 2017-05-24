@@ -9,16 +9,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.inventory.container.IBaseInventory;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import io.netty.buffer.ByteBuf;
 
 public class MessageSyncSlot implements IMessage
 {
     private int windowId;
     private int slotNum;
-    private ItemStack stack;
+    private ItemStack stack = ItemStack.EMPTY;
 
     public MessageSyncSlot()
     {
@@ -42,8 +41,7 @@ public class MessageSyncSlot implements IMessage
         }
         catch (IOException e)
         {
-            Autoverse.logger.warn("MessageSyncSlot: Exception while reading data from buffer");
-            e.printStackTrace();
+            Autoverse.logger.warn("MessageSyncSlot: Exception while reading data from buffer", e);
         }
     }
 
@@ -68,6 +66,7 @@ public class MessageSyncSlot implements IMessage
 
             Minecraft mc = FMLClientHandler.instance().getClient();
             final EntityPlayer player = Autoverse.proxy.getPlayerFromMessageContext(ctx);
+
             if (mc == null || player == null)
             {
                 Autoverse.logger.error("Minecraft or player was null in MessageSyncSlot");
@@ -87,16 +86,10 @@ public class MessageSyncSlot implements IMessage
 
         protected void processMessage(final MessageSyncSlot message, EntityPlayer player)
         {
-            if (player.openContainer instanceof IBaseInventory && message.windowId == player.openContainer.windowId)
+            if (player.openContainer instanceof ContainerAutoverse && message.windowId == player.openContainer.windowId)
             {
-                IBaseInventory container = (IBaseInventory)player.openContainer;
-                IItemHandlerModifiable inv = container.getBaseInventory();
-                //System.out.printf("MessageSyncSlot slot: %d stack: %s\n", message.slotNum, message.stack);
-                inv.setStackInSlot(message.slotNum, message.stack);
-            }
-            else if (message.windowId == player.openContainer.windowId)
-            {
-                player.openContainer.putStackInSlot(message.slotNum, message.stack);
+                //System.out.printf("MessageSyncSlot - slot: %3d stack: %s\n", message.slotNum, message.stack);
+                ((ContainerAutoverse) player.openContainer).syncStackInSlot(message.slotNum, message.stack);
             }
         }
     }

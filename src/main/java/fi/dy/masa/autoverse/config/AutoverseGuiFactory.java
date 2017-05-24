@@ -36,7 +36,7 @@ public class AutoverseGuiFactory implements IModGuiFactory
         return null;
     }
 
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
     {

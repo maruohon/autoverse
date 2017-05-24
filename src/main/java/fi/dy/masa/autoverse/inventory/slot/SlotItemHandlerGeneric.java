@@ -8,6 +8,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSelective;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
+import fi.dy.masa.autoverse.inventory.IItemHandlerSyncable;
 
 public class SlotItemHandlerGeneric extends SlotItemHandler
 {
@@ -22,7 +23,7 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         //System.out.println("SlotItemHandlerGeneric.getSlotStackLimit()");
         if (this.getItemHandler() instanceof IItemHandlerSize)
         {
-            return ((IItemHandlerSize)this.getItemHandler()).getInventoryStackLimit();
+            return ((IItemHandlerSize) this.getItemHandler()).getInventoryStackLimit();
         }
 
         return super.getSlotStackLimit();
@@ -32,12 +33,18 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     public int getItemStackLimit(ItemStack stack)
     {
         //System.out.println("SlotItemHandlerGeneric.getItemStackLimit(stack)");
-        if (stack != null && this.getItemHandler() instanceof IItemHandlerSize)
+        if (stack.isEmpty() == false && this.getItemHandler() instanceof IItemHandlerSize)
         {
-            return ((IItemHandlerSize)this.getItemHandler()).getItemStackLimit(stack);
+            return ((IItemHandlerSize) this.getItemHandler()).getItemStackLimit(this.getSlotIndex(), stack);
         }
 
         return this.getSlotStackLimit();
+    }
+
+    @Override
+    public ItemStack getStack()
+    {
+        return this.getItemHandler().getStackInSlot(this.getSlotIndex());
     }
 
     @Override
@@ -45,8 +52,8 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.getItemHandler() instanceof IItemHandlerModifiable)
         {
-            //System.out.printf("SlotItemHandlerGeneric#putStack() - setStackInSlot(): %d\n", this.getSlotIndex());
-            ((IItemHandlerModifiable)this.getItemHandler()).setStackInSlot(this.getSlotIndex(), stack);
+            //System.out.printf("SlotItemHandlerGeneric#putStack() - setStackInSlot() - slot: %3d stack: %s\n", this.getSlotIndex(), stack);
+            ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.getSlotIndex(), stack);
         }
         else
         {
@@ -57,9 +64,27 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         this.onSlotChanged();
     }
 
+    public void syncStack(ItemStack stack)
+    {
+        if (this.getItemHandler() instanceof IItemHandlerSyncable)
+        {
+            ((IItemHandlerSyncable) this.getItemHandler()).syncStackInSlot(this.getSlotIndex(), stack);
+        }
+        else
+        {
+            this.putStack(stack);
+        }
+    }
+
     public ItemStack insertItem(ItemStack stack, boolean simulate)
     {
         return this.getItemHandler().insertItem(this.getSlotIndex(), stack, simulate);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int amount)
+    {
+        return this.getItemHandler().extractItem(this.getSlotIndex(), amount, false);
     }
 
     /**
@@ -70,26 +95,18 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.getItemHandler() instanceof IItemHandlerSelective)
         {
-            return ((IItemHandlerSelective)this.getItemHandler()).isItemValidForSlot(this.getSlotIndex(), stack);
+            return ((IItemHandlerSelective) this.getItemHandler()).isItemValidForSlot(this.getSlotIndex(), stack);
         }
 
         return true; // super.isItemValid(stack);
     }
-
-    /**
-     * Returns true if at least some of the items can be put to this slot right now.
-     */
-    /*public boolean canPutItems(ItemStack stack)
-    {
-        return super.isItemValid(stack);
-    }*/
 
     @Override
     public boolean canTakeStack(EntityPlayer player)
     {
         if (this.getItemHandler() instanceof IItemHandlerSelective)
         {
-            return ((IItemHandlerSelective)this.getItemHandler()).canExtractFromSlot(this.getSlotIndex());
+            return ((IItemHandlerSelective) this.getItemHandler()).canExtractFromSlot(this.getSlotIndex());
         }
 
         return true;
@@ -101,12 +118,13 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     public boolean canTakeAll()
     {
         ItemStack stack = this.getItemHandler().getStackInSlot(this.getSlotIndex());
-        if (stack == null)
+
+        if (stack.isEmpty())
         {
             return false;
         }
 
         ItemStack stackEx = this.getItemHandler().extractItem(this.getSlotIndex(), stack.getMaxStackSize(), true);
-        return stackEx != null && stack.stackSize == stackEx.stackSize;
+        return stackEx.isEmpty() == false && stack.getCount() == stackEx.getCount();
     }
 }

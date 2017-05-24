@@ -1,6 +1,6 @@
 package fi.dy.masa.autoverse.inventory;
 
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class ItemStackHandlerTileEntity extends ItemStackHandlerBasic
 {
@@ -19,7 +19,8 @@ public class ItemStackHandlerTileEntity extends ItemStackHandlerBasic
         this.inventoryId = inventoryId;
     }
 
-    public ItemStackHandlerTileEntity(int inventoryId, int invSize, int stackLimit, boolean allowCustomStackSizes, String tagName, TileEntityAutoverseInventory te)
+    public ItemStackHandlerTileEntity(int inventoryId, int invSize, int stackLimit,
+            boolean allowCustomStackSizes, String tagName, TileEntityAutoverseInventory te)
     {
         super(invSize, stackLimit, allowCustomStackSizes, tagName);
         this.te = te;
@@ -33,5 +34,10 @@ public class ItemStackHandlerTileEntity extends ItemStackHandlerBasic
 
         this.te.inventoryChanged(this.inventoryId, slot);
         this.te.markDirty();
+    }
+
+    public int getInventoryId()
+    {
+        return this.inventoryId;
     }
 }

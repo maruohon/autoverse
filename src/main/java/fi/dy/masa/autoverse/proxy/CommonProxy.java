@@ -2,9 +2,12 @@ package fi.dy.masa.autoverse.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ModFixs;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.autoverse.Autoverse;
+import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
@@ -29,12 +32,36 @@ public class CommonProxy
         }
     }
 
+    public ModFixs getDataFixer()
+    {
+        // On a server, the DataFixer gets created for and is stored inside MinecraftServer,
+        // but in single player the DataFixer is stored in the client Minecraft class
+        // over world reloads.
+        return FMLCommonHandler.instance().getDataFixer().init(Reference.MOD_ID, Autoverse.DATA_FIXER_VERSION);
+    }
+
     public boolean isShiftKeyDown()
     {
         return false;
     }
 
+    public boolean isControlKeyDown()
+    {
+        return false;
+    }
+
+    public boolean isAltKeyDown()
+    {
+        return false;
+    }
+
+    public void registerColorHandlers() { }
+
     public void registerEventHandlers() { }
+
+    public void registerKeyBindings() { }
+
+    public void registerModels() { }
 
     public void registerTileEntities()
     {
@@ -48,10 +75,8 @@ public class CommonProxy
         this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
     }
 
-    public void registerModels() { }
-
     private void registerTileEntity(Class<? extends TileEntity> clazz, String id)
     {
-        GameRegistry.registerTileEntity(clazz, ReferenceNames.getPrefixedName(id));
+        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
     }
 }

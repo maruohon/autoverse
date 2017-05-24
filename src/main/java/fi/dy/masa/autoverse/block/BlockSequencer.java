@@ -6,30 +6,26 @@ import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockSequencer extends BlockAutoverseInventory
 {
-    public static final int MAX_TIER = 4;
-    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, MAX_TIER);
+    public static final int NUM_TIERS = 5;
+    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, NUM_TIERS - 1);
 
-    public BlockSequencer(String name, float hardness, int harvestLevel, Material material)
+    public BlockSequencer(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
@@ -43,15 +39,17 @@ public class BlockSequencer extends BlockAutoverseInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
-        return new TileEntitySequencer();
+        TileEntitySequencer te = new TileEntitySequencer();
+        te.setTier(state.getValue(TIER));
+        return te;
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, MathHelper.clamp(meta, 0, MAX_TIER));
+        return this.getDefaultState().withProperty(TIER, MathHelper.clamp(meta, 0, NUM_TIERS - 1));
     }
 
     @Override
@@ -61,36 +59,9 @@ public class BlockSequencer extends BlockAutoverseInventory
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    protected String[] generateUnlocalizedNames()
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-
-        if (te instanceof TileEntityAutoverse)
-        {
-            state = state.withProperty(FACING, ((TileEntityAutoverse) te).getFacing());
-        }
-
-        return state;
-    }
-
-    @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-        super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);
-
-        TileEntity te = worldIn.getTileEntity(pos);
-
-        if (te instanceof TileEntitySequencer)
-        {
-            int tier = MathHelper.clamp(stack.getMetadata() & 0xF, 0, MAX_TIER);
-            ((TileEntitySequencer) te).setTier(tier);
-        }
-    }
-
-    @Override
-    protected String[] createUnlocalizedNames()
-    {
-        String[] names = new String[MAX_TIER + 1];
+        String[] names = new String[NUM_TIERS];
 
         for (int i = 0; i < names.length; i++)
         {
@@ -100,24 +71,11 @@ public class BlockSequencer extends BlockAutoverseInventory
         return names;
     }
 
-    @Override
-    public String[] getItemBlockVariantStrings()
-    {
-        String[] strings = new String[MAX_TIER + 1];
-
-        for (int i = 0; i < strings.length; i++)
-        {
-            strings[i] = String.valueOf(i);
-        }
-
-        return strings;
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta <= MAX_TIER; meta++)
+        for (int meta = 0; meta < NUM_TIERS; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }

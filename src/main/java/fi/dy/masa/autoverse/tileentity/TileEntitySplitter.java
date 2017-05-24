@@ -3,9 +3,12 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -13,12 +16,13 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiSplitter;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.EntityUtils;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntitySplitter extends TileEntityAutoverseInventory
@@ -33,15 +37,12 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     protected IItemHandler wrappedInventoryOut2;
     protected ItemHandlerWrapperFilter inventoryInput;
 
-    protected EnumFacing facing2;
+    protected EnumFacing facing2 = EnumFacing.WEST;
     protected BlockPos posOut2;
 
     public TileEntitySplitter()
     {
         this(ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
-
-        this.facing2 = EnumFacing.WEST;
-        this.initInventories();
     }
 
     public TileEntitySplitter(String name)
@@ -52,11 +53,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,             1,  1, false, "InputItems", this);
-        this.inventoryReset         = new ItemStackHandlerTileEntity(0,             4,  1, false, "ResetItems", this);
-        this.inventorySequence      = new ItemStackHandlerTileEntity(1,             2, 64, false, "SequenceItems", this);
-        this.inventoryOut1          = new ItemStackHandlerTileEntity(2,             1,  1, false, "OutItems1", this);
-        this.inventoryOut2          = new ItemStackHandlerTileEntity(3,             1,  1, false, "OutItems2", this);
+        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9, 1,  1, false, "InputItems", this);
+        this.inventoryReset         = new ItemStackHandlerTileEntity(0, 4,  1, false, "ResetItems", this);
+        this.inventorySequence      = new ItemStackHandlerTileEntity(1, 2, 64, false, "SequenceItems", this);
+        this.inventoryOut1          = new ItemStackHandlerTileEntity(2, 1,  1, false, "OutItems1", this);
+        this.inventoryOut2          = new ItemStackHandlerTileEntity(3, 1,  1, false, "OutItems2", this);
         this.itemHandlerBase        = this.inventoryOut1;
 
         this.wrappedInventoryOut1   = new ItemHandlerWrapperExtractOnly(this.inventoryOut1);
@@ -68,12 +69,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
                 this.inventoryOut1,
                 this.inventoryOut2,
                 this);
-    }
-
-    @Override
-    public IItemHandler getWrappedInventoryForContainer()
-    {
-        return this.getBaseItemHandler();
     }
 
     public IItemHandler getInputInventory()
@@ -111,7 +106,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         return this.facing2;
     }
 
-    public void setOutputSide2(EnumFacing side)
+    public void setSecondOutputSide(EnumFacing side)
     {
         if (side != this.facing)
         {
@@ -126,7 +121,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
      * That way the filter-out side's texture will be placed on the correct face
      * of the non-rotated model, before the primary facing's rotation is applied to the entire model.
      */
-    public EnumFacing getOut2RelativeFacing()
+    public EnumFacing getSecondOutputRelativeFacing()
     {
         switch (this.facing)
         {
@@ -138,6 +133,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
                     return this.facing2.getOpposite();
                 }
                 return this.facing2;
+
             default:
                 EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, this.facing).getOpposite();
 
@@ -153,13 +149,29 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     }
 
     @Override
+    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (stack.isEmpty() && player.isSneaking())
+        {
+            this.setSecondOutputSide(side);
+            this.markDirty();
+            this.notifyBlockUpdate(this.getPos());
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
         super.readFromNBTCustom(tag);
 
         // Setting the tier and thus initializing the inventories needs to
         // happen before reading the inventories!
-        this.setOutputSide2(EnumFacing.getFront(tag.getByte("Facing2")));
+        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")));
 
         this.inventoryInputManual.deserializeNBT(tag);
         this.inventoryReset.deserializeNBT(tag);
@@ -202,7 +214,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         //tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
-        tag.setByte("f", (byte)((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
+        tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
         return tag;
     }
 
@@ -212,7 +224,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         //this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
         int facings = tag.getByte("f");
         this.setFacing(EnumFacing.getFront(facings & 0x7));
-        this.setOutputSide2(EnumFacing.getFront((facings >>> 4) & 0x7));
+        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7));
 
         IBlockState state = this.getWorld().getBlockState(this.getPos());
         this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
@@ -221,17 +233,15 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (state == true)
+        if (state)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 
     @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        super.onBlockTick(state, rand);
-
         this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.posFront, this.facingOpposite, false);
         this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
     }
@@ -270,11 +280,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public void dropInventories()
     {
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryInputManual, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryReset, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventorySequence, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOut1, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryOut2, true, true);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInputManual);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryReset);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventorySequence);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut1);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut2);
     }
 
     @Override
@@ -283,7 +293,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         // Manual input inventory
         if (inventoryId == 9)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 

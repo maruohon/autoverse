@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.stats.AchievementList;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
@@ -19,7 +20,8 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
     private final InventoryCrafting craftMatrix;
     private int amountCrafted;
 
-    public SlotItemHandlerCraftResult(EntityPlayer player, InventoryCrafting craftMatrix, IItemHandler craftResult, int index, int xPosition, int yPosition)
+    public SlotItemHandlerCraftResult(EntityPlayer player, InventoryCrafting craftMatrix, IItemHandler craftResult,
+            int index, int xPosition, int yPosition)
     {
         super(craftResult, index, xPosition, yPosition);
         this.player = player;
@@ -37,7 +39,7 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
     {
         if (this.getHasStack())
         {
-            this.amountCrafted += Math.min(amount, this.getStack().stackSize);
+            this.amountCrafted += Math.min(amount, this.getStack().getCount());
         }
 
         return super.decrStackSize(amount);
@@ -56,6 +58,7 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
         if (this.amountCrafted > 0)
         {
             stack.onCrafting(this.player.getEntityWorld(), this.player, this.amountCrafted);
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(this.player, stack, this.craftMatrix);
         }
 
         this.amountCrafted = 0;
@@ -111,34 +114,34 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
         }
     }
 
-    public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
+    public ItemStack onTake(EntityPlayer player, ItemStack stack)
     {
-        net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerCraftingEvent(playerIn, stack, craftMatrix);
         this.onCrafting(stack);
-        net.minecraftforge.common.ForgeHooks.setCraftingPlayer(playerIn);
-        ItemStack[] remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, playerIn.getEntityWorld());
+        net.minecraftforge.common.ForgeHooks.setCraftingPlayer(player);
+        NonNullList<ItemStack> remainingItems = CraftingManager.getInstance().getRemainingItems(this.craftMatrix, player.getEntityWorld());
         net.minecraftforge.common.ForgeHooks.setCraftingPlayer(null);
 
-        for (int i = 0; i < remainingItems.length; ++i)
+        for (int i = 0; i < remainingItems.size(); i++)
         {
             ItemStack stackInSlot = this.craftMatrix.getStackInSlot(i);
-            ItemStack remainingItemsInSlot = remainingItems[i];
+            ItemStack remainingItemsInSlot = remainingItems.get(i);
 
-            if (stackInSlot != null)
+            if (stackInSlot.isEmpty() == false)
             {
                 this.craftMatrix.decrStackSize(i, 1);
                 stackInSlot = this.craftMatrix.getStackInSlot(i);
             }
 
-            if (remainingItemsInSlot != null)
+            if (remainingItemsInSlot.isEmpty() == false)
             {
-                if (stackInSlot == null)
+                if (stackInSlot.isEmpty())
                 {
                     this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
                 }
-                else if (ItemStack.areItemsEqual(stackInSlot, remainingItemsInSlot) && ItemStack.areItemStackTagsEqual(stackInSlot, remainingItemsInSlot))
+                else if (ItemStack.areItemsEqual(stackInSlot, remainingItemsInSlot) &&
+                         ItemStack.areItemStackTagsEqual(stackInSlot, remainingItemsInSlot))
                 {
-                    remainingItemsInSlot.stackSize += stackInSlot.stackSize;
+                    remainingItemsInSlot.grow(stackInSlot.getCount());
                     this.craftMatrix.setInventorySlotContents(i, remainingItemsInSlot);
                 }
                 else if (this.player.inventory.addItemStackToInventory(remainingItemsInSlot) == false)
@@ -147,5 +150,7 @@ public class SlotItemHandlerCraftResult extends SlotItemHandlerGeneric
                 }
             }
         }
+
+        return stack;
     }
 }

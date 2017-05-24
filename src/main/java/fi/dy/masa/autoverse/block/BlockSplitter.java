@@ -6,25 +6,22 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockSplitter extends BlockAutoverseInventory
 {
     public static final PropertyDirection FACING2 = PropertyDirection.create("facing_out2");
 
-    public BlockSplitter(String name, float hardness, int harvestLevel, Material material)
+    public BlockSplitter(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, EnumFacing.NORTH)
@@ -38,7 +35,7 @@ public class BlockSplitter extends BlockAutoverseInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
         return new TileEntitySplitter();
     }
@@ -56,77 +53,54 @@ public class BlockSplitter extends BlockAutoverseInventory
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntitySplitter te = getTileEntitySafely(world, pos, TileEntitySplitter.class);
 
-        if (te instanceof TileEntitySplitter)
+        if (te != null)
         {
-            state = state.withProperty(FACING, ((TileEntitySplitter) te).getFacing())
-                    .withProperty(FACING2, ((TileEntitySplitter) te).getOut2RelativeFacing());
+            state = state.withProperty(FACING, te.getFacing())
+                         .withProperty(FACING2, te.getSecondOutputRelativeFacing());
         }
 
         return state;
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntitySplitter)
+        TileEntitySplitter te = getTileEntitySafely(world, pos, TileEntitySplitter.class);
+
+        if (te != null)
         {
-            ((TileEntitySplitter) te).dropInventories();
-            worldIn.updateComparatorOutputLevel(pos, this);
+            te.dropInventories();
+            world.updateComparatorOutputLevel(pos, this);
         }
 
-        worldIn.removeTileEntity(pos);
+        world.removeTileEntity(pos);
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);
+        super.onBlockPlacedBy(world, pos, state, placer, stack);
 
-        TileEntity te = worldIn.getTileEntity(pos);
+        TileEntitySplitter te = getTileEntitySafely(world, pos, TileEntitySplitter.class);
 
-        if (te instanceof TileEntitySplitter)
+        if (te != null)
         {
-            EnumFacing facing2 = EnumFacing.getDirectionFromEntityLiving(pos, placer);
-            if (facing2.getAxis().isVertical())
+            EnumFacing facing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
+
+            if (facing.getAxis().isVertical())
             {
-                facing2 = placer.getHorizontalFacing().rotateY();
+                facing = placer.getHorizontalFacing().rotateY();
             }
             else
             {
-                facing2 = facing2.rotateYCCW();
+                facing = facing.rotateYCCW();
             }
 
-            ((TileEntitySplitter) te).setOutputSide2(facing2);
+            te.setSecondOutputSide(facing);
         }
-    }
-
-    @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        ItemStack stack = playerIn.getHeldItem(hand);
-
-        if (stack.isEmpty() == false && stack.getItem() == Items.STICK)
-        {
-            if (worldIn.isRemote == false)
-            {
-                TileEntity te = worldIn.getTileEntity(pos);
-
-                if (te instanceof TileEntitySplitter)
-                {
-                    ((TileEntitySplitter) te).setOutputSide2(side);
-                    worldIn.notifyBlockUpdate(pos, state, state, 3);
-                }
-            }
-
-            return true;
-        }
-
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
     }
 }

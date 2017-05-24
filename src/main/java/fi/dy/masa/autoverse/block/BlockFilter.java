@@ -8,92 +8,83 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockFilter extends BlockAutoverseInventory
 {
-    public static final PropertyDirection FACING_FILTER = PropertyDirection.create("facing_filter");
-    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 4);
-    protected final Class <? extends TileEntityAutoverseInventory> teClass;
+    private static final int NUM_TIERS = 5;
+    protected static final PropertyDirection FACING_FILTER = PropertyDirection.create("facing_filter");
+    private static final PropertyInteger TIER = PropertyInteger.create("tier", 0, NUM_TIERS - 1);
     protected int tiers;
 
-    public BlockFilter(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass)
+    public BlockFilter(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        this(name, hardness, harvestLevel, material, teClass, 5);
+        this(name, hardness, resistance, harvestLevel, material, NUM_TIERS);
     }
 
-    protected BlockFilter(String name, float hardness, int harvestLevel, Material material, Class <? extends TileEntityAutoverseInventory> teClass, int tiers)
+    protected BlockFilter(String name, float hardness, float resistance, int harvestLevel, Material material, int tiers)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
-        this.teClass = teClass;
         this.tiers = tiers;
-        this.unlocalizedNames = this.createUnlocalizedNames(); // Needs to happen after setting the tiers count
+        this.setDefaultState();
 
-        this.setFilterDefaultState();
+        // This needs to happen after setting the tiers count
+        this.unlocalizedNames = this.generateUnlocalizedNames();
     }
 
-    protected void setFilterDefaultState()
+    protected PropertyInteger getTierProperty()
+    {
+        return TIER;
+    }
+
+    protected void setDefaultState()
     {
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING_FILTER, EnumFacing.EAST)
-                .withProperty(TIER, 0));
+                .withProperty(this.getTierProperty(), 0));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, TIER });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, this.getTierProperty() });
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, meta);
+        return this.getDefaultState().withProperty(this.getTierProperty(), meta);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER);
+        return state.getValue(this.getTierProperty());
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    protected TileEntityAutoverse createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityFilter)
-        {
-            TileEntityFilter tefi = (TileEntityFilter)te;
-            state = state
-                    .withProperty(FACING,           tefi.getFacing())
-                    .withProperty(FACING_FILTER,    tefi.getFilterOutRelativeFacing())
-                    .withProperty(TIER,             tefi.getFilterTier());
-        }
-
-        return state;
+        TileEntityFilter te = new TileEntityFilter();
+        te.setFilterTier(state.getValue(this.getTierProperty()));
+        return te;
     }
 
     @Override
-    protected String[] createUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         String[] names = new String[this.tiers];
 
@@ -106,58 +97,44 @@ public class BlockFilter extends BlockAutoverseInventory
     }
 
     @Override
-    public String[] getItemBlockVariantStrings()
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        String[] strings = new String[this.tiers];
+        TileEntityFilter te = getTileEntitySafely(world, pos, TileEntityFilter.class);
 
-        for (int i = 0; i < this.tiers; i++)
+        if (te != null)
         {
-            strings[i] = String.valueOf(i);
+            state = state.withProperty(FACING, te.getFacing())
+                         .withProperty(FACING_FILTER, te.getFilterOutRelativeFacing());
         }
 
-        return strings;
+        return state;
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        try
+        TileEntityFilter te = getTileEntitySafely(world, pos, TileEntityFilter.class);
+
+        if (te != null)
         {
-            return this.teClass.newInstance();
-        }
-        catch (Throwable e)
-        {
-            Autoverse.logger.fatal("BlockFilter: Failed to create a TileEntity for " + this.teClass.getSimpleName());
+            te.dropInventories();
+            world.updateComparatorOutputLevel(pos, this);
         }
 
-        return null;
+        world.removeTileEntity(pos);
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityFilter)
+        super.onBlockPlacedBy(world, pos, state, placer, stack);
+
+        TileEntityFilter te = getTileEntitySafely(world, pos, TileEntityFilter.class);
+
+        if (te != null)
         {
-            ((TileEntityFilter) te).dropInventories();
-            worldIn.updateComparatorOutputLevel(pos, this);
-        }
-
-        worldIn.removeTileEntity(pos);
-    }
-
-    @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, EnumFacing side, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-        super.onBlockPlacedBy(worldIn, pos, side, state, placer, stack);
-
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityFilter)
-        {
-            int tier = MathHelper.clamp(stack.getMetadata() & 0xF, 0, this.tiers - 1);
-            ((TileEntityFilter) te).setFilterTier(tier);
-
             EnumFacing filterFacing = EnumFacing.getDirectionFromEntityLiving(pos, placer);
+
             if (filterFacing.getAxis().isVertical())
             {
                 filterFacing = placer.getHorizontalFacing().rotateY();
@@ -167,37 +144,8 @@ public class BlockFilter extends BlockAutoverseInventory
                 filterFacing = filterFacing.rotateYCCW();
             }
 
-            /*if (placer.isSneaking())
-            {
-                filterFacing = filterFacing.getOpposite();
-            }*/
-
-            ((TileEntityFilter) te).setFilterOutputSide(filterFacing);
+            te.setFilterOutputSide(filterFacing);
         }
-    }
-
-    @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        ItemStack stack = playerIn.getHeldItem(hand);
-
-        if (stack.isEmpty() == false && stack.getItem() == Items.STICK)
-        {
-            if (worldIn.isRemote == false)
-            {
-                TileEntity te = worldIn.getTileEntity(pos);
-                if (te instanceof TileEntityFilter)
-                {
-                    ((TileEntityFilter) te).setFilterOutputSide(side);
-                    worldIn.notifyBlockUpdate(pos, state, state, 3);
-                }
-            }
-
-            return true;
-        }
-
-        return super.onBlockActivated(worldIn, pos, state, playerIn, hand, side, hitX, hitY, hitZ);
     }
 
     @SideOnly(Side.CLIENT)

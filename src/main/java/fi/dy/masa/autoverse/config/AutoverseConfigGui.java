@@ -2,9 +2,7 @@ package fi.dy.masa.autoverse.config;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.minecraft.client.gui.GuiScreen;
-
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.IConfigElement;
@@ -21,7 +19,7 @@ public class AutoverseConfigGui extends GuiConfig
     {
         List<IConfigElement> configElements = new ArrayList<IConfigElement>();
 
-        configElements.addAll(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_GENERIC)).getChildElements());
+        configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_GENERIC)));
 
         return configElements;
     }

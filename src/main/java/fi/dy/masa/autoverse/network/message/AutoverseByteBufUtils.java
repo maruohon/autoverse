@@ -16,7 +16,7 @@ public class AutoverseByteBufUtils
 {
     public static void writeItemStackToBuffer(ByteBuf buf, ItemStack stack)
     {
-        if (stack == null)
+        if (stack.isEmpty())
         {
             buf.writeShort(-1);
             return;
@@ -24,12 +24,13 @@ public class AutoverseByteBufUtils
 
         buf.writeShort(Item.getIdFromItem(stack.getItem()));
         buf.writeShort(stack.getMetadata());
-        buf.writeInt(stack.stackSize);
+        buf.writeInt(stack.getCount());
 
         NBTTagCompound tag = null;
-        if (stack.getItem().isDamageable() == true || stack.getItem().getShareTag() == true)
+
+        if (stack.getItem().isDamageable() || stack.getItem().getShareTag())
         {
-            tag = stack.getTagCompound();
+            tag = stack.getItem().getNBTShareTag(stack);
         }
 
         writeNBTTagCompoundToBuffer(buf, tag);
@@ -37,7 +38,7 @@ public class AutoverseByteBufUtils
 
     public static ItemStack readItemStackFromBuffer(ByteBuf buf) throws IOException
     {
-        ItemStack stack = null;
+        ItemStack stack = ItemStack.EMPTY;
         short id = buf.readShort();
 
         if (id >= 0)

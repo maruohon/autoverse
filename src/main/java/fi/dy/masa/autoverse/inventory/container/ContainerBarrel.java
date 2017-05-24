@@ -1,15 +1,18 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerTileLargeStacks;
+import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
 
-public class ContainerBarrel extends ContainerLargeStacks
+public class ContainerBarrel extends ContainerTileLargeStacks
 {
-    public ContainerBarrel(EntityPlayer player, TileEntityAutoverseInventory te)
+    public ContainerBarrel(EntityPlayer player, TileEntityBarrel te)
     {
-        super(player, te);
+        super(player, te.getWrappedInventoryForContainer(player), te);
+
+        this.inventoryNonWrapped = te.getBaseItemHandler();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(8, 51);

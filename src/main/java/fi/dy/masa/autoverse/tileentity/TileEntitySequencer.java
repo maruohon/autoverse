@@ -5,19 +5,21 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockSequencer;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiSequencer;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperSequencer;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencer;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSequencer;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntitySequencer extends TileEntityAutoverseInventory
 {
@@ -63,12 +65,6 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         return this.inventorySequencer.getOutputSlot();
     }
 
-    @Override
-    public IItemHandler getWrappedInventoryForContainer()
-    {
-        return this.getBaseItemHandler();
-    }
-
     public int getTier()
     {
         return this.tier;
@@ -76,7 +72,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
 
     protected int getMaxTier()
     {
-        return BlockSequencer.MAX_TIER;
+        return BlockSequencer.NUM_TIERS - 1;
     }
 
     public void setTier(int tier)
@@ -89,13 +85,11 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
-        super.readFromNBTCustom(tag);
-
         // Setting the tier and thus initializing the inventories needs to
         // happen before reading the inventories!
         this.setTier(tag.getByte("Tier"));
 
-        this.inventorySequencer.deserializeNBT(tag);
+        super.readFromNBTCustom(tag);
     }
 
     @Override
@@ -103,7 +97,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Tier", (byte)this.getTier());
+        nbt.setByte("Tier", (byte) this.getTier());
         nbt.merge(this.inventorySequencer.serializeNBT());
 
         return nbt;
@@ -112,7 +106,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        // Do nothing here, see readFromNBTCustom() above...
+        this.inventorySequencer.deserializeNBT(nbt);
     }
 
     @Override
@@ -144,17 +138,15 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (state == true)
+        if (state)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 
     @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        super.onBlockTick(state, rand);
-
         this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);
     }
 

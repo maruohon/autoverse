@@ -8,33 +8,28 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockBuffer extends BlockAutoverseInventory
 {
-    public static final PropertyEnum<EnumMachineType> TYPE =
-            PropertyEnum.<EnumMachineType>create("type", EnumMachineType.class);
+    public static final PropertyEnum<BufferType> TYPE = PropertyEnum.<BufferType>create("type", BufferType.class);
 
-    public BlockBuffer(String name, float hardness, int harvestLevel, Material material)
+    public BlockBuffer(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(TYPE, EnumMachineType.FIFO)
-                .withProperty(FACING, EnumFacing.NORTH));
+                .withProperty(TYPE, BufferType.FIFO)
+                .withProperty(FACING, DEFAULT_FACING));
     }
 
     @Override
@@ -44,7 +39,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    protected String[] createUnlocalizedNames()
+    protected String[] generateUnlocalizedNames()
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO,
@@ -53,12 +48,14 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public TileEntity createTileEntity(World worldIn, IBlockState state)
+    protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
         switch (state.getValue(TYPE))
         {
-            case FIFO:              return new TileEntityBufferFifo();
-            case FIFO_PULSED:       return new TileEntityBufferFifoPulsed();
+            case FIFO:
+                return new TileEntityBufferFifo();
+            case FIFO_PULSED:
+                return new TileEntityBufferFifoPulsed();
         }
 
         return new TileEntityBufferFifo();
@@ -67,7 +64,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TYPE, EnumMachineType.fromMeta(meta));
+        return this.getDefaultState().withProperty(TYPE, BufferType.fromMeta(meta));
     }
 
     @Override
@@ -76,38 +73,33 @@ public class BlockBuffer extends BlockAutoverseInventory
         return state.getValue(TYPE).getMeta();
     }
 
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-    {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityAutoverse)
-        {
-            state = state.withProperty(FACING, ((TileEntityAutoverse)te).getFacing());
-        }
-
-        return state;
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < EnumMachineType.values().length; meta++)
+        for (int meta = 0; meta < BufferType.values().length; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
     }
 
-    public static enum EnumMachineType implements IStringSerializable
+    public static enum BufferType implements IStringSerializable
     {
-        FIFO (ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO),
-        FIFO_PULSED (ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
+        FIFO            (0, "buffer_fifo"),
+        FIFO_PULSED     (1, "buffer_fifo_pulsed");
 
+        private final int meta;
         private final String name;
 
-        private EnumMachineType(String name)
+        private BufferType(int meta, String name)
         {
+            this.meta = meta;
             this.name = name;
+        }
+
+        public int getMeta()
+        {
+            return meta;
         }
 
         public String toString()
@@ -120,12 +112,7 @@ public class BlockBuffer extends BlockAutoverseInventory
             return this.name;
         }
 
-        public int getMeta()
-        {
-            return this.ordinal();
-        }
-
-        public static EnumMachineType fromMeta(int meta)
+        public static BufferType fromMeta(int meta)
         {
             return meta < values().length ? values()[meta] : FIFO;
         }

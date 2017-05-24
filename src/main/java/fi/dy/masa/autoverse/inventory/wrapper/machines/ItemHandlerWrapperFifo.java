@@ -1,0 +1,102 @@
+package fi.dy.masa.autoverse.inventory.wrapper.machines;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
+
+public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NBTTagCompound>
+{
+    protected final ItemStackHandlerTileEntity baseHandler;
+    protected int insertSlot;
+    protected int extractSlot;
+
+    public ItemHandlerWrapperFifo(ItemStackHandlerTileEntity baseHandler)
+    {
+        this.baseHandler = baseHandler;
+    }
+
+    public int getInsertSlot()
+    {
+        return this.insertSlot;
+    }
+
+    public int getExtractSlot()
+    {
+        return this.extractSlot;
+    }
+
+    @Override
+    public int getSlots()
+    {
+        return 1;
+    }
+
+    @Override
+    public int getSlotLimit(int slot)
+    {
+        return this.baseHandler.getSlotLimit(slot);
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT()
+    {
+        NBTTagCompound nbt = this.baseHandler.serializeNBT();
+
+        nbt.setByte("InsertPos", (byte)this.insertSlot);
+        nbt.setByte("ExtractPos", (byte)this.extractSlot);
+
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt)
+    {
+        this.baseHandler.deserializeNBT(nbt);
+
+        this.insertSlot = MathHelper.clamp(nbt.getByte("InsertPos"), 0, this.baseHandler.getSlots() - 1);
+        this.extractSlot = MathHelper.clamp(nbt.getByte("ExtractPos"), 0, this.baseHandler.getSlots() - 1);
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int slot)
+    {
+        return this.baseHandler.getStackInSlot(this.extractSlot);
+    }
+
+    @Override
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+    {
+        int sizeOrig = stack.getCount();
+
+        stack = this.baseHandler.insertItem(this.insertSlot, stack, simulate);
+
+        if (simulate == false && (stack.isEmpty() || stack.getCount() != sizeOrig))
+        {
+            if (++this.insertSlot >= this.baseHandler.getSlots())
+            {
+                this.insertSlot = 0;
+            }
+        }
+
+        return stack;
+    }
+
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate)
+    {
+        ItemStack stack = this.baseHandler.extractItem(this.extractSlot, amount, simulate);
+
+        if (simulate == false && stack.isEmpty() == false)
+        {
+            if (++this.extractSlot >= this.baseHandler.getSlots())
+            {
+                this.extractSlot = 0;
+            }
+        }
+
+        return stack;
+    }
+}

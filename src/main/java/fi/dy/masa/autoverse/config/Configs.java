@@ -20,27 +20,42 @@ public class Configs
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
     {
-        if (Reference.MOD_ID.equals(event.getModID()) == true)
+        if (Reference.MOD_ID.equals(event.getModID()))
         {
-            loadConfigs(config);
+            reLoadAllConfigs(false);
         }
-    }
-
-    public static void loadConfigsFromFile()
-    {
-        config = new Configuration(configurationFile, null, true);
-        config.load();
-
-        loadConfigs(config);
     }
 
     public static void loadConfigsFromFile(File configFile)
     {
         configurationFile = configFile;
-        loadConfigsFromFile();
+        config = new Configuration(configurationFile, null, true);
+        config.load();
+        reLoadAllConfigs(false);
     }
 
-    private static void loadConfigs(Configuration conf)
+    public static Configuration loadConfigsFromFile()
+    {
+        //config.load();
+        return config;
+    }
+
+    public static void reLoadAllConfigs(boolean reloadFromFile)
+    {
+        if (reloadFromFile)
+        {
+            config.load();
+        }
+
+        loadConfigsGeneric(config);
+
+        if (config.hasChanged())
+        {
+            config.save();
+        }
+    }
+
+    private static void loadConfigsGeneric(Configuration conf)
     {
         Property prop;
 
@@ -52,7 +67,7 @@ public class Configs
         prop.setComment("Use a wrapper inventory to offset the slots so that the output is always the first slot");
         fifoBufferUseWrappedInventory = prop.getBoolean();
 
-        if (conf.hasChanged() == true)
+        if (conf.hasChanged())
         {
             conf.save();
         }

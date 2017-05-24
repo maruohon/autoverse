@@ -3,10 +3,13 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -14,12 +17,12 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.EntityUtils;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
@@ -47,8 +50,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public TileEntityFilter(String name)
     {
         super(name);
-
-        this.initInventories();
     }
 
     @Override
@@ -127,12 +128,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
-    @Override
-    public IItemHandler getWrappedInventoryForContainer()
-    {
-        return this.getBaseItemHandler();
-    }
-
     public IItemHandler getInputInventory()
     {
         return this.inventoryInputManual;
@@ -208,6 +203,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                     return this.facingFilteredOut.getOpposite();
                 }
                 return this.facingFilteredOut;
+
             default:
                 EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, this.facing).getOpposite();
 
@@ -223,11 +219,27 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
+    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
+        ItemStack stack = player.getHeldItem(hand);
+
+        if (stack.isEmpty() && player.isSneaking())
+        {
+            this.setFilterOutputSide(side);
+            this.notifyBlockUpdate(this.getPos());
+            this.markDirty();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (state == true)
+        if (state)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 
@@ -237,10 +249,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         if (slot != -1)
         {
-            for ( ; slot < this.wrappedInventoryNonmatchOut.getSlots(); slot++)
+            final int invSize = this.wrappedInventoryNonmatchOut.getSlots();
+
+            for ( ; slot < invSize; ++slot)
             {
                 if (this.pushItemsToAdjacentInventory(this.wrappedInventoryNonmatchOut, slot,
-                        this.posFront, this.facingOpposite, this.redstoneState) == true)
+                    this.posFront, this.facingOpposite, this.redstoneState))
                 {
                     break;
                 }
@@ -256,11 +270,13 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         if (slot != -1)
         {
+            final int invSize = this.wrappedInventoryFilterered.getSlots();
+
             //System.out.printf("block tick - pos: %s\n", this.getPos());
-            for ( ; slot < this.wrappedInventoryFilterered.getSlots(); slot++)
+            for ( ; slot < invSize; ++slot)
             {
                 if (this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot,
-                        this.posFilteredOut, this.facingFilteredOut.getOpposite(), this.redstoneState) == true)
+                    this.posFilteredOut, this.facingFilteredOut.getOpposite(), this.redstoneState))
                 {
                     break;
                 }
@@ -271,12 +287,10 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void onBlockTick(IBlockState state, Random rand)
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        super.onBlockTick(state, rand);
-
         // Items in the manual input inventory, try to pull them in
-        if (this.inventoryInputManual.getStackInSlot(0) != null)
+        if (this.inventoryInputManual.getStackInSlot(0).isEmpty() == false)
         {
             InventoryUtils.tryMoveStackToOtherInventory(this.inventoryInputManual, this.inventoryInput, 0, false);
         }
@@ -284,10 +298,10 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         boolean flag1 = this.tryOutputNonMatchingItems();
         boolean flag2 = this.tryOutputFilteredItems();
 
-        // Lazy check for if there WERE some items, then schedule a new tick
+        // Lazy check for if there WERE some items, then schedule a new update
         if (flag1 || flag2)
         {
-            this.scheduleBlockTick(4, false);
+            this.scheduleBlockUpdate(4, false);
         }
         // The usefulness of this is questionable... It speeds up the transition from RESET by one item insertion attempt
         else if (this.inventoryInput.getMode() == ItemHandlerWrapperFilter.EnumMode.RESET)
@@ -297,21 +311,26 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void readFromNBTCustom(NBTTagCompound tag)
+    public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        super.readFromNBTCustom(tag);
+        super.readFromNBTCustom(nbt);
 
         // Setting the tier and thus initializing the inventories needs to
         // happen before reading the inventories!
-        this.setFilterTier(tag.getByte("Tier"));
-        this.setFilterOutputSide(EnumFacing.getFront(tag.getByte("FilterFacing")));
+        this.setFilterTier(nbt.getByte("Tier"));
+        this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")));
 
-        this.inventoryInputManual.deserializeNBT(tag);
-        this.inventoryReset.deserializeNBT(tag);
-        this.inventoryFilterItems.deserializeNBT(tag);
-        this.inventoryFilterered.deserializeNBT(tag);
-        this.inventoryNonmatchOut.deserializeNBT(tag);
-        this.inventoryInput.deserializeNBT(tag);
+        this.inventoryInputManual.deserializeNBT(nbt);
+        this.inventoryReset.deserializeNBT(nbt);
+        this.inventoryFilterItems.deserializeNBT(nbt);
+        this.inventoryFilterered.deserializeNBT(nbt);
+        this.inventoryNonmatchOut.deserializeNBT(nbt);
+        this.inventoryInput.deserializeNBT(nbt);
+    }
+
+    @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
     }
 
     @Override
@@ -324,12 +343,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryInput.serializeNBT());
 
         return nbt;
-    }
-
-    @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
-    {
-        // Do nothing here, see readFromNBTCustom() above...
     }
 
     @Override
@@ -362,9 +375,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.setFilterOutputSide(EnumFacing.getFront(facings >> 4));
 
         this.setFilterTier(tag.getByte("t"));
-
-        IBlockState state = this.getWorld().getBlockState(this.getPos());
-        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
 
         super.handleUpdateTag(tag);
     }
@@ -403,10 +413,10 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public void dropInventories()
     {
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryReset, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterItems, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryFilterered, true, true);
-        EntityUtils.dropAllItemInWorld(this.getWorld(), this.getPos(), this.inventoryNonmatchOut, true, true);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryReset);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryFilterItems);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryFilterered);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryNonmatchOut);
     }
 
     @Override
@@ -415,7 +425,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         // Manual input inventory
         if (inventoryId == 9)
         {
-            this.scheduleBlockTick(1, true);
+            this.scheduleBlockUpdate(1, true);
         }
     }
 

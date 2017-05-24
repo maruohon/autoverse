@@ -7,9 +7,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilter.EnumMode;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilterSequentialSmart;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter.EnumMode;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilterSequentialSmart;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
@@ -44,12 +44,9 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
 
     private class ExtractWrapper extends ItemHandlerWrapperExtractOnly
     {
-        private final TileEntityFilterSequentialSmart te;
-
         public ExtractWrapper(IItemHandler baseInventory, TileEntityFilterSequentialSmart te)
         {
             super(baseInventory);
-            this.te = te;
         }
 
         @Override
@@ -69,9 +66,9 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
             // Only allow extracting after the filter sequence is complete and the filter enters reset mode
-            if (this.te.inventoryInput.getMode() != EnumMode.OUTPUT_ITEMS)
+            if (TileEntityFilterSequentialSmart.this.inventoryInput.getMode() != EnumMode.OUTPUT_ITEMS)
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             slot = InventoryUtils.getFirstNonEmptySlot(this.parent);

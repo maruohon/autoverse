@@ -3,11 +3,12 @@ package fi.dy.masa.autoverse.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
+import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 
-public class ContainerSequencer extends ContainerCustomSlotClick
+public class ContainerSequencer extends ContainerTile
 {
     private final TileEntitySequencer teseq;
     private int outputSlot;

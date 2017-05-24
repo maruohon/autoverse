@@ -2,7 +2,7 @@
 {
   "modid": "autoverse",
   "name": "Autoverse",
-  "description": "Adds some blocks for automation-type things",
+  "description": "Automation and logic by item flow",
   "version": "${mod_version}",
   "mcversion": "${minecraft_version}",
   "url": "http://minecraft.curseforge.com/projects/autoverse",

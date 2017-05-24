@@ -6,5 +6,5 @@ public interface IItemHandlerSize
 {
     public int getInventoryStackLimit();
 
-    public int getItemStackLimit(ItemStack stack);
+    public int getItemStackLimit(int slot, ItemStack stack);
 }

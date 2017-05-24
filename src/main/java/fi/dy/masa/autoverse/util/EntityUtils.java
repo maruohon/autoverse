@@ -1,33 +1,133 @@
 package fi.dy.masa.autoverse.util;
 
+import java.util.Map;
+import javax.annotation.Nullable;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandler;
 
 public class EntityUtils
 {
-    public static void dropAllItemInWorld(World worldIn, BlockPos pos, IItemHandler inv, boolean dropFullStacks, boolean randomMotion)
+    public static Vec3d getEyesVec(Entity entity)
     {
-        for (int slot = 0; slot < inv.getSlots(); slot++)
+        return new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+    }
+
+    /**
+     * Returns the index of the BB in the given list that the given entity is currently looking at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    /*
+    public static int getPointedBox(Entity entity, double reach, List<AxisAlignedBB> boxes, float partialTicks)
+    {
+        Vec3d eyesVec = entity.getPositionEyes(partialTicks);
+        Vec3d lookVec = entity.getLook(partialTicks);
+
+        return getPointedBox(eyesVec, lookVec, reach, boxes);
+    }
+    */
+
+    /**
+     * Returns the index of the BB in the given list that the given vectors are currently pointing at.
+     * @return the list index of the pointed box, or -1 of no hit was detected
+     */
+    /*
+    public static int getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, List<AxisAlignedBB> boxes)
+    {
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        double distance = reach;
+        int index = -1;
+
+        for (int i = 0; i < boxes.size(); ++i)
         {
-            ItemStack stack = inv.getStackInSlot(slot);
-            if (stack != null)
+            AxisAlignedBB bb = boxes.get(i);
+            RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
+
+            if (bb.isVecInside(eyesVec))
             {
-                dropItemStacksInWorld(worldIn, pos, stack, -1, dropFullStacks, randomMotion);
+                if (distance >= 0.0D)
+                {
+                    distance = 0.0D;
+                    index = i;
+                }
+            }
+            else if (rayTrace != null)
+            {
+                double distanceTmp = eyesVec.distanceTo(rayTrace.hitVec);
+
+                if (distanceTmp < distance)
+                {
+                    distance = distanceTmp;
+                    index = i;
+                }
             }
         }
+
+        return index;
+    }
+    */
+
+    /**
+     * Returns the index of the BB in the given list that the given entity is currently looking at.
+     * @return the list index of the pointed box, or null of no hit was detected
+     */
+    /*
+    public static <T> T getPointedBox(Entity entity, double reach, Map<T, AxisAlignedBB> boxes, float partialTicks)
+    {
+        Vec3d eyesVec = entity.getPositionEyes(partialTicks);
+        Vec3d lookVec = entity.getLook(partialTicks);
+
+        return getPointedBox(eyesVec, lookVec, reach, boxes);
+    }
+    */
+
+    /**
+     * Returns the index of the BB in the given list that the given vectors are currently pointing at.
+     * @return the list index of the pointed box, or null of no hit was detected
+     */
+    @Nullable
+    public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
+    {
+        Vec3d lookEndVec = eyesVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        double distance = reach;
+        T key = null;
+
+        for (Map.Entry<T, AxisAlignedBB> entry : boxMap.entrySet())
+        {
+            AxisAlignedBB bb = entry.getValue();
+            RayTraceResult rayTrace = bb.calculateIntercept(eyesVec, lookEndVec);
+
+            if (bb.isVecInside(eyesVec))
+            {
+                if (distance >= 0.0D)
+                {
+                    distance = 0.0D;
+                    key = entry.getKey();
+                }
+            }
+            else if (rayTrace != null)
+            {
+                double distanceTmp = eyesVec.distanceTo(rayTrace.hitVec);
+
+                if (distanceTmp < distance)
+                {
+                    distance = distanceTmp;
+                    key = entry.getKey();
+                }
+            }
+        }
+
+        return key;
     }
 
     /**
      * Drops/spawns EntityItems to the world from the provided ItemStack stack.
-     * The number of items dropped is dictated by the parameter amount.
+     * The number of items dropped is dictated by the parameter amountOverride.
      * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
      * (Thus amountOverride can also be larger than stack.stackSize.)
      * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
@@ -36,21 +136,51 @@ public class EntityUtils
      * @param stack The template ItemStack of the dropped items.
      * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
      * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
-     * @param randomMotion If true, then some random motion is added to the spawned EntityItem
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
+     */
+    public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks)
+    {
+        dropItemStacksInWorld(worldIn, pos, stack, amountOverride, dropFullStacks, true);
+    }
+
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amountOverride.
+     * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
+     * (Thus amountOverride can also be larger than stack.stackSize.)
+     * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
+     * @param worldIn
+     * @param pos
+     * @param stack The template ItemStack of the dropped items.
+     * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
      */
     public static void dropItemStacksInWorld(World worldIn, BlockPos pos, ItemStack stack, int amountOverride, boolean dropFullStacks, boolean randomMotion)
     {
-        dropItemStacksInWorld(worldIn, new Vec3d(pos.getX(), pos.getY(), pos.getZ()), stack, amountOverride, dropFullStacks, randomMotion);
+        double x = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getX();
+        double y = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getY();
+        double z = worldIn.rand.nextFloat() * -0.5d + 0.75d + pos.getZ();
+
+        dropItemStacksInWorld(worldIn, new Vec3d(x, y, z), stack, amountOverride, dropFullStacks, randomMotion);
     }
 
+    /**
+     * Drops/spawns EntityItems to the world from the provided ItemStack stack.
+     * The number of items dropped is dictated by the parameter amountOverride.
+     * If amountOverride > 0, then stack is only the ItemStack template and amountOverride is the number of items that will be dropped.
+     * (Thus amountOverride can also be larger than stack.stackSize.)
+     * If amountOverride <= 0, then stack.stackSize is used for the amount to be dropped.
+     * @param worldIn
+     * @param pos The exact position where the EntityItems will be spawned
+     * @param stack The template ItemStack of the dropped items.
+     * @param amountOverride Amount of items to drop. If amountOverride is > 0, stack is only a template. If <= 0, stack.stackSize is used.
+     * @param dropFullStacks If false, then the stackSize of the the spawned EntityItems is randomized between 10..32
+     * @param randomMotion If true, then a small amount on random motion is applied to the spawned entities
+     */
     public static void dropItemStacksInWorld(World worldIn, Vec3d pos, ItemStack stack, int amountOverride, boolean dropFullStacks, boolean randomMotion)
     {
-        if (stack == null)
-        {
-            return;
-        }
-
-        int amount = stack.stackSize;
+        int amount = stack.getCount();
         int max = stack.getMaxStackSize();
         int num = max;
 
@@ -67,13 +197,14 @@ public class EntityUtils
             }
 
             num = Math.min(num, amount);
-            ItemStack dropStack = stack.copy();
-            dropStack.stackSize = num;
             amount -= num;
+
+            ItemStack dropStack = stack.copy();
+            dropStack.setCount(num);
 
             EntityItem entityItem = new EntityItem(worldIn, pos.xCoord, pos.yCoord, pos.zCoord, dropStack);
 
-            if (randomMotion == true)
+            if (randomMotion)
             {
                 double motionScale = 0.04d;
                 entityItem.motionX = worldIn.rand.nextGaussian() * motionScale;
@@ -89,26 +220,5 @@ public class EntityUtils
 
             worldIn.spawnEntity(entityItem);
         }
-    }
-
-    public static RayTraceResult getRayTraceFromPlayer(World world, EntityPlayer player, boolean useLiquids)
-    {
-        Vec3d vec3d = new Vec3d(player.posX, player.posY + player.getEyeHeight(), player.posZ);
-        float f2 = MathHelper.cos(player.rotationYaw * -0.017453292F - (float)Math.PI);
-        float f3 = MathHelper.sin(player.rotationYaw * -0.017453292F - (float)Math.PI);
-        float f4 = -MathHelper.cos(player.rotationPitch * -0.017453292F);
-        double f5 = MathHelper.sin(player.rotationPitch * -0.017453292F);
-        double f6 = f3 * f4;
-        double f7 = f2 * f4;
-        double reach = 5.0D;
-
-        if (player instanceof EntityPlayerMP)
-        {
-            reach = ((EntityPlayerMP) player).interactionManager.getBlockReachDistance();
-        }
-
-        Vec3d vec3d1 = vec3d.addVector(f6 * reach, f5 * reach, f7 * reach);
-
-        return world.rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false);
     }
 }

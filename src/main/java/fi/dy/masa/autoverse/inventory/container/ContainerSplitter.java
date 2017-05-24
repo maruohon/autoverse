@@ -2,10 +2,11 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class ContainerSplitter extends ContainerCustomSlotClick
+public class ContainerSplitter extends ContainerTile
 {
     private final TileEntitySplitter tesp;
 

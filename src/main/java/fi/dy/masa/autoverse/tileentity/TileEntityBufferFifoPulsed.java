@@ -3,8 +3,8 @@ package fi.dy.masa.autoverse.tileentity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFifoPulsed;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifoPulsed;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
@@ -14,8 +14,6 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     public TileEntityBufferFifoPulsed()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
-
-        this.initInventories();
     }
 
     @Override
@@ -42,7 +40,7 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
             return false;
         }
 
-        this.getFifoInventory().advancePositions();
+        this.itemHandlerFifo.advancePositions();
 
         return true;
     }

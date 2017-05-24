@@ -3,87 +3,56 @@ package fi.dy.masa.autoverse.block.base;
 import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityAutoverseInventory;
-import fi.dy.masa.autoverse.util.EntityUtils;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-public class BlockAutoverseInventory extends BlockAutoverseTileEntity
+public abstract class BlockAutoverseInventory extends BlockAutoverseTileEntity
 {
-    public BlockAutoverseInventory(String name, float hardness, int harvestLevel, Material material)
+    public BlockAutoverseInventory(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
-        super(name, hardness, harvestLevel, material);
+        super(name, hardness, resistance, harvestLevel, material);
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState iBlockState)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityAutoverseInventory)
+        TileEntityAutoverseInventory te = getTileEntitySafely(world, pos, TileEntityAutoverseInventory.class);
+
+        if (te != null && te.getBaseItemHandler() != null)
         {
-            IItemHandler itemHandler = ((TileEntityAutoverseInventory)te).getBaseItemHandler();
-
-            for (int i = 0; itemHandler != null && i < itemHandler.getSlots(); ++i)
-            {
-                EntityUtils.dropItemStacksInWorld(worldIn, pos, itemHandler.getStackInSlot(i), -1, false, true);
-            }
-
-            worldIn.updateComparatorOutputLevel(pos, this);
+            InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getBaseItemHandler());
+            world.updateComparatorOutputLevel(pos, this);
         }
 
-        worldIn.removeTileEntity(pos);
+        world.removeTileEntity(pos);
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-            EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
-    {
-        if (worldIn.isRemote == false)
-        {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityAutoverse == false)
-            {
-                return false;
-            }
-
-            if (this.isTileEntityValid(te) == true)
-            {
-                playerIn.openGui(Autoverse.instance, ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, worldIn, pos.getX(), pos.getY(), pos.getZ());
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public int tickRate(World worldIn)
+    public int tickRate(World world)
     {
         return 1;
     }
 
     @Override
-    public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
+    public void randomTick(World world, BlockPos pos, IBlockState state, Random random)
     {
     }
 
     @Override
-    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        if (worldIn.isRemote == false)
+        if (world.isRemote == false)
         {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof TileEntityAutoverse)
+            TileEntityAutoverseInventory te = getTileEntitySafely(world, pos, TileEntityAutoverseInventory.class);
+
+            if (te != null)
             {
-                ((TileEntityAutoverse)te).onBlockTick(state, rand);
+                te.onScheduledBlockUpdate(world, pos, state, rand);
             }
         }
     }
@@ -95,22 +64,15 @@ public class BlockAutoverseInventory extends BlockAutoverseTileEntity
     }
 
     @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
+    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos)
     {
-        /*TileEntity te = worldIn.getTileEntity(pos);
-        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN) == false)
+        TileEntityAutoverseInventory te = getTileEntitySafely(world, pos, TileEntityAutoverseInventory.class);
+
+        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH))
         {
-            return 0;
-        }
+            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
 
-        IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
-
-        return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;*/
-
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te instanceof TileEntityAutoverseInventory)
-        {
-            return InventoryUtils.calcRedstoneFromInventory(((TileEntityAutoverseInventory)te).getBaseItemHandler());
+            return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
         }
 
         return 0;

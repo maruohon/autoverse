@@ -5,8 +5,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFilterSequential;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilterSequential;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilterSequential;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityFilterSequential extends TileEntityFilter

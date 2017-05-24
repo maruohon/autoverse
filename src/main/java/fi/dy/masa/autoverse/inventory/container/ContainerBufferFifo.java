@@ -7,14 +7,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
-import fi.dy.masa.autoverse.inventory.ItemHandlerWrapperFifo;
-import fi.dy.masa.autoverse.inventory.slot.MergeSlotRange;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
+import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 
-public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBaseInventory
+public class ContainerBufferFifo extends ContainerTile
 {
     protected final IItemHandlerModifiable inventoryBase;
     protected final ItemHandlerWrapperFifo inventoryFifo;
@@ -50,28 +51,18 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
         this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
     }
 
-    @Override
-    public IItemHandlerModifiable getBaseInventory()
-    {
-        return this.inventoryBase;
-    }
-
     protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
     {
         SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
+
         if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
         {
             return false;
         }
 
         // This will try to only insert items into the insertPosition slot
-        int size = slot.getStack().stackSize;
         MergeSlotRange range = new MergeSlotRange(this.insertPos, 1); // FIXME how does this go with the wrapping?
-
-        for (int i = 0; i < size; i++)
-        {
-            this.transferStackToSlotRange(player, slotNum, range, false);
-        }
+        this.transferStackToSlotRange(player, slotNum, range, false);
 
         return true;
     }
@@ -82,7 +73,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
         for (int slot = 0; slot < this.inventoryBase.getSlots(); slot++)
         {
             ItemStack newStack = this.inventoryBase.getStackInSlot(slot);
-            ItemStack oldStack = ItemStack.copyItemStack(newStack);
+            ItemStack oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
             this.inventoryItemStacks.set(slot, oldStack);
 
             for (int i = 0; i < this.listeners.size(); i++)
@@ -108,7 +99,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             if (ItemStack.areItemStacksEqual(oldStack, newStack) == false)
             {
-                oldStack = ItemStack.copyItemStack(newStack);
+                oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
                 this.inventoryItemStacks.set(slot, oldStack);
 
                 for (int i = 0; i < this.listeners.size(); i++)
@@ -132,7 +123,7 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
             if (ItemStack.areItemStacksEqual(oldStack, newStack) == false)
             {
-                oldStack = ItemStack.copyItemStack(newStack);
+                oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
                 this.inventoryItemStacks.set(slot, oldStack);
 
                 for (int i = 0; i < this.listeners.size(); i++)
@@ -206,9 +197,18 @@ public class ContainerBufferFifo extends ContainerCustomSlotClick implements IBa
 
         switch (id)
         {
-            case 0: this.insertPos = data; break;
-            case 1: this.extractPos = data; break;
-            case 2: Configs.fifoBufferUseWrappedInventory = data != 0; break;
+            case 0:
+                this.insertPos = data;
+                break;
+
+            case 1:
+                this.extractPos = data;
+                break;
+
+            case 2:
+                Configs.fifoBufferUseWrappedInventory = data != 0;
+                break;
+
             default:
         }
     }
