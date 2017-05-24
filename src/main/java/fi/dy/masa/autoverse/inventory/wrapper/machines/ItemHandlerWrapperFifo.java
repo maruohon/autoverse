@@ -4,10 +4,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 
-public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NBTTagCompound>
+public class ItemHandlerWrapperFifo implements IItemHandlerSize, INBTSerializable<NBTTagCompound>
 {
     protected final ItemStackHandlerTileEntity baseHandler;
     protected int insertSlot;
@@ -38,26 +38,6 @@ public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NB
     public int getSlotLimit(int slot)
     {
         return this.baseHandler.getSlotLimit(slot);
-    }
-
-    @Override
-    public NBTTagCompound serializeNBT()
-    {
-        NBTTagCompound nbt = this.baseHandler.serializeNBT();
-
-        nbt.setByte("InsertPos", (byte)this.insertSlot);
-        nbt.setByte("ExtractPos", (byte)this.extractSlot);
-
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
-    {
-        this.baseHandler.deserializeNBT(nbt);
-
-        this.insertSlot = MathHelper.clamp(nbt.getByte("InsertPos"), 0, this.baseHandler.getSlots() - 1);
-        this.extractSlot = MathHelper.clamp(nbt.getByte("ExtractPos"), 0, this.baseHandler.getSlots() - 1);
     }
 
     @Override
@@ -92,6 +72,38 @@ public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NB
         }
 
         return stack;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+        return this.baseHandler.getInventoryStackLimit();
+    }
+
+    @Override
+    public int getItemStackLimit(int slot, ItemStack stack)
+    {
+        return this.baseHandler.getItemStackLimit(slot, stack);
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT()
+    {
+        NBTTagCompound nbt = this.baseHandler.serializeNBT();
+
+        nbt.setByte("InsertPos", (byte)this.insertSlot);
+        nbt.setByte("ExtractPos", (byte)this.extractSlot);
+
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt)
+    {
+        this.baseHandler.deserializeNBT(nbt);
+
+        this.insertSlot = MathHelper.clamp(nbt.getByte("InsertPos"), 0, this.baseHandler.getSlots() - 1);
+        this.extractSlot = MathHelper.clamp(nbt.getByte("ExtractPos"), 0, this.baseHandler.getSlots() - 1);
     }
 
     protected void onSuccessfulInsert()

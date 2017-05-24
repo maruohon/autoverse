@@ -37,7 +37,7 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
 
         if (success)
         {
-            this.itemHandlerFifo.advancePositions();
+            this.getFifoInventory().advancePositions();
         }
 
         return success;

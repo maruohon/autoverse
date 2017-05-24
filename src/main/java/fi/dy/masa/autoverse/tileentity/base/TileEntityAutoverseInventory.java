@@ -186,6 +186,7 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
                     if (stack.isEmpty() == false)
                     {
                         invSrc.insertItem(slot, stack, false);
+                        return false;
                     }
 
                     /*if (Configs.disableSounds == false)
@@ -195,27 +196,23 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 
                     return true;
                 }
-
-                return false;
             }
             else if (spawnInWorld)
             {
                 // No adjacent inventory, drop the item in world
                 stack = invSrc.extractItem(slot, 1, false);
 
-                if (stack.isEmpty())
+                if (stack.isEmpty() == false)
                 {
-                    return false;
+                    EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(), stack, -1, true, false);
+
+                    if (Configs.disableSounds == false)
+                    {
+                        this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
+                    }
+
+                    return true;
                 }
-
-                EntityUtils.dropItemStacksInWorld(this.getWorld(), this.getSpawnedItemPosition(), stack, -1, true, false);
-
-                if (Configs.disableSounds == false)
-                {
-                    this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_DISPENSER_DISPENSE, SoundCategory.BLOCKS, 0.3f, 1f);
-                }
-
-                return true;
             }
         }
 

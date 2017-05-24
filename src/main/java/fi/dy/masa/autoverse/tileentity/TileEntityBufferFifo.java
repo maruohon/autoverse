@@ -68,19 +68,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return this.itemHandlerFifo;
     }
 
-    /*
-    @Override
-    public IItemHandler getWrappedInventoryForContainer()
-    {
-        if (Configs.fifoBufferUseWrappedInventory)
-        {
-            return new ItemHandlerWrapperOffset(this.getBaseItemHandler());
-        }
-
-        return this.getBaseItemHandler();
-    }
-    */
-
     @Override
     protected void onRedstoneChange(boolean state)
     {
@@ -107,55 +94,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         nbt.merge(this.getFifoInventory().serializeNBT());
     }
-
-    /*
-    public int getOffsetSlot(int slot)
-    {
-        int numSlots = this.getBaseItemHandler().getSlots();
-        slot += this.extractSlot;
-
-        if (slot >= numSlots)
-        {
-            slot -= numSlots;
-        }
-
-        return slot;
-    }
-
-    private class ItemHandlerWrapperOffset extends ItemHandlerWrapperSelectiveModifiable
-    {
-        public ItemHandlerWrapperOffset(IItemHandlerModifiable baseHandler)
-        {
-            super(baseHandler);
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return super.getStackInSlot(TileEntityBufferFifo.this.getOffsetSlot(slot));
-        }
-
-        @Override
-        public void setStackInSlot(int slot, ItemStack stack)
-        {
-            //System.out.printf("setting slot %d (offset: %d) to: %s\n", slot, TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
-            super.setStackInSlot(TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            //System.out.printf("inserting to slot %d (offset: %d) to: %s\n", slot, TileEntityBufferFifo.this.getOffsetSlot(slot), stack);
-            return super.insertItem(TileEntityBufferFifo.this.getOffsetSlot(slot), stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return super.extractItem(TileEntityBufferFifo.this.getOffsetSlot(slot), amount, simulate);
-        }
-    }
-    */
 
     @Override
     public ContainerBufferFifo getContainer(EntityPlayer player)
