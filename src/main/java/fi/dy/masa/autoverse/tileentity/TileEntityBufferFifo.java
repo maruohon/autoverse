@@ -48,15 +48,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
-    protected void onRedstoneChange(boolean state)
-    {
-        if (state)
-        {
-            this.scheduleBlockUpdate(1, true);
-        }
-    }
-
-    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);

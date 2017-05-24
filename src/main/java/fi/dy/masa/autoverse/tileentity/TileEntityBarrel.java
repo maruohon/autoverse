@@ -74,9 +74,9 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (this.isPulsed == true && state == true)
+        if (this.isPulsed && state)
         {
-            this.scheduleBlockUpdate(1, true);
+            this.scheduleBlockUpdate(1, false);
         }
     }
 

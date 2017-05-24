@@ -136,15 +136,6 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     }
 
     @Override
-    protected void onRedstoneChange(boolean state)
-    {
-        if (state)
-        {
-            this.scheduleBlockUpdate(1, true);
-        }
-    }
-
-    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);

@@ -145,6 +145,11 @@ public abstract class TileEntityAutoverse extends TileEntity
 
     protected void onRedstoneChange(boolean state)
     {
+        if (state)
+        {
+            World world = this.getWorld();
+            this.scheduleBlockUpdate(world.getBlockState(this.getPos()).getBlock().tickRate(world), false);
+        }
     }
 
     public void readFromNBTCustom(NBTTagCompound nbt)

@@ -234,15 +234,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return false;
     }
 
-    @Override
-    protected void onRedstoneChange(boolean state)
-    {
-        if (state)
-        {
-            this.scheduleBlockUpdate(1, true);
-        }
-    }
-
     protected boolean tryOutputNonMatchingItems()
     {
         int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryNonmatchOut);
