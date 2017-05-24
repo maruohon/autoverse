@@ -31,7 +31,7 @@ public class ItemHandlerWrapperFifo implements IItemHandlerSize, INBTSerializabl
     @Override
     public int getSlots()
     {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -43,7 +43,12 @@ public class ItemHandlerWrapperFifo implements IItemHandlerSize, INBTSerializabl
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return this.baseHandler.getStackInSlot(this.extractSlot);
+        if (slot == 0)
+        {
+            return this.baseHandler.getStackInSlot(this.extractSlot);
+        }
+
+        return ItemStack.EMPTY;
     }
 
     @Override
