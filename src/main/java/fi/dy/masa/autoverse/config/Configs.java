@@ -15,6 +15,7 @@ public class Configs
     public static File configurationFile;
     public static Configuration config;
     
+    public static final String CATEGORY_CLIENT = "Client";
     public static final String CATEGORY_GENERIC = "Generic";
 
     @SubscribeEvent
@@ -59,14 +60,14 @@ public class Configs
     {
         Property prop;
 
-        prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
-        prop.setComment("Disable all sounds");
-        disableSounds = prop.getBoolean();
-
-        prop = conf.get(CATEGORY_GENERIC, "fifoBufferOffsetSlots", false);
+        prop = conf.get(CATEGORY_CLIENT, "fifoBufferOffsetSlots", false);
         prop.setComment("If true, then FIFO Buffer slots are offset from their absolute inventory indices\n" +
                         "so that the current extract position is always at the top left of the GUI/slots.");
         fifoBufferOffsetSlots = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
+        prop.setComment("Disable all sounds");
+        disableSounds = prop.getBoolean();
 
         if (conf.hasChanged())
         {

@@ -1,6 +1,8 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
@@ -47,7 +49,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
         if (Configs.fifoBufferOffsetSlots)
         {
-            slot = this.getOffsetSlot(slot);
+            slot = this.containerFifo.getOffsetSlotNumberNegative(slot);
         }
 
         int inRow = slot / 13;
@@ -58,15 +60,20 @@ public class GuiBufferFifo extends GuiAutoverse
         this.drawGradientRect(x + 11, y + 48, x + 245, y + 174, 0xFFC6C6C6, 0xFFC6C6C6);
     }
 
-    private int getOffsetSlot(int slot)
+    @Override
+    protected void handleMouseClick(Slot slot, int slotId, int mouseButton, ClickType type)
     {
-        slot -= this.containerFifo.getExtractPosition();
-
-        if (slot < 0)
+        // Offset/fake the slot number for the duration of the slot click, so that the
+        // wrapped slot number gets sent to the server
+        if (Configs.fifoBufferOffsetSlots && slot != null &&
+            this.containerFifo.getCustomInventorySlotRange().contains(slot.slotNumber))
         {
-            slot += this.te.getBaseItemHandler().getSlots();
+            int slotNumber = this.containerFifo.getOffsetSlotNumberPositive(slot.slotNumber);
+            this.mc.playerController.windowClick(this.inventorySlots.windowId, slotNumber, mouseButton, type, this.mc.player);
         }
-
-        return slot;
+        else
+        {
+            super.handleMouseClick(slot, slotId, mouseButton, type);
+        }
     }
 }

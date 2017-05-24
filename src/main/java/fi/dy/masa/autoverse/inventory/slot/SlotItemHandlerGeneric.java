@@ -53,12 +53,12 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
         if (this.getItemHandler() instanceof IItemHandlerModifiable)
         {
             //System.out.printf("SlotItemHandlerGeneric#putStack() - setStackInSlot() - slot: %3d stack: %s\n", this.getSlotIndex(), stack);
-            ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.getSlotIndex(), stack);
+            ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.getSlotIndexForSync(), stack);
         }
         else
         {
             Autoverse.logger.warn("SlotItemHandlerGeneric#putStack() by insertItem() - things will not work well!");
-            this.getItemHandler().insertItem(this.getSlotIndex(), stack, false);
+            this.getItemHandler().insertItem(this.getSlotIndexForSync(), stack, false);
         }
 
         this.onSlotChanged();
@@ -68,12 +68,17 @@ public class SlotItemHandlerGeneric extends SlotItemHandler
     {
         if (this.getItemHandler() instanceof IItemHandlerSyncable)
         {
-            ((IItemHandlerSyncable) this.getItemHandler()).syncStackInSlot(this.getSlotIndex(), stack);
+            ((IItemHandlerSyncable) this.getItemHandler()).syncStackInSlot(this.getSlotIndexForSync(), stack);
         }
         else
         {
             this.putStack(stack);
         }
+    }
+
+    protected int getSlotIndexForSync()
+    {
+        return this.getSlotIndex();
     }
 
     public ItemStack insertItem(ItemStack stack, boolean simulate)

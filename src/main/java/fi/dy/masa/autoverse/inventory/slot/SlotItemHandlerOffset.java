@@ -17,7 +17,20 @@ public class SlotItemHandlerOffset extends SlotItemHandlerGeneric
     @Override
     public int getSlotIndex()
     {
+        final int invSize = this.getItemHandler().getSlots();
         int index = super.getSlotIndex() + this.callback.getSlotOffset();
-        return MathHelper.clamp(index, 0, this.getItemHandler().getSlots() - 1);
+
+        if (index >= invSize)
+        {
+            index -= invSize;
+        }
+
+        return MathHelper.clamp(index, 0, invSize - 1);
+    }
+
+    @Override
+    protected int getSlotIndexForSync()
+    {
+        return super.getSlotIndex();
     }
 }

@@ -19,6 +19,7 @@ public class AutoverseConfigGui extends GuiConfig
     {
         List<IConfigElement> configElements = new ArrayList<IConfigElement>();
 
+        configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_CLIENT)));
         configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_GENERIC)));
 
         return configElements;
