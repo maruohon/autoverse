@@ -10,7 +10,7 @@ import fi.dy.masa.autoverse.reference.Reference;
 public class Configs
 {
     public static boolean disableSounds;
-    public static boolean fifoBufferUseWrappedInventory;
+    public static boolean fifoBufferOffsetSlots;
 
     public static File configurationFile;
     public static Configuration config;
@@ -63,9 +63,10 @@ public class Configs
         prop.setComment("Disable all sounds");
         disableSounds = prop.getBoolean();
 
-        prop = conf.get(CATEGORY_GENERIC, "fifoBufferUseWrappedInventory", false);
-        prop.setComment("Use a wrapper inventory to offset the slots so that the output is always the first slot");
-        fifoBufferUseWrappedInventory = prop.getBoolean();
+        prop = conf.get(CATEGORY_GENERIC, "fifoBufferOffsetSlots", false);
+        prop.setComment("If true, then FIFO Buffer slots are offset from their absolute inventory indices\n" +
+                        "so that the current extract position is always at the top left of the GUI/slots.");
+        fifoBufferOffsetSlots = prop.getBoolean();
 
         if (conf.hasChanged())
         {

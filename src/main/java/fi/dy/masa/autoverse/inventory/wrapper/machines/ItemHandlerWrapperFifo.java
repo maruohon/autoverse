@@ -75,10 +75,7 @@ public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NB
 
         if (simulate == false && (stack.isEmpty() || stack.getCount() != sizeOrig))
         {
-            if (++this.insertSlot >= this.baseHandler.getSlots())
-            {
-                this.insertSlot = 0;
-            }
+            this.onSuccessfulInsert();
         }
 
         return stack;
@@ -91,12 +88,25 @@ public class ItemHandlerWrapperFifo implements IItemHandler, INBTSerializable<NB
 
         if (simulate == false && stack.isEmpty() == false)
         {
-            if (++this.extractSlot >= this.baseHandler.getSlots())
-            {
-                this.extractSlot = 0;
-            }
+            this.onSuccessfulExtract();
         }
 
         return stack;
+    }
+
+    protected void onSuccessfulInsert()
+    {
+        if (++this.insertSlot >= this.baseHandler.getSlots())
+        {
+            this.insertSlot = 0;
+        }
+    }
+
+    protected void onSuccessfulExtract()
+    {
+        if (++this.extractSlot >= this.baseHandler.getSlots())
+        {
+            this.extractSlot = 0;
+        }
     }
 }

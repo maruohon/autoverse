@@ -39,7 +39,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
-        this.itemHandlerExternal = this.getFifoInventory();
+        this.itemHandlerExternal = this.itemHandlerFifo;
     }
 
     // These are only used for the GUI
@@ -84,7 +84,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (state == true)
+        if (state)
         {
             this.scheduleBlockUpdate(1, true);
         }

@@ -39,19 +39,31 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public int getSlots()
     {
-        return this.wrapperHandler.getSlots();
+        // Note: Ender Utilities uses the wrapper handler for this.
+        // But since Autoverse has lots of wrappers where only 1 slot is exposed externally,
+        // but we still want to have access to the base inventory via the GUI,
+        // we use the base handler here.
+        return this.baseHandlerModifiable.getSlots();
     }
 
     @Override
     public int getSlotLimit(int slot)
     {
-        return this.wrapperHandler.getSlotLimit(slot);
+        // Note: Ender Utilities uses the wrapper handler for this.
+        // But since Autoverse has lots of wrappers where only 1 slot is exposed externally,
+        // but we still want to have access to the base inventory via the GUI,
+        // we use the base handler here.
+        return this.baseHandlerModifiable.getSlotLimit(slot);
     }
 
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return this.wrapperHandler.getStackInSlot(slot);
+        // Note: Ender Utilities uses the wrapper handler for this.
+        // But since Autoverse has lots of wrappers where only 1 slot is exposed externally,
+        // but we still want to have access to the base inventory via the GUI,
+        // we use the base handler here.
+        return this.baseHandlerModifiable.getStackInSlot(slot);
     }
 
     @Override
@@ -63,7 +75,11 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        return this.wrapperHandler.insertItem(slot, stack, simulate);
+        // Note: Ender Utilities uses the wrapper handler for this.
+        // But since Autoverse has lots of wrappers where only 1 slot is exposed externally,
+        // but we still want to have access to the base inventory via the GUI,
+        // we use the base handler here.
+        return this.baseHandlerModifiable.insertItem(slot, stack, simulate);
     }
 
     @Override

@@ -19,8 +19,13 @@ public class GuiFilterSequential extends GuiFilter
     {
         this.bindTexture(this.guiTextureWidgets);
 
-        x += (this.containerFS.filterPosition % 9) * 18 + 7;
-        y += (this.containerFS.filterPosition / 9) * 18 + 55;
+        int pos = this.containerFS.getFilterPosition();
+
+        if (pos >= 0)
+        {
+            x += (pos % 9) * 18 + 7;
+            y += (pos / 9) * 18 + 55;
+        }
 
         // Draw the colored background for the currently matched filter item
         this.drawTexturedModalRect(x, y, 102, 36, 18, 18);

@@ -9,6 +9,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -40,6 +41,7 @@ public class ContainerAutoverse extends Container
     protected MergeSlotRange playerArmorSlots;
     protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
     protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
+    protected boolean forceSyncAll;
 
     public ContainerAutoverse(EntityPlayer player, IItemHandler inventory)
     {
@@ -457,51 +459,39 @@ public class ContainerAutoverse extends Container
         return slotIn;
     }
 
-    protected void forceSyncSpecialSlots()
-    {
-        if (this.isClient == false)
-        {
-            for (int slot = 0; slot < this.specialSlots.size(); slot++)
-            {
-                ItemStack oldStack = this.specialSlots.get(slot).getStack();
-                oldStack = oldStack.isEmpty() ? ItemStack.EMPTY : oldStack.copy();
-                this.specialSlotStacks.set(slot, oldStack);
-
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    IContainerListener listener = this.listeners.get(i);
-
-                    if (listener instanceof EntityPlayerMP)
-                    {
-                        PacketHandler.INSTANCE.sendTo(
-                            new MessageSyncCustomSlot(this.windowId, 10, slot, oldStack), (EntityPlayerMP) listener);
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public void addListener(IContainerListener listener)
     {
-        super.addListener(listener);
+        if (this.listeners.contains(listener))
+        {
+            throw new IllegalArgumentException("Listener already listening");
+        }
 
-        this.forceSyncSpecialSlots();
+        this.listeners.add(listener);
+
+        if (listener instanceof EntityPlayerMP)
+        {
+            EntityPlayerMP player = (EntityPlayerMP) listener;
+            player.connection.sendPacket(new SPacketSetSlot(-1, -1, player.inventory.getItemStack()));
+        }
+
+        this.forceSyncAll = true;
+        this.detectAndSendChanges();
+        this.forceSyncAll = false;
     }
 
-    @Override
-    public void detectAndSendChanges()
+    protected void syncAllSlots()
     {
-        super.detectAndSendChanges();
-
         if (this.isClient == false)
         {
-            for (int slot = 0; slot < this.inventorySlots.size(); slot++)
+            final int invSize = this.inventorySlots.size();
+
+            for (int slot = 0; slot < invSize; slot++)
             {
                 ItemStack currentStack = this.inventorySlots.get(slot).getStack();
                 ItemStack prevStack = this.inventoryItemStacks.get(slot);
 
-                if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+                if (this.forceSyncAll || ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
                 {
                     prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                     this.inventoryItemStacks.set(slot, prevStack);
@@ -518,12 +508,14 @@ public class ContainerAutoverse extends Container
                 }
             }
 
-            for (int slot = 0; slot < this.specialSlots.size(); slot++)
+            final int specialSize = this.specialSlots.size();
+
+            for (int slot = 0; slot < specialSize; slot++)
             {
                 ItemStack currentStack = this.specialSlots.get(slot).getStack();
                 ItemStack prevStack = this.specialSlotStacks.get(slot);
 
-                if (ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
+                if (this.forceSyncAll || ItemStack.areItemStacksEqual(prevStack, currentStack) == false)
                 {
                     prevStack = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                     this.specialSlotStacks.set(slot, prevStack);
@@ -540,5 +532,11 @@ public class ContainerAutoverse extends Container
                 }
             }
         }
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        this.syncAllSlots();
     }
 }

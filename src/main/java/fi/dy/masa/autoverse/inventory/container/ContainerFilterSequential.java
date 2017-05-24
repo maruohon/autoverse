@@ -7,20 +7,12 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 public class ContainerFilterSequential extends ContainerFilter
 {
     protected final TileEntityFilterSequential tefiseq;
-    public int filterPosition;
+    private int filterPosition = -1;
 
     public ContainerFilterSequential(EntityPlayer player, TileEntityFilterSequential te)
     {
         super(player, te);
         this.tefiseq = te;
-    }
-
-    @Override
-    public void addListener(IContainerListener listener)
-    {
-        super.addListener(listener);
-
-        listener.sendProgressBarUpdate(this, 0, this.tefiseq.getFilterPosition());
     }
 
     @Override
@@ -48,5 +40,10 @@ public class ContainerFilterSequential extends ContainerFilter
         {
             this.filterPosition = data;
         }
+    }
+
+    public int getFilterPosition()
+    {
+        return this.filterPosition;
     }
 }

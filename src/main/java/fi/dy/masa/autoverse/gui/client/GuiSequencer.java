@@ -69,14 +69,17 @@ public class GuiSequencer extends GuiAutoverse
     {
         int slot = this.containrSeq.getExtractSlot();
 
-        if (numSlots <= 9)
+        if (slot >= 0)
         {
-            this.drawTexturedModalRect(x + 7 + slot * 18, y + 21, 176, 0, 18, 18);
-        }
-        else
-        {
-            // For the 16-slot variant the slots are in two rows of 8
-            this.drawTexturedModalRect(x + 7 + (slot % 8) * 18, y + 21 + (slot / 8) * 18, 176, 0, 18, 18);
+            if (numSlots <= 9)
+            {
+                this.drawTexturedModalRect(x + 7 + slot * 18, y + 21, 176, 0, 18, 18);
+            }
+            else
+            {
+                // For the 16-slot variant the slots are in two rows of 8
+                this.drawTexturedModalRect(x + 7 + (slot % 8) * 18, y + 21 + (slot / 8) * 18, 176, 0, 18, 18);
+            }
         }
     }
 }

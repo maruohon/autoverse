@@ -1,27 +1,26 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
+import fi.dy.masa.autoverse.inventory.slot.ISlotOffset;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
-import fi.dy.masa.autoverse.network.PacketHandler;
-import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 
-public class ContainerBufferFifo extends ContainerTile
+public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 {
     protected final IItemHandlerModifiable inventoryBase;
     protected final ItemHandlerWrapperFifo inventoryFifo;
-    public int insertPos;
-    public int extractPos;
-    public boolean offsetSlots;
+    private int insertPos;
+    private int extractPos;
+    private int insertPosLast = -1;
+    private int extractPosLast = -1;
 
     public ContainerBufferFifo(EntityPlayer player, TileEntityBufferFifo te)
     {
@@ -40,9 +39,9 @@ public class ContainerBufferFifo extends ContainerTile
         int posY = 13;
         int slot = 0;
 
-        for (int row = 0; row <= 8; row++)
+        for (int row = 0; row < 9; row++)
         {
-            for (int col = 0; col <= 12 && slot < TileEntityBufferFifo.NUM_SLOTS; col++, slot++)
+            for (int col = 0; col < 13 && slot < TileEntityBufferFifo.NUM_SLOTS; col++, slot++)
             {
                 this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, row * 13 + col, posX + col * 18, posY + row * 18));
             }
@@ -67,127 +66,31 @@ public class ContainerBufferFifo extends ContainerTile
         return true;
     }
 
-    protected void forceSyncSlots()
-    {
-        // Sync the custom inventory
-        for (int slot = 0; slot < this.inventoryBase.getSlots(); slot++)
-        {
-            ItemStack newStack = this.inventoryBase.getStackInSlot(slot);
-            ItemStack oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
-            this.inventoryItemStacks.set(slot, oldStack);
-
-            for (int i = 0; i < this.listeners.size(); i++)
-            {
-                IContainerListener listener = this.listeners.get(i);
-
-                if (listener instanceof EntityPlayerMP)
-                {
-                    PacketHandler.INSTANCE.sendTo(
-                        new MessageSyncSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
-                }
-            }
-        }
-    }
-
-    protected void syncInventory()
-    {
-        // Sync the custom inventory
-        for (int slot = 0; slot < this.inventoryBase.getSlots(); slot++)
-        {
-            ItemStack newStack = this.inventoryBase.getStackInSlot(slot);
-            ItemStack oldStack = this.inventoryItemStacks.get(slot);
-
-            if (ItemStack.areItemStacksEqual(oldStack, newStack) == false)
-            {
-                oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
-                this.inventoryItemStacks.set(slot, oldStack);
-
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    IContainerListener listener = this.listeners.get(i);
-
-                    if (listener instanceof EntityPlayerMP)
-                    {
-                        PacketHandler.INSTANCE.sendTo(
-                            new MessageSyncSlot(this.windowId, slot, oldStack), (EntityPlayerMP) listener);
-                    }
-                }
-            }
-        }
-
-        // Sync player inventory slots
-        for (int slot = this.inventoryBase.getSlots(); slot < this.inventorySlots.size(); slot++)
-        {
-            ItemStack newStack = this.inventorySlots.get(slot).getStack();
-            ItemStack oldStack = this.inventoryItemStacks.get(slot);
-
-            if (ItemStack.areItemStacksEqual(oldStack, newStack) == false)
-            {
-                oldStack = newStack.isEmpty() ? ItemStack.EMPTY : newStack.copy();
-                this.inventoryItemStacks.set(slot, oldStack);
-
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    this.listeners.get(i).sendSlotContents(this, slot, oldStack);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void addListener(IContainerListener listener)
-    {
-        if (this.listeners.contains(listener))
-        {
-            throw new IllegalArgumentException("Listener already listening");
-        }
-        else
-        {
-            this.listeners.add(listener);
-
-            if (listener instanceof EntityPlayerMP)
-            {
-                ((EntityPlayerMP)listener).connection.sendPacket(
-                    new SPacketSetSlot(-1, -1, ((EntityPlayerMP)listener).inventory.getItemStack()));
-            }
-        }
-
-        listener.sendProgressBarUpdate(this, 0, this.inventoryFifo.getInsertSlot());
-        listener.sendProgressBarUpdate(this, 1, this.inventoryFifo.getExtractSlot());
-        listener.sendProgressBarUpdate(this, 2, Configs.fifoBufferUseWrappedInventory ? 1 : 0);
-
-        this.forceSyncSlots();
-        this.syncInventory();
-    }
-
     @Override
     public void detectAndSendChanges()
     {
+        int insert = this.inventoryFifo.getInsertSlot();
+        int extract = this.inventoryFifo.getExtractSlot();
+
         for (int i = 0; i < this.listeners.size(); ++i)
         {
             IContainerListener listener = this.listeners.get(i);
 
-            if (this.inventoryFifo.getInsertSlot() != this.insertPos)
+            if (insert != this.insertPosLast)
             {
-                listener.sendProgressBarUpdate(this, 0, this.inventoryFifo.getInsertSlot());
+                listener.sendProgressBarUpdate(this, 0, insert);
             }
 
-            if (this.inventoryFifo.getExtractSlot() != this.extractPos)
+            if (extract != this.extractPosLast)
             {
-                listener.sendProgressBarUpdate(this, 1, this.inventoryFifo.getExtractSlot());
-            }
-
-            if (Configs.fifoBufferUseWrappedInventory != this.offsetSlots)
-            {
-                listener.sendProgressBarUpdate(this, 2, Configs.fifoBufferUseWrappedInventory ? 1 : 0);
+                listener.sendProgressBarUpdate(this, 1, extract);
             }
         }
 
-        this.insertPos = this.inventoryFifo.getInsertSlot();
-        this.extractPos = this.inventoryFifo.getExtractSlot();
-        this.offsetSlots = Configs.fifoBufferUseWrappedInventory;
+        this.insertPosLast = insert;
+        this.extractPosLast = extract;
 
-        this.syncInventory();
+        super.detectAndSendChanges();
     }
 
     @Override
@@ -205,11 +108,29 @@ public class ContainerBufferFifo extends ContainerTile
                 this.extractPos = data;
                 break;
 
-            case 2:
-                Configs.fifoBufferUseWrappedInventory = data != 0;
-                break;
-
             default:
         }
+    }
+
+    public int getInsertPosition()
+    {
+        return this.insertPos;
+    }
+
+    public int getExtractPosition()
+    {
+        return this.extractPos;
+    }
+
+    @Override
+    public int getSlotOffset()
+    {
+        return Configs.fifoBufferOffsetSlots ? this.extractPos : 0;
+    }
+
+    @Override
+    public ItemStack slotClick(int slotNum, int dragType, ClickType clickType, EntityPlayer player)
+    {
+        return super.slotClick(slotNum, dragType, clickType, player);
     }
 }

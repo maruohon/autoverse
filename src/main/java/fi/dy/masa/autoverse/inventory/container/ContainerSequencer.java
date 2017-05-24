@@ -11,7 +11,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 public class ContainerSequencer extends ContainerTile
 {
     private final TileEntitySequencer teseq;
-    private int outputSlot;
+    private int outputSlot = -1;
 
     public ContainerSequencer(EntityPlayer player, TileEntitySequencer te)
     {
@@ -42,14 +42,6 @@ public class ContainerSequencer extends ContainerTile
         }
 
         this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
-    }
-
-    @Override
-    public void addListener(IContainerListener listener)
-    {
-        super.addListener(listener);
-
-        listener.sendProgressBarUpdate(this, 0, this.teseq.getOutputSlot());
     }
 
     @Override

@@ -36,23 +36,31 @@ public class GuiBufferFifo extends GuiAutoverse
         int y = (this.height - this.ySize) / 2;
 
         // Draw a green background for the current extract slot
-        int slot = Configs.fifoBufferUseWrappedInventory ? 0 : this.containerFifo.extractPos;
+        int slot = Configs.fifoBufferOffsetSlots ? 0 : this.containerFifo.getExtractPosition();
 
         int exRow = slot / 13;
         int exCol = slot % 13;
-        this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 102, 54, 18, 18);
+        this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 102, 108, 18, 18);
 
         // Draw a purple background for the current insert slot
-        slot = Configs.fifoBufferUseWrappedInventory ? this.getOffsetSlot(this.containerFifo.insertPos) : this.containerFifo.insertPos;
+        slot = this.containerFifo.getInsertPosition();
+
+        if (Configs.fifoBufferOffsetSlots)
+        {
+            slot = this.getOffsetSlot(slot);
+        }
 
         int inRow = slot / 13;
         int inCol = slot % 13;
-        this.drawTexturedModalRect(x + 11 + inCol * 18, y + 12 + inRow * 18, 102, 36, 18, 18);
+        this.drawTexturedModalRect(x + 11 + inCol * 18, y + 12 + inRow * 18, 102, 126, 18, 18);
+
+        // FIXME: debug - cover the non-existing slots
+        this.drawGradientRect(x + 11, y + 48, x + 245, y + 174, 0xFFC6C6C6, 0xFFC6C6C6);
     }
 
     private int getOffsetSlot(int slot)
     {
-        slot -= this.containerFifo.extractPos;
+        slot -= this.containerFifo.getExtractPosition();
 
         if (slot < 0)
         {
