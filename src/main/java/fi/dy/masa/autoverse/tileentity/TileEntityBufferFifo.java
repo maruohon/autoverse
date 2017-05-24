@@ -20,9 +20,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 {
     public static final int NUM_SLOTS = 26; // FIXME debug: change back to 117
     private ItemHandlerWrapperFifo itemHandlerFifo;
-
-    protected int insertSlot;
-    protected int extractSlot;
+    protected boolean spawnItemsInWorld;
 
     public TileEntityBufferFifo()
     {
@@ -32,6 +30,8 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public TileEntityBufferFifo(String name)
     {
         super(name);
+
+        this.spawnItemsInWorld = true;
     }
 
     @Override
@@ -40,27 +40,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;
-    }
-
-    // These are only used for the GUI
-    public int getInsertSlot()
-    {
-        return this.insertSlot;
-    }
-
-    public int getExtractSlot()
-    {
-        return this.extractSlot;
-    }
-
-    public void setInsertSlot(int slot)
-    {
-        this.insertSlot = slot;
-    }
-
-    public void setExtractSlot(int slot)
-    {
-        this.extractSlot = slot;
     }
 
     public ItemHandlerWrapperFifo getFifoInventory()
@@ -80,7 +59,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, true);
+        this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);
     }
 
     @Override
