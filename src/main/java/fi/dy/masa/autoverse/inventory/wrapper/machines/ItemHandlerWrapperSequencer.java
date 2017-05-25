@@ -10,7 +10,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializable<NBTTagCompound>
 {
     protected final ItemStackHandlerTileEntity baseHandler;
-    protected int outputSlot;
+    protected int extractSlot;
 
     public ItemHandlerWrapperSequencer(ItemStackHandlerTileEntity baseHandler)
     {
@@ -19,13 +19,13 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
 
     public int getOutputSlot()
     {
-        return this.outputSlot;
+        return this.extractSlot;
     }
 
     @Override
     public int getSlots()
     {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
     {
         NBTTagCompound nbt = this.baseHandler.serializeNBT();
 
-        nbt.setByte("OutSlot", (byte) this.outputSlot);
+        nbt.setByte("OutSlot", (byte) this.extractSlot);
 
         return nbt;
     }
@@ -49,14 +49,33 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
     {
         this.baseHandler.deserializeNBT(nbt);
 
-        this.outputSlot = nbt.getByte("OutSlot");
+        this.extractSlot = nbt.getByte("OutSlot");
     }
 
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.outputSlot);
-        return slot != -1 ? this.baseHandler.getStackInSlot(slot) : ItemStack.EMPTY;
+        // The first "virtual slot" is for extraction, the second is for insertion (and thus always empty)
+        if (slot == 0)
+        {
+            ItemStack stack = this.baseHandler.getStackInSlot(this.extractSlot);
+
+            // Do "live" searching in case the current extraction slot is empty, otherwise
+            // the sequencer would get stuck since other blocks wouldn't know to pull from it
+            if (stack.isEmpty())
+            {
+                slot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.extractSlot + 1);
+
+                if (slot != -1)
+                {
+                    stack = this.baseHandler.getStackInSlot(slot);
+                }
+            }
+
+            return stack;
+        }
+
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -68,23 +87,23 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        int nextSlot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.outputSlot);
+        ItemStack stack = this.baseHandler.extractItem(this.extractSlot, 1, simulate);
+        int nextSlot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, this.extractSlot + 1);
 
-        if (nextSlot == -1)
+        // Do "live" searching in case the current extraction slot is empty, otherwise
+        // the sequencer would get stuck since other blocks wouldn't know to pull from it
+        if (stack.isEmpty() && nextSlot != -1)
         {
-            return ItemStack.EMPTY;
+            stack = this.baseHandler.extractItem(nextSlot, 1, simulate);
         }
 
-        ItemStack stack = this.baseHandler.extractItem(nextSlot, 1, simulate);
-
-        if (simulate == false && stack.isEmpty() == false)
+        if (simulate == false)
         {
-            if (++nextSlot >= this.baseHandler.getSlots())
+            // No point in advancing if the sequencer is empty
+            if (nextSlot != -1)
             {
-                nextSlot = 0;
+                this.extractSlot = nextSlot;
             }
-
-            this.outputSlot = nextSlot;
         }
 
         return stack;

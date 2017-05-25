@@ -4,14 +4,11 @@ import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.autoverse.block.BlockSequencer;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiSequencer;
@@ -23,7 +20,7 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntitySequencer extends TileEntityAutoverseInventory
 {
-    ItemHandlerWrapperSequencer inventorySequencer;
+    private ItemHandlerWrapperSequencer inventorySequencer;
     protected int tier;
 
     public TileEntitySequencer()
@@ -43,6 +40,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, this.getNumSlots(), 64, false, "Items", this);
         this.inventorySequencer = new ItemHandlerWrapperSequencer(this.itemHandlerBase);
+        this.itemHandlerExternal = this.inventorySequencer;
     }
 
     public int getNumSlots()
@@ -83,6 +81,12 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
+    {
+        this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
         // Setting the tier and thus initializing the inventories needs to
@@ -95,26 +99,11 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(nbt);
+        nbt = super.writeToNBT(nbt);
 
         nbt.setByte("Tier", (byte) this.getTier());
-        nbt.merge(this.inventorySequencer.serializeNBT());
 
         return nbt;
-    }
-
-    @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
-    {
-        this.inventorySequencer.deserializeNBT(nbt);
-    }
-
-    @Override
-    public void writeItemsToNBT(NBTTagCompound nbt)
-    {
-        super.writeItemsToNBT(nbt);
-
-        nbt.merge(this.inventorySequencer.serializeNBT());
     }
 
     @Override
@@ -133,34 +122,6 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         this.setTier(tag.getByte("t"));
 
         super.handleUpdateTag(tag);
-    }
-
-    @Override
-    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
-    {
-        this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);
-    }
-
-    @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            return true;
-        }
-
-        return super.hasCapability(capability, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventorySequencer);
-        }
-
-        return super.getCapability(capability, facing);
     }
 
     @Override
