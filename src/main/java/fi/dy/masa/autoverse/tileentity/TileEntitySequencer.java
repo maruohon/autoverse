@@ -53,7 +53,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
             case 1: return 3;
             case 2: return 6;
             case 3: return 9;
-            case 4: return 16;
+            case 4: return 18;
             default: return 2;
         }
     }

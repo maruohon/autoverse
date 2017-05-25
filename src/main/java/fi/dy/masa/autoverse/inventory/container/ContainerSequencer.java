@@ -29,12 +29,12 @@ public class ContainerSequencer extends ContainerTile
         int posY = 22;
         IItemHandler inv = this.teseq.getBaseItemHandler();
 
-        // Add the Filter slots
+        // Add the Sequencer slots
         for (int slot = 0, col = 0, row = 0; slot < inv.getSlots(); slot++)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + col * 18, posY + row * 18));
 
-            if (++col == 8 && inv.getSlots() > 9)
+            if (++col >= 9)
             {
                 col = 0;
                 row++;

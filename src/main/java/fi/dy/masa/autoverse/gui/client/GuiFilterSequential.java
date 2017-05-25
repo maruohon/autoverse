@@ -15,6 +15,17 @@ public class GuiFilterSequential extends GuiFilter
         this.containerFS = container;
     }
 
+    @Override
+    protected void renderAllSlotBackgrounds()
+    {
+        super.renderAllSlotBackgrounds();
+
+        if (this.drawFilterPosition)
+        {
+            this.drawFilterPosition(this.guiLeft, this.guiTop);
+        }
+    }
+
     protected void drawFilterPosition(int x, int y)
     {
         this.bindTexture(this.guiTextureWidgets);
@@ -29,16 +40,5 @@ public class GuiFilterSequential extends GuiFilter
 
         // Draw the colored background for the currently matched filter item
         this.drawTexturedModalRect(x, y, 102, 36, 18, 18);
-    }
-
-    @Override
-    protected void coverSlots(int x, int y)
-    {
-        super.coverSlots(x, y);
-
-        if (this.drawFilterPosition)
-        {
-            this.drawFilterPosition(x, y);
-        }
     }
 }

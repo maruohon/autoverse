@@ -1,6 +1,8 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.inventory.Slot;
+import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencer;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 
@@ -8,12 +10,14 @@ public class GuiSequencer extends GuiAutoverse
 {
     private final ContainerSequencer containrSeq;
     private final TileEntitySequencer teseq;
+    private final int invSize;
 
     public GuiSequencer(ContainerSequencer container, TileEntitySequencer te)
     {
         super(container, 176, 156, "gui.container.sequencer");
         this.containrSeq = container;
         this.teseq = te;
+        this.invSize = te.getBaseItemHandler().getSlots();
     }
 
     @Override
@@ -36,50 +40,33 @@ public class GuiSequencer extends GuiAutoverse
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
-        int numSlots = this.teseq.getBaseItemHandler().getSlots();
-
-        this.coverSlots(x, y, numSlots);
-        this.hilightOutputSlot(x, y, numSlots);
+        this.renderSlotBackgrounds();
+        this.hilightOutputSlot();
     }
 
-    protected void coverSlots(int x, int y, int numSlots)
+    protected void renderSlotBackgrounds()
     {
-        // First row of slots
-        if (numSlots < 9)
-        {
-            this.drawTexturedModalRect(x + 7 + numSlots * 18, y + 21, 7, 3, (9 - numSlots) * 18, 18);
-        }
-        // For the 16-slot variant the slots are in two rows of 8, so cover the last slot in that case
-        else if (numSlots > 9)
-        {
-            this.drawTexturedModalRect(x + 7 + 8 * 18, y + 21, 7, 3, 18, 18);
-        }
+        final int maxPerRow = 9;
+        // Draw the slot backgrounds according to how many slots this tier has
+        int rows = Math.max((int) (Math.ceil((double) this.invSize / maxPerRow)), 1);
 
-        // Second row of slots
-        if (numSlots < 16)
+        for (int row = 0; row < rows; row++)
         {
-            this.drawTexturedModalRect(x + 7, y + 39, 7, 3, 8 * 18, 18);
+            int rowLen = MathHelper.clamp(this.invSize - (row * maxPerRow), 1, maxPerRow);
+
+            // Render slots from the player inventory's first row into the Sequencer
+            this.drawTexturedModalRect(this.guiLeft + 7, this.guiTop + 21 + row * 18, 7, 73, rowLen * 18, 18);
         }
     }
 
-    protected void hilightOutputSlot(int x, int y, int numSlots)
+    protected void hilightOutputSlot()
     {
-        int slot = this.containrSeq.getExtractSlot();
+        int slotNum = this.containrSeq.getExtractSlot();
+        Slot slot = slotNum >= 0 && slotNum < this.containrSeq.inventorySlots.size() ? this.containrSeq.getSlot(slotNum) : null;
 
-        if (slot >= 0)
+        if (slot != null)
         {
-            if (numSlots <= 9)
-            {
-                this.drawTexturedModalRect(x + 7 + slot * 18, y + 21, 176, 0, 18, 18);
-            }
-            else
-            {
-                // For the 16-slot variant the slots are in two rows of 8
-                this.drawTexturedModalRect(x + 7 + (slot % 8) * 18, y + 21 + (slot / 8) * 18, 176, 0, 18, 18);
-            }
+            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 176, 0, 18, 18);
         }
     }
 }

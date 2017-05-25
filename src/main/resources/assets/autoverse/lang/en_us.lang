@@ -73,7 +73,7 @@ tile.autoverse.sequencer_0.name=Sequencer (2 slots)
 tile.autoverse.sequencer_1.name=Sequencer (3 slots)
 tile.autoverse.sequencer_2.name=Sequencer (6 slots)
 tile.autoverse.sequencer_3.name=Sequencer (9 slots)
-tile.autoverse.sequencer_4.name=Sequencer (16 slots)
+tile.autoverse.sequencer_4.name=Sequencer (18 slots)
 tile.autoverse.splitter.name=Splitter (basic)
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
