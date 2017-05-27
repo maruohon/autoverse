@@ -11,6 +11,7 @@ autoverse.container.filter=Programmable Filter
 autoverse.container.filter_sequential=Sequential Prog. Filter
 autoverse.container.filter_sequential_smart=Smart Sequential Prog. Filter
 autoverse.container.sequencer=Sequencer
+autoverse.container.splitter_selectable=Selectable Splitter
 autoverse.container.splitter_togglable=Togglable Splitter
 
 autoverse.gui.label.filteritems=Filter items
@@ -19,9 +20,13 @@ autoverse.gui.label.input=Input
 autoverse.gui.label.matchedsequence=Matched
 autoverse.gui.label.max=Max: 
 autoverse.gui.label.nonmatchoutbuffer=No-match items buffer
-autoverse.gui.label.resetsequence=Reset seq.
+autoverse.gui.label.reset_sequence=Reset seq.
 autoverse.gui.label.splitter.outputs=Outputs
-autoverse.gui.label.splitter.switchingsequence=Switch seq.
+autoverse.gui.label.splitter.output_1=Out 1
+autoverse.gui.label.splitter.output_2=Out 2
+autoverse.gui.label.splitter.switching_sequence=Switch seq.
+autoverse.gui.label.splitter.switching_sequence_1=Switch seq. 1
+autoverse.gui.label.splitter.switching_sequence_2=Switch seq. 2
 
 tile.autoverse.barrel_0.name=Barrel (max: 1)
 tile.autoverse.barrel_1.name=Barrel (max: 2)
@@ -73,6 +78,7 @@ tile.autoverse.sequencer_1.name=Sequencer (3 slots)
 tile.autoverse.sequencer_2.name=Sequencer (6 slots)
 tile.autoverse.sequencer_3.name=Sequencer (9 slots)
 tile.autoverse.sequencer_4.name=Sequencer (18 slots)
+tile.autoverse.splitter_selectable.name=Selectable Splitter
 tile.autoverse.splitter_togglable.name=Togglable Splitter
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed

@@ -19,6 +19,7 @@ import fi.dy.masa.autoverse.gui.client.GuiSplitter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSelectable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -36,6 +37,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     private BlockPos posOut2;
     private int delay = 2;
     private boolean outputIsSecondary;
+    private boolean selectable;
 
     public TileEntitySplitter()
     {
@@ -53,10 +55,10 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOut1      = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut1", this);
         this.inventoryOut2      = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut2", this);
-        this.splitter           = new ItemHandlerWrapperSplitter(4, this.inventoryInput, this);
         this.itemHandlerBase    = this.inventoryInput;
+
+        this.splitter           = new ItemHandlerWrapperSplitter(4, this.inventoryInput);
         this.itemHandlerExternal = this.splitter;
-        //this.itemHandlerExternal = new ItemHandlerWrapperSize(this.splitter);
     }
 
     public IItemHandler getInventoryIn()
@@ -77,6 +79,22 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public ItemHandlerWrapperSplitter getSplitter()
     {
         return this.splitter;
+    }
+
+    public boolean isSelectable()
+    {
+        return this.selectable;
+    }
+
+    public void setTypeIsSelectable(boolean selectable)
+    {
+        this.selectable = selectable;
+
+        if (selectable)
+        {
+            this.splitter = new ItemHandlerWrapperSplitterSelectable(3, this.inventoryInput);
+            this.itemHandlerExternal = this.splitter;
+        }
     }
 
     public boolean outputIsSecondary()
@@ -223,6 +241,8 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         // happen before reading the inventories!
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
 
+        this.setTypeIsSelectable(tag.getBoolean("Type"));
+
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOut1.deserializeNBT(tag);
         this.inventoryOut2.deserializeNBT(tag);
@@ -237,6 +257,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         super.writeToNBT(nbt);
 
         nbt.setByte("Facing2", (byte)this.facing2.getIndex());
+        nbt.setBoolean("Type", this.selectable);
         nbt.merge(this.splitter.serializeNBT());
 
         return nbt;
@@ -262,6 +283,12 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
+
+        if (this.selectable)
+        {
+            tag.setBoolean("sel", true);
+        }
+
         return tag;
     }
 
@@ -271,6 +298,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         int facings = tag.getByte("f");
         this.setFacing(EnumFacing.getFront(facings & 0x7));
         this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), false);
+        this.setTypeIsSelectable(tag.getBoolean("sel"));
 
         this.notifyBlockUpdate(this.getPos());
     }

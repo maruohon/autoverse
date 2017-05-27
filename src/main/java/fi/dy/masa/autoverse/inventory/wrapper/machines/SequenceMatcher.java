@@ -11,22 +11,14 @@ import fi.dy.masa.autoverse.util.NBTUtils;
 
 public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
 {
-    private final IItemHandler inputInv;
-    //private final ISequenceHandler handler;
-    //private final int matcherId;
     private final NonNullList<ItemStack> sequence;
-    //private final NonNullList<ItemStack> matched;
     private final String tagName;
     private int position;
     private boolean configured;
 
-    public SequenceMatcher(IItemHandler inputInv, /*ISequenceHandler handler,*/ int length, String tagName)
+    public SequenceMatcher(int length, String tagName)
     {
-        //this.matcherId = matcherId;
-        this.inputInv = inputInv;
-        //this.handler = handler;
         this.sequence = NonNullList.withSize(length, ItemStack.EMPTY);
-        //this.matched = NonNullList.withSize(length, ItemStack.EMPTY);
         this.tagName = tagName;
     }
 
@@ -34,15 +26,13 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
      * Configures the sequence by adding the current input item to it.
      * @return true if the full sequence has been configured
      */
-    public boolean configureSequence()
+    public boolean configureSequence(ItemStack inputStack)
     {
-        ItemStack stack = this.inputInv.getStackInSlot(0);
-
         // Empty stacks are also valid, but we don't need to copy them,
         // as the list is already filled with empty stacks.
-        if (stack.isEmpty() == false)
+        if (inputStack.isEmpty() == false)
         {
-            this.sequence.set(this.position, stack.copy());
+            this.sequence.set(this.position, inputStack.copy());
         }
 
         if (++this.position >= this.sequence.size())
@@ -61,10 +51,8 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
      * position will reset back to 0, ready for the next sequence.
      * @return true if the full sequence matches, false otherwise
      */
-    public boolean checkInputItem()
+    public boolean checkInputItem(ItemStack inputStack)
     {
-        ItemStack inputStack = this.inputInv.getStackInSlot(0);
-
         // The current item matches the sequence
         if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(this.position)))
         {
@@ -88,7 +76,7 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
 
     private void shiftSequence(ItemStack inputStack)
     {
-        for (int start = 1; start <= this.position; ++start)
+        for (int start = 1; start < this.position; ++start)
         {
             for (int relIndex = 0; ; ++relIndex)
             {
@@ -131,7 +119,6 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
     public void reset()
     {
         this.sequence.clear();
-        //this.matched.clear();
         this.position = 0;
         this.configured = false;
     }

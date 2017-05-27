@@ -4,22 +4,40 @@
         "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":            "autoverse:blocks/splitter_out_1",
-            "top":              "autoverse:blocks/splitter_side",
-            "bottom":           "autoverse:blocks/splitter_side",
-            "left":             "autoverse:blocks/splitter_side",
-            "right":            "autoverse:blocks/splitter_side",
-            "back":             "autoverse:blocks/splitter_base"
+            "front":            "#out_1",
+            "top":              "#side",
+            "bottom":           "#side",
+            "left":             "#side",
+            "right":            "#side",
+            "back":             "#base"
         }
     },
     "variants": {
+        "type" :{
+            "togglable": {
+                "textures": {
+                    "out_1":    "autoverse:blocks/splitter_togglable_out_1",
+                    "out_2":    "autoverse:blocks/splitter_togglable_out_2",
+                    "side":     "autoverse:blocks/splitter_togglable_side",
+                    "base":     "autoverse:blocks/splitter_togglable_base"
+                }
+            },
+            "selectable": {
+                "textures": {
+                    "out_1":    "autoverse:blocks/splitter_selectable_out_1",
+                    "out_2":    "autoverse:blocks/splitter_selectable_out_2",
+                    "side":     "autoverse:blocks/splitter_selectable_side",
+                    "base":     "autoverse:blocks/splitter_selectable_base"
+                }
+            }
+        },
         "facing_out2": {
-            "north": { "textures": { "front":  "autoverse:blocks/splitter_out_2" } },
-            "south": { "textures": { "back":   "autoverse:blocks/splitter_out_2" } },
-            "west":  { "textures": { "right":  "autoverse:blocks/splitter_out_2" } },
-            "east":  { "textures": { "left":   "autoverse:blocks/splitter_out_2" } },
-            "up":    { "textures": { "top":    "autoverse:blocks/splitter_out_2" } },
-            "down":  { "textures": { "bottom": "autoverse:blocks/splitter_out_2" } }
+            "north": {},
+            "south": { "textures": { "back":   "#out_2" } },
+            "west":  { "textures": { "right":  "#out_2" } },
+            "east":  { "textures": { "left":   "#out_2" } },
+            "up":    { "textures": { "top":    "#out_2" } },
+            "down":  { "textures": { "bottom": "#out_2" } }
         },
         "facing": {
             "north": {},
