@@ -107,6 +107,18 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     }
 
     @Override
+    protected void readItemsFromNBT(NBTTagCompound nbt)
+    {
+        this.inventorySequencer.deserializeNBT(nbt);
+    }
+
+    @Override
+    public void writeItemsToNBT(NBTTagCompound nbt)
+    {
+        nbt.merge(this.inventorySequencer.serializeNBT());
+    }
+
+    @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag = super.getUpdatePacketTag(tag);
