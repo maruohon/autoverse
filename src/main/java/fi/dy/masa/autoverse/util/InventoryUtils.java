@@ -154,7 +154,7 @@ public class InventoryUtils
         final int invSize = inv.getSlots();
         int slot = startSlot;
 
-        for (int i = 0; i < invSize; ++i)
+        for (int i = 0; i < invSize; ++i, ++slot)
         {
             if (slot >= invSize)
             {
