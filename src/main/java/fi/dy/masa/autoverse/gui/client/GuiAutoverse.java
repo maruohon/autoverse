@@ -104,7 +104,7 @@ public class GuiAutoverse extends GuiContainer
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void drawSpecialSlot(Slot slotIn)
+    protected void drawSpecialSlot(Slot slotIn)
     {
         int x = this.guiLeft + slotIn.xPos;
         int y = this.guiTop + slotIn.yPos;

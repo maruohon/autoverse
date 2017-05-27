@@ -331,7 +331,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         nbt.setByte("Tier", (byte)this.getFilterTier());
         nbt.setByte("FilterFacing", (byte)this.facingFilteredOut.getIndex());
-        nbt.merge(this.inventoryInput.serializeNBT());
 
         return nbt;
     }
@@ -346,6 +345,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryFilterItems.serializeNBT());
         nbt.merge(this.inventoryFilterered.serializeNBT());
         nbt.merge(this.inventoryNonmatchOut.serializeNBT());
+        nbt.merge(this.inventoryInput.serializeNBT());
     }
 
     @Override

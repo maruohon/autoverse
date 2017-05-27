@@ -75,11 +75,7 @@ public class ItemHandlerWrapperContainer implements IItemHandlerModifiable, IIte
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        // Note: Ender Utilities uses the wrapper handler for this.
-        // But since Autoverse has lots of wrappers where only 1 slot is exposed externally,
-        // but we still want to have access to the base inventory via the GUI,
-        // we use the base handler here.
-        return this.baseHandlerModifiable.insertItem(slot, stack, simulate);
+        return this.wrapperHandler.insertItem(slot, stack, simulate);
     }
 
     @Override

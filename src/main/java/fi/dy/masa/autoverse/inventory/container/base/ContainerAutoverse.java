@@ -453,7 +453,7 @@ public class ContainerAutoverse extends Container
      */
     protected Slot addSpecialSlot(Slot slotIn)
     {
-        slotIn.slotNumber = this.inventorySlots.size();
+        slotIn.slotNumber = this.specialSlots.size();
         this.specialSlots.add(slotIn);
         this.specialSlotStacks.add(ItemStack.EMPTY);
         return slotIn;

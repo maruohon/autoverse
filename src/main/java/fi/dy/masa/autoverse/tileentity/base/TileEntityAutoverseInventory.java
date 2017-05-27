@@ -162,14 +162,14 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
      * If there is no adjacent inventory on the front facing side, then it will spawn the item as an EntityItem.
      * @return whether the action succeeded
      */
-    protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos pos, EnumFacing side, boolean spawnInWorld)
+    protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos targetPos, EnumFacing targetSide, boolean spawnInWorld)
     {
         ItemStack stack = invSrc.extractItem(slot, 1, true);
 
         if (stack.isEmpty() == false)
         {
-            TileEntity te = this.getWorld().getTileEntity(pos);
-            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side) : null;
+            TileEntity te = this.getWorld().getTileEntity(targetPos);
+            IItemHandler inv = te != null ? te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide) : null;
 
             if (inv != null)
             {
