@@ -66,7 +66,8 @@ public class GuiSequencer extends GuiAutoverse
 
         if (slot != null)
         {
-            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 176, 0, 18, 18);
+            this.bindTexture(this.guiTextureWidgets);
+            this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 108, 18, 18);
         }
     }
 }
