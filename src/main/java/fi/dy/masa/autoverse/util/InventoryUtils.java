@@ -222,6 +222,47 @@ public class InventoryUtils
     }
 
     /**
+     * Tries to move the entire stack from the source inventory and slot to the destination.
+     * If the simulation fails to insert the entire stack, then the operation is aborted before
+     * actually moving any items.
+     * @param invSrc
+     * @param slotSrc
+     * @param invDst
+     * @param slotDst
+     * @return
+     */
+    public static InvResult tryMoveEntireStackOnly(IItemHandler invSrc, int slotSrc, IItemHandler invDst, int slotDst)
+    {
+        ItemStack stack = invSrc.extractItem(slotSrc, 64, true);
+
+        if (stack.isEmpty() == false)
+        {
+            stack = invDst.insertItem(slotDst, stack, true);
+
+            // Successfully inserted the entire stack while simulating, now actually move it
+            if (stack.isEmpty())
+            {
+                stack = invSrc.extractItem(slotSrc, 64, false);
+                int sizeOrig = stack.getCount();
+                stack = invDst.insertItem(slotDst, stack, false);
+
+                // Failed to move the entire stack after all...
+                if (stack.isEmpty() == false)
+                {
+                    boolean movedSome = stack.getCount() != sizeOrig;
+                    invSrc.insertItem(slotSrc, stack, false);
+
+                    return movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING;
+                }
+
+                return InvResult.MOVED_ALL;
+            }
+        }
+
+        return InvResult.MOVED_NOTHING;
+    }
+
+    /**
      * Tries to insert the given ItemStack stack to the target inventory.
      * The return value is a stack of the remaining items that couldn't be inserted.
      * If all items were successfully inserted, then an empty stack is returned.

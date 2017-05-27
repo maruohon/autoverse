@@ -141,6 +141,20 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     }
 
     @Override
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
+        if (world instanceof World && ((World) world).isRemote == false)
+        {
+            TileEntityAutoverse te = getTileEntitySafely(world, pos, TileEntityAutoverse.class);
+
+            if (te != null)
+            {
+                te.onNeighborTileChange(world, pos, neighbor);
+            }
+        }
+    }
+
+    @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
         if (this.hasFacing)

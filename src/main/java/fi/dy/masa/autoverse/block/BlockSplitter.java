@@ -29,6 +29,12 @@ public class BlockSplitter extends BlockAutoverseInventory
     }
 
     @Override
+    protected String[] generateUnlocalizedNames()
+    {
+        return new String[] { this.blockName + "_togglable" };
+    }
+
+    @Override
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer(this, new IProperty[] { FACING, FACING2 });
@@ -100,7 +106,7 @@ public class BlockSplitter extends BlockAutoverseInventory
                 facing = facing.rotateYCCW();
             }
 
-            te.setSecondOutputSide(facing);
+            te.setSecondOutputSide(facing, false);
         }
     }
 }

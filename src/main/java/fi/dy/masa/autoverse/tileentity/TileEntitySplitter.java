@@ -7,38 +7,35 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiSplitter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
-import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
+import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntitySplitter extends TileEntityAutoverseInventory
 {
-    protected ItemStackHandlerTileEntity inventoryInputManual;
-    protected ItemStackHandlerTileEntity inventoryReset;
-    protected ItemStackHandlerTileEntity inventorySequence;
-    protected ItemStackHandlerTileEntity inventoryOut1;
-    protected ItemStackHandlerTileEntity inventoryOut2;
+    private ItemStackHandlerTileEntity inventoryInput;
+    private ItemStackHandlerTileEntity inventoryOut1;
+    private ItemStackHandlerTileEntity inventoryOut2;
+    private ItemHandlerWrapperSplitter splitter;
 
-    protected IItemHandler wrappedInventoryOut1;
-    protected IItemHandler wrappedInventoryOut2;
-    protected ItemHandlerWrapperFilter inventoryInput;
-
-    protected EnumFacing facing2 = EnumFacing.WEST;
-    protected BlockPos posOut2;
+    private EnumFacing facing2 = EnumFacing.WEST;
+    private BlockPos posOut2;
+    private int delay = 2;
+    private boolean outputIsSecondary;
 
     public TileEntitySplitter()
     {
@@ -53,52 +50,38 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9, 1,  1, false, "InputItems", this);
-        this.inventoryReset         = new ItemStackHandlerTileEntity(0, 4,  1, false, "ResetItems", this);
-        this.inventorySequence      = new ItemStackHandlerTileEntity(1, 2, 64, false, "SequenceItems", this);
-        this.inventoryOut1          = new ItemStackHandlerTileEntity(2, 1,  1, false, "OutItems1", this);
-        this.inventoryOut2          = new ItemStackHandlerTileEntity(3, 1,  1, false, "OutItems2", this);
-        this.itemHandlerBase        = this.inventoryOut1;
-
-        this.wrappedInventoryOut1   = new ItemHandlerWrapperExtractOnly(this.inventoryOut1);
-        this.wrappedInventoryOut2   = new ItemHandlerWrapperExtractOnly(this.inventoryOut2);
-
-        this.inventoryInput = new ItemHandlerWrapperFilter(
-                this.inventoryReset,
-                this.inventorySequence,
-                this.inventoryOut1,
-                this.inventoryOut2,
-                this);
+        this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
+        this.inventoryOut1      = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut1", this);
+        this.inventoryOut2      = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut2", this);
+        this.splitter           = new ItemHandlerWrapperSplitter(4, this.inventoryInput, this);
+        this.itemHandlerBase    = this.inventoryInput;
+        this.itemHandlerExternal = this.splitter;
+        //this.itemHandlerExternal = new ItemHandlerWrapperSize(this.splitter);
     }
 
-    public IItemHandler getInputInventory()
+    public IItemHandler getInventoryIn()
     {
-        return this.inventoryInputManual;
+        return this.inventoryInput;
     }
 
-    public IItemHandler getResetInventory()
-    {
-        return this.inventoryReset;
-    }
-
-    public IItemHandler getSequenceInventory()
-    {
-        return this.inventorySequence;
-    }
-
-    public IItemHandler getResetSequenceBuffer()
-    {
-        return this.inventoryInput.getSequenceBuffer();
-    }
-
-    public IItemHandler getOut1Inventory()
+    public IItemHandler getInventoryOut1()
     {
         return this.inventoryOut1;
     }
 
-    public IItemHandler getOut2Inventory()
+    public IItemHandler getInventoryOut2()
     {
         return this.inventoryOut2;
+    }
+
+    public ItemHandlerWrapperSplitter getSplitter()
+    {
+        return this.splitter;
+    }
+
+    public boolean outputIsSecondary()
+    {
+        return this.outputIsSecondary;
     }
 
     public EnumFacing getOutputFacing2()
@@ -106,9 +89,9 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         return this.facing2;
     }
 
-    public void setSecondOutputSide(EnumFacing side)
+    public void setSecondOutputSide(EnumFacing side, boolean force)
     {
-        if (side != this.facing)
+        if (force || side != this.facing)
         {
             this.facing2 = side;
             this.posOut2 = this.getPos().offset(side);
@@ -140,12 +123,19 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
                 if (this.facing2.getAxis() != axis.getAxis())
                 {
                     EnumFacing result = PositionUtils.rotateAround(this.facing2, axis);
-                    //System.out.printf("facing: %s axis: %s filter: %s result: %s\n", facing, axis, facingFilteredOut, result);
                     return result;
                 }
 
                 return facing2;
         }
+    }
+
+    @Override
+    public void rotate(Rotation rotationIn)
+    {
+        this.setSecondOutputSide(rotationIn.rotate(this.facing2), true);
+
+        super.rotate(rotationIn);
     }
 
     @Override
@@ -155,7 +145,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         if (stack.isEmpty() && player.isSneaking())
         {
-            this.setSecondOutputSide(side);
+            this.setSecondOutputSide(side, false);
             this.markDirty();
             this.notifyBlockUpdate(this.getPos());
             return true;
@@ -165,20 +155,80 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
+    {
+        boolean movedOut = false;
+        boolean movedIn = false;
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.posFront, this.facingOpposite, false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
+
+        // We used a cached value, so that the last item of the switch or reset sequence
+        // still goes to the same output as the previous ones did.
+        if (this.outputIsSecondary)
+        {
+            movedIn |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOut2, 0) != InvResult.MOVED_NOTHING;
+        }
+        else
+        {
+            movedIn |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOut1, 0) != InvResult.MOVED_NOTHING;
+        }
+
+        // Update the cached value after the input item has been moved
+        if (movedIn)
+        {
+            this.outputIsSecondary = this.splitter.secondaryOutputActive();
+        }
+
+        if (movedIn || movedOut)
+        {
+            this.scheduleUpdateIfNeeded();
+        }
+    }
+
+    @Override
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
+        this.scheduleUpdateIfNeeded();
+    }
+
+    private void scheduleUpdateIfNeeded()
+    {
+        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+            this.inventoryOut1.getStackInSlot(0).isEmpty() == false ||
+            this.inventoryOut2.getStackInSlot(0).isEmpty() == false)
+        {
+            this.scheduleBlockUpdate(this.delay, false);
+        }
+    }
+
+    public void dropInventories()
+    {
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut1);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut2);
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        this.scheduleUpdateIfNeeded();
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
         super.readFromNBTCustom(tag);
 
         // Setting the tier and thus initializing the inventories needs to
         // happen before reading the inventories!
-        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")));
+        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
 
-        this.inventoryInputManual.deserializeNBT(tag);
-        this.inventoryReset.deserializeNBT(tag);
-        this.inventorySequence.deserializeNBT(tag);
+        this.inventoryInput.deserializeNBT(tag);
         this.inventoryOut1.deserializeNBT(tag);
         this.inventoryOut2.deserializeNBT(tag);
-        this.inventoryInput.deserializeNBT(tag);
+
+        this.splitter.deserializeNBT(tag);
+        this.outputIsSecondary = this.splitter.secondaryOutputActive();
     }
 
     @Override
@@ -187,7 +237,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         super.writeToNBT(nbt);
 
         nbt.setByte("Facing2", (byte)this.facing2.getIndex());
-        nbt.merge(this.inventoryInput.serializeNBT());
+        nbt.merge(this.splitter.serializeNBT());
 
         return nbt;
     }
@@ -203,9 +253,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     {
         super.writeItemsToNBT(nbt);
 
-        nbt.merge(this.inventoryInputManual.serializeNBT());
-        nbt.merge(this.inventoryReset.serializeNBT());
-        nbt.merge(this.inventorySequence.serializeNBT());
+        nbt.merge(this.inventoryInput.serializeNBT());
         nbt.merge(this.inventoryOut1.serializeNBT());
         nbt.merge(this.inventoryOut2.serializeNBT());
     }
@@ -213,7 +261,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        //tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
         tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
         return tag;
     }
@@ -221,71 +268,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        //this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
         int facings = tag.getByte("f");
         this.setFacing(EnumFacing.getFront(facings & 0x7));
-        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7));
+        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), false);
 
-        IBlockState state = this.getWorld().getBlockState(this.getPos());
-        this.getWorld().notifyBlockUpdate(this.getPos(), state, state, 3);
-    }
-
-    @Override
-    public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
-    {
-        this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.posFront, this.facingOpposite, false);
-        this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
-    }
-
-    @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            return true;
-        }
-
-        return super.hasCapability(capability, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            if (facing == this.facing)
-            {
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryOut1);
-            }
-
-            if (facing == this.facing2)
-            {
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryOut2);
-            }
-
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventoryInput);
-        }
-
-        return super.getCapability(capability, facing);
-    }
-
-    public void dropInventories()
-    {
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInputManual);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryReset);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventorySequence);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut1);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut2);
-    }
-
-    @Override
-    public void inventoryChanged(int inventoryId, int slot)
-    {
-        // Manual input inventory
-        if (inventoryId == 9)
-        {
-            this.scheduleBlockUpdate(1, true);
-        }
+        this.notifyBlockUpdate(this.getPos());
     }
 
     @Override

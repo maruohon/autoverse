@@ -17,6 +17,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -120,6 +121,10 @@ public abstract class TileEntityAutoverse extends TileEntity
         }
 
         this.redstoneState = redstone;
+    }
+
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
     }
 
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
