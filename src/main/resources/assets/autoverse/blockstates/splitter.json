@@ -29,6 +29,14 @@
                     "side":     "autoverse:blocks/splitter_selectable_side",
                     "base":     "autoverse:blocks/splitter_selectable_base"
                 }
+            },
+            "redstone": {
+                "textures": {
+                    "out_1":    "autoverse:blocks/splitter_redstone_out_1",
+                    "out_2":    "autoverse:blocks/splitter_redstone_out_2",
+                    "side":     "autoverse:blocks/splitter_redstone_side",
+                    "base":     "autoverse:blocks/splitter_redstone_base"
+                }
             }
         },
         "facing_out2": {

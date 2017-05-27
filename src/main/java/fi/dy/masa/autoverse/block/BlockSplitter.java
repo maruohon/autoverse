@@ -42,7 +42,8 @@ public class BlockSplitter extends BlockAutoverseInventory
     {
         return new String[] {
                 this.blockName + "_togglable",
-                this.blockName + "_selectable"
+                this.blockName + "_selectable",
+                this.blockName + "_redstone"
         };
     }
 
@@ -56,14 +57,14 @@ public class BlockSplitter extends BlockAutoverseInventory
     protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
         TileEntitySplitter te = new TileEntitySplitter();
-        te.setTypeIsSelectable(state.getValue(TYPE) == SplitterType.SELECTABLE);
+        te.setSplitterType(state.getValue(TYPE));
         return te;
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TYPE, SplitterType.fromMeta(meta & 0x1));
+        return this.getDefaultState().withProperty(TYPE, SplitterType.fromMeta(meta & 0x3));
     }
 
     @Override
@@ -137,7 +138,8 @@ public class BlockSplitter extends BlockAutoverseInventory
     public enum SplitterType implements IStringSerializable
     {
         TOGGLABLE       (0, "togglable"),
-        SELECTABLE      (1, "selectable");
+        SELECTABLE      (1, "selectable"),
+        REDSTONE        (2, "redstone");
 
         private final int meta;
         private final String name;

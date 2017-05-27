@@ -154,7 +154,7 @@ public class ContainerSplitter extends ContainerTile implements ICustomSlotSync
     {
         if (this.isClient == false)
         {
-            boolean isSecondary = this.tesp.outputIsSecondary();
+            boolean isSecondary = this.tesp.outputIsSecondaryCached();
 
             for (int i = 0; i < this.listeners.size(); i++)
             {

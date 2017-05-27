@@ -11,6 +11,7 @@ autoverse.container.filter=Programmable Filter
 autoverse.container.filter_sequential=Sequential Prog. Filter
 autoverse.container.filter_sequential_smart=Smart Sequential Prog. Filter
 autoverse.container.sequencer=Sequencer
+autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_selectable=Selectable Splitter
 autoverse.container.splitter_togglable=Togglable Splitter
 
@@ -78,6 +79,7 @@ tile.autoverse.sequencer_1.name=Sequencer (3 slots)
 tile.autoverse.sequencer_2.name=Sequencer (6 slots)
 tile.autoverse.sequencer_3.name=Sequencer (9 slots)
 tile.autoverse.sequencer_4.name=Sequencer (18 slots)
+tile.autoverse.splitter_redstone.name=Redstone Controllable Splitter
 tile.autoverse.splitter_selectable.name=Selectable Splitter
 tile.autoverse.splitter_togglable.name=Togglable Splitter
 

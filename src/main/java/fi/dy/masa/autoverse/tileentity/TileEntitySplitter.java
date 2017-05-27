@@ -14,10 +14,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.block.BlockSplitter;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiSplitter;
+import fi.dy.masa.autoverse.gui.client.GuiSplitterRedstone;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
+import fi.dy.masa.autoverse.inventory.container.ContainerSplitterRedstone;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperInsertOnly;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSelectable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -33,11 +38,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryOut2;
     private ItemHandlerWrapperSplitter splitter;
 
+    private BlockSplitter.SplitterType type = BlockSplitter.SplitterType.REDSTONE;
     private EnumFacing facing2 = EnumFacing.WEST;
     private BlockPos posOut2;
     private int delay = 2;
-    private boolean outputIsSecondary;
-    private boolean selectable;
+    private boolean outputIsSecondaryCached;
 
     public TileEntitySplitter()
     {
@@ -56,9 +61,26 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.inventoryOut1      = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut1", this);
         this.inventoryOut2      = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut2", this);
         this.itemHandlerBase    = this.inventoryInput;
+    }
 
-        this.splitter           = new ItemHandlerWrapperSplitter(4, this.inventoryInput);
-        this.itemHandlerExternal = this.splitter;
+    private void initSplitterInventory(BlockSplitter.SplitterType type)
+    {
+        switch (type)
+        {
+            case SELECTABLE:
+                this.splitter = new ItemHandlerWrapperSplitterSelectable(3, this.inventoryInput);
+                this.itemHandlerExternal = this.splitter;
+                break;
+
+            case TOGGLABLE:
+                this.splitter = new ItemHandlerWrapperSplitter(4, this.inventoryInput);
+                this.itemHandlerExternal = this.splitter;
+                break;
+
+            case REDSTONE:
+                this.itemHandlerExternal = new ItemHandlerWrapperInsertOnly(this.inventoryInput);
+                break;
+        }
     }
 
     public IItemHandler getInventoryIn()
@@ -83,23 +105,30 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public boolean isSelectable()
     {
-        return this.selectable;
+        return this.type == BlockSplitter.SplitterType.SELECTABLE;
     }
 
-    public void setTypeIsSelectable(boolean selectable)
+    public void setSplitterType(BlockSplitter.SplitterType type)
     {
-        this.selectable = selectable;
+        this.type = type;
+        this.initSplitterInventory(type);
+    }
 
-        if (selectable)
+    public boolean outputIsSecondaryCached()
+    {
+        return this.outputIsSecondaryCached;
+    }
+
+    protected boolean outputIsSecondary()
+    {
+        if (this.type == BlockSplitter.SplitterType.REDSTONE)
         {
-            this.splitter = new ItemHandlerWrapperSplitterSelectable(3, this.inventoryInput);
-            this.itemHandlerExternal = this.splitter;
+            return this.redstoneState;
         }
-    }
-
-    public boolean outputIsSecondary()
-    {
-        return this.outputIsSecondary;
+        else
+        {
+            return this.splitter.secondaryOutputActive();
+        }
     }
 
     public EnumFacing getOutputFacing2()
@@ -182,7 +211,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         // We used a cached value, so that the last item of the switch or reset sequence
         // still goes to the same output as the previous ones did.
-        if (this.outputIsSecondary)
+        if (this.outputIsSecondaryCached)
         {
             movedIn |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOut2, 0) != InvResult.MOVED_NOTHING;
         }
@@ -194,13 +223,19 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         // Update the cached value after the input item has been moved
         if (movedIn)
         {
-            this.outputIsSecondary = this.splitter.secondaryOutputActive();
+            this.outputIsSecondaryCached = this.outputIsSecondary();
         }
 
         if (movedIn || movedOut)
         {
             this.scheduleUpdateIfNeeded();
         }
+    }
+
+    @Override
+    protected void onRedstoneChange(boolean state)
+    {
+        this.outputIsSecondaryCached = state;
     }
 
     @Override
@@ -241,14 +276,21 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         // happen before reading the inventories!
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
 
-        this.setTypeIsSelectable(tag.getBoolean("Type"));
+        this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("Type")));
 
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOut1.deserializeNBT(tag);
         this.inventoryOut2.deserializeNBT(tag);
 
-        this.splitter.deserializeNBT(tag);
-        this.outputIsSecondary = this.splitter.secondaryOutputActive();
+        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        {
+            this.outputIsSecondaryCached = this.redstoneState;
+        }
+        else
+        {
+            this.splitter.deserializeNBT(tag);
+            this.outputIsSecondaryCached = this.splitter.secondaryOutputActive();
+        }
     }
 
     @Override
@@ -257,8 +299,12 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         super.writeToNBT(nbt);
 
         nbt.setByte("Facing2", (byte)this.facing2.getIndex());
-        nbt.setBoolean("Type", this.selectable);
-        nbt.merge(this.splitter.serializeNBT());
+        nbt.setByte("Type", (byte) this.type.getMeta());
+
+        if (this.splitter != null)
+        {
+            nbt.merge(this.splitter.serializeNBT());
+        }
 
         return nbt;
     }
@@ -283,12 +329,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
-
-        if (this.selectable)
-        {
-            tag.setBoolean("sel", true);
-        }
-
+        tag.setByte("typ", (byte) this.type.getMeta());
         return tag;
     }
 
@@ -298,21 +339,35 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         int facings = tag.getByte("f");
         this.setFacing(EnumFacing.getFront(facings & 0x7));
         this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), false);
-        this.setTypeIsSelectable(tag.getBoolean("sel"));
+        this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("typ")));
 
         this.notifyBlockUpdate(this.getPos());
     }
 
     @Override
-    public ContainerSplitter getContainer(EntityPlayer player)
+    public ContainerAutoverse getContainer(EntityPlayer player)
     {
-        return new ContainerSplitter(player, this);
+        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        {
+            return new ContainerSplitterRedstone(player, this);
+        }
+        else
+        {
+            return new ContainerSplitter(player, this);
+        }
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
-        return new GuiSplitter(this.getContainer(player), this);
+        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        {
+            return new GuiSplitterRedstone(new ContainerSplitterRedstone(player, this), this);
+        }
+        else
+        {
+            return new GuiSplitter(new ContainerSplitter(player, this), this);
+        }
     }
 }
