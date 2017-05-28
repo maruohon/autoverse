@@ -17,6 +17,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
+import fi.dy.masa.autoverse.inventory.ICustomSlotSync;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.PlayerInvWrapperNoSync;
@@ -24,8 +25,9 @@ import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
 
-public class ContainerAutoverse extends Container
+public class ContainerAutoverse extends Container implements ICustomSlotSync
 {
+    protected static final int SLOT_TYPE_SPECIAL = 10;
     protected final EntityPlayer player;
     protected final boolean isClient;
     protected final InventoryPlayer inventoryPlayer;
@@ -526,7 +528,7 @@ public class ContainerAutoverse extends Container
                         if (listener instanceof EntityPlayerMP)
                         {
                             PacketHandler.INSTANCE.sendTo(
-                                new MessageSyncCustomSlot(this.windowId, 10, slot, prevStack), (EntityPlayerMP) listener);
+                                new MessageSyncCustomSlot(this.windowId, SLOT_TYPE_SPECIAL, slot, prevStack), (EntityPlayerMP) listener);
                         }
                     }
                 }
@@ -538,5 +540,14 @@ public class ContainerAutoverse extends Container
     public void detectAndSendChanges()
     {
         this.syncAllSlots();
+    }
+
+    @Override
+    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
+    {
+        if (typeId == SLOT_TYPE_SPECIAL)
+        {
+            this.getSpecialSlots().get(slotNum).putStack(stack);
+        }
     }
 }

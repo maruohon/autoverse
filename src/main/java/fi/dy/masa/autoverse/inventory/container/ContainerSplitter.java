@@ -1,9 +1,7 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ICustomSlotSync;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
@@ -11,7 +9,7 @@ import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitte
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSelectable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class ContainerSplitter extends ContainerTile implements ICustomSlotSync
+public class ContainerSplitter extends ContainerTile
 {
     private final TileEntitySplitter tesp;
     private final boolean selectable;
@@ -141,12 +139,6 @@ public class ContainerSplitter extends ContainerTile implements ICustomSlotSync
 
         // Add the output buffer 2 slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesp.getInventoryOut2(), 0, posX, posY));
-    }
-
-    @Override
-    public void putCustomStack(int typeId, int slotNum, ItemStack stack)
-    {
-        this.getSpecialSlots().get(slotNum).putStack(stack);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class GuiFilter extends GuiAutoverse
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 4, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.resetsequence"),     42,  16, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.reset_sequence"),     42,  16, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  35, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  46, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8,  93, 0x404040);
