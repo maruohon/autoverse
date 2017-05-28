@@ -88,13 +88,13 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
                 }
 
                 // Valid new sequence up to the matched items
-                if (absIndex >= this.position)
+                if (absIndex >= (this.position - 1))
                 {
                     // If the current input item matches after the shifted sequence
                     // then the actual position can be set to reflect the shifted sequence.
                     if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(relIndex + 1)))
                     {
-                        this.position = start;
+                        this.position -= (start - 1);
                         return;
                     }
 
