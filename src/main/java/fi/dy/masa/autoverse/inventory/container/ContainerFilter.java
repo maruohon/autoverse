@@ -2,8 +2,10 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 
 public class ContainerFilter extends ContainerTile
@@ -25,22 +27,31 @@ public class ContainerFilter extends ContainerTile
         // Add the input slot as a merge slot range, but no other slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 1, false);
 
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInputInventory(), 0, 8, 16));
+        if (this.isClient)
+        {
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryInput(), 0, 8, 16));
+        }
+        else
+        {
+            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 8, 16));
+        }
 
         int posX = 98;
         int posY = 16;
-        IItemHandler inv = this.tefi.getResetInventory();
+        ItemHandlerWrapperFilter filter = this.tefi.getInventoryFilter();
+        IItemHandler inv = filter.getResetSequence().getSequenceInventory(false);
 
         // Add the Reset Sequence slots
         for (int slot = 0; slot < inv.getSlots(); slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
+            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
         }
 
         posY = 34;
-        inv = this.tefi.getResetSequenceBuffer();
+        // Use a basic inventory to hold the items on the client side
+        inv = this.isClient ? new ItemStackHandlerBasic(inv.getSlots()) : filter.getResetSequence().getSequenceInventory(true);
 
-        // Add the Reset Sequence matcher slots
+        // Add the Reset Sequence matched slots
         for (int slot = 0; slot < inv.getSlots(); slot++)
         {
             this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
@@ -48,12 +59,12 @@ public class ContainerFilter extends ContainerTile
 
         posX = 8;
         posY = 56;
-        inv = this.tefi.getFilterItemsInventory();
+        inv = filter.getFilterSequenceInventory();
 
         // Add the Filter slots
         for (int slot = 0, col = 0, row = 0; slot < inv.getSlots(); slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + col * 18, posY + row * 18));
+            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + col * 18, posY + row * 18));
 
             if (++col >= 9)
             {
@@ -63,7 +74,7 @@ public class ContainerFilter extends ContainerTile
         }
 
         posY = 103;
-        inv = this.tefi.getFilteredItemsInventory();
+        inv = this.tefi.getInventoryOutFiltered();
 
         // Add the filter buffer slots
         for (int slot = 0; slot < inv.getSlots(); slot++)
@@ -77,12 +88,8 @@ public class ContainerFilter extends ContainerTile
         }
 
         posY = 151;
-        inv = this.tefi.getOutputInventory();
 
-        // Add the output buffer slots
-        for (int slot = 0; slot < 9 && slot < inv.getSlots(); slot++)
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
-        }
+        // Add the output buffer slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutNormal(), 0, posX, posY));
     }
 }

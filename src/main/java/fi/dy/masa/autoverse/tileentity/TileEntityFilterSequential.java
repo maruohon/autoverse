@@ -6,12 +6,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilterSequential;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilterSequential;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityFilterSequential extends TileEntityFilter
 {
-    protected ItemHandlerWrapperFilterSequential inventoryInputSequential;
+    //protected ItemHandlerWrapperFilterSequential inventoryInputSequential;
 
     public TileEntityFilterSequential()
     {
@@ -26,14 +25,7 @@ public class TileEntityFilterSequential extends TileEntityFilter
     @Override
     protected void initFilterInventory()
     {
-        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequential(
-                this.inventoryReset,
-                this.inventoryFilterItems,
-                this.inventoryFilterered,
-                this.inventoryNonmatchOut,
-                this);
-
-        this.inventoryInput = this.inventoryInputSequential;
+        super.initFilterInventory();
     }
 
     @Override
@@ -43,13 +35,13 @@ public class TileEntityFilterSequential extends TileEntityFilter
     }
 
     @Override
-    protected int getFilteredBufferMaxStackSize()
+    protected int getOutBufferFilteredMaxStackSize()
     {
         return 1;
     }
 
     @Override
-    public int getNumResetSlots()
+    public int getResetSlotCount()
     {
         int tier = this.getFilterTier();
 
@@ -63,7 +55,7 @@ public class TileEntityFilterSequential extends TileEntityFilter
     }
 
     @Override
-    public int getNumFilterSlots()
+    public int getFilterSlotCount()
     {
         int tier = this.getFilterTier();
 
@@ -76,9 +68,15 @@ public class TileEntityFilterSequential extends TileEntityFilter
         }
     }
 
+    @Override
+    protected int getOutBufferFilteredSlotCount()
+    {
+        return this.getFilterSlotCount();
+    }
+
     public int getFilterPosition()
     {
-        return this.inventoryInputSequential.getFilterPosition();
+        return 0; // TODO this.inventoryInputSequential.getFilterPosition();
     }
 
     @Override

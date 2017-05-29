@@ -1,17 +1,11 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
-import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter.EnumMode;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilterSequentialSmart;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
 {
@@ -26,22 +20,16 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
         super.initInventories();
 
         // Replace the wrapper with one that preserves the item output order
-        this.wrappedInventoryFilterered = new ExtractWrapper(this.inventoryFilterered, this);
+        //this.wrappedInventoryFilterered = new ExtractWrapper(this.inventoryOutputFiltered, this);
     }
 
     @Override
     protected void initFilterInventory()
     {
-        this.inventoryInputSequential = new ItemHandlerWrapperFilterSequentialSmart(
-                this.inventoryReset,
-                this.inventoryFilterItems,
-                this.inventoryFilterered,
-                this.inventoryNonmatchOut,
-                this);
-
-        this.inventoryInput = this.inventoryInputSequential;
+        super.initFilterInventory();
     }
 
+    /*
     private class ExtractWrapper extends ItemHandlerWrapperExtractOnly
     {
         public ExtractWrapper(IItemHandler baseInventory, TileEntityFilterSequentialSmart te)
@@ -75,6 +63,7 @@ public class TileEntityFilterSequentialSmart extends TileEntityFilterSequential
             return this.parent.extractItem(slot >= 0 ? slot : 0, amount, simulate);
         }
     }
+    */
 
     @SideOnly(Side.CLIENT)
     @Override

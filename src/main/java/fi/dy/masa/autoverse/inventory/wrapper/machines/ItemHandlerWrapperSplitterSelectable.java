@@ -12,28 +12,29 @@ public class ItemHandlerWrapperSplitterSelectable extends ItemHandlerWrapperSpli
     {
         super(sequenceLength, inventoryInput);
 
-        this.sequenceSwitch2 = new SequenceMatcher(sequenceLength, "ItemsSwitch2");
+        this.sequenceSwitch2 = new SequenceMatcher(sequenceLength, "SequenceSwitch2");
     }
 
-    protected void handleInputItem(Mode mode, ItemStack inputStack)
+    @Override
+    protected void handleInputItem(ItemStack inputStack)
     {
-        switch (mode)
+        switch (this.getMode())
         {
             case CONFIGURE_RESET:
                 if (this.getResetSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_SWITCH_1);
+                    this.setMode(Mode.CONFIGURE_SEQUENCE_1);
                 }
                 break;
 
-            case CONFIGURE_SWITCH_1:
+            case CONFIGURE_SEQUENCE_1:
                 if (this.getSwitchSequence1().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_SWITCH_2);
+                    this.setMode(Mode.CONFIGURE_SEQUENCE_2);
                 }
                 break;
 
-            case CONFIGURE_SWITCH_2:
+            case CONFIGURE_SEQUENCE_2:
                 if (this.getSwitchSequence2().configureSequence(inputStack))
                 {
                     this.setMode(Mode.NORMAL_OPERATION);
@@ -77,7 +78,7 @@ public class ItemHandlerWrapperSplitterSelectable extends ItemHandlerWrapperSpli
     protected NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         tag = super.writeToNBT(tag);
-        tag.setTag("SeqSwitch2", this.sequenceSwitch2.serializeNBT());
+        this.sequenceSwitch2.writeToNBT(tag);
         return tag;
     }
 
@@ -85,7 +86,6 @@ public class ItemHandlerWrapperSplitterSelectable extends ItemHandlerWrapperSpli
     protected void readFromNBT(NBTTagCompound tag)
     {
         super.readFromNBT(tag);
-
-        this.sequenceSwitch2.deserializeNBT(tag.getCompoundTag("SeqSwitch2"));
+        this.sequenceSwitch2.readFromNBT(tag);
     }
 }

@@ -3,13 +3,12 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.NBTUtils;
 
-public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
+public class SequenceMatcher
 {
     private final NonNullList<ItemStack> sequence;
     private final String tagName;
@@ -123,22 +122,32 @@ public class SequenceMatcher implements INBTSerializable<NBTTagCompound>
         this.configured = false;
     }
 
-    @Override
-    public NBTTagCompound serializeNBT()
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("State", (byte) ((this.configured ? 0x80 : 0x00) | this.position));
         NBTUtils.writeItemsToTag(tag, this.sequence, this.tagName, false);
-        return tag;
+        nbt.setTag(this.tagName, tag);
+        return nbt;
     }
 
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
+    public void readFromNBT(NBTTagCompound nbt)
     {
-        int state = nbt.getByte("State");
+        NBTTagCompound tag = nbt.getCompoundTag(this.tagName);
+        int state = tag.getByte("State");
         this.position = state & 0x7F;
         this.configured = (state & 0x80) != 0;
-        NBTUtils.readStoredItemsFromTag(nbt, this.sequence, this.tagName);
+        NBTUtils.readStoredItemsFromTag(tag, this.sequence, this.tagName);
+    }
+
+    public int getLength()
+    {
+        return this.sequence.size();
+    }
+
+    public String getTagName()
+    {
+        return this.tagName;
     }
 
     /**

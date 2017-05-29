@@ -2,87 +2,34 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 
-public class ItemHandlerWrapperSplitter implements IItemHandler, IItemHandlerSize, INBTSerializable<NBTTagCompound>
+public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
 {
-    private final ItemStackHandlerTileEntity inventoryInput;
-    private final SequenceMatcher sequenceReset;
     private final SequenceMatcher sequenceSwitch1;
-    private boolean outputIsSecondary;
     private Mode mode = Mode.CONFIGURE_RESET;
+    private boolean outputIsSecondary;
 
     public ItemHandlerWrapperSplitter(int sequenceLength, ItemStackHandlerTileEntity inventoryInput)
     {
-        this.inventoryInput   = inventoryInput;
-        this.sequenceReset  = new SequenceMatcher(sequenceLength, "ItemsReset");
-        this.sequenceSwitch1 = new SequenceMatcher(sequenceLength, "ItemsSwitch1");
+        super(sequenceLength, inventoryInput);
+
+        this.sequenceSwitch1 = new SequenceMatcher(sequenceLength, "SequenceSwitch1");
     }
 
     @Override
-    public int getSlots()
+    protected void handleInputItem(ItemStack inputStack)
     {
-        return 1;
-    }
-
-    @Override
-    public int getSlotLimit(int slot)
-    {
-        return 1;
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        return 1;
-    }
-
-    @Override
-    public int getItemStackLimit(int slot, ItemStack stack)
-    {
-        return 1;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        return this.inventoryInput.getStackInSlot(0);
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-    {
-        stack = this.inventoryInput.insertItem(0, stack, simulate);
-
-        if (simulate == false && stack.isEmpty())
-        {
-            this.handleInputItem(this.mode, this.inventoryInput.getStackInSlot(0));
-        }
-
-        return stack;
-    }
-
-    protected void handleInputItem(Mode mode, ItemStack inputStack)
-    {
-        switch (mode)
+        switch (this.getMode())
         {
             case CONFIGURE_RESET:
                 if (this.getResetSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_SWITCH_1);
+                    this.setMode(Mode.CONFIGURE_SEQUENCE_1);
                 }
                 break;
 
-            case CONFIGURE_SWITCH_1:
+            case CONFIGURE_SEQUENCE_1:
                 if (this.getSwitchSequence1().configureSequence(inputStack))
                 {
                     this.setMode(Mode.NORMAL_OPERATION);
@@ -108,11 +55,6 @@ public class ItemHandlerWrapperSplitter implements IItemHandler, IItemHandlerSiz
         }
     }
 
-    protected void setMode(Mode mode)
-    {
-        this.mode = mode;
-    }
-
     protected void setSecondaryOutputActive(boolean secondaryActive)
     {
         this.outputIsSecondary = secondaryActive;
@@ -123,9 +65,14 @@ public class ItemHandlerWrapperSplitter implements IItemHandler, IItemHandlerSiz
         return this.outputIsSecondary;
     }
 
-    public SequenceMatcher getResetSequence()
+    protected Mode getMode()
     {
-        return this.sequenceReset;
+        return this.mode;
+    }
+
+    protected void setMode(Mode mode)
+    {
+        this.mode = mode;
     }
 
     public SequenceMatcher getSwitchSequence1()
@@ -133,46 +80,35 @@ public class ItemHandlerWrapperSplitter implements IItemHandler, IItemHandlerSiz
         return this.sequenceSwitch1;
     }
 
+    @Override
     protected NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
-        tag.setByte("State", (byte) ((this.outputIsSecondary ? 0x80 : 0x00) | (this.mode.getId() & 0x7)));
-        tag.setTag("SeqReset", this.sequenceReset.serializeNBT());
-        tag.setTag("SeqSwitch1", this.sequenceSwitch1.serializeNBT());
+        tag = super.writeToNBT(tag);
+
+        tag.setByte("State", (byte) ((this.outputIsSecondary ? 0x80 : 0x00) | this.mode.getId()));
+        this.sequenceSwitch1.writeToNBT(tag);
 
         return tag;
     }
 
+    @Override
     protected void readFromNBT(NBTTagCompound tag)
     {
+        super.readFromNBT(tag);
+
         int state = tag.getByte("State");
-        this.setMode(Mode.fromid(state & 0x7));
+        this.setMode(Mode.fromId(state & 0x7));
         this.setSecondaryOutputActive((state & 0x80) != 0);
 
-        this.sequenceReset.deserializeNBT(tag.getCompoundTag("SeqReset"));
-        this.sequenceSwitch1.deserializeNBT(tag.getCompoundTag("SeqSwitch1"));
-    }
-
-    @Override
-    public NBTTagCompound serializeNBT()
-    {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setTag("Splitter", this.writeToNBT(new NBTTagCompound()));
-
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
-    {
-        this.readFromNBT(nbt.getCompoundTag("Splitter"));
+        this.sequenceSwitch1.readFromNBT(tag);
     }
 
     public enum Mode
     {
-        CONFIGURE_RESET     (0),
-        CONFIGURE_SWITCH_1  (1),
-        CONFIGURE_SWITCH_2  (2),
-        NORMAL_OPERATION    (3);
+        CONFIGURE_RESET       (0),
+        CONFIGURE_SEQUENCE_1  (1),
+        CONFIGURE_SEQUENCE_2  (2),
+        NORMAL_OPERATION      (3);
 
         private final int id;
 
@@ -186,7 +122,7 @@ public class ItemHandlerWrapperSplitter implements IItemHandler, IItemHandlerSiz
             return this.id;
         }
 
-        public static Mode fromid(int id)
+        public static Mode fromId(int id)
         {
             return values()[id % values().length];
         }

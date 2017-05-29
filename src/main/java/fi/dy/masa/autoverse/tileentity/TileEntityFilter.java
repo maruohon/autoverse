@@ -9,17 +9,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
-import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
@@ -28,19 +26,15 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityFilter extends TileEntityAutoverseInventory
 {
-    protected ItemStackHandlerTileEntity inventoryInputManual;
-    protected ItemStackHandlerTileEntity inventoryReset;
-    protected ItemStackHandlerTileEntity inventoryFilterItems;
-
-    protected ItemStackHandlerTileEntity inventoryFilterered;
-    protected ItemStackHandlerTileEntity inventoryNonmatchOut;
-    protected IItemHandler wrappedInventoryFilterered;
-    protected IItemHandler wrappedInventoryNonmatchOut;
-    protected ItemHandlerWrapperFilter inventoryInput;
+    protected ItemStackHandlerTileEntity inventoryInput;
+    protected ItemStackHandlerTileEntity inventoryOutFiltered;
+    protected ItemStackHandlerTileEntity inventoryOutNormal;
+    protected ItemHandlerWrapperFilter inventoryFilter;
 
     protected EnumFacing facingFilteredOut = EnumFacing.WEST;
     protected BlockPos posFilteredOut;
     protected int filterTier;
+    protected int delay = 1;
 
     public TileEntityFilter()
     {
@@ -55,45 +49,42 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        int rst = this.getNumResetSlots();
-        int flt = this.getNumFilterSlots();
-        int fltBuf = this.getFilterBufferSize();
-        int fm = this.getFilteredBufferMaxStackSize();
-        int nm = this.getNonmatchBufferMaxStackSize();
-        this.inventoryInputManual   = new ItemStackHandlerTileEntity(9,             1,  1, false, "InputItems", this);
-        this.inventoryReset         = new ItemStackHandlerTileEntity(0,           rst,  1, false, "ResetItems", this);
-        this.inventoryFilterItems   = new ItemStackHandlerTileEntity(1,           flt,  1, false, "FilterItems", this);
-        this.inventoryFilterered    = new ItemStackHandlerTileEntity(2,        fltBuf, fm, false, "FilteredItems", this);
-        this.inventoryNonmatchOut   = new ItemStackHandlerTileEntity(3, rst + flt + 9, nm, false, "OutputItems", this);
-        this.itemHandlerBase        = this.inventoryNonmatchOut;
-
-        this.wrappedInventoryFilterered    = new ItemHandlerWrapperExtractOnly(this.inventoryFilterered);
-        this.wrappedInventoryNonmatchOut   = new ItemHandlerWrapperExtractOnly(this.inventoryNonmatchOut);
+        this.inventoryInput         = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
+        this.inventoryOutFiltered   = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsFiltered", this);
+        this.inventoryOutNormal     = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut", this);
+        this.itemHandlerBase        = this.inventoryInput;
 
         this.initFilterInventory();
+
+        this.itemHandlerExternal = this.inventoryFilter;
     }
 
     protected void initFilterInventory()
     {
-        this.inventoryInput = new ItemHandlerWrapperFilter(
-                this.inventoryReset,
-                this.inventoryFilterItems,
-                this.inventoryFilterered,
-                this.inventoryNonmatchOut,
-                this);
+        this.inventoryFilter = new ItemHandlerWrapperFilter(
+                                    this.getResetSlotCount(),
+                                    this.getFilterSlotCount(),
+                                    this.inventoryInput,
+                                    this.inventoryOutFiltered,
+                                    this.inventoryOutNormal);
     }
 
-    protected int getFilteredBufferMaxStackSize()
+    protected int getOutBufferFilteredMaxStackSize()
     {
         return 64;
     }
 
-    protected int getNonmatchBufferMaxStackSize()
+    protected int getOutBufferNormalMaxStackSize()
     {
         return 64;
     }
 
-    public int getNumResetSlots()
+    protected int getOutBufferFilteredSlotCount()
+    {
+        return 1;
+    }
+
+    public int getResetSlotCount()
     {
         int tier = this.getFilterTier();
 
@@ -108,12 +99,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
-    protected int getFilterBufferSize()
-    {
-        return this.getNumFilterSlots();
-    }
-
-    public int getNumFilterSlots()
+    public int getFilterSlotCount()
     {
         int tier = this.getFilterTier();
 
@@ -128,34 +114,24 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
-    public IItemHandler getInputInventory()
+    public IItemHandler getInventoryInput()
     {
-        return this.inventoryInputManual;
+        return this.inventoryInput;
     }
 
-    public IItemHandler getResetInventory()
+    public IItemHandler getInventoryOutFiltered()
     {
-        return this.inventoryReset;
+        return this.inventoryOutFiltered;
     }
 
-    public IItemHandler getResetSequenceBuffer()
+    public IItemHandler getInventoryOutNormal()
     {
-        return this.inventoryInput.getSequenceBuffer();
+        return this.inventoryOutNormal;
     }
 
-    public IItemHandler getFilterItemsInventory()
+    public ItemHandlerWrapperFilter getInventoryFilter()
     {
-        return this.inventoryFilterItems;
-    }
-
-    public IItemHandler getFilteredItemsInventory()
-    {
-        return this.inventoryFilterered;
-    }
-
-    public IItemHandler getOutputInventory()
-    {
-        return this.inventoryNonmatchOut;
+        return this.inventoryFilter;
     }
 
     public int getFilterTier()
@@ -173,7 +149,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.filterTier = MathHelper.clamp(tier, 0, this.getMaxFilterTier());
 
         this.initInventories();
-        //this.initFilterInventory(); // TODO remove?
     }
 
     public void setFilterOutputSide(EnumFacing side)
@@ -234,70 +209,38 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return false;
     }
 
-    protected boolean tryOutputNonMatchingItems()
-    {
-        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryNonmatchOut);
-
-        if (slot != -1)
-        {
-            final int invSize = this.wrappedInventoryNonmatchOut.getSlots();
-
-            for ( ; slot < invSize; ++slot)
-            {
-                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryNonmatchOut, slot,
-                    this.posFront, this.facingOpposite, this.redstoneState))
-                {
-                    break;
-                }
-            }
-        }
-
-        return slot != -1;
-    }
-
-    protected boolean tryOutputFilteredItems()
-    {
-        int slot = InventoryUtils.getFirstNonEmptySlot(this.wrappedInventoryFilterered);
-
-        if (slot != -1)
-        {
-            final int invSize = this.wrappedInventoryFilterered.getSlots();
-
-            //System.out.printf("block tick - pos: %s\n", this.getPos());
-            for ( ; slot < invSize; ++slot)
-            {
-                if (this.pushItemsToAdjacentInventory(this.wrappedInventoryFilterered, slot,
-                    this.posFilteredOut, this.facingFilteredOut.getOpposite(), this.redstoneState))
-                {
-                    break;
-                }
-            }
-        }
-
-        return slot != -1;
-    }
-
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        // Items in the manual input inventory, try to pull them in
-        if (this.inventoryInputManual.getStackInSlot(0).isEmpty() == false)
+        boolean movedOut = false;
+        boolean movedIn = false;
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.posFront, this.facingOpposite, false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.posFilteredOut, this.facingFilteredOut.getOpposite(), false);
+
+        if (this.inventoryFilter.getStackInSlot(0).isEmpty() == false)
         {
-            InventoryUtils.tryMoveStackToOtherInventory(this.inventoryInputManual, this.inventoryInput, 0, false);
+            movedIn = this.inventoryFilter.moveInputItem();
         }
 
-        boolean flag1 = this.tryOutputNonMatchingItems();
-        boolean flag2 = this.tryOutputFilteredItems();
-
-        // Lazy check for if there WERE some items, then schedule a new update
-        if (flag1 || flag2)
+        if (movedIn || movedOut)
         {
-            this.scheduleBlockUpdate(4, false);
+            this.scheduleUpdateIfNeeded();
         }
-        // The usefulness of this is questionable... It speeds up the transition from RESET by one item insertion attempt
-        else if (this.inventoryInput.getMode() == ItemHandlerWrapperFilter.EnumMode.RESET)
+    }
+
+    @Override
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
+        this.scheduleUpdateIfNeeded();
+    }
+
+    protected void scheduleUpdateIfNeeded()
+    {
+        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+            this.inventoryOutNormal.getStackInSlot(0).isEmpty() == false ||
+            this.inventoryOutFiltered.getStackInSlot(0).isEmpty() == false)
         {
-            this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.ACCEPT_RESET_ITEMS);
+            this.scheduleBlockUpdate(this.delay, false);
         }
     }
 
@@ -311,12 +254,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.setFilterTier(nbt.getByte("Tier"));
         this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")));
 
-        this.inventoryInputManual.deserializeNBT(nbt);
-        this.inventoryReset.deserializeNBT(nbt);
-        this.inventoryFilterItems.deserializeNBT(nbt);
-        this.inventoryFilterered.deserializeNBT(nbt);
-        this.inventoryNonmatchOut.deserializeNBT(nbt);
         this.inventoryInput.deserializeNBT(nbt);
+        this.inventoryOutNormal.deserializeNBT(nbt);
+        this.inventoryOutFiltered.deserializeNBT(nbt);
+
+        this.inventoryFilter.deserializeNBT(nbt);
     }
 
     @Override
@@ -332,6 +274,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.setByte("Tier", (byte)this.getFilterTier());
         nbt.setByte("FilterFacing", (byte)this.facingFilteredOut.getIndex());
 
+        nbt.merge(this.inventoryFilter.serializeNBT());
+
         return nbt;
     }
 
@@ -340,12 +284,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.writeItemsToNBT(nbt);
 
-        nbt.merge(this.inventoryInputManual.serializeNBT());
-        nbt.merge(this.inventoryReset.serializeNBT());
-        nbt.merge(this.inventoryFilterItems.serializeNBT());
-        nbt.merge(this.inventoryFilterered.serializeNBT());
-        nbt.merge(this.inventoryNonmatchOut.serializeNBT());
         nbt.merge(this.inventoryInput.serializeNBT());
+        nbt.merge(this.inventoryOutNormal.serializeNBT());
+        nbt.merge(this.inventoryOutFiltered.serializeNBT());
     }
 
     @Override
@@ -370,53 +311,20 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super.handleUpdateTag(tag);
     }
 
-    @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            return true;
-        }
-
-        return super.hasCapability(capability, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-    {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            if (facing == this.facing)
-            {
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryNonmatchOut);
-            }
-
-            if (facing == this.facingFilteredOut)
-            {
-                return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.wrappedInventoryFilterered);
-            }
-
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventoryInput);
-        }
-
-        return super.getCapability(capability, facing);
-    }
-
     public void dropInventories()
     {
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryReset);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryFilterItems);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryFilterered);
-        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryNonmatchOut);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutNormal);
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutFiltered);
     }
 
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Manual input inventory
-        if (inventoryId == 9)
+        // Input inventory
+        if (inventoryId == 0)
         {
-            this.scheduleBlockUpdate(1, true);
+            this.scheduleBlockUpdate(this.delay, true);
         }
     }
 

@@ -4,6 +4,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 
 public class GuiFilter extends GuiAutoverse
 {
@@ -45,17 +46,22 @@ public class GuiFilter extends GuiAutoverse
 
     protected void renderAllSlotBackgrounds()
     {
-        int resetSlots = this.te.getNumResetSlots();
-        int filterSlots = this.te.getNumFilterSlots();
+        int resetSlots = this.te.getResetSlotCount();
+        int filterSlots = this.te.getFilterSlotCount();
 
-        // Reset item slots
-        this.renderSlotBackgrounds(97, 15, 7, 173, 4, resetSlots);
-        // Reset sequence matcher slots
-        this.renderSlotBackgrounds(97, 33, 176, 0, 4, resetSlots);
-        // Filter template items
-        this.renderSlotBackgrounds(7, 55, 7, 173, 9, filterSlots);
-        // Filtered items buffer
-        this.renderSlotBackgrounds(7, 102, 7, 173, 9, filterSlots);
+        // Filtered items buffer slots
+        this.renderSlotBackgrounds(7, 102, 7, 173, 9, this.te instanceof TileEntityFilterSequentialSmart ? filterSlots : 1);
+
+        this.bindTexture(this.guiTextureWidgets);
+
+        // Reset sequence slots
+        this.renderSlotBackgrounds(97, 15, 16, 238, 4, resetSlots);
+
+        // Reset sequence matched slots
+        this.renderSlotBackgrounds(97, 33, 16, 238, 4, resetSlots);
+
+        // Filter template item slots
+        this.renderSlotBackgrounds( 7, 55, 16, 238, 9, filterSlots);
     }
 
     protected void renderSlotBackgrounds(int x, int y, int u, int v, int maxPerRow, int count)
