@@ -50,8 +50,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected void initInventories()
     {
         this.inventoryInput         = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
-        this.inventoryOutFiltered   = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsFiltered", this);
-        this.inventoryOutNormal     = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut", this);
+        this.inventoryOutFiltered   = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOutFiltered", this);
+        this.inventoryOutNormal     = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOutNormal", this);
         this.itemHandlerBase        = this.inventoryInput;
 
         this.initFilterInventory();
@@ -67,21 +67,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                                     this.inventoryInput,
                                     this.inventoryOutFiltered,
                                     this.inventoryOutNormal);
-    }
-
-    protected int getOutBufferFilteredMaxStackSize()
-    {
-        return 64;
-    }
-
-    protected int getOutBufferNormalMaxStackSize()
-    {
-        return 64;
-    }
-
-    protected int getOutBufferFilteredSlotCount()
-    {
-        return 1;
     }
 
     public int getResetSlotCount()
@@ -216,11 +201,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         boolean movedIn = false;
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.posFront, this.facingOpposite, false);
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.posFilteredOut, this.facingFilteredOut.getOpposite(), false);
-
-        if (this.inventoryFilter.getStackInSlot(0).isEmpty() == false)
-        {
-            movedIn = this.inventoryFilter.moveInputItem();
-        }
+        movedIn = this.inventoryFilter.moveItems();
 
         if (movedIn || movedOut)
         {
@@ -274,8 +255,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.setByte("Tier", (byte)this.getFilterTier());
         nbt.setByte("FilterFacing", (byte)this.facingFilteredOut.getIndex());
 
-        nbt.merge(this.inventoryFilter.serializeNBT());
-
         return nbt;
     }
 
@@ -287,6 +266,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryInput.serializeNBT());
         nbt.merge(this.inventoryOutNormal.serializeNBT());
         nbt.merge(this.inventoryOutFiltered.serializeNBT());
+
+        nbt.merge(this.inventoryFilter.serializeNBT());
     }
 
     @Override

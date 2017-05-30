@@ -161,7 +161,7 @@ public class SequenceMatcher
         return this.configured ? this.position : 0;
     }
 
-    private NonNullList<ItemStack> getSequence()
+    public NonNullList<ItemStack> getSequence()
     {
         return this.sequence;
     }

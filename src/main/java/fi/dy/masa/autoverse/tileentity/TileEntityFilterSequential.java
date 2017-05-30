@@ -1,16 +1,15 @@
 package fi.dy.masa.autoverse.tileentity;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiFilterSequential;
-import fi.dy.masa.autoverse.inventory.container.ContainerFilterSequential;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilterSequential;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityFilterSequential extends TileEntityFilter
 {
-    //protected ItemHandlerWrapperFilterSequential inventoryInputSequential;
+    protected ItemStackHandlerTileEntity inventoryFilteredBuffer;
 
     public TileEntityFilterSequential()
     {
@@ -25,19 +24,26 @@ public class TileEntityFilterSequential extends TileEntityFilter
     @Override
     protected void initFilterInventory()
     {
-        super.initFilterInventory();
+        this.inventoryFilteredBuffer = new ItemStackHandlerTileEntity(3, this.getFilterSlotCount(), 1, false, "ItemsFilteredBuffer", this);
+
+        this.inventoryFilter = new ItemHandlerWrapperFilterSequential(
+                                    this.getResetSlotCount(),
+                                    this.getFilterSlotCount(),
+                                    this.inventoryInput,
+                                    this.inventoryOutFiltered,
+                                    this.inventoryOutNormal,
+                                    this.inventoryFilteredBuffer);
+    }
+
+    public IItemHandler getInventoryFilteredBuffer()
+    {
+        return this.inventoryFilteredBuffer;
     }
 
     @Override
     protected int getMaxFilterTier()
     {
         return 2;
-    }
-
-    @Override
-    protected int getOutBufferFilteredMaxStackSize()
-    {
-        return 1;
     }
 
     @Override
@@ -69,26 +75,26 @@ public class TileEntityFilterSequential extends TileEntityFilter
     }
 
     @Override
-    protected int getOutBufferFilteredSlotCount()
+    public void dropInventories()
     {
-        return this.getFilterSlotCount();
-    }
+        super.dropInventories();
 
-    public int getFilterPosition()
-    {
-        return 0; // TODO this.inventoryInputSequential.getFilterPosition();
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryFilteredBuffer);
     }
 
     @Override
-    public ContainerFilterSequential getContainer(EntityPlayer player)
+    public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        return new ContainerFilterSequential(player, this);
+        super.readFromNBTCustom(nbt);
+
+        this.inventoryFilteredBuffer.deserializeNBT(nbt);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        return new GuiFilterSequential(this.getContainer(player), this, false);
+        super.writeItemsToNBT(nbt);
+
+        nbt.merge(this.inventoryFilteredBuffer.serializeNBT());
     }
 }

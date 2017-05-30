@@ -7,6 +7,7 @@ import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 
 public class ContainerFilter extends ContainerTile
 {
@@ -27,6 +28,7 @@ public class ContainerFilter extends ContainerTile
         // Add the input slot as a merge slot range, but no other slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 1, false);
 
+        // Add the input slot
         if (this.isClient)
         {
             this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryInput(), 0, 8, 16));
@@ -73,23 +75,28 @@ public class ContainerFilter extends ContainerTile
             }
         }
 
-        posY = 103;
-        inv = this.tefi.getInventoryOutFiltered();
-
-        // Add the filter buffer slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
+        if (this.tefi instanceof TileEntityFilterSequential)
         {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + (slot % 9) * 18, posY));
+            TileEntityFilterSequential teseq = (TileEntityFilterSequential) this.tefi;
+            posY = 103;
+            inv = teseq.getInventoryFilteredBuffer();
 
-            if (slot == 8)
+            // Add the filter buffer slots
+            for (int slot = 0; slot < inv.getSlots(); slot++)
             {
-                posY += 18;
+                this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + (slot % 9) * 18, posY));
+
+                if (slot == 8)
+                {
+                    posY += 18;
+                }
             }
         }
 
-        posY = 151;
+        // Add the normal output buffer slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutNormal(), 0,  8, 151));
 
-        // Add the output buffer slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutNormal(), 0, posX, posY));
+        // Add the filtered output buffer slot
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutFiltered(), 0, 98, 151));
     }
 }

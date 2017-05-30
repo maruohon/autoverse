@@ -1,97 +1,141 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.util.InventoryUtils;
+import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
 {
-    protected int filterPosition;
+    private final IItemHandler inventoryFilteredBuffer;
+    private final IItemHandler inventoryFilteredOut;
+    private final int filterLength;
+    protected int outputPosition;
 
-    public ItemHandlerWrapperFilterSequential(IItemHandler resetItems, IItemHandler filterItems,
-            IItemHandler filteredOut, IItemHandler othersOut, TileEntityFilter te)
+    public ItemHandlerWrapperFilterSequential(int resetLength, int filterLength,
+            ItemStackHandlerTileEntity inventoryInput,
+            ItemStackHandlerTileEntity inventoryOutFiltered,
+            ItemStackHandlerTileEntity inventoryOutNormal,
+            ItemStackHandlerTileEntity inventoryFilteredBuffer)
     {
-        super(resetItems, filterItems, filteredOut, othersOut, te);
-    }
+        super(resetLength, filterLength, inventoryInput, inventoryOutFiltered, inventoryOutNormal);
 
-    public int getFilterPosition()
-    {
-        return this.filterPosition;
-    }
-
-    @Override
-    public void deserializeNBT(NBTTagCompound tag)
-    {
-        super.deserializeNBT(tag);
-
-        this.filterPosition = tag.getByte("FilterPos");
+        this.inventoryFilteredOut = inventoryOutFiltered;
+        this.inventoryFilteredBuffer = inventoryFilteredBuffer;
+        this.filterLength = this.getFilterSequence().getLength();
     }
 
     @Override
-    public NBTTagCompound serializeNBT()
+    protected boolean sortItem()
     {
-        NBTTagCompound tag = super.serializeNBT();
-        tag.setByte("FilterPos", (byte) this.filterPosition);
-        return tag;
-    }
-
-    @Override
-    protected ItemStack sortItem(ItemStack stack, boolean simulate)
-    {
-        int sizeOrig = stack.getCount();
-
-        if (simulate == false)
+        if (this.matchingSlots != null)
         {
-            this.checkForSequenceMatch(stack);
+            for (int slot : this.matchingSlots)
+            {
+                if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0,
+                        this.inventoryFilteredBuffer, slot) == InvResult.MOVED_ALL)
+                {
+                    this.matchingSlots = null;
+
+                    if (++this.outputPosition >= this.filterLength)
+                    {
+                        this.outputPosition = 0;
+                        this.setMode(Mode.OUTPUT_ITEMS);
+                    }
+
+                    return true;
+                }
+            }
         }
 
-        if (InventoryUtils.areItemStacksEqual(stack, this.filterItems.getStackInSlot(this.filterPosition)))
+        // If the item didn't fit or belong to the filtered buffer, move it to the normal output
+        if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0,
+                this.getInventoryNormalOut(), 0) == InvResult.MOVED_ALL)
         {
-            // Only accept one item at a time, so that the sequence is preserved
-            if (sizeOrig > 1)
-            {
-                ItemStack stackTmp = stack.copy();
-                stackTmp.setCount(1);
-                stackTmp = InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stackTmp, simulate);
+            return true;
+        }
 
-                if (stackTmp.isEmpty())
-                {
-                    stack = stack.copy();
-                    stack.shrink(1);
-                }
+        return false;
+    }
+
+    @Override
+    protected boolean outputItems()
+    {
+        if (this.inventoryFilteredBuffer.getStackInSlot(this.outputPosition).isEmpty() ||
+            InventoryUtils.tryMoveEntireStackOnly(this.inventoryFilteredBuffer, this.outputPosition,
+                this.inventoryFilteredOut, 0) == InvResult.MOVED_ALL)
+        {
+            // All items moved, return back to the sorting mode
+            if (++this.outputPosition >= this.filterLength)
+            {
+                this.outputPosition = 0;
+                this.setMode(Mode.SORT_ITEMS);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    protected boolean flushItems()
+    {
+        boolean success = false;
+
+        while (this.outputPosition < this.filterLength)
+        {
+            if (this.inventoryFilteredBuffer.getStackInSlot(this.outputPosition).isEmpty())
+            {
+                this.outputPosition++;
+            }
+            else if (InventoryUtils.tryMoveEntireStackOnly(this.inventoryFilteredBuffer, this.outputPosition,
+                        this.getInventoryNormalOut(), 0) == InvResult.MOVED_ALL)
+            {
+                this.outputPosition++;
+                success = true;
+                break;
             }
             else
             {
-                stack = InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.filteredOut, stack, simulate);
+                break;
             }
-
-            if (simulate == false && (stack.isEmpty() || stack.getCount() < sizeOrig))
-            {
-                if (++this.filterPosition >= this.filterItems.getSlots())
-                {
-                    this.filterPosition = 0;
-                }
-            }
-
-            return stack;
         }
 
-        return InventoryUtils.tryInsertItemStackToInventoryStackFirst(this.othersOut, stack, simulate);
+        // All items moved, return back to the programming phase
+        if (this.outputPosition >= this.filterLength)
+        {
+            this.outputPosition = 0;
+            this.setMode(Mode.CONFIGURE_RESET);
+            return true;
+        }
+
+        return success;
     }
 
     @Override
-    protected IItemHandler getResetPhaseFilterItemsOutInventory()
+    protected void onReset()
     {
-        return this.othersOut;
+        this.outputPosition = 0;
+        this.setMode(Mode.RESET);
     }
 
     @Override
-    protected void reset()
+    protected void readFromNBT(NBTTagCompound tag)
     {
-        super.reset();
+        super.readFromNBT(tag);
 
-        this.filterPosition = 0;
+        this.outputPosition = tag.getByte("OutPos");
+    }
+
+    @Override
+    protected NBTTagCompound writeToNBT(NBTTagCompound tag)
+    {
+        tag = super.writeToNBT(tag);
+
+        tag.setByte("OutPos", (byte) this.outputPosition);
+
+        return tag;
     }
 }

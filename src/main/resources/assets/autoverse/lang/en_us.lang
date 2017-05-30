@@ -15,12 +15,13 @@ autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_selectable=Selectable Splitter
 autoverse.container.splitter_togglable=Togglable Splitter
 
-autoverse.gui.label.filteritems=Filter items
-autoverse.gui.label.filteroutbuffer=Filtered items buffer
+autoverse.gui.label.filter_items=Filter items
+autoverse.gui.label.filtered_out_buffer=Out (filtered)
+autoverse.gui.label.filtered_seq_buffer=Filtered sequence buffer
 autoverse.gui.label.input=Input
-autoverse.gui.label.matchedsequence=Matched
+autoverse.gui.label.matched_sequence=Matched
 autoverse.gui.label.max=Max: 
-autoverse.gui.label.nonmatchoutbuffer=No-match items buffer
+autoverse.gui.label.normal_out_buffer=Out (normal)
 autoverse.gui.label.reset_sequence=Reset seq.
 autoverse.gui.label.splitter.outputs=Outputs
 autoverse.gui.label.splitter.output_1=Out 1

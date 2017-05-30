@@ -4,7 +4,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 
 public class GuiFilter extends GuiAutoverse
 {
@@ -23,12 +23,16 @@ public class GuiFilter extends GuiAutoverse
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 4, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.reset_sequence"),     42,  16, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.matchedsequence"),   54,  35, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteritems"),        8,  46, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filteroutbuffer"),    8,  93, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.nonmatchoutbuffer"),  8, 141, 0x404040);
-        //this.fontRenderer.drawString(I18n.format("container.inventory"),                    8, 164, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.reset_sequence"),      42,  16, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.matched_sequence"),    54,  35, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filter_items"),         8,  46, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.normal_out_buffer"),    8, 141, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filtered_out_buffer"), 98, 141, 0x404040);
+
+        if (this.te instanceof TileEntityFilterSequential)
+        {
+            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filtered_seq_buffer"),  8,  93, 0x404040);
+        }
     }
 
     protected int getTier()
@@ -49,8 +53,11 @@ public class GuiFilter extends GuiAutoverse
         int resetSlots = this.te.getResetSlotCount();
         int filterSlots = this.te.getFilterSlotCount();
 
-        // Filtered items buffer slots
-        this.renderSlotBackgrounds(7, 102, 7, 173, 9, this.te instanceof TileEntityFilterSequentialSmart ? filterSlots : 1);
+        if (this.te instanceof TileEntityFilterSequential)
+        {
+            // Filtered items buffer slots
+            this.renderSlotBackgrounds(7, 102, 7, 173, 9, filterSlots);
+        }
 
         this.bindTexture(this.guiTextureWidgets);
 
@@ -60,7 +67,7 @@ public class GuiFilter extends GuiAutoverse
         // Reset sequence matched slots
         this.renderSlotBackgrounds(97, 33, 16, 238, 4, resetSlots);
 
-        // Filter template item slots
+        // Filter item slots
         this.renderSlotBackgrounds( 7, 55, 16, 238, 9, filterSlots);
     }
 
