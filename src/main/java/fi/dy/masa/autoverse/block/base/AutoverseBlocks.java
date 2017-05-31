@@ -19,7 +19,6 @@ public class AutoverseBlocks
     public static final BlockAutoverse FIFO_BUFFER              = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER,                     4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse FILTER_BASIC             = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                     4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse FILTER_SEQUENTIAL        = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL,4.0f, 10f, 1, Material.IRON);
-    public static final BlockAutoverse FILTER_SEQUENTIAL_SMART  = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQ_SMART, 4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,               4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                 4.0f, 10f, 1, Material.IRON);
 
@@ -30,7 +29,6 @@ public class AutoverseBlocks
         registerBlock(FIFO_BUFFER,              false);
         registerBlock(FILTER_BASIC,             false);
         registerBlock(FILTER_SEQUENTIAL,        false);
-        registerBlock(FILTER_SEQUENTIAL_SMART,  false);
         registerBlock(SEQUENCER,                false);
         registerBlock(SPLITTER,                 false);
     }

@@ -7,7 +7,6 @@ public class ReferenceNames
     public static final String NAME_BLOCK_CRAFTER                   = "crafter";
     public static final String NAME_BLOCK_FILTER                    = "filter";
     public static final String NAME_BLOCK_FILTER_SEQUENTIAL         = "filter_sequential";
-    public static final String NAME_BLOCK_FILTER_SEQ_SMART          = "filter_sequential_smart";
     public static final String NAME_BLOCK_SEQUENCER                 = "sequencer";
     public static final String NAME_BLOCK_SPLITTER                  = "splitter";
 
@@ -16,7 +15,6 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
     public static final String NAME_TILE_ENTITY_FILTER              = "filter";
     public static final String NAME_TILE_ENTITY_FILTER_SEQUENTIAL   = "filter_sequential";
-    public static final String NAME_TILE_ENTITY_FILTER_SEQ_SMART    = "filter_sequential_smart";
     public static final String NAME_TILE_ENTITY_SEQUENCER           = "sequencer";
     public static final String NAME_TILE_ENTITY_SPLITTER            = "splitter";
 

@@ -4,10 +4,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockFilterSequential extends BlockFilter
@@ -29,17 +27,7 @@ public class BlockFilterSequential extends BlockFilter
     @Override
     protected TileEntityAutoverse createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityFilter te;
-
-        if (this == AutoverseBlocks.FILTER_SEQUENTIAL_SMART)
-        {
-            te = new TileEntityFilterSequentialSmart();
-        }
-        else
-        {
-            te = new TileEntityFilterSequential();
-        }
-
+        TileEntityFilter te = new TileEntityFilterSequential();
         te.setFilterTier(state.getValue(this.getTierProperty()));
         return te;
     }

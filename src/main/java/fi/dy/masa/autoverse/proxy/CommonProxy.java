@@ -15,7 +15,6 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.TileEntityCrafter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialSmart;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
@@ -72,7 +71,6 @@ public class CommonProxy
         this.registerTileEntity(TileEntityCrafter.class,                ReferenceNames.NAME_BLOCK_CRAFTER);
         this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_TILE_ENTITY_FILTER);
         this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
-        this.registerTileEntity(TileEntityFilterSequentialSmart.class,  ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQ_SMART);
         this.registerTileEntity(TileEntitySequencer.class,              ReferenceNames.NAME_TILE_ENTITY_SEQUENCER);
         this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
     }
