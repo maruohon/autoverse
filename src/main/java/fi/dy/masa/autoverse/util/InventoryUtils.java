@@ -460,6 +460,44 @@ public class InventoryUtils
     }
 
     /**
+     * Tries to move the entire stack (up to 64 items) from the src slot and inventory
+     * to the destination slot and inventory. Does not simulate first.
+     */
+    public static InvResult tryMoveStack(IItemHandler invSrc, int slotSrc, IItemHandler invDst, int slotDst)
+    {
+        return tryMoveStack(invSrc, slotSrc, invDst, slotDst, 64);
+    }
+
+    /**
+     * Tries to move a stack up to maxAmount items from the src slot and inventory
+     * to the destination slot and inventory. Does not simulate first.
+     */
+    public static InvResult tryMoveStack(IItemHandler invSrc, int slotSrc, IItemHandler invDst, int slotDst, int maxAmount)
+    {
+        ItemStack stack = invSrc.extractItem(slotSrc, maxAmount, false);
+
+        if (stack.isEmpty() == false)
+        {
+            int sizeOrig = stack.getCount();
+            stack = invDst.insertItem(slotDst, stack, false);
+
+            if (stack.isEmpty())
+            {
+                return InvResult.MOVED_ALL;
+            }
+            else
+            {
+                boolean movedSome = stack.getCount() != sizeOrig;
+                invSrc.insertItem(slotSrc, stack, false);
+
+                return movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING;
+            }
+        }
+
+        return InvResult.MOVED_NOTHING;
+    }
+
+    /**
      * Extract items from the given slot until the resulting stack's stackSize equals amount
      */
     public static ItemStack extractItemsFromSlot(IItemHandler inv, int slot, int amount)

@@ -4,6 +4,7 @@ import net.minecraft.block.material.Material;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.autoverse.block.BlockBarrel;
 import fi.dy.masa.autoverse.block.BlockBuffer;
+import fi.dy.masa.autoverse.block.BlockCrafter;
 import fi.dy.masa.autoverse.block.BlockFilter;
 import fi.dy.masa.autoverse.block.BlockFilterSequential;
 import fi.dy.masa.autoverse.block.BlockSequencer;
@@ -14,6 +15,7 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 public class AutoverseBlocks
 {
     public static final BlockAutoverse BARREL                   = new BlockBarrel(ReferenceNames.NAME_BLOCK_BARREL,                     4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                   4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FIFO_BUFFER              = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER,                     4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse FILTER_BASIC             = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                     4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse FILTER_SEQUENTIAL        = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL,4.0f, 10f, 1, Material.IRON);
@@ -24,6 +26,7 @@ public class AutoverseBlocks
     public static void init()
     {
         registerBlock(BARREL,                   false);
+        registerBlock(CRAFTER,                  false);
         registerBlock(FIFO_BUFFER,              false);
         registerBlock(FILTER_BASIC,             false);
         registerBlock(FILTER_SEQUENTIAL,        false);

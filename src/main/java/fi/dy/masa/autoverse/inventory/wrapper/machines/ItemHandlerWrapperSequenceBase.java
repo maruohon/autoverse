@@ -1,21 +1,28 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
-import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
+import fi.dy.masa.autoverse.util.ItemType;
 
 public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, IItemHandlerSize, INBTSerializable<NBTTagCompound>
 {
-    private final ItemStackHandlerTileEntity inventoryInput;
+    private final IItemHandler inventoryInput;
     private final SequenceMatcher sequenceReset;
+    private final Map<ItemType, List<Integer>> matchingSlotsMap = new HashMap<ItemType, List<Integer>>();
 
-    public ItemHandlerWrapperSequenceBase(int sequenceLength, ItemStackHandlerTileEntity inventoryInput)
+    public ItemHandlerWrapperSequenceBase(int resetSequenceLength, IItemHandler inventoryInput)
     {
         this.inventoryInput = inventoryInput;
-        this.sequenceReset   = new SequenceMatcher(sequenceLength, "SequenceReset");
+        this.sequenceReset   = new SequenceMatcher(resetSequenceLength, "SequenceReset");
     }
 
     @Override
@@ -68,6 +75,36 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     }
 
     protected abstract void handleInputItem(ItemStack inputStack);
+
+    protected void createMatchingSlotsMap(NonNullList<ItemStack> items)
+    {
+        final int filterLength = items.size();
+
+        for (int slot = 0; slot < filterLength; ++slot)
+        {
+            this.addItemTypeToMap(slot, items.get(slot));
+        }
+    }
+
+    protected void addItemTypeToMap(int slot, ItemStack stack)
+    {
+        ItemType itemType = new ItemType(stack);
+        List<Integer> list = this.matchingSlotsMap.get(itemType);
+
+        if (list == null)
+        {
+            list = new ArrayList<Integer>();
+            this.matchingSlotsMap.put(itemType, list);
+        }
+
+        list.add(slot);
+    }
+
+    @Nullable
+    protected List<Integer> getMatchingSlots(ItemStack stack)
+    {
+        return this.matchingSlotsMap.get(new ItemType(stack));
+    }
 
     public IItemHandler getInputInventory()
     {

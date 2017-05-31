@@ -4,6 +4,7 @@ public class ReferenceNames
 {
     public static final String NAME_BLOCK_BARREL                    = "barrel";
     public static final String NAME_BLOCK_BUFFER                    = "buffer";
+    public static final String NAME_BLOCK_CRAFTER                   = "crafter";
     public static final String NAME_BLOCK_FILTER                    = "filter";
     public static final String NAME_BLOCK_FILTER_SEQUENTIAL         = "filter_sequential";
     public static final String NAME_BLOCK_FILTER_SEQ_SMART          = "filter_sequential_smart";

@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.NBTUtils;
@@ -166,7 +165,7 @@ public class SequenceMatcher
         return this.sequence;
     }
 
-    public IItemHandler getSequenceInventory(boolean matched)
+    public IItemHandlerModifiable getSequenceInventory(boolean matched)
     {
         return new SequenceInventory(this, matched);
     }

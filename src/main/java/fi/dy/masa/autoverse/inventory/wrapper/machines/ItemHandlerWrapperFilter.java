@@ -1,18 +1,13 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
-import fi.dy.masa.autoverse.util.ItemType;
 
 public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 {
@@ -20,7 +15,6 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
     private final IItemHandler filterSequenceInventory;
     private final IItemHandler inventoryOutFiltered;
     private final IItemHandler inventoryOutNormal;
-    private final Map<ItemType, List<Integer>> matchingSlotsMap = new HashMap<ItemType, List<Integer>>();
     private Mode mode = Mode.CONFIGURE_RESET;
     @Nullable
     protected List<Integer> matchingSlots;
@@ -104,7 +98,7 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
                 {
                     if (mode == Mode.CONFIGURE_FILTER_DONE)
                     {
-                        this.createMatchingSlotsMap();
+                        this.createMatchingSlotsMap(this.getFilterSequence().getSequence());
                         this.setMode(Mode.SORT_ITEMS);
                         //System.out.printf("moveInputItem - CONFIGURE_FILTER_DONE - done\n");
                     }
@@ -177,37 +171,6 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
         this.setMode(Mode.CONFIGURE_RESET);
     }
 
-    protected void createMatchingSlotsMap()
-    {
-        NonNullList<ItemStack> filterItems = this.getFilterSequence().getSequence();
-        final int filterLength = filterItems.size();
-
-        for (int slot = 0; slot < filterLength; ++slot)
-        {
-            this.addItemTypeToMap(slot, filterItems.get(slot));
-        }
-    }
-
-    protected void addItemTypeToMap(int slot, ItemStack stack)
-    {
-        ItemType itemType = new ItemType(stack);
-        List<Integer> list = this.matchingSlotsMap.get(itemType);
-
-        if (list == null)
-        {
-            list = new ArrayList<Integer>();
-            this.matchingSlotsMap.put(itemType, list);
-        }
-
-        list.add(slot);
-    }
-
-    @Nullable
-    protected List<Integer> getMatchingSlots(ItemStack stack)
-    {
-        return this.matchingSlotsMap.get(new ItemType(stack));
-    }
-
     public SequenceMatcher getFilterSequence()
     {
         return this.sequenceFilter;
@@ -254,7 +217,7 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 
         this.sequenceFilter.readFromNBT(tag);
 
-        this.createMatchingSlotsMap();
+        this.createMatchingSlotsMap(this.sequenceFilter.getSequence());
     }
 
     public enum Mode
