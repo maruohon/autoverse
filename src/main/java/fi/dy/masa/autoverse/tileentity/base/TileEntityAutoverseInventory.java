@@ -159,12 +159,24 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 
     /**
      * Tries to push items from the given inventory into an adjacent inventory.
-     * If there is no adjacent inventory on the front facing side, then it will spawn the item as an EntityItem.
+     * If there is no adjacent inventory on the front facing side and spawnInWorld is true,
+     * then it will spawn the item as an EntityItem.
      * @return whether the action succeeded
      */
     protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, BlockPos targetPos, EnumFacing targetSide, boolean spawnInWorld)
     {
-        ItemStack stack = invSrc.extractItem(slot, 1, true);
+        return this.pushItemsToAdjacentInventory(invSrc, slot, 1, targetPos, targetSide, spawnInWorld);
+    }
+
+    /**
+     * Tries to push items from the given inventory into an adjacent inventory.
+     *      * If there is no adjacent inventory on the front facing side and spawnInWorld is true,
+     * then it will spawn the item as an EntityItem.
+     * @return whether the action succeeded
+     */
+    protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, int maxAmount, BlockPos targetPos, EnumFacing targetSide, boolean spawnInWorld)
+    {
+        ItemStack stack = invSrc.extractItem(slot, maxAmount, true);
 
         if (stack.isEmpty() == false)
         {
@@ -179,7 +191,7 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
                 // Simulating item insertion succeeded
                 if (stack.isEmpty())
                 {
-                    stack = invSrc.extractItem(slot, 1, false);
+                    stack = invSrc.extractItem(slot, maxAmount, false);
                     stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
 
                     // Failed, try to return the item
@@ -200,7 +212,7 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
             else if (spawnInWorld)
             {
                 // No adjacent inventory, drop the item in world
-                stack = invSrc.extractItem(slot, 1, false);
+                stack = invSrc.extractItem(slot, maxAmount, false);
 
                 if (stack.isEmpty() == false)
                 {

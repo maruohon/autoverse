@@ -15,56 +15,41 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
-import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
+import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockBuffer extends BlockAutoverseInventory
+public class BlockBreaker extends BlockAutoverseInventory
 {
-    public static final PropertyEnum<BufferType> TYPE = PropertyEnum.<BufferType>create("type", BufferType.class);
+    public static final PropertyEnum<BreakerType> TYPE = PropertyEnum.<BreakerType>create("type", BreakerType.class);
 
-    public BlockBuffer(String name, float hardness, float resistance, int harvestLevel, Material material)
+    public BlockBreaker(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(TYPE, BufferType.FIFO)
+                .withProperty(TYPE, BreakerType.NORMAL)
                 .withProperty(FACING, DEFAULT_FACING));
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING });
     }
 
     @Override
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO,
-                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED
+                ReferenceNames.NAME_BLOCK_BREAKER + "_normal",
+                ReferenceNames.NAME_BLOCK_BREAKER + "_greedy"
         };
     }
 
     @Override
-    protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
+    protected BlockStateContainer createBlockState()
     {
-        switch (state.getValue(TYPE))
-        {
-            case FIFO:
-                return new TileEntityBufferFifo();
-            case FIFO_PULSED:
-                return new TileEntityBufferFifoPulsed();
-        }
-
-        return new TileEntityBufferFifo();
+        return new BlockStateContainer(this, new IProperty[] { FACING, TYPE });
     }
 
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TYPE, BufferType.fromMeta(meta));
+        return this.getDefaultState().withProperty(TYPE, BreakerType.fromMeta(meta));
     }
 
     @Override
@@ -73,25 +58,33 @@ public class BlockBuffer extends BlockAutoverseInventory
         return state.getValue(TYPE).getMeta();
     }
 
+    @Override
+    protected TileEntityAutoverse createTileEntityInstance(World worldIn, IBlockState state)
+    {
+        TileEntityBreaker te = new TileEntityBreaker();
+        te.setIsGreedy(state.getValue(TYPE) == BreakerType.GREEDY);
+        return te;
+    }
+
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < BufferType.values().length; meta++)
+        for (int meta = 0; meta < BreakerType.values().length; meta++)
         {
             list.add(new ItemStack(item, 1, meta));
         }
     }
 
-    public static enum BufferType implements IStringSerializable
+    public static enum BreakerType implements IStringSerializable
     {
-        FIFO            (0, "fifo_normal"),
-        FIFO_PULSED     (1, "fifo_pulsed");
+        NORMAL  (0, "normal"),
+        GREEDY  (1, "greedy");
 
         private final int meta;
         private final String name;
 
-        private BufferType(int meta, String name)
+        private BreakerType(int meta, String name)
         {
             this.meta = meta;
             this.name = name;
@@ -112,9 +105,9 @@ public class BlockBuffer extends BlockAutoverseInventory
             return this.name;
         }
 
-        public static BufferType fromMeta(int meta)
+        public static BreakerType fromMeta(int meta)
         {
-            return meta < values().length ? values()[meta] : FIFO;
+            return meta < values().length ? values()[meta] : NORMAL;
         }
     }
 }

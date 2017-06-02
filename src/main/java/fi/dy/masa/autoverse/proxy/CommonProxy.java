@@ -10,6 +10,7 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
+import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.TileEntityCrafter;
@@ -66,6 +67,7 @@ public class CommonProxy
     public void registerTileEntities()
     {
         this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        this.registerTileEntity(TileEntityBreaker.class,                ReferenceNames.NAME_BLOCK_BREAKER);
         this.registerTileEntity(TileEntityBufferFifo.class,             ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
         this.registerTileEntity(TileEntityBufferFifoPulsed.class,       ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
         this.registerTileEntity(TileEntityCrafter.class,                ReferenceNames.NAME_BLOCK_CRAFTER);

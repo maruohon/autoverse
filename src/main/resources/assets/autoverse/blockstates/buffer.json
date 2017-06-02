@@ -6,17 +6,17 @@
     },
     "variants": {
         "type": {
-            "buffer_fifo":    {
+            "fifo_normal":    {
                 "textures": {
-                    "front":    "autoverse:blocks/buffer_fifo_front",
-                    "back":     "autoverse:blocks/buffer_fifo_back",
-                    "top":      "autoverse:blocks/buffer_fifo_side",
-                    "bottom":   "autoverse:blocks/buffer_fifo_side",
-                    "left":     "autoverse:blocks/buffer_fifo_side",
-                    "right":    "autoverse:blocks/buffer_fifo_side"
+                    "front":    "autoverse:blocks/buffer_fifo_normal_front",
+                    "back":     "autoverse:blocks/buffer_fifo_normal_back",
+                    "top":      "autoverse:blocks/buffer_fifo_normal_side",
+                    "bottom":   "autoverse:blocks/buffer_fifo_normal_side",
+                    "left":     "autoverse:blocks/buffer_fifo_normal_side",
+                    "right":    "autoverse:blocks/buffer_fifo_normal_side"
                 }
             },
-            "buffer_fifo_pulsed":    {
+            "fifo_pulsed":    {
                 "textures": {
                     "front":    "autoverse:blocks/buffer_fifo_pulsed_front",
                     "back":     "autoverse:blocks/buffer_fifo_pulsed_back",

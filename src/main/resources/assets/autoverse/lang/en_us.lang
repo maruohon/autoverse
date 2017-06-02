@@ -5,6 +5,7 @@ language.code=en_US
 autoverse.commands.loadconfig.success=Autoverse: Loaded configuration
 
 autoverse.container.barrel=Barrel
+autoverse.container.breaker=Block Breaker
 autoverse.container.buffer_fifo=FIFO Buffer
 autoverse.container.buffer_fifo_pulsed=Pulsed FIFO Buffer
 autoverse.container.crafter=Crafter
@@ -66,6 +67,8 @@ tile.autoverse.barrel_pulsed_12.name=Pulsed Barrel (max: 4096)
 tile.autoverse.barrel_pulsed_13.name=Pulsed Barrel (max: 8192)
 tile.autoverse.barrel_pulsed_14.name=Pulsed Barrel (max: 16384)
 tile.autoverse.barrel_pulsed_15.name=Pulsed Barrel (max: 32768)
+tile.autoverse.breaker_greedy.name=Block Breaker (Greedy)
+tile.autoverse.breaker_normal.name=Block Breaker
 tile.autoverse.buffer_fifo.name=FIFO Buffer
 tile.autoverse.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
 tile.autoverse.crafter.name=Crafter

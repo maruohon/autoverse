@@ -36,8 +36,8 @@ public class GuiAutoverse extends GuiContainer
 {
     protected final ContainerAutoverse container;
     protected final EntityPlayer player;
-    protected final ResourceLocation guiTexture;
-    protected final ResourceLocation guiTextureWidgets;
+    protected ResourceLocation guiTexture;
+    protected ResourceLocation guiTextureWidgets;
     protected int backgroundU;
     protected int backgroundV;
     protected InfoArea infoArea;

@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.reference;
 public class ReferenceNames
 {
     public static final String NAME_BLOCK_BARREL                    = "barrel";
+    public static final String NAME_BLOCK_BREAKER                   = "breaker";
     public static final String NAME_BLOCK_BUFFER                    = "buffer";
     public static final String NAME_BLOCK_CRAFTER                   = "crafter";
     public static final String NAME_BLOCK_FILTER                    = "filter";
