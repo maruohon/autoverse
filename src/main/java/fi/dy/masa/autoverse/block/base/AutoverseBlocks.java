@@ -8,6 +8,7 @@ import fi.dy.masa.autoverse.block.BlockBuffer;
 import fi.dy.masa.autoverse.block.BlockCrafter;
 import fi.dy.masa.autoverse.block.BlockFilter;
 import fi.dy.masa.autoverse.block.BlockFilterSequential;
+import fi.dy.masa.autoverse.block.BlockPlacer;
 import fi.dy.masa.autoverse.block.BlockSequencer;
 import fi.dy.masa.autoverse.block.BlockSplitter;
 import fi.dy.masa.autoverse.reference.Reference;
@@ -21,6 +22,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                   4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FILTER_BASIC             = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                     4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse FILTER_SEQUENTIAL        = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL,4.0f, 10f, 1, Material.IRON);
+    public static final BlockAutoverse PLACER                   = new BlockPlacer(ReferenceNames.NAME_BLOCK_PLACER,                   4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,               4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                 4.0f, 10f, 1, Material.IRON);
 
@@ -32,6 +34,7 @@ public class AutoverseBlocks
         registerBlock(CRAFTER,                  false);
         registerBlock(FILTER_BASIC,             false);
         registerBlock(FILTER_SEQUENTIAL,        false);
+        registerBlock(PLACER,                   false);
         registerBlock(SEQUENCER,                false);
         registerBlock(SPLITTER,                 false);
     }

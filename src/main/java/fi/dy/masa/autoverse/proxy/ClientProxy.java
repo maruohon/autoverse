@@ -111,6 +111,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north");
         this.registerAllItemBlockModels(AutoverseBlocks.FILTER_BASIC, "facing=north,facing_filter=east,tier=", "", true);
         this.registerAllItemBlockModels(AutoverseBlocks.FILTER_SEQUENTIAL, "facing=north,facing_filter=east,tier=", "", true);
+        this.registerItemBlockModel(AutoverseBlocks.PLACER, 0, "facing=north");
         this.registerAllItemBlockModels(AutoverseBlocks.SEQUENCER, "facing=north,tier=", "", true);
         this.registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=togglable");
         this.registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,type=selectable");

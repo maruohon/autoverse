@@ -1,0 +1,25 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:orientable_directional_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "front":    "autoverse:blocks/block_placer_front",
+            "back":     "autoverse:blocks/block_placer_back",
+            "top":      "autoverse:blocks/block_placer_side",
+            "bottom":   "autoverse:blocks/block_placer_side",
+            "left":     "autoverse:blocks/block_placer_side",
+            "right":    "autoverse:blocks/block_placer_side"
+        }
+    },
+    "variants": {
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 },
+            "up":    { "x": 270 },
+            "down":  { "x":  90 }
+        }
+    }
+}

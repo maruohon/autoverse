@@ -9,15 +9,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
-import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
-import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
-import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
-import fi.dy.masa.autoverse.tileentity.TileEntityCrafter;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
-import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
-import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
-import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
+import fi.dy.masa.autoverse.tileentity.*;
 
 public class CommonProxy
 {
@@ -73,6 +65,7 @@ public class CommonProxy
         this.registerTileEntity(TileEntityCrafter.class,                ReferenceNames.NAME_BLOCK_CRAFTER);
         this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_TILE_ENTITY_FILTER);
         this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
+        this.registerTileEntity(TileEntityPlacer.class,                 ReferenceNames.NAME_BLOCK_PLACER);
         this.registerTileEntity(TileEntitySequencer.class,              ReferenceNames.NAME_TILE_ENTITY_SEQUENCER);
         this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
     }
