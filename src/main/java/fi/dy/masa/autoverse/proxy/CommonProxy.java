@@ -59,6 +59,7 @@ public class CommonProxy
     public void registerTileEntities()
     {
         this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        this.registerTileEntity(TileEntityBlockReaderNBT.class,         ReferenceNames.NAME_TILE_ENTITY_BLOCK_READER_NBT);
         this.registerTileEntity(TileEntityBreaker.class,                ReferenceNames.NAME_BLOCK_BREAKER);
         this.registerTileEntity(TileEntityBufferFifo.class,             ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
         this.registerTileEntity(TileEntityBufferFifoPulsed.class,       ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);

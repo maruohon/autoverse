@@ -104,6 +104,7 @@ public class ClientProxy extends CommonProxy
     private void registerItemBlockModels()
     {
         this.registerBarrelItemBlockModels(AutoverseBlocks.BARREL);
+        this.registerItemBlockModel(AutoverseBlocks.BLOCK_READER, 0, "facing=north,type=nbt");
         this.registerItemBlockModel(AutoverseBlocks.BREAKER, 0, "facing=north,type=normal");
         this.registerItemBlockModel(AutoverseBlocks.BREAKER, 1, "facing=north,type=greedy");
         this.registerItemBlockModel(AutoverseBlocks.BUFFER, 0, "facing=north,type=fifo_normal");

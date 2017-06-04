@@ -33,7 +33,7 @@ public class BlockSplitter extends BlockAutoverseInventory
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, SplitterType.TOGGLABLE)
-                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING2, EnumFacing.DOWN));
     }
 

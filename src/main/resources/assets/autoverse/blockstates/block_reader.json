@@ -1,0 +1,29 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:orientable_directional_individual",
+        "transform": "forge:default-block"
+    },
+    "variants": {
+        "type": {
+            "nbt":    {
+                "textures": {
+                    "front":    "autoverse:blocks/block_reader_nbt_front",
+                    "back":     "autoverse:blocks/block_reader_nbt_back",
+                    "top":      "autoverse:blocks/block_reader_nbt_side",
+                    "bottom":   "autoverse:blocks/block_reader_nbt_side",
+                    "left":     "autoverse:blocks/block_reader_nbt_side",
+                    "right":    "autoverse:blocks/block_reader_nbt_side"
+                }
+            }
+        },
+        "facing": {
+            "north": {},
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 },
+            "up":    { "x": 270 },
+            "down":  { "x":  90 }
+        }
+    }
+}

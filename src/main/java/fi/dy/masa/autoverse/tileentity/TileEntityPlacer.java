@@ -1,10 +1,7 @@
 package fi.dy.masa.autoverse.tileentity;
 
 import java.util.Random;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,10 +16,8 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -33,7 +28,6 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPlacer;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperSelective;
-import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.BlockUtils;
@@ -47,7 +41,6 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
     private int delay = 4;
     private EnumFacing facingHorizontal = EnumFacing.NORTH;
     private State state = State.IDLE;
-    private FakePlayer fakePlayer;
 
     public TileEntityPlacer()
     {
@@ -124,20 +117,6 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
         }
 
         return null;
-    }
-
-    @Nonnull
-    private FakePlayer getPlayer()
-    {
-        if (this.fakePlayer == null)
-        {
-            int dim = this.getWorld().provider.getDimension();
-
-            this.fakePlayer = FakePlayerFactory.get((WorldServer) this.getWorld(),
-                    new GameProfile(new UUID(dim, dim), Reference.MOD_ID + ":block_placer"));
-        }
-
-        return this.fakePlayer;
     }
 
     private boolean extendOneBlock(int position, FakePlayer player, boolean playPistonSoundInsteadOfPlaceSound)

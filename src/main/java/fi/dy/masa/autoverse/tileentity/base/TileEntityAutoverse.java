@@ -1,8 +1,10 @@
 package fi.dy.masa.autoverse.tileentity.base;
 
 import java.util.Random;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,6 +21,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
@@ -33,6 +38,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     protected EnumFacing facingOpposite = EnumFacing.DOWN;
     protected BlockPos posFront;
     protected boolean redstoneState;
+    protected FakePlayer fakePlayer;
 
     public TileEntityAutoverse(String name)
     {
@@ -99,6 +105,25 @@ public abstract class TileEntityAutoverse extends TileEntity
     public boolean isUsableByPlayer(EntityPlayer player)
     {
         return this.getWorld().getTileEntity(this.getPos()) == this && player.getDistanceSq(this.getPos()) <= 64.0d;
+    }
+
+    /**
+     * Gets a FakePlayer, which are unique per dimension and per TileEntity type.
+     * ONLY call this on the server side!!!
+     * @return
+     */
+    @Nonnull
+    protected FakePlayer getPlayer()
+    {
+        if (this.fakePlayer == null)
+        {
+            int dim = this.getWorld().provider.getDimension();
+
+            this.fakePlayer = FakePlayerFactory.get((WorldServer) this.getWorld(),
+                    new GameProfile(new UUID(dim, dim), Reference.MOD_ID + this.tileEntityName));
+        }
+
+        return this.fakePlayer;
     }
 
     /**
