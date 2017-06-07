@@ -1,0 +1,55 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:cube_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle":         "autoverse:blocks/redstone_emitter_side_powered",
+            "down":             "#side_down",
+            "up":               "#side_up",
+            "north":            "#side_north",
+            "south":            "#side_south",
+            "west":             "#side_west",
+            "east":             "#side_east",
+            "side_disabled":    "autoverse:blocks/redstone_emitter_side_disabled"
+        }
+    },
+    "variants": {
+        "down": {
+            "false": { "textures": { "side_down":    "#side_disabled" } },
+            "true":  { "textures": { "side_down":    "#side_enabled"  } }
+        },
+        "up": {
+            "false": { "textures": { "side_up":      "#side_disabled" } },
+            "true":  { "textures": { "side_up":      "#side_enabled"  } }
+        },
+        "north": {
+            "false": { "textures": { "side_north":   "#side_disabled" } },
+            "true":  { "textures": { "side_north":   "#side_enabled"  } }
+        },
+        "south": {
+            "false": { "textures": { "side_south":   "#side_disabled" } },
+            "true":  { "textures": { "side_south":   "#side_enabled"  } }
+        },
+        "west": {
+            "false": { "textures": { "side_west":    "#side_disabled" } },
+            "true":  { "textures": { "side_west":    "#side_enabled"  } }
+        },
+        "east": {
+            "false": { "textures": { "side_east":    "#side_disabled" } },
+            "true":  { "textures": { "side_east":    "#side_enabled"  } }
+        },
+        "powered": {
+            "false": { "textures": { "side_enabled": "autoverse:blocks/redstone_emitter_side_unpowered" } },
+            "true":  { "textures": { "side_enabled": "autoverse:blocks/redstone_emitter_side_powered"   } }
+        },
+        "facing": {
+            "down":  { "textures": { "down":    "autoverse:blocks/redstone_emitter_front" } },
+            "up":    { "textures": { "up":      "autoverse:blocks/redstone_emitter_front" } },
+            "north": { "textures": { "north":   "autoverse:blocks/redstone_emitter_front" } },
+            "south": { "textures": { "south":   "autoverse:blocks/redstone_emitter_front" } },
+            "west":  { "textures": { "west":    "autoverse:blocks/redstone_emitter_front" } },
+            "east":  { "textures": { "east":    "autoverse:blocks/redstone_emitter_front" } }
+        }
+    }
+}

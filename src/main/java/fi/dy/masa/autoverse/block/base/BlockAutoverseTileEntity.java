@@ -23,13 +23,13 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 {
-    protected boolean hasFacing;
+    protected boolean getFacingFromTE;
 
     public BlockAutoverseTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.hasFacing = true;
+        this.getFacingFromTE = true;
     }
 
     @Override
@@ -157,7 +157,7 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        if (this.hasFacing)
+        if (this.getFacingFromTE)
         {
             TileEntityAutoverse te = getTileEntitySafely(world, pos, TileEntityAutoverse.class);
 
@@ -173,13 +173,13 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     @Override
     public IBlockState withRotation(IBlockState state, Rotation rotation)
     {
-        return this.hasFacing ? state.withProperty(FACING, rotation.rotate(state.getValue(FACING))) : state;
+        return this.getFacingFromTE ? state.withProperty(FACING, rotation.rotate(state.getValue(FACING))) : state;
     }
 
     @Override
     public IBlockState withMirror(IBlockState state, Mirror mirror)
     {
-        return this.hasFacing ? state.withRotation(mirror.toRotation(state.getValue(FACING))) : state;
+        return this.getFacingFromTE ? state.withRotation(mirror.toRotation(state.getValue(FACING))) : state;
     }
 
     @Override

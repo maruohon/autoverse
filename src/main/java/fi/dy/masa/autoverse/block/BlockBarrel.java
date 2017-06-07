@@ -41,7 +41,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.hasFacing = false;
+        this.getFacingFromTE = false;
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(PULSED, false)
                 .withProperty(TIER, 0));
