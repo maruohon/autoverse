@@ -17,6 +17,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse FILTER_SEQUENTIAL        = new BlockFilterSequential(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL,4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse PLACER                   = new BlockPlacer(ReferenceNames.NAME_BLOCK_PLACER,                     4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,  4.0f, 10f, 1, Material.IRON);
+    public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,               4.0f, 10f, 1, Material.IRON);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                 4.0f, 10f, 1, Material.IRON);
 
@@ -31,6 +32,7 @@ public class AutoverseBlocks
         registerBlock(FILTER_SEQUENTIAL,        false);
         registerBlock(PLACER,                   false);
         registerBlock(REDSTONE_EMITTER,         false);
+        registerBlock(SEQUENCE_DETECTOR,        false);
         registerBlock(SEQUENCER,                false);
         registerBlock(SPLITTER,                 false);
     }

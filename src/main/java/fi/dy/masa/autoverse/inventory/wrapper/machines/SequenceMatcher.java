@@ -35,12 +35,22 @@ public class SequenceMatcher
 
         if (++this.position >= this.sequence.size())
         {
-            this.position = 0;
-            this.configured = true;
+            this.onSequenceConfigured(inputStack);
             return true;
         }
 
         return false;
+    }
+
+    protected void onSequenceConfigured(ItemStack inputStack)
+    {
+        this.position = 0;
+        this.configured = true;
+    }
+
+    public int getCurrentSequenceLength()
+    {
+        return this.sequence.size();
     }
 
     /**
@@ -54,7 +64,7 @@ public class SequenceMatcher
         // The current item matches the sequence
         if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(this.position)))
         {
-            if (++this.position >= this.sequence.size())
+            if (++this.position >= this.getCurrentSequenceLength())
             {
                 this.position = 0;
                 return true;
@@ -147,6 +157,16 @@ public class SequenceMatcher
     public String getTagName()
     {
         return this.tagName;
+    }
+
+    public boolean isConfigured()
+    {
+        return this.configured;
+    }
+
+    protected int getPosition()
+    {
+        return this.position;
     }
 
     /**

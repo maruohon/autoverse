@@ -11,6 +11,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_FILTER_SEQUENTIAL         = "filter_sequential";
     public static final String NAME_BLOCK_PLACER                    = "placer";
     public static final String NAME_BLOCK_REDSTONE_EMITTER          = "redstone_emitter";
+    public static final String NAME_BLOCK_SEQUENCE_DETECTOR         = "sequence_detector";
     public static final String NAME_BLOCK_SEQUENCER                 = "sequencer";
     public static final String NAME_BLOCK_SPLITTER                  = "splitter";
 
