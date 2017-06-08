@@ -1,6 +1,8 @@
 package fi.dy.masa.autoverse.block.base;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,6 +24,8 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -147,6 +151,7 @@ public class BlockAutoverse extends Block
      * Returns the "id" or "key" of the pointed element's bounding box the player is currently looking at.
      * Invalid hits (ie. misses) return null.
      */
+    @Nullable
     public <T> T getPointedElementId(World world, BlockPos pos, EnumFacing side, Entity entity)
     {
         this.updateBlockHilightBoxes(world, pos, side);
@@ -155,6 +160,43 @@ public class BlockAutoverse extends Block
 
     public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
     {
+    }
+
+    @Nullable
+    protected RayTraceResult collisionRayTraceToBoxes(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
+    {
+        this.updateBlockHilightBoxes(world, pos, state.getActualState(world, pos).getValue(FACING));
+        List<RayTraceResult> list = new ArrayList<RayTraceResult>();
+
+        for (AxisAlignedBB bb : this.getHilightBoxMap().values())
+        {
+            RayTraceResult trace = bb.calculateIntercept(start, end);
+
+            if (trace != null)
+            {
+                list.add(new RayTraceResult(trace.hitVec, trace.sideHit, pos));
+            }
+        }
+
+        RayTraceResult trace = null;
+        // Closest to start, by being furthest from the end point
+        double closest = 0.0D;
+
+        for (RayTraceResult traceTmp : list)
+        {
+            if (traceTmp != null)
+            {
+                double dist = traceTmp.hitVec.squareDistanceTo(end);
+
+                if (dist > closest)
+                {
+                    trace = traceTmp;
+                    closest = dist;
+                }
+            }
+        }
+
+        return trace;
     }
 
     /**

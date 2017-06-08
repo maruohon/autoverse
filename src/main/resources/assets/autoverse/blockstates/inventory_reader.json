@@ -1,0 +1,53 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:inventory_reader",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle":             "autoverse:blocks/inventory_reader_base_front",
+            "base_front":           "autoverse:blocks/inventory_reader_base_front",
+            "base_back":            "autoverse:blocks/inventory_reader_base_back",
+            "base_side":            "autoverse:blocks/inventory_reader_base_side",
+            "rod_end_unpowered":    "autoverse:blocks/inventory_reader_rod_end_unpowered",
+            "rod_end_powered":      "autoverse:blocks/inventory_reader_rod_end_powered"
+        }
+    },
+    "variants": {
+        "type": {
+            "items": {
+                "textures": {
+                    "rod_side_unpowered":   "autoverse:blocks/inventory_reader_items_rod_side_unpowered",
+                    "rod_side_powered":     "autoverse:blocks/inventory_reader_items_rod_side_powered"
+                }
+            },
+            "slots": {
+                "textures": {
+                    "rod_side_unpowered":   "autoverse:blocks/inventory_reader_slots_rod_side_unpowered",
+                    "rod_side_powered":     "autoverse:blocks/inventory_reader_slots_rod_side_powered"
+                }
+            }
+        },
+        "powered": {
+            "false": {
+                "textures": {
+                    "rod_end":  "#rod_end_unpowered",
+                    "rod_side": "#rod_side_unpowered"
+                }
+            },
+            "true": {
+                "textures": {
+                    "rod_end":  "#rod_end_powered",
+                    "rod_side": "#rod_side_powered"
+                }
+            }
+        },
+        "facing": {
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 }
+        }
+    }
+}

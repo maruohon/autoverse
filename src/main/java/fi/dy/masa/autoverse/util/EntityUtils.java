@@ -76,7 +76,6 @@ public class EntityUtils
      * Returns the index of the BB in the given list that the given entity is currently looking at.
      * @return the list index of the pointed box, or null of no hit was detected
      */
-    /*
     public static <T> T getPointedBox(Entity entity, double reach, Map<T, AxisAlignedBB> boxes, float partialTicks)
     {
         Vec3d eyesVec = entity.getPositionEyes(partialTicks);
@@ -84,7 +83,6 @@ public class EntityUtils
 
         return getPointedBox(eyesVec, lookVec, reach, boxes);
     }
-    */
 
     /**
      * Returns the index of the BB in the given list that the given vectors are currently pointing at.

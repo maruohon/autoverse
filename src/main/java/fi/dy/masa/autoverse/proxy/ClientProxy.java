@@ -19,6 +19,7 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.event.RenderEventHandler;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public class ClientProxy extends CommonProxy
@@ -77,7 +78,10 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerEventHandlers()
     {
+        super.registerEventHandlers();
+
         MinecraftForge.EVENT_BUS.register(new Configs());
+        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
     }
 
     @Override
@@ -112,6 +116,8 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north");
         this.registerAllItemBlockModels(AutoverseBlocks.FILTER_BASIC, "facing=north,facing_filter=east,tier=", "", true);
         this.registerAllItemBlockModels(AutoverseBlocks.FILTER_SEQUENTIAL, "facing=north,facing_filter=east,tier=", "", true);
+        this.registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
+        this.registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
         this.registerItemBlockModel(AutoverseBlocks.PLACER, 0, "facing=north");
         this.registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "down=true,east=true,facing=north,north=false,powered=true,south=true,up=true,west=true");
         this.registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
