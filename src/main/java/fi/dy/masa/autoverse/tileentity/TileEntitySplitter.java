@@ -46,7 +46,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public TileEntitySplitter()
     {
-        this(ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
+        this(ReferenceNames.NAME_BLOCK_SPLITTER);
     }
 
     public TileEntitySplitter(String name)

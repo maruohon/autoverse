@@ -56,12 +56,12 @@ public class BlockBarrel extends BlockAutoverseInventory
 
         for (int i = 0; i < 16; i++)
         {
-            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_" + i;
+            names[i] = ReferenceNames.NAME_BLOCK_BARREL + "_" + i;
         }
 
         for (int i = 16; i < 32; i++)
         {
-            names[i] = ReferenceNames.NAME_TILE_ENTITY_BARREL + "_pulsed_" + (i - 16);
+            names[i] = ReferenceNames.NAME_BLOCK_BARREL + "_pulsed_" + (i - 16);
         }
 
         return names;

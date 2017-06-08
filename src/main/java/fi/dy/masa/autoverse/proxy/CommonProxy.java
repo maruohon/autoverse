@@ -58,20 +58,20 @@ public class CommonProxy
 
     public void registerTileEntities()
     {
-        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        this.registerTileEntity(TileEntityBarrel.class,                 ReferenceNames.NAME_BLOCK_BARREL);
         this.registerTileEntity(TileEntityBlockReaderNBT.class,         ReferenceNames.NAME_TILE_ENTITY_BLOCK_READER_NBT);
         this.registerTileEntity(TileEntityBreaker.class,                ReferenceNames.NAME_BLOCK_BREAKER);
         this.registerTileEntity(TileEntityBufferFifo.class,             ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
         this.registerTileEntity(TileEntityBufferFifoPulsed.class,       ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
         this.registerTileEntity(TileEntityCrafter.class,                ReferenceNames.NAME_BLOCK_CRAFTER);
-        this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_TILE_ENTITY_FILTER);
-        this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
+        this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_BLOCK_FILTER);
+        this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
         this.registerTileEntity(TileEntityInventoryReader.class,        ReferenceNames.NAME_BLOCK_INVENTORY_READER);
         this.registerTileEntity(TileEntityPlacer.class,                 ReferenceNames.NAME_BLOCK_PLACER);
         this.registerTileEntity(TileEntityRedstoneEmitter.class,        ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER);
         this.registerTileEntity(TileEntitySequenceDetector.class,       ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR);
-        this.registerTileEntity(TileEntitySequencer.class,              ReferenceNames.NAME_TILE_ENTITY_SEQUENCER);
-        this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_TILE_ENTITY_SPLITTER);
+        this.registerTileEntity(TileEntitySequencer.class,              ReferenceNames.NAME_BLOCK_SEQUENCER);
+        this.registerTileEntity(TileEntitySplitter.class,               ReferenceNames.NAME_BLOCK_SPLITTER);
     }
 
     private void registerTileEntity(Class<? extends TileEntity> clazz, String id)

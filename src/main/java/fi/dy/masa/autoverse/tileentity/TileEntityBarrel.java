@@ -29,7 +29,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     public TileEntityBarrel()
     {
-        super(ReferenceNames.NAME_TILE_ENTITY_BARREL);
+        super(ReferenceNames.NAME_BLOCK_BARREL);
     }
 
     @Override

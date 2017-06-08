@@ -25,7 +25,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
 
     public TileEntitySequencer()
     {
-        this(ReferenceNames.NAME_TILE_ENTITY_SEQUENCER);
+        this(ReferenceNames.NAME_BLOCK_SEQUENCER);
 
         this.initInventories();
     }

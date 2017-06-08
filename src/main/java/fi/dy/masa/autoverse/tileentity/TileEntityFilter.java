@@ -38,7 +38,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public TileEntityFilter()
     {
-        this(ReferenceNames.NAME_TILE_ENTITY_FILTER);
+        this(ReferenceNames.NAME_BLOCK_FILTER);
     }
 
     public TileEntityFilter(String name)

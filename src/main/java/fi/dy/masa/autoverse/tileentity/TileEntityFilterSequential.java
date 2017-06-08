@@ -13,7 +13,7 @@ public class TileEntityFilterSequential extends TileEntityFilter
 
     public TileEntityFilterSequential()
     {
-        this(ReferenceNames.NAME_TILE_ENTITY_FILTER_SEQUENTIAL);
+        this(ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
     }
 
     public TileEntityFilterSequential(String name)
