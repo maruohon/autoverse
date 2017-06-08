@@ -14,6 +14,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_REDSTONE_EMITTER          = "redstone_emitter";
     public static final String NAME_BLOCK_SEQUENCE_DETECTOR         = "sequence_detector";
     public static final String NAME_BLOCK_SEQUENCER                 = "sequencer";
+    public static final String NAME_BLOCK_SEQUENCER_PROGRAMMABLE    = "sequencer_programmable";
     public static final String NAME_BLOCK_SPLITTER                  = "splitter";
 
     public static final String NAME_TILE_ENTITY_BLOCK_READER_NBT    = "block_reader_nbt";

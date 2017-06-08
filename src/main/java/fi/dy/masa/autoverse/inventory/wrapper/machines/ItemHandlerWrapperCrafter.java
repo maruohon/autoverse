@@ -108,6 +108,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         }
     }
 
+    @Override
     public boolean moveItems()
     {
         Mode mode = this.getMode();

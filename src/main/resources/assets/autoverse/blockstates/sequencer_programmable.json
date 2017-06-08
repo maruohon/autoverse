@@ -1,0 +1,25 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:orientable_directional_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "front":    "autoverse:blocks/sequencer_programmable_front",
+            "back":     "autoverse:blocks/sequencer_programmable_side",
+            "top":      "autoverse:blocks/sequencer_programmable_side",
+            "bottom":   "autoverse:blocks/sequencer_programmable_side",
+            "left":     "autoverse:blocks/sequencer_programmable_side",
+            "right":    "autoverse:blocks/sequencer_programmable_side"
+        }
+    },
+    "variants": {
+        "facing": {
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 }
+        }
+    }
+}

@@ -433,10 +433,11 @@ public class InventoryUtils
      * @param slotSrc
      * @param simulate
      */
-    public static void tryMoveStackToOtherInventory(IItemHandler invSrc, IItemHandler invDst, int slotSrc, boolean simulate)
+    public static InvResult tryMoveStackToOtherInventory(IItemHandler invSrc, IItemHandler invDst, int slotSrc, boolean simulate)
     {
         ItemStack stack;
         int limit = SLOT_ITER_LIMIT;
+        InvResult result = InvResult.MOVED_NOTHING;
 
         while (limit-- > 0)
         {
@@ -444,19 +445,31 @@ public class InventoryUtils
 
             if (stack.isEmpty())
             {
-                break;
+                return InvResult.MOVED_ALL;
             }
 
+            int sizeOrig = stack.getCount();
             stack = tryInsertItemStackToInventory(invDst, stack, simulate);
 
             // Can't insert anymore items
             if (stack.isEmpty() == false)
             {
+                if (stack.getCount() != sizeOrig)
+                {
+                    result = InvResult.MOVED_SOME;
+                }
+
                 // Put the rest of the items back to the source inventory
-                invSrc.insertItem(slotSrc, stack, simulate);
+                stack = invSrc.insertItem(slotSrc, stack, simulate);
                 break;
             }
+            else
+            {
+                result = InvResult.MOVED_SOME;
+            }
         }
+
+        return result;
     }
 
     /**

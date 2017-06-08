@@ -4,6 +4,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.network.message.MessageGuiAction;
+import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.autoverse.network.message.MessageSyncNBTTag;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
@@ -15,9 +16,10 @@ public class PacketHandler
 
     public static void init()
     {
-        INSTANCE.registerMessage(MessageSyncSlot.Handler.class,         MessageSyncSlot.class,          0, Side.CLIENT);
-        INSTANCE.registerMessage(MessageSyncCustomSlot.Handler.class,   MessageSyncCustomSlot.class,    1, Side.CLIENT);
-        INSTANCE.registerMessage(MessageSyncNBTTag.Handler.class,       MessageSyncNBTTag.class,        2, Side.CLIENT);
-        INSTANCE.registerMessage(MessageGuiAction.Handler.class,        MessageGuiAction.class,         5, Side.SERVER);
+        INSTANCE.registerMessage(MessageGuiAction.Handler.class,                MessageGuiAction.class,                 0, Side.SERVER);
+        INSTANCE.registerMessage(MessageSyncSlot.Handler.class,                 MessageSyncSlot.class,                  1, Side.CLIENT);
+        INSTANCE.registerMessage(MessageSyncCustomSlot.Handler.class,           MessageSyncCustomSlot.class,            2, Side.CLIENT);
+        INSTANCE.registerMessage(MessageSyncContainerProperty.Handler.class,    MessageSyncContainerProperty.class,     3, Side.CLIENT);
+        INSTANCE.registerMessage(MessageSyncNBTTag.Handler.class,               MessageSyncNBTTag.class,                4, Side.CLIENT);
     }
 }

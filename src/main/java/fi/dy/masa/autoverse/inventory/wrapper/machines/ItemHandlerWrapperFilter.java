@@ -84,6 +84,7 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
      * Moves the item from the input slot/inventory to where it needs to go.
      * @return true when the item was successfully moved, false if it couldn't be moved
      */
+    @Override
     public boolean moveItems()
     {
         Mode mode = this.getMode();

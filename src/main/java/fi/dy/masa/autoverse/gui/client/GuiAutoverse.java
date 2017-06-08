@@ -24,12 +24,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.item.base.ItemAutoverse;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageGuiAction;
 import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
 import fi.dy.masa.autoverse.reference.ReferenceTextures;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
 public class GuiAutoverse extends GuiContainer
@@ -116,6 +118,7 @@ public class GuiAutoverse extends GuiContainer
         OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+        this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, stack, x, y, null);
         //this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
     }
 
@@ -220,6 +223,91 @@ public class GuiAutoverse extends GuiContainer
     protected void bindTexture(ResourceLocation rl)
     {
         this.mc.getTextureManager().bindTexture(rl);
+    }
+
+    /**
+     * Draw the background colors/icons for locked slots from a "lockable inventory"
+     * @param inv
+     */
+    protected void drawLockedSlotBackgrounds(ItemStackHandlerLockable inv, int startSlotInContainer, List<Slot> slotList)
+    {
+        this.bindTexture(this.guiTextureWidgets);
+
+        final int invSize = inv.getSlots();
+        final int lastSlotExc = Math.min(invSize + startSlotInContainer, slotList.size());
+
+        // Draw the colored background icon for locked/"templated" slots
+        for (int slotIndex = 0, slotNum = startSlotInContainer; slotNum < lastSlotExc; slotNum++, slotIndex++)
+        {
+            Slot slot = slotList.get(slotNum);
+
+            if (inv.isSlotLocked(slotIndex))
+            {
+                int x = this.guiLeft + slot.xPos;
+                int y = this.guiTop + slot.yPos;
+                int v = 18;
+                ItemStack stackSlot = inv.getStackInSlot(slotIndex);
+
+                // Empty locked slots are in a different color
+                if (stackSlot.isEmpty())
+                {
+                    v = 36;
+                }
+                // Non-matching item in a locked slot
+                else if (InventoryUtils.areItemStacksEqual(stackSlot, inv.getTemplateStackInSlot(slotIndex)) == false)
+                {
+                    v = 72;
+                }
+
+                this.drawTexturedModalRect(x - 1, y - 1, 102, v, 18, 18);
+            }
+        }
+    }
+
+    /**
+     * Draw the template stacks from a "lockable inventory" for otherwise empty slots
+     * @param inv
+     */
+    protected void drawTemplateStacks(ItemStackHandlerLockable inv, int startSlotInContainer, List<Slot> slotList)
+    {
+        // Draw a faint version of the template item for empty locked slots
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableRescaleNormal();
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+        this.zLevel = 100.0F;
+        this.itemRender.zLevel = 100.0F;
+        final int invSize = inv.getSlots();
+        final int lastSlotExc = Math.min(invSize + startSlotInContainer, slotList.size());
+
+        for (int slotNum = startSlotInContainer, slotIndex = 0; slotNum < lastSlotExc; slotNum++, slotIndex++)
+        {
+            Slot slot = slotList.get(slotNum);
+
+            if (inv.isSlotLocked(slotIndex) && inv.getStackInSlot(slotIndex).isEmpty())
+            {
+                ItemStack stack = inv.getTemplateStackInSlot(slotIndex);
+
+                if (stack.isEmpty() == false)
+                {
+                    int x = this.guiLeft + slot.xPos;
+                    int y = this.guiTop + slot.yPos;
+                    GlStateManager.enableLighting();
+                    GlStateManager.enableDepth();
+                    GlStateManager.enableBlend();
+                    OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+                    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                    this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+                }
+            }
+        }
+
+        this.itemRender.zLevel = 0.0F;
+        this.zLevel = 0.0F;
+        GlStateManager.disableBlend();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
     }
 
     public static class InfoArea

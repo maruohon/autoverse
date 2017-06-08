@@ -1,6 +1,7 @@
 package fi.dy.masa.autoverse.inventory.container.base;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,12 +19,15 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.inventory.ICustomSlotSync;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.PlayerInvWrapperNoSync;
 import fi.dy.masa.autoverse.network.PacketHandler;
+import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ContainerAutoverse extends Container implements ICustomSlotSync
 {
@@ -144,6 +148,11 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
     public List<Slot> getSpecialSlots()
     {
         return this.specialSlots;
+    }
+
+    public NonNullList<ItemStack> getSpecialSlotStacks()
+    {
+        return this.specialSlotStacks;
     }
 
     @Override
@@ -404,14 +413,13 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
      * The value for that is in the form '(locked ? 0x8000 : 0) | slot'.
      *
      * @param inv the lockable inventory to sync the locked status and template stacks from
-     * @param typeId The id that is used in the MessageSyncCustomSlot packet
-     * @param progressBarId The id to use in the sendProgressBarUpdate for the locked status
+     * @param slotTypeId The id that is used in the MessageSyncCustomSlot packet
+     * @param propertyId The id to use in the property message for the locked status
      * @param lockedLast an array for caching the locked status
      * @param templateStacksLast a list for caching the template stacks
      */
-    /*
-    protected void syncLockableSlots(ItemStackHandlerLockable inv, int typeId, int progressBarId,
-            boolean[] lockedLast, NonNullList<ItemStack> templateStacksLast)
+    protected void syncLockableSlots(ItemStackHandlerLockable inv, int slotTypeId, int propertyId,
+            BitSet lockedLast, NonNullList<ItemStack> templateStacksLast)
     {
         final int numSlots = inv.getSlots();
 
@@ -419,14 +427,10 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         {
             boolean locked = inv.isSlotLocked(slot);
 
-            if (lockedLast[slot] != locked)
+            if (lockedLast.get(slot) != locked)
             {
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    this.listeners.get(i).sendProgressBarUpdate(this, progressBarId, (locked ? 0x8000 : 0) | slot);
-                }
-
-                lockedLast[slot] = locked;
+                this.syncProperty(propertyId, (short) ((locked ? 0x8000 : 0) | slot));
+                lockedLast.set(slot, locked);
             }
 
             ItemStack templateStack = inv.getTemplateStackInSlot(slot);
@@ -440,7 +444,7 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
                     if (listener instanceof EntityPlayerMP)
                     {
                         PacketHandler.INSTANCE.sendTo(
-                            new MessageSyncCustomSlot(this.windowId, typeId, slot, templateStack), (EntityPlayerMP) listener);
+                            new MessageSyncCustomSlot(this.windowId, slotTypeId, slot, templateStack), (EntityPlayerMP) listener);
                     }
                 }
 
@@ -448,7 +452,6 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
             }
         }
     }
-    */
 
     /**
      * Adds a special slot to the Container, which can't be interacted with
@@ -549,5 +552,32 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         {
             this.getSpecialSlots().get(slotNum).putStack(stack);
         }
+    }
+
+    protected void syncProperty(int id, byte value)
+    {
+        this.syncProperty(MessageSyncContainerProperty.Type.BYTE, id, value);
+    }
+
+    protected void syncProperty(int id, short value)
+    {
+        this.syncProperty(MessageSyncContainerProperty.Type.SHORT, id, value);
+    }
+
+    protected void syncProperty(int id, int value)
+    {
+        this.syncProperty(MessageSyncContainerProperty.Type.INT, id, value);
+    }
+
+    private void syncProperty(MessageSyncContainerProperty.Type type, int id, int value)
+    {
+        if (this.isClient == false)
+        {
+            PacketHandler.INSTANCE.sendTo(new MessageSyncContainerProperty(type, this.windowId, id, value), (EntityPlayerMP) this.player);
+        }
+    }
+
+    public void receiveProperty(int id, int value)
+    {
     }
 }

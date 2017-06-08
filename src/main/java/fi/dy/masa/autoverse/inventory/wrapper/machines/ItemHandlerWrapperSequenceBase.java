@@ -76,6 +76,11 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
 
     protected abstract void handleInputItem(ItemStack inputStack);
 
+    public boolean moveItems()
+    {
+        return false;
+    }
+
     protected void createMatchingSlotsMap(NonNullList<ItemStack> items)
     {
         final int filterLength = items.size();
