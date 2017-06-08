@@ -41,6 +41,24 @@ public class TileEntityInventoryReader extends TileEntityAutoverse
     }
 
     @Override
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
+    {
+        tag = super.getUpdatePacketTag(tag);
+
+        tag.setByte("str", (byte) this.output);
+
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag)
+    {
+        this.output = tag.getByte("str");
+
+        super.handleUpdateTag(tag);
+    }
+
+    @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         super.readFromNBTCustom(nbt);

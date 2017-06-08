@@ -33,7 +33,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.block.BlockBuffer.BufferType;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseTileEntity;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -62,6 +61,8 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     public BlockInventoryReader(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
+
+        this.getFacingFromTE = false;
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, DEFAULT_FACING)
@@ -93,21 +94,22 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public int damageDropped(IBlockState state)
     {
-        return state.getValue(TYPE).getIndex();
+        return state.getValue(TYPE).getBlockMeta();
     }
 
     @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
             float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
     {
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand)
+        return this.getDefaultState()
+                .withProperty(TYPE, ReaderType.fromItemMeta(meta))
                 .withProperty(FACING, facing);
     }
 
     @Override
     protected EnumFacing getPlacementFacing(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-        // Retain the facing from onBlockPlacedBy
+        // Retain the facing from getStateForPlacement
         return state.getValue(FACING);
     }
 
@@ -115,21 +117,29 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState()
-                .withProperty(POWERED, (meta & 0x8) != 0)
-                .withProperty(TYPE, ReaderType.fromIndex(meta & 0x1));
+                .withProperty(FACING, EnumFacing.getFront(meta & 0x7))
+                .withProperty(TYPE, ReaderType.fromBlockMeta((meta & 0x8)));
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        int meta = state.getValue(POWERED) ? 0x8 : 0x0;
-        meta |= state.getValue(TYPE).getIndex();
-        return meta;
+        return state.getValue(TYPE).getBlockMeta() | state.getValue(FACING).getIndex();
     }
 
-    private EnumFacing getFacing(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-        return this.getActualState(state, blockAccess, pos).getValue(FACING);
+        state = super.getActualState(state, world, pos);
+
+        TileEntityInventoryReader te = getTileEntitySafely(world, pos, TileEntityInventoryReader.class);
+
+        if (te != null)
+        {
+            state = state.withProperty(POWERED, te.getOutpuStrength() > 0);
+        }
+
+        return state;
     }
 
     @Override
@@ -147,13 +157,10 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public int getWeakPower(IBlockState state, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        if (state.getValue(POWERED))
+        if (side == state.getValue(FACING).getOpposite())
         {
-            if (side == this.getFacing(state, blockAccess, pos).getOpposite())
-            {
-                TileEntityInventoryReader te = getTileEntitySafely(blockAccess, pos, TileEntityInventoryReader.class);
-                return te != null ? te.getOutpuStrength() : 0;
-            }
+            TileEntityInventoryReader te = getTileEntitySafely(blockAccess, pos, TileEntityInventoryReader.class);
+            return te != null ? te.getOutpuStrength() : 0;
         }
 
         return 0;
@@ -174,18 +181,16 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        EnumFacing readerFacing = this.getFacing(state, world, pos);
-
         super.breakBlock(world, pos, state);
 
-        this.notifyNeighbors(world, pos, readerFacing);
+        this.notifyNeighbors(world, pos, state.getValue(FACING));
     }
 
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         // Don't update due to changes in the output face
-        if (pos.offset(this.getFacing(state, world, pos)).equals(fromPos) == false)
+        if (pos.offset(state.getValue(FACING)).equals(fromPos) == false)
         {
             this.updateState(state, world, pos);
         }
@@ -202,24 +207,26 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
 
     private void updateState(IBlockState state, World world, BlockPos pos)
     {
-        TileEntityInventoryReader te = getTileEntitySafely(world, pos, TileEntityInventoryReader.class);
-
-        if (te != null)
+        if (world.isRemote == false)
         {
-            int output = this.calculateOutputSignal(state, world, pos);
-            int old = te.getOutpuStrength();
+            TileEntityInventoryReader te = getTileEntitySafely(world, pos, TileEntityInventoryReader.class);
 
-            if (output != old)
+            if (te != null)
             {
-                te.setOutputStrength(output);
-                boolean powered = output > 0;
+                int output = this.calculateOutputSignal(state, world, pos);
+                int old = te.getOutpuStrength();
 
-                if (powered != state.getValue(POWERED))
+                if (output != old)
                 {
-                    world.setBlockState(pos, state.withProperty(POWERED, powered));
-                }
+                    te.setOutputStrength(output);
+                    this.notifyNeighbors(world, pos, state.getValue(FACING));
 
-                this.notifyNeighbors(world, pos, this.getFacing(state, world, pos));
+                    if (output == 0 || old == 0)
+                    {
+                        // This marks the block for render update, if the powered state changes
+                        world.notifyBlockUpdate(pos, state, state, 3);
+                    }
+                }
             }
         }
     }
@@ -233,13 +240,12 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
 
         BlockPos neighborPos = pos.offset(readerFacing);
         world.neighborChanged(neighborPos, this, pos);
-        // No strong power emitted, so this isn't needed
         world.notifyNeighborsOfStateExcept(neighborPos, this, readerFacing.getOpposite());
     }
 
     private int calculateOutputSignal(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
-        EnumFacing targetSide = this.getFacing(state, blockAccess, pos);
+        EnumFacing targetSide = state.getValue(FACING);
         EnumFacing inputSide = targetSide.getOpposite();
         BlockPos posTarget = pos.offset(inputSide);
         TileEntity te = blockAccess.getTileEntity(posTarget);
@@ -312,7 +318,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
     {
-        switch (this.getFacing(state, blockAccess, pos))
+        switch (state.getValue(FACING))
         {
             case NORTH:
             case SOUTH:
@@ -334,7 +340,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     {
         super.addCollisionBoxToList(state, world, pos, entityBox, collidingBoxes, entity, p_185477_7_);
 
-        EnumFacing baseSide = this.getFacing(state, world, pos).getOpposite();
+        EnumFacing baseSide = state.getValue(FACING).getOpposite();
 
         switch (baseSide)
         {
@@ -415,44 +421,58 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < BufferType.values().length; meta++)
+        for (ReaderType type : ReaderType.values())
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(item, 1, type.getItemMeta()));
         }
     }
 
     public static enum ReaderType implements IStringSerializable
     {
-        ITEMS   (0, "items"),
-        SLOTS   (1, "slots");
+        ITEMS   (0, 0, "items"),
+        SLOTS   (8, 1, "slots");
 
-        private final int index;
+        private final int blockMeta;
+        private final int itemMeta;
         private final String name;
 
-        private ReaderType(int index, String name)
+        private ReaderType(int blockMeta, int itemMeta, String name)
         {
-            this.index = index;
+            this.blockMeta = blockMeta;
+            this.itemMeta = itemMeta;
             this.name = name;
         }
 
-        public int getIndex()
+        public int getBlockMeta()
         {
-            return this.index;
+            return this.blockMeta;
         }
 
+        public int getItemMeta()
+        {
+            return this.itemMeta;
+        }
+
+        @Override
         public String toString()
         {
             return this.name;
         }
 
+        @Override
         public String getName()
         {
             return this.name;
         }
 
-        public static ReaderType fromIndex(int index)
+        public static ReaderType fromItemMeta(int meta)
         {
-            return index < values().length ? values()[index] : ITEMS;
+            return meta == SLOTS.getItemMeta() ? SLOTS : ITEMS;
+        }
+
+        public static ReaderType fromBlockMeta(int meta)
+        {
+            return meta == SLOTS.getBlockMeta() ? SLOTS : ITEMS;
         }
     }
 }
