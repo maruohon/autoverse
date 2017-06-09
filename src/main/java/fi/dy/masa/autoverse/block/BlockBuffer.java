@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
+import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoAuto;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
@@ -43,7 +44,8 @@ public class BlockBuffer extends BlockAutoverseInventory
     {
         return new String[] {
                 ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO,
-                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED
+                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED,
+                ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_AUTO
         };
     }
 
@@ -56,6 +58,8 @@ public class BlockBuffer extends BlockAutoverseInventory
                 return new TileEntityBufferFifo();
             case FIFO_PULSED:
                 return new TileEntityBufferFifoPulsed();
+            case FIFO_AUTO:
+                return new TileEntityBufferFifoAuto();
         }
 
         return new TileEntityBufferFifo();
@@ -86,7 +90,8 @@ public class BlockBuffer extends BlockAutoverseInventory
     public static enum BufferType implements IStringSerializable
     {
         FIFO            (0, "fifo_normal"),
-        FIFO_PULSED     (1, "fifo_pulsed");
+        FIFO_PULSED     (1, "fifo_pulsed"),
+        FIFO_AUTO       (2, "fifo_auto");
 
         private final int meta;
         private final String name;

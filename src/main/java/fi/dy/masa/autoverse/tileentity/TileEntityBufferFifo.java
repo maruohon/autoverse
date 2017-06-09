@@ -30,13 +30,12 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public TileEntityBufferFifo(String name)
     {
         super(name);
-
-        this.spawnItemsInWorld = true;
     }
 
     @Override
     protected void initInventories()
     {
+        this.spawnItemsInWorld = true;
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;

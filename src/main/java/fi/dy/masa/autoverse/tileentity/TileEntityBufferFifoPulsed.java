@@ -17,13 +17,12 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
     public TileEntityBufferFifoPulsed()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
-
-        this.spawnItemsInWorld = false;
     }
 
     @Override
     protected void initInventories()
     {
+        this.spawnItemsInWorld = false;
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, NUM_SLOTS, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifoPulsed(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;
