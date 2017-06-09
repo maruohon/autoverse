@@ -36,7 +36,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     protected String tileEntityName;
     protected EnumFacing facing = EnumFacing.UP;
     protected EnumFacing facingOpposite = EnumFacing.DOWN;
-    protected BlockPos posFront;
+    protected BlockPos posFront = BlockPos.ORIGIN;
     protected boolean redstoneState;
     protected FakePlayer fakePlayer;
 
@@ -49,6 +49,14 @@ public abstract class TileEntityAutoverse extends TileEntity
     public String getTEName()
     {
         return this.tileEntityName;
+    }
+
+    @Override
+    public void setPos(BlockPos posIn)
+    {
+        super.setPos(posIn);
+
+        this.posFront = this.getPos().offset(this.getFacing());
     }
 
     public void setFacing(EnumFacing facing)

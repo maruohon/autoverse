@@ -25,7 +25,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBreaker extends TileEntityAutoverseInventory
 {
-    private BlockPos posBack;
+    private BlockPos posBack = BlockPos.ORIGIN;
     private boolean isGreedy;
     private int delay = 4;
 
@@ -40,6 +40,14 @@ public class TileEntityBreaker extends TileEntityAutoverseInventory
     public void setIsGreedy(boolean isGreedy)
     {
         this.isGreedy = isGreedy;
+    }
+
+    @Override
+    public void setPos(BlockPos posIn)
+    {
+        super.setPos(posIn);
+
+        this.posBack = this.getPos().offset(this.facingOpposite);
     }
 
     @Override
