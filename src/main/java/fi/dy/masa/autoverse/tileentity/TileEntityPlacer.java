@@ -22,6 +22,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPlacer;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -39,7 +40,7 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
     public static final int MAX_LENGTH = 32;
     private int position;
     private int delay = 4;
-    private EnumFacing facingHorizontal = EnumFacing.NORTH;
+    private EnumFacing facingHorizontal = BlockAutoverse.DEFAULT_FACING;
     private State state = State.IDLE;
 
     public TileEntityPlacer()
@@ -65,6 +66,24 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
         super.rotate(rotationIn);
 
         this.setHorizontalFacing(rotationIn.rotate(this.facingHorizontal));
+    }
+
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.setHorizontalFacing(EnumFacing.getFront(value));
+                return true;
+
+            case 2:
+                this.delay = value;
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
     }
 
     @SuppressWarnings("deprecation")

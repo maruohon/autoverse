@@ -39,10 +39,18 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         this.itemHandlerExternal = new ItemHandlerWrapperExternal(this.itemHandlerBase);
     }
 
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        // NO-OP
+        return false;
+    }
+
     public void setTier(int tier)
     {
         this.tier = MathHelper.clamp(tier, 0, 15);
-        this.initInventories();
+        this.itemHandlerBase.setStackLimit(this.getMaxStackSize());
+        this.markDirty();
     }
 
     public int getTier()
@@ -53,6 +61,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     public void setIsPulsed(boolean isPulsed)
     {
         this.isPulsed = isPulsed;
+        this.markDirty();
     }
 
     public boolean isPulsed()

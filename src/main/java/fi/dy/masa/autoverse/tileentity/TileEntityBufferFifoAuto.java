@@ -12,8 +12,8 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
 {
-    private static final int DELAY = 4;
     private ItemHandlerWrapperFifo itemHandlerFifo;
+    private int delay = 4;
 
     public TileEntityBufferFifoAuto()
     {
@@ -44,7 +44,7 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
 
             if (success)
             {
-                this.scheduleBlockUpdate(DELAY, false);
+                this.scheduleBlockUpdate(this.delay, false);
             }
         }
     }
@@ -60,12 +60,12 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
 
-        this.scheduleBlockUpdate(DELAY, false);
+        this.scheduleBlockUpdate(this.delay, false);
     }
 
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleBlockUpdate(DELAY, false);
+        this.scheduleBlockUpdate(this.delay, false);
     }
 }

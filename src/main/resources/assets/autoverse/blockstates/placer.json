@@ -13,13 +13,33 @@
         }
     },
     "variants": {
+        "type": {
+            "nbt": {
+                "textures": {
+                    "front":    "autoverse:blocks/block_placer_nbt_front",
+                    "top":      "autoverse:blocks/block_placer_nbt_side",
+                    "bottom":   "autoverse:blocks/block_placer_nbt_side",
+                    "left":     "autoverse:blocks/block_placer_nbt_side",
+                    "right":    "autoverse:blocks/block_placer_nbt_side"
+                }
+            },
+            "programmable": {
+                "textures": {
+                    "front":    "autoverse:blocks/block_placer_programmable_front",
+                    "top":      "autoverse:blocks/block_placer_programmable_side",
+                    "bottom":   "autoverse:blocks/block_placer_programmable_side",
+                    "left":     "autoverse:blocks/block_placer_programmable_side",
+                    "right":    "autoverse:blocks/block_placer_programmable_side"
+                }
+            }
+        },
         "facing": {
-            "north": {},
+            "up":    { "x": 270 },
+            "down":  { "x":  90 },
+            "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },
-            "east":  { "y":  90 },
-            "up":    { "x": 270 },
-            "down":  { "x":  90 }
+            "east":  { "y":  90 }
         }
     }
 }

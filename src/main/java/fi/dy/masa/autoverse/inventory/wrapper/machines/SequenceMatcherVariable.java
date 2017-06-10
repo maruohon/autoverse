@@ -16,7 +16,7 @@ public class SequenceMatcherVariable extends SequenceMatcher
 
     public void setSequenceEndMarker(ItemStack marker)
     {
-        this.endMarker = marker;
+        this.endMarker = marker.isEmpty() ? ItemStack.EMPTY : marker.copy();
     }
 
     /**

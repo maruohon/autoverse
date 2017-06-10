@@ -21,6 +21,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO         = "buffer_fifo";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_AUTO    = "buffer_fifo_auto";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
+    public static final String NAME_TILE_ENTITY_PLACER_PROGRAMMABLE = "placer_programmable";
 
 
     public static String getPrefixedName(String name)

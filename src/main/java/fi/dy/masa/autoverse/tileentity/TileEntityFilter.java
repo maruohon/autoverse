@@ -99,6 +99,24 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.setFilterOutputSide(EnumFacing.getFront(value));
+                return true;
+
+            case 2:
+                this.delay = value;
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
+    }
+
     public IItemHandler getInventoryInput()
     {
         return this.inventoryInput;

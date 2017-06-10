@@ -89,6 +89,27 @@ public abstract class TileEntityAutoverse extends TileEntity
         this.setFacing(rotationIn.rotate(this.getFacing()));
     }
 
+    /**
+     * Applies a property this this TileEntity.
+     * The properties are TileEntity-specific "useful values to set".
+     * This will be used by the Programmable Block Placer to configure/orient
+     * the blocks upon placement.
+     * @param propId
+     * @param value
+     * @return true if setting the property to the given value succeeded
+     */
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 0:
+                this.setFacing(EnumFacing.getFront(value));
+                return true;
+        }
+
+        return false;
+    }
+
     protected Vec3d getSpawnedItemPosition()
     {
         return this.getSpawnedItemPosition(this.facing);

@@ -37,9 +37,24 @@ public class TileEntityBreaker extends TileEntityAutoverseInventory
         this.itemHandlerExternal = new ItemHandlerWrapperExtractOnly(this.itemHandlerBase);
     }
 
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.delay = value;
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
+    }
+
     public void setIsGreedy(boolean isGreedy)
     {
         this.isGreedy = isGreedy;
+        this.markDirty();
     }
 
     @Override

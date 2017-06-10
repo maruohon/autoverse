@@ -47,6 +47,24 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.setFifoLength(value);
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
+    }
+
+    private void setFifoLength(int size)
+    {
+    }
+
+    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);

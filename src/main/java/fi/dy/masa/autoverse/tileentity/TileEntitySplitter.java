@@ -103,6 +103,24 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         return this.splitter;
     }
 
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.setSecondOutputSide(EnumFacing.getFront(value), false);
+                return true;
+
+            case 2:
+                this.delay = value;
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
+    }
+
     public boolean isSelectable()
     {
         return this.type == BlockSplitter.SplitterType.SELECTABLE;

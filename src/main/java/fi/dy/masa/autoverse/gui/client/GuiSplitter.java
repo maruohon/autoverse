@@ -39,14 +39,14 @@ public class GuiSplitter extends GuiAutoverse
 
         if (this.selectable)
         {
-            s = I18n.format("autoverse.gui.label.splitter.switching_sequence") + " 1";
+            s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 1);
             this.fontRenderer.drawString(s, 8, 72, 0x404040);
 
-            s = I18n.format("autoverse.gui.label.splitter.switching_sequence") + " 2";
+            s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 2);
             this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 6,  72, 0x404040);
 
-            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output_1"),  28, 132, 0x404040);
-            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output_2"), 116, 132, 0x404040);
+            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 1),  28, 132, 0x404040);
+            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 2), 116, 132, 0x404040);
             this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 145, 0x404040);
         }
         else
