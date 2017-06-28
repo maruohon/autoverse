@@ -102,12 +102,12 @@ public class ContainerSequenceDetector extends ContainerTile
         {
             if (sequenceLength != this.sequenceLength)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, sequenceLength);
+                this.listeners.get(i).sendWindowProperty(this, 0, sequenceLength);
             }
 
             if (matchedLength != this.matchedLength)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 1, matchedLength);
+                this.listeners.get(i).sendWindowProperty(this, 1, matchedLength);
             }
         }
 

@@ -46,7 +46,7 @@ public class ContainerSplitterRedstone extends ContainerTile
             {
                 if (this.secondaryOutput != isSecondary)
                 {
-                    this.listeners.get(i).sendProgressBarUpdate(this, 0, isSecondary ? 0x1 : 0x0);
+                    this.listeners.get(i).sendWindowProperty(this, 0, isSecondary ? 0x1 : 0x0);
                 }
             }
 

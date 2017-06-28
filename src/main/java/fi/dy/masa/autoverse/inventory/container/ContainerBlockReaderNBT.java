@@ -64,7 +64,7 @@ public class ContainerBlockReaderNBT extends ContainerTile
         {
             if (maxLength != this.lengthLast)
             {
-                this.listeners.get(i).sendProgressBarUpdate(this, 0, maxLength);
+                this.listeners.get(i).sendWindowProperty(this, 0, maxLength);
             }
         }
 

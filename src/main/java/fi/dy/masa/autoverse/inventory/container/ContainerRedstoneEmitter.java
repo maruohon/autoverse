@@ -118,7 +118,7 @@ public class ContainerRedstoneEmitter extends ContainerTile
             {
                 if (this.sidesLast != mask)
                 {
-                    this.listeners.get(i).sendProgressBarUpdate(this, 0, mask);
+                    this.listeners.get(i).sendWindowProperty(this, 0, mask);
                 }
             }
 

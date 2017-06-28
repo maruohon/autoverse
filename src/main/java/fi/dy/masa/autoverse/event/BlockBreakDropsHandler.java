@@ -28,7 +28,7 @@ public class BlockBreakDropsHandler
         if (breakingBlock && event.getEntity() instanceof EntityItem)
         {
             EntityItem item = (EntityItem) event.getEntity();
-            ItemStack stack = item.getEntityItem();
+            ItemStack stack = item.getItem();
             IItemHandler inv = inventory.get();
 
             if (inv != null && stack.isEmpty() == false)
@@ -37,12 +37,12 @@ public class BlockBreakDropsHandler
 
                 if (stack.isEmpty())
                 {
-                    item.setEntityItemStack(ItemStack.EMPTY);
+                    item.setItem(ItemStack.EMPTY);
                     event.setCanceled(true);
                 }
                 else
                 {
-                    item.setEntityItemStack(stack);
+                    item.setItem(stack);
                 }
             }
         }

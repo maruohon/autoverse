@@ -56,7 +56,7 @@ public class ContainerSequencer extends ContainerTile
             for (int i = 0; i < this.listeners.size(); i++)
             {
                 IContainerListener listener = this.listeners.get(i);
-                listener.sendProgressBarUpdate(this, 0, outputSlot);
+                listener.sendWindowProperty(this, 0, outputSlot);
             }
         }
 

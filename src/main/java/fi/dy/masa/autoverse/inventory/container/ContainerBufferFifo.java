@@ -80,12 +80,12 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 
             if (insert != this.insertPosLast)
             {
-                listener.sendProgressBarUpdate(this, 0, insert);
+                listener.sendWindowProperty(this, 0, insert);
             }
 
             if (extract != this.extractPosLast)
             {
-                listener.sendProgressBarUpdate(this, 1, extract);
+                listener.sendWindowProperty(this, 1, extract);
             }
         }
 
