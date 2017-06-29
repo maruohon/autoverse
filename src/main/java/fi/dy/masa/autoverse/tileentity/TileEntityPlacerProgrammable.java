@@ -8,13 +8,16 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -185,10 +188,12 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Comparable<T>> IBlockState getModifiedPlacementState(IBlockState state)
+    private <T extends Comparable<T>> IBlockState getFinalPlacementState(IBlockState state)
     {
+        //System.out.printf("Original state: %s\n", state);
         final int propCount = this.placer.getPropertyCount();
-        List<String> propNames = new ArrayList<String>();
+        List<String> propNamesFacing = new ArrayList<String>();
+        List<String> propNamesInteger = new ArrayList<String>();
 
         for (Entry <IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet())
         {
@@ -196,11 +201,21 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
 
             if (property instanceof PropertyDirection)
             {
-                propNames.add(property.getName());
+                propNamesFacing.add(property.getName());
+            }
+            else if (property instanceof PropertyInteger)
+            {
+                propNamesInteger.add(property.getName());
             }
         }
 
-        Collections.sort(propNames);
+        Collections.sort(propNamesFacing);
+        Collections.sort(propNamesInteger);
+
+        // Facing properties first, then integer properties
+        List<String> propNames = new ArrayList<String>();
+        propNames.addAll(propNamesFacing);
+        propNames.addAll(propNamesInteger);
 
         for (int i = 0; i < propCount && i < propNames.size(); i++)
         {
@@ -208,24 +223,59 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
 
             if (value != -1)
             {
-                EnumFacing facing = EnumFacing.getFront(value);
                 String propName = propNames.get(i);
 
                 for (Entry <IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet())
                 {
                     IProperty<T> property = (IProperty<T>) entry.getKey();
 
-                    if (propName.equals(property.getName()) && property.getAllowedValues().contains(facing))
+                    if (propName.equals(property.getName()))
                     {
-                        state = state.withProperty(property, (T) facing);
+                        EnumFacing facing = EnumFacing.getFront(value);
+                        Integer intValue = Integer.valueOf(value);
+
+                        if ((property instanceof PropertyDirection) && property.getAllowedValues().contains(facing))
+                        {
+                            //System.out.printf("Setting property %s to %s\n", propName, facing);
+                            state = state.withProperty(property, (T) facing);
+                            break;
+                        }
+                        // TODO: Add some kind of property white listing system, since this may allow exploits!
+                        else if ((property instanceof PropertyInteger) && property.getAllowedValues().contains(intValue))
+                        {
+                            //System.out.printf("Setting property %s to %d\n", propName, intValue);
+                            state = state.withProperty(property, (T) intValue);
+                            break;
+                        }
                     }
                 }
             }
         }
 
+        //System.out.printf("Final state: %s\n", state);
         return state;
     }
 
+    private void applyTileEntityProperties(World world, BlockPos pos)
+    {
+        TileEntity te = world.getTileEntity(pos);
+
+        if (te instanceof TileEntityAutoverse)
+        {
+            int count = this.placer.getPropertyCount();
+
+            for (int i = 0; i < count; i++)
+            {
+                ((TileEntityAutoverse) te).applyProperty(i, this.placer.getPropertyValue(i));
+            }
+        }
+    }
+
+    /**
+     * Tries to place a block.
+     * @param stack
+     * @return true if the placement succeeded and the item should be used
+     */
     public boolean tryPlaceBlock(ItemStack stack)
     {
         World world = this.getWorld();
@@ -239,27 +289,59 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
 
             if (stateInitial != null)
             {
-                IBlockState placementState = this.getModifiedPlacementState(stateInitial);
+                IBlockState placementState = this.getFinalPlacementState(stateInitial);
 
                 if (world.mayPlace(placementState.getBlock(), pos, true, EnumFacing.UP, null) &&
                     BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3))
                 {
-                    TileEntity te = world.getTileEntity(pos);
-
-                    if (te instanceof TileEntityAutoverse)
-                    {
-                        int count = this.placer.getPropertyCount();
-
-                        for (int i = 0; i < count; i++)
-                        {
-                            ((TileEntityAutoverse) te).applyProperty(i, this.placer.getPropertyValue(i));
-                        }
-                    }
-
+                    this.applyTileEntityProperties(world, pos);
                     return true;
                 }
             }
+            // Not an ItemBlock, try to use the item instead
+            else
+            {
+                return this.tryUseItem(world, pos, stack);
+            }
         }
+
+        return false;
+    }
+
+    private boolean tryUseItem(World world, BlockPos pos, ItemStack stack)
+    {
+        EntityPlayer player = this.getPlayer();
+        IBlockState stateOriginal = world.getBlockState(pos);
+
+        player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
+        player.setHeldItem(EnumHand.MAIN_HAND, stack);
+        EnumActionResult result = stack.onItemUse(player, world, pos, EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 0.0f, 0.5f);
+
+        if (result == EnumActionResult.SUCCESS)
+        {
+            IBlockState stateAfter = world.getBlockState(pos);
+
+            // The block changed as a result of the item use, try to apply the properties
+            if (stateOriginal != stateAfter)
+            {
+                IBlockState stateFinal = this.getFinalPlacementState(stateAfter);
+
+                if (stateFinal != stateAfter)
+                {
+                    world.setBlockState(pos, stateFinal);
+                }
+
+                // We won't try to apply TileEntity properties here, because only Autoverse TEs are supported,
+                // and all Autoverse blocks have ItemBlocks, which are placed by the other method.
+                return true;
+            }
+        }
+        /*
+        else
+        {
+            System.out.printf("item use failed: %s\n", result);
+        }
+        */
 
         return false;
     }
