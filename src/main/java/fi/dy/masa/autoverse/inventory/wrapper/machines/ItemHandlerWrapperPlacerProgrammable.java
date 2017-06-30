@@ -140,7 +140,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
                 if (stack.isEmpty() == false)
                 {
                     // Reusing the position variable to mark when the trigger sequence has matched, see above
-                    if (this.position != 0 && this.te.tryPlaceBlock(stack))
+                    if ((this.position != 0 || this.sequenceTrigger.isSequenceMatched()) && this.te.tryPlaceBlock(stack))
                     {
                         this.getInputInventory().extractItem(0, 1, false);
                         this.position = 0;

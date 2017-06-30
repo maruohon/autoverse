@@ -82,6 +82,18 @@ public class SequenceMatcher
         return false;
     }
 
+    /**
+     * Returns whether the sequence has currently been matched. Not that
+     * this is normally only ever true for 0-length variable-length sequences!
+     * All normal sequence matchers get reset immediately upon match in {@link #checkInputItem(ItemStack)}
+     * and thus the return value from that method is the only match indication.
+     * @return true if the sequence has been matched
+     */
+    public boolean isSequenceMatched()
+    {
+        return this.position >= this.getCurrentSequenceLength();
+    }
+
     private void shiftSequence(ItemStack inputStack)
     {
         for (int start = 1; start < this.position; ++start)
