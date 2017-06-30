@@ -65,12 +65,30 @@ public class ContainerPlacerProgrammable extends ContainerTile
         // Add the high-bit marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(placer.getHighBitMarkerInventory(), 0, 26, 34));
 
+        posX = 8;
+        posY = 65;
+        // Add the trigger sequence slots
+        inv = placer.getTriggerSequence().getSequenceInventory(false);
+
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
+        }
+
+        posY = 83;
+        // Use a basic inventory to hold the items on the client side
+        inv = this.isClient ? new ItemStackHandlerBasic(inv.getSlots()) : placer.getTriggerSequence().getSequenceInventory(true);
+
+        for (int slot = 0; slot < inv.getSlots(); slot++)
+        {
+            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
+        }
+
         // Add all the property sequence slots
 
-        this.addPropertySequenceSlots(0,  8,  65, placer);
-        this.addPropertySequenceSlots(1, 98,  65, placer);
-        this.addPropertySequenceSlots(2,  8, 114, placer);
-        this.addPropertySequenceSlots(3, 98, 114, placer);
+        this.addPropertySequenceSlots(0, 98,  65, placer);
+        this.addPropertySequenceSlots(1,  8, 114, placer);
+        this.addPropertySequenceSlots(2, 98, 114, placer);
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tepp.getInventoryOut(), 0, 152, 153));

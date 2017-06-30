@@ -14,6 +14,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     private final IItemHandler inventoryOutput;
     private final SequenceMatcher sequenceMarkerEnd;
     private final SequenceMatcher sequenceMarkerHighBit;
+    private final SequenceMatcherVariable sequenceTrigger;
     private final SequenceMatcherVariable[] propertySequences;
     private final byte[] propertyValues;
     //private final IItemHandler inventoryOutput;
@@ -32,13 +33,13 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         this.inventoryOutput = inventoryOutput;
         this.sequenceMarkerEnd      = new SequenceMatcher(1, "SequenceMarkerEnd");
         this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceMarkerBit");
+        this.sequenceTrigger = new SequenceMatcherVariable(2, "SequenceTrigger");
 
         this.propertySequences = new SequenceMatcherVariable[]
         {
                 new SequenceMatcherVariable(8, "SequenceProperty0"),
                 new SequenceMatcherVariable(8, "SequenceProperty1"),
-                new SequenceMatcherVariable(8, "SequenceProperty2"),
-                new SequenceMatcherVariable(8, "SequenceProperty3")
+                new SequenceMatcherVariable(8, "SequenceProperty2")
         };
 
         this.propertyValues = new byte[this.propertySequences.length];
@@ -60,6 +61,8 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
             case CONFIGURE_MARKER_END:
                 if (this.sequenceMarkerEnd.configureSequence(inputStack))
                 {
+                    this.sequenceTrigger.setSequenceEndMarker(inputStack);
+
                     for (SequenceMatcherVariable matcher : this.propertySequences)
                     {
                         matcher.setSequenceEndMarker(inputStack);
@@ -73,6 +76,13 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
                 if (this.sequenceMarkerHighBit.configureSequence(inputStack))
                 {
                     this.position = 0;
+                    this.setMode(Mode.CONFIGURE_TRIGGER);
+                }
+                break;
+
+            case CONFIGURE_TRIGGER:
+                if (this.sequenceTrigger.configureSequence(inputStack))
+                {
                     this.setMode(Mode.CONFIGURE_PROPERTIES);
                 }
                 break;
@@ -93,6 +103,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
                     this.getResetSequence().reset();
+                    this.sequenceTrigger.reset();
                     this.sequenceMarkerEnd.reset();
                     this.sequenceMarkerHighBit.reset();
 
@@ -119,6 +130,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
             case CONFIGURE_RESET:
             case CONFIGURE_MARKER_END:
             case CONFIGURE_MARKER_BIT:
+            case CONFIGURE_TRIGGER:
             case CONFIGURE_PROPERTIES:
                 return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
 
@@ -127,13 +139,22 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
                 if (stack.isEmpty() == false)
                 {
-                    if (this.te.tryPlaceBlock(stack))
+                    // Reusing the position variable to mark when the trigger sequence has matched, see above
+                    if (this.position != 0 && this.te.tryPlaceBlock(stack))
                     {
                         this.getInputInventory().extractItem(0, 1, false);
+                        this.position = 0;
                         return true;
                     }
                     else
                     {
+                        // Trigger match, the next item will be placed
+                        if (this.sequenceTrigger.checkInputItem(stack))
+                        {
+                            // Just reusing this variable, since it's already being saved to NBT as well
+                            this.position = 1;
+                        }
+
                         return InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), this.inventoryOutput, 0, false) != InvResult.MOVED_NOTHING;
                     }
                 }
@@ -186,6 +207,11 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     public IItemHandler getHighBitMarkerInventory()
     {
         return this.sequenceMarkerHighBit.getSequenceInventory(false);
+    }
+
+    public SequenceMatcher getTriggerSequence()
+    {
+        return this.sequenceTrigger;
     }
 
     public SequenceMatcher getPropertySequence(int id)
@@ -254,6 +280,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
         this.sequenceMarkerEnd.writeToNBT(tag);
         this.sequenceMarkerHighBit.writeToNBT(tag);
+        this.sequenceTrigger.writeToNBT(tag);
 
         for (SequenceMatcherVariable matcher : this.propertySequences)
         {
@@ -280,6 +307,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
         this.sequenceMarkerEnd.readFromNBT(tag);
         this.sequenceMarkerHighBit.readFromNBT(tag);
+        this.sequenceTrigger.readFromNBT(tag);
     }
 
     public enum Mode
@@ -287,8 +315,9 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         CONFIGURE_RESET         (0),
         CONFIGURE_MARKER_END    (1),
         CONFIGURE_MARKER_BIT    (2),
-        CONFIGURE_PROPERTIES    (3),
-        NORMAL_OPERATION        (4);
+        CONFIGURE_TRIGGER       (3),
+        CONFIGURE_PROPERTIES    (4),
+        NORMAL_OPERATION        (5);
 
         private final int id;
 

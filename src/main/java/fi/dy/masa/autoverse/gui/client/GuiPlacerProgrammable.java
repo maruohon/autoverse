@@ -23,7 +23,7 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.reset_sequence");
+        s = I18n.format("autoverse.gui.label.placer_programmable.reset_sequence");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
 
         s = I18n.format("autoverse.gui.label.placer_programmable.end_marker");
@@ -32,16 +32,16 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.placer_programmable.high_bit_marker");
         this.fontRenderer.drawString(s, 45, 42, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 1);
+        s = I18n.format("autoverse.gui.label.placer_programmable.trigger");
         this.fontRenderer.drawString(s,  8, 54, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 2);
+        s = I18n.format("autoverse.gui.label.placer_programmable.property", 1);
         this.fontRenderer.drawString(s, 98, 54, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 3);
+        s = I18n.format("autoverse.gui.label.placer_programmable.property", 2);
         this.fontRenderer.drawString(s,  8, 104, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 4);
+        s = I18n.format("autoverse.gui.label.placer_programmable.property", 3);
         this.fontRenderer.drawString(s, 98, 104, 0x404040);
 
         s = I18n.format("autoverse.gui.label.output_buffer");
