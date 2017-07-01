@@ -52,12 +52,11 @@ public class ItemHandlerWrapperSplitterSelectable extends ItemHandlerWrapperSpli
                 }
                 else
                 {
-                    if (this.getSwitchSequence1().checkInputItem(inputStack))
+                    if (this.secondaryOutputActive() && this.getSwitchSequence1().checkInputItem(inputStack))
                     {
                         this.setSecondaryOutputActive(false);
                     }
-
-                    if (this.getSwitchSequence2().checkInputItem(inputStack))
+                    else if (this.secondaryOutputActive() == false && this.getSwitchSequence2().checkInputItem(inputStack))
                     {
                         this.setSecondaryOutputActive(true);
                     }
