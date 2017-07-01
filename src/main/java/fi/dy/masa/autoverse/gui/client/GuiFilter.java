@@ -1,7 +1,6 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
@@ -56,32 +55,18 @@ public class GuiFilter extends GuiAutoverse
         if (this.te instanceof TileEntityFilterSequential)
         {
             // Filtered items buffer slots
-            this.renderSlotBackgrounds(7, 102, 7, 173, 9, filterSlots);
+            this.drawSlotBackgrounds(7, 102, 7, 173, 9, filterSlots);
         }
 
         this.bindTexture(this.guiTextureWidgets);
 
         // Reset sequence slots
-        this.renderSlotBackgrounds(97, 15, 0, 238, 4, resetSlots);
+        this.drawSlotBackgrounds(97, 15, 0, 238, 4, resetSlots);
 
         // Reset sequence matched slots
-        this.renderSlotBackgrounds(97, 33, 0, 238, 4, resetSlots);
+        this.drawSlotBackgrounds(97, 33, 0, 238, 4, resetSlots);
 
         // Filter item slots
-        this.renderSlotBackgrounds( 7, 55, 0, 238, 9, filterSlots);
-    }
-
-    protected void renderSlotBackgrounds(int x, int y, int u, int v, int maxPerRow, int count)
-    {
-        // Draw the slot backgrounds according to how many slots this tier has
-        int rows = Math.max((int) (Math.ceil((double) count / maxPerRow)), 1);
-
-        for (int row = 0; row < rows; row++)
-        {
-            int rowLen = MathHelper.clamp(count - (row * maxPerRow), 1, maxPerRow);
-
-            // Render slots from the player inventory's first row into the Sequencer
-            this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y + row * 18, u, v, rowLen * 18, 18);
-        }
+        this.drawSlotBackgrounds( 7, 55, 0, 238, 9, filterSlots);
     }
 }

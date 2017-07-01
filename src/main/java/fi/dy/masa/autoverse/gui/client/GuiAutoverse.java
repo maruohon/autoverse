@@ -16,6 +16,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -120,6 +121,26 @@ public class GuiAutoverse extends GuiContainer
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
         this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, stack, x, y, null);
         //this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
+    }
+
+    /**
+     * Draws the backgrounds for <b>count</b> slots, in rows of up to <b>maxPerRow</b> slots.
+     */
+    protected void drawSlotBackgrounds(int x, int y, int u, int v, int maxPerRow, int count)
+    {
+        if (count > 0)
+        {
+            // Draw the slot backgrounds according to how many slots this tier has
+            int rows = Math.max((int) (Math.ceil((double) count / maxPerRow)), 1);
+
+            for (int row = 0; row < rows; row++)
+            {
+                int rowLen = MathHelper.clamp(count - (row * maxPerRow), 1, maxPerRow);
+
+                // Render slots from the player inventory's first row into the Sequencer
+                this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + y + row * 18, u, v, rowLen * 18, 18);
+            }
+        }
     }
 
     protected void drawTooltips(int mouseX, int mouseY)

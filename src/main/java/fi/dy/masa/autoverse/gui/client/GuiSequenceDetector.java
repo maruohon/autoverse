@@ -1,7 +1,6 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequenceDetector;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequenceDetector;
 
@@ -53,20 +52,7 @@ public class GuiSequenceDetector extends GuiAutoverse
         this.bindTexture(this.guiTextureWidgets);
 
         // Draw the slot backgrounds according to how many slots the detector has at the moment
-        final int invSize = this.containerSD.getSequenceLength();
-        final int maxRowLength = 9;
-        int rows = (int) (Math.ceil((double) invSize / maxRowLength));
-
-        if (invSize > 0)
-        {
-            rows = Math.max(rows, 1);
-        }
-
-        for (int row = 0; row < rows; row++)
-        {
-            int rowLen = MathHelper.clamp(invSize - (row * maxRowLength), 1, maxRowLength);
-            this.drawTexturedModalRect(x + 7, y + 55 + row * 18, 0, 238, rowLen * 18, 18);
-        }
+        this.drawSlotBackgrounds(7, 55, 0, 238, 9, this.containerSD.getSequenceLength());
 
         // Draw the hilighted slot backgrounds according to how many slots the detector has matched thus far
         final int matched = this.containerSD.getMatchedLength();

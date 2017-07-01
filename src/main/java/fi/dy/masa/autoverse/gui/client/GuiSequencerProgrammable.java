@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.gui.client;
 import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencerProgrammable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencerProgrammable;
@@ -53,24 +52,11 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
         int x = this.guiLeft + 7;
         int y = this.guiTop + 55;
-
         final int invSize = this.containerSP.getSequenceLength();
-        final int maxRowLength = 9;
-        int rows = (int) (Math.ceil((double) invSize / maxRowLength));
-
-        if (invSize > 0)
-        {
-            rows = Math.max(rows, 1);
-        }
 
         this.bindTexture(this.guiTextureWidgets);
 
-        // Draw the slot backgrounds according to how many slots the sequencer has at the moment
-        for (int row = 0; row < rows; row++)
-        {
-            int rowLen = MathHelper.clamp(invSize - (row * maxRowLength), 1, maxRowLength);
-            this.drawTexturedModalRect(x, y + row * 18, 0, 238, rowLen * 18, 18);
-        }
+        this.drawSlotBackgrounds(7, 55, 0, 238, 9, invSize);
 
         ItemStackHandlerLockable inv = this.containerSP.getSequenceInventory();
         final int first = this.containerSP.getSequenceInventorySlotRange().first;

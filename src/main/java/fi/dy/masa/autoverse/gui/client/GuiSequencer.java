@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencer;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 
@@ -40,23 +39,8 @@ public class GuiSequencer extends GuiAutoverse
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.renderSlotBackgrounds();
+        this.drawSlotBackgrounds(7, 21, 7, 73, 9, this.invSize);
         this.hilightOutputSlot();
-    }
-
-    protected void renderSlotBackgrounds()
-    {
-        final int maxPerRow = 9;
-        // Draw the slot backgrounds according to how many slots this tier has
-        int rows = Math.max((int) (Math.ceil((double) this.invSize / maxPerRow)), 1);
-
-        for (int row = 0; row < rows; row++)
-        {
-            int rowLen = MathHelper.clamp(this.invSize - (row * maxPerRow), 1, maxPerRow);
-
-            // Render slots from the player inventory's first row into the Sequencer
-            this.drawTexturedModalRect(this.guiLeft + 7, this.guiTop + 21 + row * 18, 7, 73, rowLen * 18, 18);
-        }
     }
 
     protected void hilightOutputSlot()
