@@ -245,21 +245,21 @@ public class GuiAutoverse extends GuiContainer
             {
                 int x = this.guiLeft + slot.xPos;
                 int y = this.guiTop + slot.yPos;
-                int v = 18;
+                int v = 54;
                 ItemStack stackSlot = inv.getStackInSlot(slotIndex);
 
                 // Empty locked slots are in a different color
                 if (stackSlot.isEmpty())
                 {
-                    v = 36;
+                    v = 72;
                 }
                 // Non-matching item in a locked slot
                 else if (InventoryUtils.areItemStacksEqual(stackSlot, inv.getTemplateStackInSlot(slotIndex)) == false)
                 {
-                    v = 72;
+                    v = 108;
                 }
 
-                this.drawTexturedModalRect(x - 1, y - 1, 102, v, 18, 18);
+                this.drawTexturedModalRect(x - 1, y - 1, 238, v, 18, 18);
             }
         }
     }
@@ -331,16 +331,8 @@ public class GuiAutoverse extends GuiContainer
             this.args = args;
 
             // Default texture locations on the widgets sheet
-            this.u = 134;
-
-            if (width == 11)
-            {
-                this.v = 66;
-            }
-            else if (width == 18)
-            {
-                this.v = 48;
-            }
+            this.u = 66;
+            this.v = width == 11 ? 18 : 0;
         }
 
         public void setUV(int u, int v)

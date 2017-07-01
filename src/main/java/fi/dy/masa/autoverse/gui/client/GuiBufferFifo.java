@@ -42,7 +42,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
         int exRow = slot / 13;
         int exCol = slot % 13;
-        this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 102, 108, 18, 18);
+        this.drawTexturedModalRect(x + 11 + exCol * 18, y + 12 + exRow * 18, 238, 0, 18, 18);
 
         // Draw a purple background for the current insert slot
         slot = this.containerFifo.getInsertPosition();
@@ -54,7 +54,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
         int inRow = slot / 13;
         int inCol = slot % 13;
-        this.drawTexturedModalRect(x + 11 + inCol * 18, y + 12 + inRow * 18, 102, 126, 18, 18);
+        this.drawTexturedModalRect(x + 11 + inCol * 18, y + 12 + inRow * 18, 238, 18, 18, 18);
 
         // FIXME: debug - cover the non-existing slots
         this.drawGradientRect(x + 11, y + 48, x + 245, y + 174, 0xFFC6C6C6, 0xFFC6C6C6);

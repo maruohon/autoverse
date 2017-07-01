@@ -65,7 +65,7 @@ public class GuiSequenceDetector extends GuiAutoverse
         for (int row = 0; row < rows; row++)
         {
             int rowLen = MathHelper.clamp(invSize - (row * maxRowLength), 1, maxRowLength);
-            this.drawTexturedModalRect(x + 7, y + 55 + row * 18, 16, 238, rowLen * 18, 18);
+            this.drawTexturedModalRect(x + 7, y + 55 + row * 18, 0, 238, rowLen * 18, 18);
         }
 
         // Draw the hilighted slot backgrounds according to how many slots the detector has matched thus far
@@ -76,7 +76,7 @@ public class GuiSequenceDetector extends GuiAutoverse
 
         for (int slot = 0; slot < matched; ++slot)
         {
-            this.drawTexturedModalRect(x, y, 102, 144, 18, 18);
+            this.drawTexturedModalRect(x, y, 238, 36, 18, 18);
 
             x += 18;
 

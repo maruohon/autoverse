@@ -67,6 +67,6 @@ public class GuiSplitter extends GuiAutoverse
         // Draw the colored background for the active output
         this.bindTexture(this.guiTextureWidgets);
         Slot slot = this.containerSP.getSlot(this.containerSP.secondaryOutput ? 2 : 1);
-        this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 102, 18, 18, 18);
+        this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 238, 36, 18, 18);
     }
 }

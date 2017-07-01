@@ -74,10 +74,10 @@ public class GuiBlockReaderNBT extends GuiAutoverse
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        this.buttonList.add(new GuiButtonHoverText(0, x +  8, y + 25, 14, 14, 60, 42,
+        this.buttonList.add(new GuiButtonHoverText(0, x +  8, y + 25, 14, 14, 24, 0,
                 this.guiTextureWidgets, 14, 0, "autoverse.gui.label.block_reader.take_blocks"));
 
-        this.buttonList.add(new GuiButtonHoverText(1, x + 29, y + 31, 8, 8, 0, 120,
+        this.buttonList.add(new GuiButtonHoverText(1, x + 29, y + 31, 8, 8, 0, 0,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.block_reader.block_count"));
     }
 

@@ -34,7 +34,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.reset_sequence");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.sequence_detector.end_marker");
+        s = I18n.format("autoverse.gui.label.end_marker");
         this.fontRenderer.drawString(s, 26, 42, 0x404040);
 
         s = I18n.format("autoverse.gui.label.sequencer_programmable.sequence");
@@ -63,14 +63,14 @@ public class GuiSequencerProgrammable extends GuiAutoverse
             rows = Math.max(rows, 1);
         }
 
+        this.bindTexture(this.guiTextureWidgets);
+
         // Draw the slot backgrounds according to how many slots the sequencer has at the moment
         for (int row = 0; row < rows; row++)
         {
             int rowLen = MathHelper.clamp(invSize - (row * maxRowLength), 1, maxRowLength);
-            this.drawTexturedModalRect(x, y + row * 18, 16, 238, rowLen * 18, 18);
+            this.drawTexturedModalRect(x, y + row * 18, 0, 238, rowLen * 18, 18);
         }
-
-        this.bindTexture(this.guiTextureWidgets);
 
         ItemStackHandlerLockable inv = this.containerSP.getSequenceInventory();
         final int first = this.containerSP.getSequenceInventorySlotRange().first;
@@ -83,7 +83,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
             // Draw the hilighted slot background for the current output slot
             final int outSlot = this.containerSP.getOutputSlot();
 
-            this.drawTexturedModalRect(x + (outSlot % 9) * 18, y + (outSlot / 9) * 18, 102, 162, 18, 18);
+            this.drawTexturedModalRect(x + (outSlot % 9) * 18, y + (outSlot / 9) * 18, 238, 0, 18, 18);
         }
 
         this.drawTemplateStacks(inv, first, slotList);

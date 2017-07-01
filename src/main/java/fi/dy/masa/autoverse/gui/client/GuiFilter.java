@@ -62,13 +62,13 @@ public class GuiFilter extends GuiAutoverse
         this.bindTexture(this.guiTextureWidgets);
 
         // Reset sequence slots
-        this.renderSlotBackgrounds(97, 15, 16, 238, 4, resetSlots);
+        this.renderSlotBackgrounds(97, 15, 0, 238, 4, resetSlots);
 
         // Reset sequence matched slots
-        this.renderSlotBackgrounds(97, 33, 16, 238, 4, resetSlots);
+        this.renderSlotBackgrounds(97, 33, 0, 238, 4, resetSlots);
 
         // Filter item slots
-        this.renderSlotBackgrounds( 7, 55, 16, 238, 9, filterSlots);
+        this.renderSlotBackgrounds( 7, 55, 0, 238, 9, filterSlots);
     }
 
     protected void renderSlotBackgrounds(int x, int y, int u, int v, int maxPerRow, int count)
