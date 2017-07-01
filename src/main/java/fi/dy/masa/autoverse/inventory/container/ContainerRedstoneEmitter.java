@@ -12,7 +12,6 @@ import fi.dy.masa.autoverse.tileentity.TileEntityRedstoneEmitter;
 public class ContainerRedstoneEmitter extends ContainerTile
 {
     private final TileEntityRedstoneEmitter tere;
-    private int sidesLast = -1;
 
     public ContainerRedstoneEmitter(EntityPlayer player, TileEntityRedstoneEmitter te)
     {
@@ -105,39 +104,5 @@ public class ContainerRedstoneEmitter extends ContainerTile
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tere.getInventoryOut(), 0, 152, 119));
-    }
-
-    @Override
-    public void detectAndSendChanges()
-    {
-        if (this.isClient == false)
-        {
-            int mask = this.tere.getSideMask();
-
-            for (int i = 0; i < this.listeners.size(); i++)
-            {
-                if (this.sidesLast != mask)
-                {
-                    this.listeners.get(i).sendWindowProperty(this, 0, mask);
-                }
-            }
-
-            this.sidesLast = mask;
-        }
-
-        super.detectAndSendChanges();
-    }
-
-    @Override
-    public void updateProgressBar(int id, int data)
-    {
-        switch (id)
-        {
-            case 0:
-                this.tere.setSideMask(data);
-                break;
-        }
-
-        super.updateProgressBar(id, data);
     }
 }
