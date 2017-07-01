@@ -34,6 +34,7 @@ autoverse.gui.label.filter_items=Filter items
 autoverse.gui.label.filtered_out_buffer=Out (filtered)
 autoverse.gui.label.filtered_seq_buffer=Filtered sequence buffer
 autoverse.gui.label.input=Input
+autoverse.gui.label.inventory_size=Inventory Size
 autoverse.gui.label.matched_sequence=Matched
 autoverse.gui.label.max=Max: 
 autoverse.gui.label.normal_out_buffer=Out (normal)

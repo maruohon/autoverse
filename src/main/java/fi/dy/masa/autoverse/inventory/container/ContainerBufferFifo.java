@@ -17,19 +17,29 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 
 public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 {
+    private final TileEntityBufferFifo tefifo;
     protected final IItemHandlerModifiable inventoryBase;
     protected final ItemHandlerWrapperFifo inventoryFifo;
     private int insertPos;
     private int extractPos;
     private int insertPosLast = -1;
     private int extractPosLast = -1;
+    private int invSizeLast = -1;
 
     public ContainerBufferFifo(EntityPlayer player, TileEntityBufferFifo te)
     {
         super(player, te);
 
+        this.tefifo = te;
         this.inventoryBase = te.getBaseItemHandler();
         this.inventoryFifo = te.getFifoInventory();
+        this.reAddSlots();
+    }
+
+    private void reAddSlots()
+    {
+        this.inventorySlots.clear();
+        this.inventoryItemStacks.clear();
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(48, 177);
     }
@@ -39,17 +49,22 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
     {
         int posX = 12;
         int posY = 13;
-        int slot = 0;
 
-        for (int row = 0; row < 9; row++)
+        final int slots = this.inventory.getSlots();
+
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
+
+        for (int slot = 0, x = posX; slot < slots; slot++)
         {
-            for (int col = 0; col < 13 && slot < TileEntityBufferFifo.NUM_SLOTS; col++, slot++)
+            this.addSlotToContainer(new SlotItemHandlerOffset(this.inventory, slot, x, posY, this));
+            x += 18;
+
+            if (slot % 13 == 12)
             {
-                this.addSlotToContainer(new SlotItemHandlerOffset(this.inventory, row * 13 + col, posX + col * 18, posY + row * 18, this));
+                x = posX;
+                posY += 18;
             }
         }
-
-        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
     }
 
     protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
@@ -73,6 +88,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
     {
         int insert = this.inventoryFifo.getInsertSlot();
         int extract = this.inventoryFifo.getExtractSlot();
+        int invSize = this.tefifo.getFifoLength();
 
         for (int i = 0; i < this.listeners.size(); ++i)
         {
@@ -87,10 +103,22 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
             {
                 listener.sendWindowProperty(this, 1, extract);
             }
+
+            if (invSize != this.invSizeLast)
+            {
+                listener.sendWindowProperty(this, 2, invSize);
+            }
         }
 
         this.insertPosLast = insert;
         this.extractPosLast = extract;
+
+        if (invSize != this.invSizeLast)
+        {
+            this.reAddSlots();
+        }
+
+        this.invSizeLast = invSize;
 
         super.detectAndSendChanges();
     }
@@ -108,6 +136,11 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 
             case 1:
                 this.extractPos = data;
+                break;
+
+            case 2:
+                this.tefifo.setFifoLength(data);
+                this.reAddSlots();
                 break;
 
             default:

@@ -111,6 +111,23 @@ public class ItemHandlerWrapperFifo implements IItemHandlerSize, INBTSerializabl
         this.extractSlot = MathHelper.clamp(nbt.getByte("ExtractPos"), 0, this.baseHandler.getSlots() - 1);
     }
 
+    /**
+     * Wrap the insert and extract positions to 0 if they are over the end of the inventory.
+     * This is only needed when changing the inventory size via the GUI buttons.
+     */
+    public void wrapPositions()
+    {
+        if (this.insertSlot >= this.baseHandler.getSlots())
+        {
+            this.insertSlot = 0;
+        }
+
+        if (this.extractSlot >= this.baseHandler.getSlots())
+        {
+            this.extractSlot = 0;
+        }
+    }
+
     protected void onSuccessfulInsert()
     {
         if (++this.insertSlot >= this.baseHandler.getSlots())
