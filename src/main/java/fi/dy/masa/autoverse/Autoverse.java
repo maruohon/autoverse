@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse;
 
+import java.util.Random;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraftforge.common.util.ModFixs;
@@ -35,6 +36,8 @@ public class Autoverse
     public static CommonProxy proxy;
 
     public static Logger logger;
+
+    public static final Random RAND = new Random(System.currentTimeMillis());
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)

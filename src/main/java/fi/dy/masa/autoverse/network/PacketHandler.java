@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.network;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+import fi.dy.masa.autoverse.network.message.MessageAddEffects;
 import fi.dy.masa.autoverse.network.message.MessageGuiAction;
 import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
@@ -21,5 +22,6 @@ public class PacketHandler
         INSTANCE.registerMessage(MessageSyncCustomSlot.Handler.class,           MessageSyncCustomSlot.class,            2, Side.CLIENT);
         INSTANCE.registerMessage(MessageSyncContainerProperty.Handler.class,    MessageSyncContainerProperty.class,     3, Side.CLIENT);
         INSTANCE.registerMessage(MessageSyncNBTTag.Handler.class,               MessageSyncNBTTag.class,                4, Side.CLIENT);
+        INSTANCE.registerMessage(MessageAddEffects.Handler.class,               MessageAddEffects.class,                5, Side.CLIENT);
     }
 }

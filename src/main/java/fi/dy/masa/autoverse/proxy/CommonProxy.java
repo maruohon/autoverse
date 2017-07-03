@@ -65,6 +65,7 @@ public class CommonProxy
         this.registerTileEntity(TileEntityBufferFifoAuto.class,         ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_AUTO);
         this.registerTileEntity(TileEntityBufferFifoPulsed.class,       ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
         this.registerTileEntity(TileEntityCrafter.class,                ReferenceNames.NAME_BLOCK_CRAFTER);
+        this.registerTileEntity(TileEntityBlockDetector.class,          ReferenceNames.NAME_BLOCK_DETECTOR);
         this.registerTileEntity(TileEntityFilter.class,                 ReferenceNames.NAME_BLOCK_FILTER);
         this.registerTileEntity(TileEntityFilterSequential.class,       ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
         this.registerTileEntity(TileEntityInventoryReader.class,        ReferenceNames.NAME_BLOCK_INVENTORY_READER);

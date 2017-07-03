@@ -197,6 +197,35 @@ public class SequenceMatcher
         return this.sequence;
     }
 
+    /**
+     * Parses the binary value represented by this SequenceMatcher
+     * @param highBitMarker the ItemStack that represents a high bit
+     * @return the numerical value represented by this SequenceMatcher, or -1 if the sequence length is 0
+     */
+    public int parseValueFromSequence(ItemStack highBitMarker)
+    {
+        final int invSize = this.getCurrentSequenceLength();
+
+        if (invSize == 0)
+        {
+            return -1;
+        }
+        else
+        {
+            int value = 0;
+
+            for (int bit = 0; bit < invSize; bit++)
+            {
+                if (InventoryUtils.areItemStacksEqual(this.getSequence().get(bit), highBitMarker))
+                {
+                    value |= (1 << bit);
+                }
+            }
+
+            return value;
+        }
+    }
+
     public IItemHandlerModifiable getSequenceInventory(boolean matched)
     {
         return new SequenceInventory(this, matched);

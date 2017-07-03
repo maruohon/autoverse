@@ -7,6 +7,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_BREAKER                   = "breaker";
     public static final String NAME_BLOCK_BUFFER                    = "buffer";
     public static final String NAME_BLOCK_CRAFTER                   = "crafter";
+    public static final String NAME_BLOCK_DETECTOR                  = "detector";
     public static final String NAME_BLOCK_FILTER                    = "filter";
     public static final String NAME_BLOCK_FILTER_SEQUENTIAL         = "filter_sequential";
     public static final String NAME_BLOCK_INVENTORY_READER          = "inventory_reader";

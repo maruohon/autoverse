@@ -170,32 +170,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
         for (int id = 0; id < this.propertySequences.length; id++)
         {
-            this.propertyValues[id] = (byte) this.parsePropertyValue(this.propertySequences[id], highBitMarker);
-        }
-    }
-
-    private int parsePropertyValue(SequenceMatcherVariable matcher, ItemStack highBitMarker)
-    {
-        IItemHandler inv = matcher.getSequenceInventory(false);
-        final int invSize = inv.getSlots();
-
-        if (invSize == 0)
-        {
-            return -1;
-        }
-        else
-        {
-            int value = 0;
-
-            for (int bit = 0; bit < invSize; bit++)
-            {
-                if (InventoryUtils.areItemStacksEqual(inv.getStackInSlot(bit), highBitMarker))
-                {
-                    value |= (1 << bit);
-                }
-            }
-
-            return value;
+            this.propertyValues[id] = (byte) this.propertySequences[id].parseValueFromSequence(highBitMarker);
         }
     }
 

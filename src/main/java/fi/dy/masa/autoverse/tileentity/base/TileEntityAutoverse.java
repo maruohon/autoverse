@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.tileentity.base;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -20,8 +21,10 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.relauncher.Side;
@@ -171,10 +174,9 @@ public abstract class TileEntityAutoverse extends TileEntity
 
         if (redstone != this.redstoneState)
         {
+            this.redstoneState = redstone;
             this.onRedstoneChange(redstone);
         }
-
-        this.redstoneState = redstone;
     }
 
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
@@ -189,10 +191,37 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
         World world = this.getWorld();
 
-        if (world != null && (force || world.isUpdateScheduled(this.getPos(), this.getBlockType()) == false))
+        if (world != null)// && (force || world.isUpdateScheduled(this.getPos(), this.getBlockType()) == false))
         {
-            //System.out.printf("scheduleBlockUpdate(), actually scheduling for %s\n", this.getPos());
             world.scheduleUpdate(this.getPos(), this.getBlockType(), delay);
+        }
+    }
+
+    protected void reScheduleUpdateIfSooner(int delay)
+    {
+        BlockPos pos = this.getPos();
+        World world = this.getWorld();
+        long targetTime = world.getTotalWorldTime() + delay;
+
+        StructureBoundingBox bb = new StructureBoundingBox(pos.getX(), pos.getZ(), pos.getX() + 1, pos.getZ() + 1);
+        List<NextTickListEntry> list = world.getPendingBlockUpdates(bb, false);
+
+        // If there is an existing scheduled update, then remove the old one and schedule a new one
+        if (list != null && list.size() == 1)
+        {
+            // Don't re-schedule if there is a tick pending for this tick, or if there is an older
+            // scheduled tick sooner than the new requested tick
+            if (list.get(0).scheduledTime > targetTime && world.isBlockTickPending(pos, this.getBlockType()) == false)
+            {
+                // Remove the old scheduled update
+                world.getPendingBlockUpdates(bb, true);
+                this.scheduleBlockUpdate(delay, true);
+            }
+        }
+        // No existing scheduled updates, schedule a new one
+        else
+        {
+            this.scheduleBlockUpdate(delay, true);
         }
     }
 
