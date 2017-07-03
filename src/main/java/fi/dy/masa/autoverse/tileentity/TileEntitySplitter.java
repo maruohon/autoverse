@@ -163,36 +163,9 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         }
     }
 
-    /**
-     * This returns the filter-out side's facing as what it would be if the non-match-out
-     * side was North, which is the default rotation for the model.
-     * That way the filter-out side's texture will be placed on the correct face
-     * of the non-rotated model, before the primary facing's rotation is applied to the entire model.
-     */
     public EnumFacing getSecondOutputRelativeFacing()
     {
-        switch (this.facing)
-        {
-            // North is the default model rotation, don't modify the filter-out for this facing
-            case NORTH: return this.facing2;
-            case SOUTH:
-                if (this.facing2.getAxis().isHorizontal())
-                {
-                    return this.facing2.getOpposite();
-                }
-                return this.facing2;
-
-            default:
-                EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, this.facing).getOpposite();
-
-                if (this.facing2.getAxis() != axis.getAxis())
-                {
-                    EnumFacing result = PositionUtils.rotateAround(this.facing2, axis);
-                    return result;
-                }
-
-                return facing2;
-        }
+        return PositionUtils.getRelativeFacing(this.getFacing(), this.facing2);
     }
 
     @Override

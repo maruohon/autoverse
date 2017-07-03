@@ -29,7 +29,7 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.placer_programmable.end_marker");
         this.fontRenderer.drawString(s, 45, 24, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.high_bit_marker");
+        s = I18n.format("autoverse.gui.label.1_bit_marker");
         this.fontRenderer.drawString(s, 45, 42, 0x404040);
 
         s = I18n.format("autoverse.gui.label.placer_programmable.trigger");

@@ -23,6 +23,7 @@ autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_selectable=Selectable Splitter
 autoverse.container.splitter_togglable=Togglable Splitter
 
+autoverse.gui.label.1_bit_marker=1-bit
 autoverse.gui.label.block_reader.block_count=Length (number of blocks)
 autoverse.gui.label.block_reader_nbt.length_num=Length: %d
 autoverse.gui.label.block_reader.take_blocks=Take block states from world
@@ -41,7 +42,6 @@ autoverse.gui.label.normal_out_buffer=Out (normal)
 autoverse.gui.label.output_buffer=Output buffer
 autoverse.gui.label.placer_programmable.reset_sequence=Rst.
 autoverse.gui.label.placer_programmable.end_marker=End mark
-autoverse.gui.label.placer_programmable.high_bit_marker=1-bit
 autoverse.gui.label.placer_programmable.property=Property %d
 autoverse.gui.label.placer_programmable.trigger=Trigger
 autoverse.gui.label.sequence_detector.sequence=Detection sequence

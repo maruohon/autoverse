@@ -171,29 +171,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
      */
     public EnumFacing getFilterOutRelativeFacing()
     {
-        switch (this.facing)
-        {
-            // North is the default model rotation, don't modify the filter-out for this facing
-            case NORTH: return this.facingFilteredOut;
-            case SOUTH:
-                if (this.facingFilteredOut.getAxis().isHorizontal())
-                {
-                    return this.facingFilteredOut.getOpposite();
-                }
-                return this.facingFilteredOut;
-
-            default:
-                EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, this.facing).getOpposite();
-
-                if (this.facingFilteredOut.getAxis() != axis.getAxis())
-                {
-                    EnumFacing result = PositionUtils.rotateAround(this.facingFilteredOut, axis);
-                    //System.out.printf("facing: %s axis: %s filter: %s result: %s\n", facing, axis, facingFilteredOut, result);
-                    return result;
-                }
-
-                return facingFilteredOut;
-        }
+        return PositionUtils.getRelativeFacing(this.getFacing(), this.facingFilteredOut);
     }
 
     @Override

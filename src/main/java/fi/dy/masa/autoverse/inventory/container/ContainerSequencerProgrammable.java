@@ -174,11 +174,6 @@ public class ContainerSequencerProgrammable extends ContainerTile
         }
     }
 
-    public int getSequenceLength()
-    {
-        return this.sequencer.getSequenceInventory().getSlots();
-    }
-
     public int getOutputSlot()
     {
         return this.outputSlot;

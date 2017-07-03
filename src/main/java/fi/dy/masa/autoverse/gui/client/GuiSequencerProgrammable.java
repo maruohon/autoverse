@@ -52,15 +52,15 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
         int x = this.guiLeft + 7;
         int y = this.guiTop + 55;
-        final int invSize = this.containerSP.getSequenceLength();
+        final ItemStackHandlerLockable inv = this.containerSP.getSequenceInventory();
+        final int invSize = inv.getSlots();
 
         this.bindTexture(this.guiTextureWidgets);
 
         this.drawSlotBackgrounds(7, 55, 0, 238, 9, invSize);
 
-        ItemStackHandlerLockable inv = this.containerSP.getSequenceInventory();
         final int first = this.containerSP.getSequenceInventorySlotRange().first;
-        List<Slot> slotList = this.containerSP.getSpecialSlots();
+        final List<Slot> slotList = this.containerSP.getSpecialSlots();
 
         this.drawLockedSlotBackgrounds(inv, first, slotList);
 

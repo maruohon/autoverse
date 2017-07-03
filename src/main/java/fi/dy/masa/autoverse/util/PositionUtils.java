@@ -52,4 +52,39 @@ public class PositionUtils
 
         return facingRotated == facingOriginal.rotateY() ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
     }
+
+    /**
+     * This returns the given <b>facing</b> as what it would be if the <b>mainFacing</b>
+     * side was NORTH, which is the default rotation for the model.
+     * That way the <b>facing</b> side's texture will be placed on the correct face
+     * of the non-rotated model, before the <b>mainFacing</b> rotation is applied to the entire model.
+     */
+    public static EnumFacing getRelativeFacing(EnumFacing mainFacing, EnumFacing facing)
+    {
+        switch (mainFacing)
+        {
+            // North is the default model rotation, don't modify the given facing for this mainFacing
+            case NORTH:
+                return facing;
+
+            case SOUTH:
+                if (facing.getAxis().isHorizontal())
+                {
+                    return facing.getOpposite();
+                }
+                return facing;
+
+            default:
+                EnumFacing axis = PositionUtils.getCWRotationAxis(EnumFacing.NORTH, mainFacing).getOpposite();
+
+                if (facing.getAxis() != axis.getAxis())
+                {
+                    EnumFacing result = PositionUtils.rotateAround(facing, axis);
+                    //System.out.printf("facing: %s axis: %s filter: %s result: %s\n", facing, axis, facingFilteredOut, result);
+                    return result;
+                }
+
+                return facing;
+        }
+    }
 }
