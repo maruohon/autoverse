@@ -88,20 +88,6 @@ public class BlockSplitter extends BlockAutoverseInventory
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state)
-    {
-        TileEntitySplitter te = getTileEntitySafely(world, pos, TileEntitySplitter.class);
-
-        if (te != null)
-        {
-            te.dropInventories();
-            world.updateComparatorOutputLevel(pos, this);
-        }
-
-        world.removeTileEntity(pos);
-    }
-
-    @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(world, pos, state, placer, stack);

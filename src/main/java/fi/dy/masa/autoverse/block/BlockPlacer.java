@@ -103,27 +103,6 @@ public class BlockPlacer extends BlockAutoverseInventory
         }
     }
 
-    @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state)
-    {
-        if (state.getValue(TYPE) == PlacerType.PROGRAMMABLE)
-        {
-            TileEntityPlacerProgrammable te = getTileEntitySafely(world, pos, TileEntityPlacerProgrammable.class);
-
-            if (te != null)
-            {
-                te.dropInventories();
-                world.updateComparatorOutputLevel(pos, this);
-            }
-
-            world.removeTileEntity(pos);
-        }
-        else
-        {
-            super.breakBlock(world, pos, state);
-        }
-    }
-
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)

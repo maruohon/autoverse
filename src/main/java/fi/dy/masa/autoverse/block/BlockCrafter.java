@@ -45,20 +45,6 @@ public class BlockCrafter extends BlockAutoverseInventory
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state)
-    {
-        TileEntityCrafter te = getTileEntitySafely(world, pos, TileEntityCrafter.class);
-
-        if (te != null)
-        {
-            te.dropInventories();
-            world.updateComparatorOutputLevel(pos, this);
-        }
-
-        world.removeTileEntity(pos);
-    }
-
-    @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
         // TODO

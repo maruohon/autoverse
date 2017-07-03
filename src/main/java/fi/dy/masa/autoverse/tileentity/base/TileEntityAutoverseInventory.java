@@ -157,6 +157,11 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 
     public void inventoryChanged(int inventoryId, int slot) { }
 
+    public void dropInventories()
+    {
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.getBaseItemHandler());
+    }
+
     /**
      * Tries to push items from the given inventory into an adjacent inventory.
      * If there is no adjacent inventory on the front facing side and spawnInWorld is true,

@@ -82,6 +82,7 @@ public class TileEntitySequencerProgrammable extends TileEntityAutoverseInventor
         }
     }
 
+    @Override
     public void dropInventories()
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);

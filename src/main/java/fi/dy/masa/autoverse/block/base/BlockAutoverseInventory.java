@@ -23,9 +23,9 @@ public abstract class BlockAutoverseInventory extends BlockAutoverseTileEntity
     {
         TileEntityAutoverseInventory te = getTileEntitySafely(world, pos, TileEntityAutoverseInventory.class);
 
-        if (te != null && te.getBaseItemHandler() != null)
+        if (te != null)
         {
-            InventoryUtils.dropInventoryContentsInWorld(world, pos, te.getBaseItemHandler());
+            te.dropInventories();
             world.updateComparatorOutputLevel(pos, this);
         }
 

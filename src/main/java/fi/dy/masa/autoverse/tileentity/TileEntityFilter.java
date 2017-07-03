@@ -288,6 +288,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super.handleUpdateTag(tag);
     }
 
+    @Override
     public void dropInventories()
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
