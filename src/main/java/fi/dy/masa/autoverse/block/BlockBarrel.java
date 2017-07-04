@@ -188,14 +188,17 @@ public class BlockBarrel extends BlockAutoverseInventory
 
         TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
 
-        if (te != null && InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
+        if (te != null)
         {
             if (te.isPulsed())
             {
                 stack.setItemDamage(meta + 16);
             }
 
-            return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+            if (InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
+            {
+                return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+            }
         }
 
         return stack;
