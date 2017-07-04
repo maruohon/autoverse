@@ -39,7 +39,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.detector           = new ItemHandlerWrapperSequenceDetector(4, this.inventoryInput, this);
+        this.detector           = new ItemHandlerWrapperSequenceDetector(this.inventoryInput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.detector;
     }

@@ -19,12 +19,11 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     private int position;
 
     public ItemHandlerWrapperSequencerProgrammable(
-            int resetSequenceLength,
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput,
             TileEntitySequencerProgrammable te)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.inventoryOutput = inventoryOutput;
         this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");

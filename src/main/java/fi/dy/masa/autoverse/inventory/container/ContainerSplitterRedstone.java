@@ -15,8 +15,7 @@ public class ContainerSplitterRedstone extends ContainerTile
         super(player, te);
 
         this.tesp = te;
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 64);
+        this.reAddSlots(8, 64);
     }
 
     @Override
@@ -42,9 +41,9 @@ public class ContainerSplitterRedstone extends ContainerTile
         {
             boolean isSecondary = this.tesp.outputIsSecondaryCached();
 
-            for (int i = 0; i < this.listeners.size(); i++)
+            if (this.secondaryOutput != isSecondary)
             {
-                if (this.secondaryOutput != isSecondary)
+                for (int i = 0; i < this.listeners.size(); i++)
                 {
                     this.listeners.get(i).sendWindowProperty(this, 0, isSecondary ? 0x1 : 0x0);
                 }
@@ -59,11 +58,9 @@ public class ContainerSplitterRedstone extends ContainerTile
     @Override
     public void updateProgressBar(int id, int data)
     {
-        switch (id)
+        if (id == 0)
         {
-            case 0:
-                this.secondaryOutput = data != 0;
-                break;
+            this.secondaryOutput = data != 0;
         }
 
         super.updateProgressBar(id, data);

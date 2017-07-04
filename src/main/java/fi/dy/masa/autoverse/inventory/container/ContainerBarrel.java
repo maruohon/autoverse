@@ -14,8 +14,7 @@ public class ContainerBarrel extends ContainerTileLargeStacks
 
         this.inventoryNonWrapped = te.getBaseItemHandler();
 
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 51);
+        this.reAddSlots(8, 51);
     }
 
     @Override

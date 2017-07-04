@@ -8,11 +8,11 @@ public class ItemHandlerWrapperSplitterSelectable extends ItemHandlerWrapperSpli
 {
     private final SequenceMatcher sequenceSwitch2;
 
-    public ItemHandlerWrapperSplitterSelectable(int sequenceLength, ItemStackHandlerTileEntity inventoryInput)
+    public ItemHandlerWrapperSplitterSelectable(ItemStackHandlerTileEntity inventoryInput)
     {
-        super(sequenceLength, inventoryInput);
+        super(inventoryInput);
 
-        this.sequenceSwitch2 = new SequenceMatcher(sequenceLength, "SequenceSwitch2");
+        this.sequenceSwitch2 = new SequenceMatcher(4, "SequenceSwitch2");
     }
 
     @Override

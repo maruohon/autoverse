@@ -28,7 +28,7 @@ public class GuiDetector extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.reset_sequence");
+        s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
 
         s = I18n.format("autoverse.gui.label.end");
@@ -46,7 +46,7 @@ public class GuiDetector extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.detector.detection_items");
         this.fontRenderer.drawString(s,  8, 104, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.output_buffer");
+        s = I18n.format("autoverse.gui.label.out_normal");
         this.fontRenderer.drawString(s, 28, 152, 0x404040);
 
         s = I18n.format("autoverse.gui.label.detector.out_detection");

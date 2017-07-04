@@ -38,10 +38,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 
     private void reAddSlots()
     {
-        this.inventorySlots.clear();
-        this.inventoryItemStacks.clear();
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(48, 177);
+        this.reAddSlots(48, 177);
     }
 
     @Override
@@ -53,6 +50,8 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
         final int slots = this.inventory.getSlots();
 
         this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
+
+        //SlotPlacerSequence.create(12, 13, this.inventory, this).setMaxSlotsPerRow(13).placeSlots();
 
         for (int slot = 0, x = posX; slot < slots; slot++)
         {

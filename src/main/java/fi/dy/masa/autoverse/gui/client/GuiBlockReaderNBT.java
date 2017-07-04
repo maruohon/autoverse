@@ -40,7 +40,7 @@ public class GuiBlockReaderNBT extends GuiAutoverse
         this.fontRenderer.drawString(str, this.xSize / 2 - this.fontRenderer.getStringWidth(str) / 2, 5, 0x404040);
 
         str = I18n.format("autoverse.gui.label.block_reader_nbt.length_num", this.ter.getMaxLength());
-        this.fontRenderer.drawString(str, 41, 30, 0x404040);
+        this.fontRenderer.drawString(str, 41, 31, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 119, 0x404040);
     }

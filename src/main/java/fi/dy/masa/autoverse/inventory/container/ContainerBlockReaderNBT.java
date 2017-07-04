@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
-import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockReaderNBT;
 
 public class ContainerBlockReaderNBT extends ContainerTile
@@ -16,38 +15,20 @@ public class ContainerBlockReaderNBT extends ContainerTile
         super(player, te);
         this.ter = te;
 
-        this.detectAndSendChanges();
         this.reAddSlots();
     }
 
     private void reAddSlots()
     {
-        this.inventorySlots.clear();
-        this.inventoryItemStacks.clear();
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 131);
+        super.reAddSlots(8, 131);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
-        int posX = 8;
-        int posY = 43;
-        final int slots = this.inventory.getSlots();
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), this.inventory.getSlots());
 
-        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), slots);
-
-        for (int slot = 0, x = posX; slot < slots; slot++)
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, slot, x, posY));
-            x += 18;
-
-            if (slot % 8 == 7)
-            {
-                x = posX;
-                posY += 18;
-            }
-        }
+        SlotPlacer.create(8, 43, this.inventory, this).setMaxSlotsPerRow(8).place();
     }
 
     @Override

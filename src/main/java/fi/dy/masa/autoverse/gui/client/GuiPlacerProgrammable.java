@@ -23,7 +23,7 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.reset_sequence");
+        s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
 
         s = I18n.format("autoverse.gui.label.placer_programmable.end_marker");
@@ -44,7 +44,7 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.placer_programmable.property", 3);
         this.fontRenderer.drawString(s, 98, 104, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.output_buffer");
+        s = I18n.format("autoverse.gui.label.out");
         this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 152, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 163, 0x404040);

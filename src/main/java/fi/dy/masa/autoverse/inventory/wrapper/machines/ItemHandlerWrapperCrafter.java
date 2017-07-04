@@ -28,13 +28,13 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     private final IItemHandler inventoryCraftingOutput;
     private final IItemHandler inventoryOutputBuffer;
 
-    public ItemHandlerWrapperCrafter(int resetSequenceLength,
+    public ItemHandlerWrapperCrafter(
             IItemHandler inventoryInput,
             InventoryCraftingWrapper inventoryCrafting,
             IItemHandlerModifiable inventoryCraftingOutput,
             IItemHandler inventoryOutputBuffer)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.inventoryCrafting = inventoryCrafting;
         this.inventoryCraftingGrid = new InvWrapper(this.inventoryCrafting);

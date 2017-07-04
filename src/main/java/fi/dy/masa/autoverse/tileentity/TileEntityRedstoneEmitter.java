@@ -41,7 +41,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.emitter            = new ItemHandlerWrapperRedstoneEmitter(3, this.inventoryInput, this);
+        this.emitter            = new ItemHandlerWrapperRedstoneEmitter(this.inventoryInput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.emitter;
     }

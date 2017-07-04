@@ -10,11 +10,11 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
     private Mode mode = Mode.CONFIGURE_RESET;
     private boolean outputIsSecondary;
 
-    public ItemHandlerWrapperSplitter(int sequenceLength, ItemStackHandlerTileEntity inventoryInput)
+    public ItemHandlerWrapperSplitter(ItemStackHandlerTileEntity inventoryInput)
     {
-        super(sequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
-        this.sequenceSwitch1 = new SequenceMatcher(sequenceLength, "SequenceSwitch1");
+        this.sequenceSwitch1 = new SequenceMatcher(4, "SequenceSwitch1");
     }
 
     @Override

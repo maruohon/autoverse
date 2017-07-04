@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
@@ -37,14 +36,7 @@ public class ContainerSequencerProgrammable extends ContainerTile
 
     private void reAddSlots()
     {
-        this.inventorySlots.clear();
-        this.inventoryItemStacks.clear();
-
-        this.getSpecialSlots().clear();
-        this.getSpecialSlotStacks().clear();
-
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 174);
+        this.reAddSlots(8, 174);
     }
 
     @Override
@@ -53,58 +45,20 @@ public class ContainerSequencerProgrammable extends ContainerTile
         // Add the input slot as a merge slot range, but no other slots
         this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), 1);
 
-        if (this.isClient)
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesp.getInventoryIn(), 0, 8, 16));
-        }
-        else
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 8, 16));
-        }
+        // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
+        this.addSideDependentSlot(0, 8, 16, this.inventory, this.tesp.getInventoryIn());
 
         // Add the sequence end marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.sequencer.getMarkerInventory(), 0, 8, 34));
 
-        IItemHandler inv = this.sequencer.getResetSequence().getSequenceInventory(false);
-
-        int posX = 98;
-        int posY = 16;
-
         // Add the reset sequence slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
-        }
+        SlotPlacerSequence.create(98, 16, this.sequencer.getResetSequence(), this).place();
 
-        posY = 34;
-        // Use a basic inventory to hold the items on the client side
-        inv = this.isClient ? new ItemStackHandlerBasic(inv.getSlots()) : this.sequencer.getResetSequence().getSequenceInventory(true);
-
-        // Add the reset sequence matched slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
-        }
-
-        posX = 8;
-        posY = 56;
-        inv = this.sequencer.getSequenceInventory();
-        final int invSize = inv.getSlots();
-        this.slotRangeSequenceInventory = new SlotRange(this.getSpecialSlots().size(), invSize);
+        final IItemHandler inv = this.sequencer.getSequenceInventory();
+        this.slotRangeSequenceInventory = new SlotRange(this.getSpecialSlots().size(), inv.getSlots());
 
         // Add the sequence slots
-        for (int slot = 0, x = posX; slot < invSize; slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, x, posY));
-
-            x += 18;
-
-            if (slot % 9 == 8)
-            {
-                x = posX;
-                posY += 18;
-            }
-        }
+        SlotPlacer.create(8, 56, inv, this).setSlotType(SlotType.SPECIAL).place();
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesp.getInventoryOut(), 0, 152, 151));

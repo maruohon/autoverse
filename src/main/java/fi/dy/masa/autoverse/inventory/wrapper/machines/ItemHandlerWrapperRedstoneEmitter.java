@@ -18,15 +18,14 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
     private boolean isOn;
     private int position;
 
-    public ItemHandlerWrapperRedstoneEmitter(int resetSequenceLength,
-            ItemStackHandlerTileEntity inventoryInput, TileEntityRedstoneEmitter te)
+    public ItemHandlerWrapperRedstoneEmitter(ItemStackHandlerTileEntity inventoryInput, TileEntityRedstoneEmitter te)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
         this.te = te;
 
         this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");
-        this.sequenceSwitchOn   = new SequenceMatcher(3, "SequenceOn");
-        this.sequenceSwitchOff  = new SequenceMatcher(3, "SequenceOff");
+        this.sequenceSwitchOn   = new SequenceMatcher(4, "SequenceOn");
+        this.sequenceSwitchOff  = new SequenceMatcher(4, "SequenceOff");
 
         this.markerInventory = this.sequenceMarkerItem.getSequenceInventory(false);
     }

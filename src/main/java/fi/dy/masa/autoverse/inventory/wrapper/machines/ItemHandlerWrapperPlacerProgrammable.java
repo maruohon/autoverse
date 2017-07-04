@@ -22,18 +22,17 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     private int position;
 
     public ItemHandlerWrapperPlacerProgrammable(
-            int resetSequenceLength,
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput,
             TileEntityPlacerProgrammable te)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.te = te;
         this.inventoryOutput = inventoryOutput;
         this.sequenceMarkerEnd      = new SequenceMatcher(1, "SequenceMarkerEnd");
         this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceMarkerBit");
-        this.sequenceTrigger = new SequenceMatcherVariable(2, "SequenceTrigger");
+        this.sequenceTrigger = new SequenceMatcherVariable(4, "SequenceTrigger");
 
         this.propertySequences = new SequenceMatcherVariable[]
         {

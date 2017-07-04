@@ -22,16 +22,16 @@ public class GuiCrafter extends GuiAutoverse
         String s = this.tec.hasCustomName() ? this.tec.getName() : I18n.format(this.tec.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 4, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),   8, 20, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.reset_sequence"), 98, 19, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.empty_marker");
-        this.fontRenderer.drawString(s, -this.fontRenderer.getStringWidth(s) + 90,  20, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),          28, 38, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.empty_marker"),   28, 74, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.crafting_grid"),     8,  60, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.crafting_pattern"),  8, 86, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.crafting_grid"),    80, 86, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.crafting_pattern");
-        this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 6,  60, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.output_buffer"),     8, 130, 0x404040);
+        s = I18n.format("autoverse.gui.label.out");
+        this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 158, 0x404040);
         this.fontRenderer.drawString(I18n.format("container.inventory"),                   8, 162, 0x404040);
     }
 }

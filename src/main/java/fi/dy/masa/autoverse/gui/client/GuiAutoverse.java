@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.item.base.ItemAutoverse;
@@ -145,11 +146,19 @@ public class GuiAutoverse extends GuiContainer
 
     protected void drawTooltips(int mouseX, int mouseY)
     {
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
+        for (int i = 0; i < this.buttonList.size(); i++)
+        {
+            GuiButton button = this.buttonList.get(i);
+
+            // Mouse is over the button
+            if ((button instanceof GuiButtonHoverText) && button.mousePressed(this.mc, mouseX, mouseY))
+            {
+                this.drawHoveringText(((GuiButtonHoverText) button).getHoverStrings(), mouseX, mouseY, this.fontRenderer);
+            }
+        }
 
         // Info text has been set, show it if the mouse is over the designated info area
-        if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, x, y))
+        if (this.infoArea != null && this.infoArea.isMouseOver(mouseX, mouseY, this.guiLeft, this.guiTop))
         {
             this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRenderer);
         }

@@ -28,19 +28,17 @@ public class GuiSequencerProgrammable extends GuiAutoverse
         String unloc = "autoverse.container.sequencer_programmable";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"), 26, 24, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.reset_sequence");
-        this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
+        s = I18n.format("autoverse.gui.label.rst");
+        this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.end_marker");
-        this.fontRenderer.drawString(s, 26, 42, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"), 28, 24, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end_marker"), 28, 42, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.sequencer_programmable.sequence");
-        this.fontRenderer.drawString(s, 8, 150, 0x404040);
+        this.fontRenderer.drawString("^ " + I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 150, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.output_buffer");
-        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 163, 0x404040);
+        s = I18n.format("autoverse.gui.label.out");
+        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 151, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 163, 0x404040);
     }

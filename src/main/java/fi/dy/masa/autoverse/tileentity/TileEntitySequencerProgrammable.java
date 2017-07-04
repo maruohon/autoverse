@@ -35,7 +35,7 @@ public class TileEntitySequencerProgrammable extends TileEntityAutoverseInventor
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.sequencer          = new ItemHandlerWrapperSequencerProgrammable(4, this.inventoryInput, this.inventoryOutput, this);
+        this.sequencer          = new ItemHandlerWrapperSequencerProgrammable(this.inventoryInput, this.inventoryOutput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.sequencer;
     }

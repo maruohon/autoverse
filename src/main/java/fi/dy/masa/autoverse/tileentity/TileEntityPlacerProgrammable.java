@@ -56,7 +56,7 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.placer             = new ItemHandlerWrapperPlacerProgrammable(4, this.inventoryInput, this.inventoryOutput, this);
+        this.placer             = new ItemHandlerWrapperPlacerProgrammable(this.inventoryInput, this.inventoryOutput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.placer;
     }

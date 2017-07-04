@@ -53,8 +53,11 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         // Set the callback, which is used to consume the ingredient items
         this.inventoryCraftingOutput.setCraftingInventory(this.inventoryCrafting);
 
-        this.inventoryWrapperCrafter = new ItemHandlerWrapperCrafter(4, this.inventoryInput,
-                this.inventoryCrafting, this.inventoryCraftingOutput, this.inventoryOutput);
+        this.inventoryWrapperCrafter = new ItemHandlerWrapperCrafter(
+                this.inventoryInput,
+                this.inventoryCrafting,
+                this.inventoryCraftingOutput,
+                this.inventoryOutput);
 
         this.itemHandlerExternal = new ItemHandlerWrapperCrafterExternal(this.inventoryWrapperCrafter, this.inventoryOutput);
     }

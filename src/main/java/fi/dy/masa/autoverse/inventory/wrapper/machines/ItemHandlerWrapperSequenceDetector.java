@@ -14,9 +14,9 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
     private Mode mode = Mode.CONFIGURE_RESET;
     private int position;
 
-    public ItemHandlerWrapperSequenceDetector(int resetSequenceLength, IItemHandler inventoryInput, TileEntitySequenceDetector te)
+    public ItemHandlerWrapperSequenceDetector(IItemHandler inventoryInput, TileEntitySequenceDetector te)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.te = te;
         this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");

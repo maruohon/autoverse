@@ -19,10 +19,12 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.inventory.ICustomSlotSync;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.PlayerInvWrapperNoSync;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcher;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
@@ -37,16 +39,15 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
     protected final InventoryPlayer inventoryPlayer;
     protected final IItemHandlerModifiable playerInv;
     protected final IItemHandler inventory;
-    private List<Slot> specialSlots = new ArrayList<Slot>();
-    private NonNullList<ItemStack> specialSlotStacks = NonNullList.create();
     protected MergeSlotRange customInventorySlots;
     protected MergeSlotRange playerMainSlots;
     protected MergeSlotRange playerHotbarSlots;
     protected MergeSlotRange playerMainSlotsIncHotbar;
     protected MergeSlotRange playerOffhandSlots;
     protected MergeSlotRange playerArmorSlots;
-    protected List<MergeSlotRange> mergeSlotRangesExtToPlayer;
-    protected List<MergeSlotRange> mergeSlotRangesPlayerToExt;
+    private final List<MergeSlotRange> mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
+    private final List<Slot> specialSlots = new ArrayList<Slot>();
+    private final NonNullList<ItemStack> specialSlotStacks = NonNullList.create();
     protected boolean forceSyncAll;
 
     public ContainerAutoverse(EntityPlayer player, IItemHandler inventory)
@@ -56,8 +57,6 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         this.inventoryPlayer = player.inventory;
         this.playerInv = new PlayerInvWrapperNoSync(player.inventory);
         this.inventory = inventory;
-        this.mergeSlotRangesExtToPlayer = new ArrayList<MergeSlotRange>();
-        this.mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
 
         // Init the ranges to an empty range by default
         this.customInventorySlots       = new MergeSlotRange(0, 0);
@@ -68,6 +67,18 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         this.playerArmorSlots           = new MergeSlotRange(0, 0);
     }
 
+    protected void reAddSlots(int playerInventoryX, int playerInventoryY)
+    {
+        this.inventorySlots.clear();
+        this.inventoryItemStacks.clear();
+
+        this.specialSlots.clear();
+        this.specialSlotStacks.clear();
+
+        this.addCustomInventorySlots();
+        this.addPlayerInventorySlots(playerInventoryX, playerInventoryY);
+    }
+
     /**
      * Adds the "custom inventory" slots to the container (ie. the inventory that this container is for).
      * This must be called before addPlayerInventorySlots() (ie. the order of slots in the container
@@ -75,6 +86,11 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
      */
     protected void addCustomInventorySlots()
     {
+    }
+
+    protected void addSideDependentSlot(int slotIndex, int posX, int posY, IItemHandler invServer, IItemHandler invClient)
+    {
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.isClient ? invClient : invServer, slotIndex, posX, posY));
     }
 
     /**
@@ -382,16 +398,6 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         return stack;
     }
 
-    protected void addMergeSlotRangeExtToPlayer(int start, int numSlots)
-    {
-        this.addMergeSlotRangeExtToPlayer(start, numSlots, false);
-    }
-
-    protected void addMergeSlotRangeExtToPlayer(int start, int numSlots, boolean existingOnly)
-    {
-        this.mergeSlotRangesExtToPlayer.add(new MergeSlotRange(start, numSlots, existingOnly));
-    }
-
     protected void addMergeSlotRangePlayerToExt(int start, int numSlots)
     {
         this.addMergeSlotRangePlayerToExt(start, numSlots, false);
@@ -579,5 +585,168 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
 
     public void receiveProperty(int id, int value)
     {
+    }
+
+    protected static class SlotPlacer
+    {
+        protected final ContainerAutoverse container;
+        protected final IItemHandler inventory;
+        protected SlotType slotType = SlotType.NORMAL;
+        protected int maxSlots;
+        protected int maxPerRow = 9;
+        protected int posX;
+        protected int posY;
+
+        protected SlotPlacer(int posX, int posY, IItemHandler inventory, ContainerAutoverse container)
+        {
+            this.inventory = inventory;
+            this.container = container;
+            this.maxSlots = inventory.getSlots();
+            this.posX = posX;
+            this.posY = posY;
+        }
+
+        /**
+         * Creates a new slot placer for an inventory. The default values are:<br>
+         * - maxSlotsPerRow: <b>9</b><br>
+         * - SlotType: <b>SlotType.NORMAL</b><br>
+         * @param posX
+         * @param posY
+         * @param inventory
+         * @param container
+         * @return
+         */
+        public static SlotPlacer create(int posX, int posY, IItemHandler inventory, ContainerAutoverse container)
+        {
+            return new SlotPlacer(posX, posY, inventory, container);
+        }
+
+        public SlotPlacer setMaxSlots(int max)
+        {
+            this.maxSlots = max;
+            return this;
+        }
+
+        public SlotPlacer setMaxSlotsPerRow(int max)
+        {
+            this.maxPerRow = max;
+            return this;
+        }
+
+        public SlotPlacer setSlotType(SlotType type)
+        {
+            this.slotType = type;
+            return this;
+        }
+
+        public void place()
+        {
+            this.placeSlots(this.inventory, this.posX, this.posY);
+        }
+
+        protected void placeSlots(IItemHandler inventory, int posX, int posY)
+        {
+            for (int slot = 0, x = posX, y = posY; slot < this.maxSlots; slot++)
+            {
+                this.addSlot(new SlotItemHandlerGeneric(inventory, slot, x, y));
+
+                if ((slot % this.maxPerRow) == (this.maxPerRow - 1))
+                {
+                    x = posX;
+                    y += 18;
+                }
+                else
+                {
+                    x += 18;
+                }
+            }
+        }
+
+        private void addSlot(Slot slot)
+        {
+            switch (this.slotType)
+            {
+                case NORMAL:
+                    this.container.addSlotToContainer(slot);
+                    break;
+
+                case SPECIAL:
+                    this.container.addSpecialSlot(slot);
+                    break;
+            }
+        }
+    }
+
+    protected static class SlotPlacerSequence extends SlotPlacer
+    {
+        protected final SequenceMatcher sequence;
+        protected boolean addMatchedSlots;
+        protected int matchedOffsetX;
+        protected int matchedOffsetY;
+
+        protected SlotPlacerSequence(int posX, int posY, SequenceMatcher sequence, ContainerAutoverse container)
+        {
+            this(posX, posY, sequence, true, container);
+        }
+
+        protected SlotPlacerSequence(int posX, int posY, SequenceMatcher sequence, boolean addMatchedSlots, ContainerAutoverse container)
+        {
+            super(posX, posY, sequence.getSequenceInventory(false), container);
+
+            this.sequence = sequence;
+            this.addMatchedSlots = addMatchedSlots;
+            this.slotType = SlotType.SPECIAL;
+            this.matchedOffsetX = 0;
+            this.matchedOffsetY = 18;
+        }
+
+        /**
+         * Creates a new slot placer for a SequenceMatcher. The default values are:<br>
+         * - maxSlotsPerRow: <b>9</b><br>
+         * - SlotType: <b>SlotType.SPECIAL</b><br>
+         * - addMatchedSlots: <b>true</b><br>
+         * - matched slots offset: <b>x = 0, y = 18</b>
+         * @param posX
+         * @param posY
+         * @param sequence
+         * @param container
+         * @return
+         */
+        public static SlotPlacerSequence create(int posX, int posY, SequenceMatcher sequence, ContainerAutoverse container)
+        {
+            return new SlotPlacerSequence(posX, posY, sequence, container);
+        }
+
+        public SlotPlacerSequence setAddMatchedSlots(boolean addMatchedSlots)
+        {
+            this.addMatchedSlots = addMatchedSlots;
+            return this;
+        }
+
+        public SlotPlacerSequence setMatchedOffset(int offsetX, int offsetY)
+        {
+            this.matchedOffsetX = offsetX;
+            this.matchedOffsetY = offsetY;
+            return this;
+        }
+
+        @Override
+        public void place()
+        {
+            super.place();
+
+            if (this.addMatchedSlots)
+            {
+                // Use a basic inventory to hold the items on the client side
+                IItemHandler inv = this.container.isClient ? new ItemStackHandlerBasic(this.maxSlots) : this.sequence.getSequenceInventory(true);
+                this.placeSlots(inv, this.posX + this.matchedOffsetX, this.posY + this.matchedOffsetY);
+            }
+        }
+    }
+
+    public enum SlotType
+    {
+        NORMAL,
+        SPECIAL;
     }
 }

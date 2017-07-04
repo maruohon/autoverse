@@ -25,12 +25,11 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
     private int position;
 
     public ItemHandlerWrapperDetector(
-            int resetSequenceLength,
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput,
             TileEntityBlockDetector te)
     {
-        super(resetSequenceLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.te = te;
         this.sequenceEndMarker  = new SequenceMatcher(1, "SequenceEndMarker");

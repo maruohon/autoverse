@@ -1,11 +1,9 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IContainerListener;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
-import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 
 public class ContainerSequencer extends ContainerTile
@@ -18,30 +16,16 @@ public class ContainerSequencer extends ContainerTile
         super(player, te);
 
         this.teseq = te;
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 74);
+        this.reAddSlots(8, 74);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
-        int posX = 8;
-        int posY = 22;
-        IItemHandler inv = this.teseq.getBaseItemHandler();
+        final IItemHandler inv = this.teseq.getBaseItemHandler();
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), inv.getSlots());
 
-        // Add the Sequencer slots
-        for (int slot = 0, col = 0, row = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + col * 18, posY + row * 18));
-
-            if (++col >= 9)
-            {
-                col = 0;
-                row++;
-            }
-        }
-
-        this.customInventorySlots = new MergeSlotRange(0, this.inventorySlots.size());
+        SlotPlacer.create(8, 22, inv, this).place();
     }
 
     @Override
@@ -55,8 +39,7 @@ public class ContainerSequencer extends ContainerTile
         {
             for (int i = 0; i < this.listeners.size(); i++)
             {
-                IContainerListener listener = this.listeners.get(i);
-                listener.sendWindowProperty(this, 0, outputSlot);
+                this.listeners.get(i).sendWindowProperty(this, 0, outputSlot);
             }
         }
 

@@ -21,16 +21,19 @@ public class GuiFilter extends GuiAutoverse
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
-        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 4, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.reset_sequence"),      42,  16, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.matched_sequence"),    54,  35, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filter_items"),         8,  46, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.normal_out_buffer"),    8, 141, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filtered_out_buffer"), 98, 141, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2,  4, 0x404040);
+        s = I18n.format("autoverse.gui.label.rst");
+        this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s),  17, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),               28,  24, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filter_items"),         8,  53, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.out_normal"),          28, 151, 0x404040);
+
+        s = I18n.format("autoverse.gui.label.out_filtered");
+        this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 160, 0x404040);
 
         if (this.te instanceof TileEntityFilterSequential)
         {
-            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filtered_seq_buffer"),  8,  93, 0x404040);
+            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filtered_seq_buffer"), 8, 100, 0x404040);
         }
     }
 
@@ -52,13 +55,13 @@ public class GuiFilter extends GuiAutoverse
         int resetSlots = this.te.getResetSlotCount();
         int filterSlots = this.te.getFilterSlotCount();
 
+        this.bindTexture(this.guiTextureWidgets);
+
         if (this.te instanceof TileEntityFilterSequential)
         {
             // Filtered items buffer slots
-            this.drawSlotBackgrounds(7, 102, 7, 173, 9, filterSlots);
+            this.drawSlotBackgrounds(7, 109, 0, 238, 9, filterSlots);
         }
-
-        this.bindTexture(this.guiTextureWidgets);
 
         // Reset sequence slots
         this.drawSlotBackgrounds(97, 15, 0, 238, 4, resetSlots);
@@ -67,6 +70,6 @@ public class GuiFilter extends GuiAutoverse
         this.drawSlotBackgrounds(97, 33, 0, 238, 4, resetSlots);
 
         // Filter item slots
-        this.drawSlotBackgrounds( 7, 55, 0, 238, 9, filterSlots);
+        this.drawSlotBackgrounds( 7, 62, 0, 238, 9, filterSlots);
     }
 }

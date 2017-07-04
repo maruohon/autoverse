@@ -60,7 +60,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.itemHandlerBase        = this.inventoryInput;
         this.inventoryWrapperOutDetection = new ItemHandlerWrapperExtractOnly(this.inventoryOutDetection);
 
-        this.detector = new ItemHandlerWrapperDetector(4, this.inventoryInput, this.inventoryOutNormal, this);
+        this.detector = new ItemHandlerWrapperDetector(this.inventoryInput, this.inventoryOutNormal, this);
 
         this.itemHandlerExternal = this.detector;
     }

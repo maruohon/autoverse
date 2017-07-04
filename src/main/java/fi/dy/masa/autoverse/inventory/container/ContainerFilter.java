@@ -1,8 +1,6 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
@@ -18,8 +16,7 @@ public class ContainerFilter extends ContainerTile
         super(player, te);
 
         this.tefi = te;
-        this.addCustomInventorySlots();
-        this.addPlayerInventorySlots(8, 174);
+        this.reAddSlots(8, 174);
     }
 
     @Override
@@ -28,75 +25,28 @@ public class ContainerFilter extends ContainerTile
         // Add the input slot as a merge slot range, but no other slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 1, false);
 
-        // Add the input slot
-        if (this.isClient)
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryInput(), 0, 8, 16));
-        }
-        else
-        {
-            this.addSlotToContainer(new SlotItemHandlerGeneric(this.inventory, 0, 8, 16));
-        }
+        // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
+        this.addSideDependentSlot(0, 8, 16, this.inventory, this.tefi.getInventoryInput());
 
-        int posX = 98;
-        int posY = 16;
         ItemHandlerWrapperFilter filter = this.tefi.getInventoryFilter();
-        IItemHandler inv = filter.getResetSequence().getSequenceInventory(false);
 
         // Add the Reset Sequence slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
-        }
-
-        posY = 34;
-        // Use a basic inventory to hold the items on the client side
-        inv = this.isClient ? new ItemStackHandlerBasic(inv.getSlots()) : filter.getResetSequence().getSequenceInventory(true);
-
-        // Add the Reset Sequence matched slots
-        for (int slot = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + slot * 18, posY));
-        }
-
-        posX = 8;
-        posY = 56;
-        inv = filter.getFilterSequenceInventory();
+        SlotPlacerSequence.create(98, 16, filter.getResetSequence(), this).place();
 
         // Add the Filter slots
-        for (int slot = 0, col = 0, row = 0; slot < inv.getSlots(); slot++)
-        {
-            this.addSpecialSlot(new SlotItemHandlerGeneric(inv, slot, posX + col * 18, posY + row * 18));
-
-            if (++col >= 9)
-            {
-                col = 0;
-                row++;
-            }
-        }
+        SlotPlacer.create(8, 63, filter.getFilterSequenceInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
         if (this.tefi instanceof TileEntityFilterSequential)
         {
             TileEntityFilterSequential teseq = (TileEntityFilterSequential) this.tefi;
-            posY = 103;
-            inv = teseq.getInventoryFilteredBuffer();
-
             // Add the filter buffer slots
-            for (int slot = 0; slot < inv.getSlots(); slot++)
-            {
-                this.addSlotToContainer(new SlotItemHandlerGeneric(inv, slot, posX + (slot % 9) * 18, posY));
-
-                if (slot == 8)
-                {
-                    posY += 18;
-                }
-            }
+            SlotPlacer.create(8, 110, teseq.getInventoryFilteredBuffer(), this).setSlotType(SlotType.SPECIAL).place();
         }
 
         // Add the normal output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutNormal(), 0,  8, 151));
 
         // Add the filtered output buffer slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutFiltered(), 0, 98, 151));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutFiltered(), 0, 152, 151));
     }
 }
