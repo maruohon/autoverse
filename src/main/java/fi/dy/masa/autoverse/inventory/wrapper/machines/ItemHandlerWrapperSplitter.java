@@ -7,6 +7,7 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcher sequenceSwitch1;
+    private final SequenceMatcher sequenceSwitch2;
     private Mode mode = Mode.CONFIGURE_RESET;
     private boolean outputIsSecondary;
 
@@ -15,6 +16,7 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
         super(4, inventoryInput);
 
         this.sequenceSwitch1 = new SequenceMatcher(4, "SequenceSwitch1");
+        this.sequenceSwitch2 = new SequenceMatcher(4, "SequenceSwitch2");
     }
 
     @Override
@@ -32,6 +34,13 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
             case CONFIGURE_SEQUENCE_1:
                 if (this.getSwitchSequence1().configureSequence(inputStack))
                 {
+                    this.setMode(Mode.CONFIGURE_SEQUENCE_2);
+                }
+                break;
+
+            case CONFIGURE_SEQUENCE_2:
+                if (this.getSwitchSequence2().configureSequence(inputStack))
+                {
                     this.setMode(Mode.NORMAL_OPERATION);
                 }
                 break;
@@ -41,12 +50,20 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
                 {
                     this.getResetSequence().reset();
                     this.getSwitchSequence1().reset();
+                    this.getSwitchSequence2().reset();
                     this.setSecondaryOutputActive(false);
                     this.setMode(Mode.CONFIGURE_RESET);
                 }
-                else if (this.getSwitchSequence1().checkInputItem(inputStack))
+                else
                 {
-                    this.setSecondaryOutputActive(! this.secondaryOutputActive());
+                    if (this.secondaryOutputActive() && this.getSwitchSequence1().checkInputItem(inputStack))
+                    {
+                        this.setSecondaryOutputActive(false);
+                    }
+                    else if (this.secondaryOutputActive() == false && this.getSwitchSequence2().checkInputItem(inputStack))
+                    {
+                        this.setSecondaryOutputActive(true);
+                    }
                 }
                 break;
 
@@ -80,13 +97,20 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
         return this.sequenceSwitch1;
     }
 
+    public SequenceMatcher getSwitchSequence2()
+    {
+        return this.sequenceSwitch2;
+    }
+
     @Override
     protected NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         tag = super.writeToNBT(tag);
 
         tag.setByte("State", (byte) ((this.outputIsSecondary ? 0x80 : 0x00) | this.mode.getId()));
+
         this.sequenceSwitch1.writeToNBT(tag);
+        this.sequenceSwitch2.writeToNBT(tag);
 
         return tag;
     }
@@ -101,6 +125,7 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
         this.setSecondaryOutputActive((state & 0x80) != 0);
 
         this.sequenceSwitch1.readFromNBT(tag);
+        this.sequenceSwitch2.readFromNBT(tag);
     }
 
     public enum Mode

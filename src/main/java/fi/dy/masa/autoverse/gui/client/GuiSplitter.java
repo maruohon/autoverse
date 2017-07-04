@@ -9,19 +9,12 @@ public class GuiSplitter extends GuiAutoverse
 {
     private final ContainerSplitter containerSP;
     private final TileEntitySplitter te;
-    private final boolean selectable;
 
     public GuiSplitter(ContainerSplitter container, TileEntitySplitter te)
     {
-        super(container, 176, 206, "gui.container.splitter_" + (te.isSelectable() ? "selectable" : "togglable"));
+        super(container, 176, 238, "gui.container.splitter_selectable");
         this.containerSP = container;
         this.te = te;
-        this.selectable = te.isSelectable();
-
-        if (this.selectable)
-        {
-            this.ySize = 238;
-        }
     }
 
     @Override
@@ -29,7 +22,7 @@ public class GuiSplitter extends GuiAutoverse
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String unloc = "autoverse.container.splitter_" + (this.selectable ? "selectable" : "togglable");
+        String unloc = "autoverse.container.splitter_selectable";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),             8,  20, 0x404040);
@@ -37,26 +30,15 @@ public class GuiSplitter extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.reset_sequence");
         this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 7,  20, 0x404040);
 
-        if (this.selectable)
-        {
-            s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 1);
-            this.fontRenderer.drawString(s, 8, 72, 0x404040);
+        s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 1);
+        this.fontRenderer.drawString(s, 8, 72, 0x404040);
 
-            s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 2);
-            this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 7,  72, 0x404040);
+        s = I18n.format("autoverse.gui.label.splitter.switching_sequence_num", 2);
+        this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 7,  72, 0x404040);
 
-            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 1),  28, 128, 0x404040);
-            s = I18n.format("autoverse.gui.label.splitter.output", 2);
-            this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 128, 0x404040);
-        }
-        else
-        {
-            s = I18n.format("autoverse.gui.label.splitter.switching_sequence");
-            this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 6,  72, 0x404040);
-
-            this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.outputs"),  8,  72, 0x404040);
-            this.fontRenderer.drawString(I18n.format("container.inventory"),                   8, 114, 0x404040);
-        }
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 1),  28, 128, 0x404040);
+        s = I18n.format("autoverse.gui.label.splitter.output", 2);
+        this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 128, 0x404040);
     }
 
     @Override

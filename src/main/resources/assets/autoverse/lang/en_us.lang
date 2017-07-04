@@ -22,7 +22,6 @@ autoverse.container.sequencer=Sequencer
 autoverse.container.sequencer_programmable=Programmable Sequencer
 autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_selectable=Selectable Splitter
-autoverse.container.splitter_togglable=Togglable Splitter
 
 autoverse.gui.label.1_bit_marker=1-bit
 autoverse.gui.label.block_reader.block_count=Length (number of blocks)
@@ -58,7 +57,6 @@ autoverse.gui.label.redstone_emitter.enabled_marker=Ena. marker
 autoverse.gui.label.redstone_emitter.sequence_off=Seq. OFF
 autoverse.gui.label.redstone_emitter.sequence_on=Seq. ON
 autoverse.gui.label.redstone_emitter.side_config=Side conf.
-autoverse.gui.label.splitter.outputs=Outputs
 autoverse.gui.label.splitter.output=Out %d
 autoverse.gui.label.splitter.switching_sequence=Switch seq.
 autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
@@ -125,7 +123,6 @@ tile.autoverse.sequencer_4.name=Sequencer (18 slots)
 tile.autoverse.sequencer_programmable.name=Programmable Sequencer
 tile.autoverse.splitter_redstone.name=Redstone Controllable Splitter
 tile.autoverse.splitter_selectable.name=Selectable Splitter
-tile.autoverse.splitter_togglable.name=Togglable Splitter
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description

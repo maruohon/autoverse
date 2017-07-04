@@ -24,7 +24,6 @@ import fi.dy.masa.autoverse.inventory.container.ContainerSplitterRedstone;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperInsertOnly;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSelectable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -68,11 +67,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         switch (type)
         {
             case SELECTABLE:
-                this.splitter = new ItemHandlerWrapperSplitterSelectable(this.inventoryInput);
-                this.itemHandlerExternal = this.splitter;
-                break;
-
-            case TOGGLABLE:
                 this.splitter = new ItemHandlerWrapperSplitter(this.inventoryInput);
                 this.itemHandlerExternal = this.splitter;
                 break;
@@ -119,11 +113,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
             default:
                 return super.applyProperty(propId, value);
         }
-    }
-
-    public boolean isSelectable()
-    {
-        return this.type == BlockSplitter.SplitterType.SELECTABLE;
     }
 
     public void setSplitterType(BlockSplitter.SplitterType type)

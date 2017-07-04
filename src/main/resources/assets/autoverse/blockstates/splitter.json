@@ -14,14 +14,6 @@
     },
     "variants": {
         "type" :{
-            "togglable": {
-                "textures": {
-                    "out_1":    "autoverse:blocks/splitter_togglable_out_1",
-                    "out_2":    "autoverse:blocks/splitter_togglable_out_2",
-                    "side":     "autoverse:blocks/splitter_togglable_side",
-                    "base":     "autoverse:blocks/splitter_togglable_base"
-                }
-            },
             "selectable": {
                 "textures": {
                     "out_1":    "autoverse:blocks/splitter_selectable_out_1",
