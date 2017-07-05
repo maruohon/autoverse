@@ -94,7 +94,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Override
     public int damageDropped(IBlockState state)
     {
-        return state.getValue(TYPE).getBlockMeta();
+        return state.getValue(TYPE).getItemMeta();
     }
 
     @Override
