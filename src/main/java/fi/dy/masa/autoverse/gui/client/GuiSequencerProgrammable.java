@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.gui.client;
 import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencerProgrammable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencerProgrammable;

@@ -30,7 +30,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.reference.Reference;
 

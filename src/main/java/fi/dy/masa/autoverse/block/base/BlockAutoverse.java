@@ -30,7 +30,7 @@ import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import fi.dy.masa.autoverse.gui.client.CreativeTab;
+import fi.dy.masa.autoverse.gui.client.base.CreativeTab;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.util.EntityUtils;

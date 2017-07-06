@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 

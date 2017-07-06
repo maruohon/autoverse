@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencer;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 

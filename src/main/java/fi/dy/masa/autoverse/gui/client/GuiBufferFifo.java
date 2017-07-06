@@ -7,6 +7,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
 import fi.dy.masa.autoverse.network.PacketHandler;

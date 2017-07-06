@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.Autoverse;
-import fi.dy.masa.autoverse.gui.client.CreativeTab;
+import fi.dy.masa.autoverse.gui.client.base.CreativeTab;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class ItemAutoverse extends Item

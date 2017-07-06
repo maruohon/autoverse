@@ -1,4 +1,4 @@
-package fi.dy.masa.autoverse.gui.client;
+package fi.dy.masa.autoverse.gui.client.base;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
