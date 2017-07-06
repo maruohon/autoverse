@@ -3,11 +3,11 @@ package fi.dy.masa.autoverse.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
-import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 
 public class ContainerBreaker extends ContainerTile
 {
-    public ContainerBreaker(EntityPlayer player, TileEntityBreaker te)
+    public ContainerBreaker(EntityPlayer player, TileEntityBlockBreaker te)
     {
         super(player, te);
 

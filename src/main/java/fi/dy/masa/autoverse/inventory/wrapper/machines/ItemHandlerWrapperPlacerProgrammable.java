@@ -4,13 +4,13 @@ import java.util.Arrays;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacerProgrammable;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequenceBase
 {
-    private final TileEntityPlacerProgrammable te;
+    private final TileEntityBlockPlacerProgrammable te;
     private final IItemHandler inventoryOutput;
     private final SequenceMatcher sequenceMarkerHighBit;
     private final SequenceMatcherVariable sequenceTrigger;
@@ -22,7 +22,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     public ItemHandlerWrapperPlacerProgrammable(
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput,
-            TileEntityPlacerProgrammable te)
+            TileEntityBlockPlacerProgrammable te)
     {
         super(4, inventoryInput);
 

@@ -37,7 +37,7 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.BlockUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
+public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInventory
 {
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOutput;
@@ -46,7 +46,7 @@ public class TileEntityPlacerProgrammable extends TileEntityAutoverseInventory
     private int placementOffset = 1;
     private EnumFacing facingHorizontal = BlockAutoverse.DEFAULT_FACING;
 
-    public TileEntityPlacerProgrammable()
+    public TileEntityBlockPlacerProgrammable()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_PLACER_PROGRAMMABLE);
     }

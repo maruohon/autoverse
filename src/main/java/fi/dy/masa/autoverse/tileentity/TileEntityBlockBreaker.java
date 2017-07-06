@@ -23,13 +23,13 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-public class TileEntityBreaker extends TileEntityAutoverseInventory
+public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 {
     private BlockPos posBack = BlockPos.ORIGIN;
     private boolean isGreedy;
     private int delay = 4;
 
-    public TileEntityBreaker()
+    public TileEntityBlockBreaker()
     {
         super(ReferenceNames.NAME_BLOCK_BREAKER);
 

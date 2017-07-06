@@ -2,13 +2,13 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacerProgrammable;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 
 public class GuiPlacerProgrammable extends GuiAutoverse
 {
-    private final TileEntityPlacerProgrammable te;
+    private final TileEntityBlockPlacerProgrammable te;
 
-    public GuiPlacerProgrammable(ContainerAutoverse container, TileEntityPlacerProgrammable te)
+    public GuiPlacerProgrammable(ContainerAutoverse container, TileEntityBlockPlacerProgrammable te)
     {
         // Same GUI background as the filter
         super(container, 176, 256, "gui.container.filter");

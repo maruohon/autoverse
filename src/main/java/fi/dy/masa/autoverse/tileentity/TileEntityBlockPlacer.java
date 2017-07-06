@@ -35,7 +35,7 @@ import fi.dy.masa.autoverse.util.BlockUtils;
 import fi.dy.masa.autoverse.util.PositionUtils;
 import fi.dy.masa.autoverse.util.TileUtils;
 
-public class TileEntityPlacer extends TileEntityAutoverseInventory
+public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
 {
     public static final int MAX_LENGTH = 32;
     private int position;
@@ -43,7 +43,7 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
     private EnumFacing facingHorizontal = BlockAutoverse.DEFAULT_FACING;
     private State state = State.IDLE;
 
-    public TileEntityPlacer()
+    public TileEntityBlockPlacer()
     {
         super(ReferenceNames.NAME_BLOCK_PLACER);
 
@@ -269,7 +269,7 @@ public class TileEntityPlacer extends TileEntityAutoverseInventory
 
             if (simulate == false && (stack.isEmpty() || stack.getCount() < sizeOrig))
             {
-                TileEntityPlacer.this.scheduleBlockUpdate(TileEntityPlacer.this.delay, false);
+                TileEntityBlockPlacer.this.scheduleBlockUpdate(TileEntityBlockPlacer.this.delay, false);
             }
 
             return stack;

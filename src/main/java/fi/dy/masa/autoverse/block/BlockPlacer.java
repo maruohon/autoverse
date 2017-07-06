@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacer;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacerProgrammable;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacer;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
@@ -56,12 +56,12 @@ public class BlockPlacer extends BlockAutoverseInventory
         switch (state.getValue(TYPE))
         {
             case NBT:
-                return new TileEntityPlacer();
+                return new TileEntityBlockPlacer();
             case PROGRAMMABLE:
-                return new TileEntityPlacerProgrammable();
+                return new TileEntityBlockPlacerProgrammable();
         }
 
-        return new TileEntityPlacer();
+        return new TileEntityBlockPlacer();
     }
 
     @Override
@@ -92,13 +92,13 @@ public class BlockPlacer extends BlockAutoverseInventory
                 horizontalFacing = horizontalFacing.getOpposite();
             }
 
-            if (te instanceof TileEntityPlacer)
+            if (te instanceof TileEntityBlockPlacer)
             {
-                ((TileEntityPlacer) te).setHorizontalFacing(horizontalFacing);
+                ((TileEntityBlockPlacer) te).setHorizontalFacing(horizontalFacing);
             }
-            else if (te instanceof TileEntityPlacerProgrammable)
+            else if (te instanceof TileEntityBlockPlacerProgrammable)
             {
-                ((TileEntityPlacerProgrammable) te).setHorizontalFacing(horizontalFacing);
+                ((TileEntityBlockPlacerProgrammable) te).setHorizontalFacing(horizontalFacing);
             }
         }
     }

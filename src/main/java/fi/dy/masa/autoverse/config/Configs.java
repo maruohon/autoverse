@@ -12,11 +12,27 @@ public class Configs
     public static boolean disableSounds;
     public static boolean fifoBufferOffsetSlots;
 
+    public static boolean disableBlockBarrel;
+    public static boolean disableBlockBlockBreaker;
+    public static boolean disableBlockBlockDetector;
+    public static boolean disableBlockBlockPlacer;
+    public static boolean disableBlockBlockReader;
+    public static boolean disableBlockBuffer;
+    public static boolean disableBlockCrafter;
+    public static boolean disableBlockFilter;
+    public static boolean disableBlockInventoryReader;
+    public static boolean disableBlockRedstoneEmitter;
+    public static boolean disableBlockSequenceDetector;
+    public static boolean disableBlockSequencer;
+    public static boolean disableBlockSequencerProgrammable;
+    public static boolean disableBlockSplitter;
+
     public static File configurationFile;
     public static Configuration config;
     
     public static final String CATEGORY_CLIENT = "Client";
     public static final String CATEGORY_GENERIC = "Generic";
+    public static final String CATEGORY_BLOCK_DISABLE = "DisableBlocks";
 
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
@@ -49,6 +65,7 @@ public class Configs
         }
 
         loadConfigsGeneric(config);
+        loadConfigsBlockDisable(config);
 
         if (config.hasChanged())
         {
@@ -68,6 +85,31 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
         prop.setComment("Disable all sounds");
         disableSounds = prop.getBoolean();
+
+        if (conf.hasChanged())
+        {
+            conf.save();
+        }
+    }
+
+    private static void loadConfigsBlockDisable(Configuration conf)
+    {
+        conf.getCategory(CATEGORY_BLOCK_DISABLE).setRequiresMcRestart(true);
+
+        disableBlockBarrel                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBarrel", false).getBoolean();
+        disableBlockBlockBreaker            = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockBreaker", false).getBoolean();
+        disableBlockBlockDetector           = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockDetector", false).getBoolean();
+        disableBlockBlockPlacer             = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockPlacer", false).getBoolean();
+        disableBlockBlockReader             = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockReader", false).getBoolean();
+        disableBlockBuffer                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBuffer", false).getBoolean();
+        disableBlockCrafter                 = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockCrafter", false).getBoolean();
+        disableBlockFilter                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockFilter", false).getBoolean();
+        disableBlockInventoryReader         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockInventoryReader", false).getBoolean();
+        disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
+        disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
+        disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();
+        disableBlockSequencerProgrammable   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencerProgrammable", false).getBoolean();
+        disableBlockSplitter                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSplitter", false).getBoolean();
 
         if (conf.hasChanged())
         {

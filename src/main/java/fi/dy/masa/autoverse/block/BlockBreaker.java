@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockBreaker extends BlockAutoverseInventory
@@ -61,7 +61,7 @@ public class BlockBreaker extends BlockAutoverseInventory
     @Override
     protected TileEntityAutoverse createTileEntityInstance(World worldIn, IBlockState state)
     {
-        TileEntityBreaker te = new TileEntityBreaker();
+        TileEntityBlockBreaker te = new TileEntityBlockBreaker();
         te.setIsGreedy(state.getValue(TYPE) == BreakerType.GREEDY);
         return te;
     }

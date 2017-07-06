@@ -3,13 +3,13 @@ package fi.dy.masa.autoverse.gui.client;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityBreaker;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 
 public class GuiBreaker extends GuiAutoverse
 {
-    protected final TileEntityBreaker te;
+    protected final TileEntityBlockBreaker te;
 
-    public GuiBreaker(ContainerAutoverse container, TileEntityBreaker te)
+    public GuiBreaker(ContainerAutoverse container, TileEntityBlockBreaker te)
     {
         super(container, 176, 166, "dummy");
 

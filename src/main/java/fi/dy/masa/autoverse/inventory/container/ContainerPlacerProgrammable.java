@@ -5,13 +5,13 @@ import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperPlacerProgrammable;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacerProgrammable;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 
 public class ContainerPlacerProgrammable extends ContainerTile
 {
-    private final TileEntityPlacerProgrammable tepp;
+    private final TileEntityBlockPlacerProgrammable tepp;
 
-    public ContainerPlacerProgrammable(EntityPlayer player, TileEntityPlacerProgrammable te)
+    public ContainerPlacerProgrammable(EntityPlayer player, TileEntityBlockPlacerProgrammable te)
     {
         super(player, te);
         this.tepp = te;

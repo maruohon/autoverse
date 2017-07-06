@@ -2,13 +2,13 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityPlacer;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacer;
 
 public class GuiPlacer extends GuiAutoverse
 {
-    protected final TileEntityPlacer te;
+    protected final TileEntityBlockPlacer te;
 
-    public GuiPlacer(ContainerAutoverse container, TileEntityPlacer te)
+    public GuiPlacer(ContainerAutoverse container, TileEntityBlockPlacer te)
     {
         super(container, 176, 192, "gui.container.placer");
 

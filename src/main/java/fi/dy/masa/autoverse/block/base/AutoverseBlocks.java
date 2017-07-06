@@ -1,71 +1,133 @@
 package fi.dy.masa.autoverse.block.base;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.IForgeRegistry;
 import fi.dy.masa.autoverse.block.*;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.tileentity.*;
 
+@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public class AutoverseBlocks
 {
     public static final BlockAutoverse BARREL                   = new BlockBarrel(ReferenceNames.NAME_BLOCK_BARREL,                                 4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse BLOCK_BREAKER            = new BlockBreaker(ReferenceNames.NAME_BLOCK_BREAKER,                               4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse BLOCK_DETECTOR           = new BlockDetector(ReferenceNames.NAME_BLOCK_DETECTOR,                             4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse BLOCK_PLACER             = new BlockPlacer(ReferenceNames.NAME_BLOCK_PLACER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse BLOCK_READER             = new BlockReader(ReferenceNames.NAME_BLOCK_BLOCK_READER,                           4.0f, 10f, 1, Material.ROCK);
-    public static final BlockAutoverse BREAKER                  = new BlockBreaker(ReferenceNames.NAME_BLOCK_BREAKER,                               4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse BUFFER                   = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                               4.0f, 10f, 1, Material.ROCK);
-    public static final BlockAutoverse DETECTOR                 = new BlockDetector(ReferenceNames.NAME_BLOCK_DETECTOR,                             4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FILTER                   = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse INVENTORY_READER         = new BlockInventoryReader(ReferenceNames.NAME_BLOCK_INVENTORY_READER,              4.0f, 10f, 1, Material.ROCK);
-    public static final BlockAutoverse PLACER                   = new BlockPlacer(ReferenceNames.NAME_BLOCK_PLACER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,              4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,            4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,                           4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER_PROGRAMMABLE   = new BlockSequencerProgrammable(ReferenceNames.NAME_BLOCK_SEQUENCER_PROGRAMMABLE,  4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                             4.0f, 10f, 1, Material.ROCK);
 
-    public static void init()
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
-        registerBlock(BARREL,                   false);
-        registerBlock(BLOCK_READER,             false);
-        registerBlock(BREAKER,                  false);
-        registerBlock(BUFFER,                   false);
-        registerBlock(CRAFTER,                  false);
-        registerBlock(DETECTOR,                 false);
-        registerBlock(FILTER,                   false);
-        registerBlock(INVENTORY_READER,         false);
-        registerBlock(PLACER,                   false);
-        registerBlock(REDSTONE_EMITTER,         false);
-        registerBlock(SEQUENCE_DETECTOR,        false);
-        registerBlock(SEQUENCER,                false);
-        registerBlock(SEQUENCER_PROGRAMMABLE,   false);
-        registerBlock(SPLITTER,                 false);
+        IForgeRegistry<Block> registry = event.getRegistry();
+
+        registerBlock(registry, BARREL,                 Configs.disableBlockBarrel);
+        registerBlock(registry, BLOCK_BREAKER,          Configs.disableBlockBlockBreaker);
+        registerBlock(registry, BLOCK_DETECTOR,         Configs.disableBlockBlockDetector);
+        registerBlock(registry, BLOCK_PLACER,           Configs.disableBlockBlockPlacer);
+        registerBlock(registry, BLOCK_READER,           Configs.disableBlockBlockReader);
+        registerBlock(registry, BUFFER,                 Configs.disableBlockBuffer);
+        registerBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
+        registerBlock(registry, FILTER,                 Configs.disableBlockFilter);
+        registerBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
+        registerBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
+        registerBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
+        registerBlock(registry, SEQUENCER_PROGRAMMABLE, Configs.disableBlockSequencerProgrammable);
+        registerBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
+
+        registerTileEntities();
     }
 
-    private static void registerBlock(BlockAutoverse block, boolean isDisabled)
+    @SubscribeEvent
+    public static void registerItemBlocks(RegistryEvent.Register<Item> event)
     {
-        registerBlock(block, isDisabled, true);
+        IForgeRegistry<Item> registry = event.getRegistry();
+
+        registerItemBlock(registry, BARREL,                 Configs.disableBlockBarrel);
+        registerItemBlock(registry, BLOCK_BREAKER,          Configs.disableBlockBlockBreaker);
+        registerItemBlock(registry, BLOCK_DETECTOR,         Configs.disableBlockBlockDetector);
+        registerItemBlock(registry, BLOCK_PLACER,           Configs.disableBlockBlockPlacer);
+        registerItemBlock(registry, BLOCK_READER,           Configs.disableBlockBlockReader);
+        registerItemBlock(registry, BUFFER,                 Configs.disableBlockBuffer);
+        registerItemBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
+        registerItemBlock(registry, FILTER,                 Configs.disableBlockFilter);
+        registerItemBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerItemBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
+        registerItemBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
+        registerItemBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
+        registerItemBlock(registry, SEQUENCER_PROGRAMMABLE, Configs.disableBlockSequencerProgrammable);
+        registerItemBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
     }
 
-    private static void registerBlock(BlockAutoverse block, boolean isDisabled, boolean createItemBlock)
-    {
-        registerBlock(block, isDisabled, createItemBlock, true);
-    }
-
-    private static void registerBlock(BlockAutoverse block, boolean isDisabled, boolean createItemBlock, boolean hasSubtypes)
+    private static void registerBlock(IForgeRegistry<Block> registry, BlockAutoverse block, boolean isDisabled)
     {
         if (isDisabled == false)
         {
             block.setRegistryName(Reference.MOD_ID + ":" + block.getBlockName());
-            GameRegistry.register(block);
-
-            if (createItemBlock)
-            {
-                GameRegistry.register(block.createItemBlock().setHasSubtypes(hasSubtypes).setRegistryName(Reference.MOD_ID, block.getBlockName()));
-            }
+            registry.register(block);
         }
         else
         {
             block.setEnabled(false);
         }
+    }
+
+    private static void registerItemBlock(IForgeRegistry<Item> registry, BlockAutoverse block, boolean isDisabled)
+    {
+        registerItemBlock(registry, block, isDisabled, true);
+    }
+
+    private static void registerItemBlock(IForgeRegistry<Item> registry, BlockAutoverse block, boolean isDisabled, boolean hasSubtypes)
+    {
+        if (isDisabled == false)
+        {
+            Item item = block.createItemBlock().setRegistryName(Reference.MOD_ID, block.getBlockName()).setHasSubtypes(hasSubtypes);
+            registry.register(item);
+        }
+    }
+
+    private static void registerTileEntities()
+    {
+        registerTileEntity(TileEntityBarrel.class,                  ReferenceNames.NAME_BLOCK_BARREL);
+        registerTileEntity(TileEntityBlockBreaker.class,            ReferenceNames.NAME_BLOCK_BREAKER);
+        registerTileEntity(TileEntityBlockDetector.class,           ReferenceNames.NAME_BLOCK_DETECTOR);
+        registerTileEntity(TileEntityBlockPlacer.class,             ReferenceNames.NAME_BLOCK_PLACER);
+        registerTileEntity(TileEntityBlockPlacerProgrammable.class, ReferenceNames.NAME_TILE_ENTITY_PLACER_PROGRAMMABLE);
+        registerTileEntity(TileEntityBlockReaderNBT.class,          ReferenceNames.NAME_TILE_ENTITY_BLOCK_READER_NBT);
+        registerTileEntity(TileEntityBufferFifo.class,              ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO);
+        registerTileEntity(TileEntityBufferFifoAuto.class,          ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_AUTO);
+        registerTileEntity(TileEntityBufferFifoPulsed.class,        ReferenceNames.NAME_TILE_ENTITY_BUFFER_FIFO_PULSED);
+        registerTileEntity(TileEntityCrafter.class,                 ReferenceNames.NAME_BLOCK_CRAFTER);
+        registerTileEntity(TileEntityFilter.class,                  ReferenceNames.NAME_BLOCK_FILTER);
+        registerTileEntity(TileEntityFilterSequential.class,        ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
+        registerTileEntity(TileEntityInventoryReader.class,         ReferenceNames.NAME_BLOCK_INVENTORY_READER);
+        registerTileEntity(TileEntityRedstoneEmitter.class,         ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER);
+        registerTileEntity(TileEntitySequenceDetector.class,        ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR);
+        registerTileEntity(TileEntitySequencer.class,               ReferenceNames.NAME_BLOCK_SEQUENCER);
+        registerTileEntity(TileEntitySequencerProgrammable.class,   ReferenceNames.NAME_BLOCK_SEQUENCER_PROGRAMMABLE);
+        registerTileEntity(TileEntitySplitter.class,                ReferenceNames.NAME_BLOCK_SPLITTER);
+    }
+
+    private static void registerTileEntity(Class<? extends TileEntity> clazz, String id)
+    {
+        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
     }
 }
