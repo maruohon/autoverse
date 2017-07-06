@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse.PlacementProperty;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.ItemType;
@@ -155,7 +156,7 @@ public class RenderEventHandler
         {
             ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
 
-            if (item.hasPlacementProperties())
+            if (item.hasPlacementProperty(stack))
             {
                 renderText(this.getPlacementPropertiesText(item, stack, player), 4, 0, HudAlignment.BOTTOM_LEFT, true, true, this.mc);
             }
@@ -170,14 +171,15 @@ public class RenderEventHandler
         List<String> lines = new ArrayList<String>();
         PlacementProperties props = PlacementProperties.getInstance();
         UUID uuid = player.getUniqueID();
-        boolean nbtSensitive = item.getPlacementPropertyNBTSensitive();
+        PlacementProperty pp = item.getPlacementProperty(stack);
+        boolean nbtSensitive = pp.isNBTSensitive();
         ItemType type = new ItemType(stack, nbtSensitive);
         int index = props.getPropertyIndex(uuid, type);
-        int count = item.getPlacementPropertyCount();
+        int count = pp.getPropertyCount();
 
         for (int i = 0; i < count; i++)
         {
-            Pair<String, Integer> pair = item.getPlacementProperty(i);
+            Pair<String, Integer> pair = pp.getProperty(i);
 
             if (pair != null)
             {
@@ -185,7 +187,7 @@ public class RenderEventHandler
                 String pre = (i == index) ? "> " : "  ";
                 String name = I18n.format(Reference.MOD_ID + ".placement_properties." + key);
                 int value = props.getPropertyValue(uuid, type, key, pair.getRight());
-                String valueName = item.getPlacementPropertyValueName(key, value);
+                String valueName = pp.getPropertyValueName(key, value);
 
                 if (valueName == null)
                 {

@@ -133,6 +133,6 @@ public class InputEventHandler
         ItemStack stack = EntityUtils.getHeldItemOfType(player, IKeyBound.class);
 
         return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockAutoverse) == false || 
-                ((ItemBlockAutoverse) stack.getItem()).hasPlacementProperties());
+                ((ItemBlockAutoverse) stack.getItem()).hasPlacementProperty(stack));
     }
 }

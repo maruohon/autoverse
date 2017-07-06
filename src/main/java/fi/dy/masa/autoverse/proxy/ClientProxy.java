@@ -5,8 +5,6 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -104,8 +102,8 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.BLOCK_PLACER, 1, "facing=north,type=programmable");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "down=true,east=true,facing=north,north=false,powered=true,south=true,up=true,west=true");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
-        registerAllItemBlockModels(AutoverseBlocks.SEQUENCER, "facing=north,tier=", "", true);
-        registerItemBlockModel(AutoverseBlocks.SEQUENCER_PROGRAMMABLE, 0, "facing=north");
+        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");
+        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,type=programmable");
         registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=switchable");
         registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,type=redstone");
     }
@@ -116,25 +114,6 @@ public class ClientProxy extends CommonProxy
         {
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), meta,
                 new ModelResourceLocation(block.getRegistryName(), fullVariant));
-        }
-    }
-
-    private static void registerAllItemBlockModels(BlockAutoverse block, String variantPre, String variantPost, boolean useMeta)
-    {
-        if (block.isEnabled())
-        {
-            NonNullList<ItemStack> stacks = NonNullList.create();
-            block.getSubBlocks(Item.getItemFromBlock(block), block.getCreativeTabToDisplayOn(), stacks);
-            String[] names = block.getUnlocalizedNames();
-
-            for (ItemStack stack : stacks)
-            {
-                Item item = stack.getItem();
-                int meta = stack.getMetadata();
-                String variant = useMeta ? String.valueOf(meta) : names[meta];
-                ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + variant + variantPost);
-                ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
-            }
         }
     }
 }

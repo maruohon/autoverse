@@ -18,7 +18,7 @@ autoverse.container.placer=Block Placer
 autoverse.container.placer_programmable=Programmable Block Placer
 autoverse.container.redstone_emitter=Programmable Redstone Emitter
 autoverse.container.sequence_detector=Sequence Detector
-autoverse.container.sequencer=Sequencer
+autoverse.container.sequencer_basic=Sequencer
 autoverse.container.sequencer_programmable=Programmable Sequencer
 autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_switchable=Switchable Splitter
@@ -65,7 +65,8 @@ autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
 autoverse.gui.label.tier_num=Tier: %d
 
 autoverse.placement_properties.barrel.tier=Barrel tier
-autoverse.placement_properties.fifo.size=Buffer size
+autoverse.placement_properties.buffer.size=Buffer size
+autoverse.placement_properties.sequencer.length=Length
 
 tile.autoverse.barrel.name=Barrel
 tile.autoverse.barrel_pulsed.name=Pulsed Barrel
@@ -85,12 +86,8 @@ tile.autoverse.placer.name=Block Placer
 tile.autoverse.placer_programmable.name=Programmable Block Placer
 tile.autoverse.redstone_emitter.name=Programmable Redstone Emitter
 tile.autoverse.sequence_detector.name=Sequence Detector
-tile.autoverse.sequencer_0.name=Sequencer (2 slots)
-tile.autoverse.sequencer_1.name=Sequencer (3 slots)
-tile.autoverse.sequencer_2.name=Sequencer (6 slots)
-tile.autoverse.sequencer_3.name=Sequencer (9 slots)
-tile.autoverse.sequencer_4.name=Sequencer (18 slots)
-tile.autoverse.sequencer_programmable.name=Programmable Sequencer
+tile.autoverse.sequencer_basic.name=Sequencer (Basic)
+tile.autoverse.sequencer_programmable.name=Sequencer (Programmable)
 tile.autoverse.splitter_redstone.name=Redstone Controllable Splitter
 tile.autoverse.splitter_switchable.name=Switchable Splitter
 

@@ -17,6 +17,18 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
         this.baseHandler = baseHandler;
     }
 
+    /**
+     * Wrap the extract position to 0 if it's over the end of the inventory.
+     * This is only needed when changing the inventory size via the GUI buttons.
+     */
+    public void wrapPositions()
+    {
+        if (this.extractSlot >= this.baseHandler.getSlots())
+        {
+            this.extractSlot = 0;
+        }
+    }
+
     public int getOutputSlot()
     {
         return this.extractSlot;

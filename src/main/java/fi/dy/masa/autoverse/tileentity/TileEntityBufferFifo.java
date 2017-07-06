@@ -68,9 +68,9 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        if (tag.hasKey("fifo.size", Constants.NBT.TAG_BYTE))
+        if (tag.hasKey("buffer.size", Constants.NBT.TAG_BYTE))
         {
-            this.setFifoLength(tag.getByte("fifo.size"));
+            this.setFifoLength(tag.getByte("buffer.size"));
             this.markDirty();
         }
     }

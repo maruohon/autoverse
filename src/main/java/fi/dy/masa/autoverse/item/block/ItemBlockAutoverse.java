@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.state.IBlockState;
@@ -20,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
@@ -36,11 +38,71 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     private final BlockAutoverse blockEnu;
     protected String[] blockNames;
     protected String[] tooltipNames;
-    private boolean hasPlacementProperties;
-    private boolean placementPropertyNBTSensitive;
-    private List<Pair<String, Integer>> placementPropertyTypes = new ArrayList<Pair<String, Integer>>();
-    private List<Pair<Integer, Integer>> placementPropertyValueRange = new ArrayList<Pair<Integer, Integer>>();
-    private Map<String, String[]> placementPropertyValueNames = new HashMap<String, String[]>();
+    private final HashMap<Integer, PlacementProperty> placementProperties = new HashMap<Integer, PlacementProperty>();
+
+    public static class PlacementProperty
+    {
+        private boolean isNBTSensitive;
+        private List<Pair<String, Integer>> propertyTypes = new ArrayList<Pair<String, Integer>>();
+        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<Pair<Integer, Integer>>();
+        private Map<String, String[]> propertyValueNames = new HashMap<String, String[]>();
+
+        public boolean hasPlacementProperties()
+        {
+            return this.propertyTypes.isEmpty() == false;
+        }
+
+        public boolean isNBTSensitive()
+        {
+            return this.isNBTSensitive;
+        }
+
+        public void setIsNBTSensitive(boolean checkNBT)
+        {
+            this.isNBTSensitive = checkNBT;
+        }
+
+        public void addProperty(String key, int type, int minValue, int maxValue)
+        {
+            this.propertyTypes.add(Pair.of(key, type));
+            this.propertyValueRange.add(Pair.of(minValue, maxValue));
+        }
+
+        public void addValueNames(String key, String[] names)
+        {
+            this.propertyValueNames.put(key, names);
+        }
+
+        @Nullable
+        public Pair<String, Integer> getProperty(int index)
+        {
+            return index >= 0 && index < this.propertyTypes.size() ? this.propertyTypes.get(index) : null;
+        }
+
+        @Nullable
+        public Pair<Integer, Integer> getPropertyValueRange(int index)
+        {
+            return index >= 0 && index < this.propertyValueRange.size() ? this.propertyValueRange.get(index) : null;
+        }
+
+        @Nullable
+        public String getPropertyValueName(String key, int index)
+        {
+            String[] names = this.propertyValueNames.get(key);
+
+            if (names != null && index >= 0 && index < names.length)
+            {
+                return names[index];
+            }
+
+            return null;
+        }
+
+        public int getPropertyCount()
+        {
+            return this.propertyTypes.size();
+        }
+    }
 
     public ItemBlockAutoverse(BlockAutoverse block)
     {
@@ -64,65 +126,50 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
         this.tooltipNames = names;
     }
 
-    public boolean hasPlacementProperties()
+    public boolean hasPlacementProperty(ItemStack stack)
     {
-        return this.hasPlacementProperties && this.placementPropertyTypes.isEmpty() == false;
-    }
-
-    public void setHasPlacementProperties(boolean hasProps)
-    {
-        this.hasPlacementProperties = hasProps;
-    }
-
-    public boolean getPlacementPropertyNBTSensitive()
-    {
-        return this.placementPropertyNBTSensitive;
-    }
-
-    public void setPlacementPropertyNBTSensitive(boolean checkNBT)
-    {
-        this.placementPropertyNBTSensitive = checkNBT;
-    }
-
-    public void addPlacementProperty(String key, int type, int minValue, int maxValue)
-    {
-        this.placementPropertyTypes.add(Pair.of(key, type));
-        this.placementPropertyValueRange.add(Pair.of(minValue, maxValue));
-    }
-
-    public void addPlacementPropertyValueNames(String key, String[] names)
-    {
-        this.placementPropertyValueNames.put(key, names);
+        return this.placementProperties.containsKey(OreDictionary.WILDCARD_VALUE) ||
+               this.placementProperties.containsKey(stack.getMetadata());
     }
 
     @Nullable
-    public Pair<String, Integer> getPlacementProperty(int index)
+    public PlacementProperty getPlacementProperty(ItemStack stack)
     {
-        return index >= 0 && index < this.placementPropertyTypes.size() ? this.placementPropertyTypes.get(index) : null;
-    }
+        PlacementProperty pp = this.placementProperties.get(stack.getMetadata());
 
-    @Nullable
-    public Pair<Integer, Integer> getPlacementPropertyValueRange(int index)
-    {
-        return index >= 0 && index < this.placementPropertyValueRange.size() ? this.placementPropertyValueRange.get(index) : null;
-    }
-
-    @Nullable
-    public String getPlacementPropertyValueName(String key, int index)
-    {
-        String[] names = this.placementPropertyValueNames.get(key);
-
-        if (names != null && index >= 0 && index < names.length)
+        if (pp == null)
         {
-            return names[index];
+            pp = this.placementProperties.get(OreDictionary.WILDCARD_VALUE);
         }
 
-        return null;
+        return pp;
     }
 
-    public int getPlacementPropertyCount()
+    @Nonnull
+    public PlacementProperty getOrCreatePlacementProperty(int stackMeta)
     {
-        return this.placementPropertyTypes.size();
+        PlacementProperty pp = this.placementProperties.get(stackMeta);
+
+        if (pp == null)
+        {
+            pp = new PlacementProperty();
+            this.placementProperties.put(stackMeta, pp);
+        }
+
+        return pp;
+    }
+
+    public void addPlacementProperty(int stackMeta, String key, int type, int minValue, int maxValue)
+    {
+        PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
+        pp.propertyTypes.add(Pair.of(key, type));
+        pp.propertyValueRange.add(Pair.of(minValue, maxValue));
+    }
+
+    public void addPlacementPropertyValueNames(int stackMeta, String key, String[] names)
+    {
+        PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
+        pp.propertyValueNames.put(key, names);
     }
 
     @Override
@@ -130,24 +177,25 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     {
         ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
 
-        if (item.hasPlacementProperties() && player instanceof EntityPlayerMP)
+        if (item.hasPlacementProperty(stack) && player instanceof EntityPlayerMP)
         {
-            ItemType type = new ItemType(stack, this.placementPropertyNBTSensitive);
+            PlacementProperty pp = this.getPlacementProperty(stack);
+            ItemType type = new ItemType(stack, pp.isNBTSensitive());
             int index = PlacementProperties.getInstance().getPropertyIndex(player.getUniqueID(), type);
 
             if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE) || EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
             {
                 index += EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ? -1 : 1;
-                if (index < 0) { index = Math.max(0, this.getPlacementPropertyCount() - 1); }
-                else if (index >= this.getPlacementPropertyCount()) { index = 0; }
+                if (index < 0) { index = Math.max(0, pp.getPropertyCount() - 1); }
+                else if (index >= pp.getPropertyCount()) { index = 0; }
 
                 PlacementProperties.getInstance().setPropertyIndex(player.getUniqueID(), type, index);
                 PlacementProperties.getInstance().syncCurrentlyHeldItemDataForPlayer((EntityPlayerMP) player, stack);
             }
             else
             {
-                Pair<String, Integer> pair = item.getPlacementProperty(index);
-                Pair<Integer, Integer> range = item.getPlacementPropertyValueRange(index);
+                Pair<String, Integer> pair = pp.getProperty(index);
+                Pair<Integer, Integer> range = pp.getPropertyValueRange(index);
                 int minValue = range != null ? range.getLeft() : 0;
                 int maxValue = range != null ? range.getRight() : 1;
 
@@ -176,31 +224,41 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
             EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack stack = player.getHeldItem(hand);
-        ItemType type = new ItemType(stack, this.placementPropertyNBTSensitive);
-        stack = stack.copy();
-        EnumActionResult result = super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
 
-        if (result == EnumActionResult.SUCCESS && this.hasPlacementProperties())
+        if (this.hasPlacementProperty(stack))
         {
-            NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
+            PlacementProperty pp = this.getPlacementProperty(stack);
+            ItemType type = new ItemType(stack, pp.isNBTSensitive());
+            stack = stack.copy();
 
-            if (tag != null)
+            EnumActionResult result = super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+
+            if (result == EnumActionResult.SUCCESS)
             {
-                IBlockState state = worldIn.getBlockState(pos);
+                NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
 
-                if (state.getBlock().isReplaceable(worldIn, pos) == false)
+                if (tag != null)
                 {
-                    pos = pos.offset(facing);
-                }
+                    IBlockState state = worldIn.getBlockState(pos);
 
-                if (worldIn.getBlockState(pos).getBlock() instanceof BlockAutoverse)
-                {
-                    this.blockEnu.setPlacementProperties(worldIn, pos, stack, tag);
+                    if (state.getBlock().isReplaceable(worldIn, pos) == false)
+                    {
+                        pos = pos.offset(facing);
+                    }
+
+                    if (worldIn.getBlockState(pos).getBlock() instanceof BlockAutoverse)
+                    {
+                        this.blockEnu.setPlacementProperties(worldIn, pos, stack, tag);
+                    }
                 }
             }
-        }
 
-        return result;
+            return result;
+        }
+        else
+        {
+            return super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+        }
     }
 
     @Override
@@ -294,7 +352,7 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     {
         ItemAutoverse.addTooltips(this.getTooltipName(stack) + ".tooltips", list, verbose);
 
-        if (this.hasPlacementProperties())
+        if (this.hasPlacementProperty(stack))
         {
             ItemAutoverse.addTooltips(Reference.MOD_ID + ".tooltip.placementproperties.tooltips", list, verbose);
         }

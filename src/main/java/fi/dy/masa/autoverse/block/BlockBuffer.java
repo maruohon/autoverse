@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -72,7 +73,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockAutoverse item = new ItemBlockAutoverse(this);
-        item.addPlacementProperty("fifo.size", Constants.NBT.TAG_BYTE, 1, TileEntityBufferFifo.MAX_LENGTH);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "buffer.size", Constants.NBT.TAG_BYTE, 1, TileEntityBufferFifo.MAX_LENGTH);
         return item;
     }
 

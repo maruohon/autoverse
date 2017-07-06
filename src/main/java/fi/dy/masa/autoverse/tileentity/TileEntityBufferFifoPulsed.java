@@ -27,6 +27,7 @@ public class TileEntityBufferFifoPulsed extends TileEntityBufferFifo
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, MAX_LENGTH, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifoPulsed(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;
+        this.itemHandlerBase.setInventorySize(26); // just a default value...
     }
 
     @Override

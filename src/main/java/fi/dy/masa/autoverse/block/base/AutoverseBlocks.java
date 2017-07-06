@@ -30,7 +30,6 @@ public class AutoverseBlocks
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,              4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,            4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,                           4.0f, 10f, 1, Material.ROCK);
-    public static final BlockAutoverse SEQUENCER_PROGRAMMABLE   = new BlockSequencerProgrammable(ReferenceNames.NAME_BLOCK_SEQUENCER_PROGRAMMABLE,  4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                             4.0f, 10f, 1, Material.ROCK);
 
     @SubscribeEvent
@@ -50,7 +49,6 @@ public class AutoverseBlocks
         registerBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
         registerBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
-        registerBlock(registry, SEQUENCER_PROGRAMMABLE, Configs.disableBlockSequencerProgrammable);
         registerBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
 
         registerTileEntities();
@@ -73,7 +71,6 @@ public class AutoverseBlocks
         registerItemBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
         registerItemBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerItemBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
-        registerItemBlock(registry, SEQUENCER_PROGRAMMABLE, Configs.disableBlockSequencerProgrammable);
         registerItemBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
     }
 

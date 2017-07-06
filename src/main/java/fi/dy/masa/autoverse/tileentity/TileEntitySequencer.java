@@ -3,13 +3,14 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import fi.dy.masa.autoverse.block.BlockSequencer;
 import fi.dy.masa.autoverse.gui.client.GuiSequencer;
 import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -20,64 +21,45 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntitySequencer extends TileEntityAutoverseInventory
 {
+    public static final int MAX_LENGTH = 18;
     private ItemHandlerWrapperSequencer inventorySequencer;
-    protected int tier;
 
     public TileEntitySequencer()
     {
-        this(ReferenceNames.NAME_BLOCK_SEQUENCER);
+        super(ReferenceNames.NAME_BLOCK_SEQUENCER);
 
         this.initInventories();
-    }
-
-    public TileEntitySequencer(String name)
-    {
-        super(name);
     }
 
     @Override
     protected void initInventories()
     {
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, this.getNumSlots(), 64, false, "Items", this);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, MAX_LENGTH, 64, false, "Items", this);
         this.inventorySequencer = new ItemHandlerWrapperSequencer(this.itemHandlerBase);
         this.itemHandlerExternal = this.inventorySequencer;
     }
 
-    public int getNumSlots()
+    @Override
+    public boolean applyProperty(int propId, int value)
     {
-        int tier = this.getTier();
-
-        switch (tier)
+        if (propId == 1)
         {
-            case 0: return 2;
-            case 1: return 3;
-            case 2: return 6;
-            case 3: return 9;
-            case 4: return 18;
-            default: return 2;
+            this.setInventorySize(value);
+            return true;
+        }
+        else
+        {
+            return super.applyProperty(propId, value);
         }
     }
 
-    public int getOutputSlot()
+    @Override
+    public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        return this.inventorySequencer.getOutputSlot();
-    }
-
-    public int getTier()
-    {
-        return this.tier;
-    }
-
-    protected int getMaxTier()
-    {
-        return BlockSequencer.NUM_TIERS - 1;
-    }
-
-    public void setTier(int tier)
-    {
-        this.tier = MathHelper.clamp(tier, 0, this.getMaxTier());
-
-        this.initInventories();
+        if (tag.hasKey("sequencer.length", Constants.NBT.TAG_BYTE))
+        {
+            this.setInventorySize(tag.getByte("sequencer.length"));
+        }
     }
 
     @Override
@@ -86,24 +68,56 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);
     }
 
-    @Override
-    public void readFromNBTCustom(NBTTagCompound tag)
+    public int getOutputSlot()
     {
-        // Setting the tier and thus initializing the inventories needs to
-        // happen before reading the inventories!
-        this.setTier(tag.getByte("Tier"));
+        return this.inventorySequencer.getOutputSlot();
+    }
 
-        super.readFromNBTCustom(tag);
+    private void setInventorySize(int size)
+    {
+        this.itemHandlerBase.setInventorySize(MathHelper.clamp(size, 1, MAX_LENGTH));
+        this.markDirty();
+    }
+
+    private void changeInventorySize(int changeAmount)
+    {
+        final int oldSize = this.itemHandlerBase.getSlots();
+        int newSize = MathHelper.clamp(oldSize + changeAmount, 1, MAX_LENGTH);
+
+        // Shrinking the inventory, only allowed if there are no items in the slots-to-be-removed
+        if (changeAmount < 0)
+        {
+            int changeFinal = 0;
+
+            for (int slot = oldSize - 1; slot >= newSize && slot >= 1; slot--)
+            {
+                if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
+                {
+                    changeFinal--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            newSize = MathHelper.clamp(oldSize + changeFinal, 1, MAX_LENGTH);
+        }
+
+        if (newSize >= 1 && newSize <= MAX_LENGTH)
+        {
+            this.setInventorySize(newSize);
+            this.inventorySequencer.wrapPositions();
+        }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    public void performGuiAction(EntityPlayer player, int action, int element)
     {
-        nbt = super.writeToNBT(nbt);
-
-        nbt.setByte("Tier", (byte) this.getTier());
-
-        return nbt;
+        if (action == 0)
+        {
+            this.changeInventorySize(element);
+        }
     }
 
     @Override
@@ -123,7 +137,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     {
         tag = super.getUpdatePacketTag(tag);
 
-        tag.setByte("t", (byte) this.getTier());
+        tag.setByte("len", (byte) this.itemHandlerBase.getSlots());
 
         return tag;
     }
@@ -131,7 +145,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.setTier(tag.getByte("t"));
+        this.setInventorySize(tag.getByte("len"));
 
         super.handleUpdateTag(tag);
     }

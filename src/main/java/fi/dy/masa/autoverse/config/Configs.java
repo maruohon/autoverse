@@ -24,7 +24,6 @@ public class Configs
     public static boolean disableBlockRedstoneEmitter;
     public static boolean disableBlockSequenceDetector;
     public static boolean disableBlockSequencer;
-    public static boolean disableBlockSequencerProgrammable;
     public static boolean disableBlockSplitter;
 
     public static File configurationFile;
@@ -108,7 +107,6 @@ public class Configs
         disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
         disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();
-        disableBlockSequencerProgrammable   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencerProgrammable", false).getBoolean();
         disableBlockSplitter                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSplitter", false).getBoolean();
 
         if (conf.hasChanged())

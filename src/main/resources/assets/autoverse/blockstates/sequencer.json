@@ -4,54 +4,36 @@
         "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":            "#out",
             "top":              "#side",
             "bottom":           "#side",
             "left":             "#side",
-            "right":            "#side",
-            "back":             "autoverse:blocks/sequencer_base"
+            "right":            "#side"
         }
     },
     "variants": {
-        "tier": {
-            "0": {
+        "type": {
+            "basic": {
                 "textures": {
-                    "out":  "autoverse:blocks/sequencer_0_out",
-                    "side": "autoverse:blocks/sequencer_0_side"
+                    "front":    "autoverse:blocks/sequencer_basic_out",
+                    "back":     "autoverse:blocks/sequencer_basic_base",
+                    "side":     "autoverse:blocks/sequencer_basic_side"
                 }
             },
-            "1": {
+            "programmable": {
                 "textures": {
-                    "out":  "autoverse:blocks/sequencer_1_out",
-                    "side": "autoverse:blocks/sequencer_1_side"
-                }
-            },
-            "2": {
-                "textures": {
-                    "out":  "autoverse:blocks/sequencer_2_out",
-                    "side": "autoverse:blocks/sequencer_2_side"
-                }
-            },
-            "3": {
-                "textures": {
-                    "out":  "autoverse:blocks/sequencer_3_out",
-                    "side": "autoverse:blocks/sequencer_3_side"
-                }
-            },
-            "4": {
-                "textures": {
-                    "out":  "autoverse:blocks/sequencer_4_out",
-                    "side": "autoverse:blocks/sequencer_4_side"
+                    "front":    "autoverse:blocks/sequencer_programmable_out",
+                    "back":     "autoverse:blocks/sequencer_programmable_base",
+                    "side":     "autoverse:blocks/sequencer_programmable_side"
                 }
             }
         },
         "facing": {
-            "north": {},
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },
-            "east":  { "y":  90 },
-            "up":    { "x": 270 },
-            "down":  { "x":  90 }
+            "east":  { "y":  90 }
         }
     }
 }

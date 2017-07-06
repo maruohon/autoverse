@@ -249,16 +249,20 @@ public class PlacementProperties
         {
             ItemStack stack = new ItemStack(tagData.getCompoundTag("ItemType"));
 
-            if (stack.isEmpty() == false)
+            if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockAutoverse)
             {
-                boolean nbtSensitive = (stack.getItem() instanceof ItemBlockAutoverse) &&
-                        ((ItemBlockAutoverse) stack.getItem()).getPlacementPropertyNBTSensitive();
-                ItemType type = new ItemType(stack, nbtSensitive);
-                mapTags.put(type, tagData.getCompoundTag("Tag"));
+                ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
 
-                if (tagData.hasKey("Index", Constants.NBT.TAG_BYTE))
+                if (item.hasPlacementProperty(stack))
                 {
-                    mapIndices.put(type, Integer.valueOf(tagData.getByte("Index")));
+                    boolean nbtSensitive = item.getPlacementProperty(stack).isNBTSensitive();
+                    ItemType type = new ItemType(stack, nbtSensitive);
+                    mapTags.put(type, tagData.getCompoundTag("Tag"));
+
+                    if (tagData.hasKey("Index", Constants.NBT.TAG_BYTE))
+                    {
+                        mapIndices.put(type, Integer.valueOf(tagData.getByte("Index")));
+                    }
                 }
             }
         }
@@ -325,22 +329,29 @@ public class PlacementProperties
 
     public void syncCurrentlyHeldItemDataForPlayer(EntityPlayerMP player, ItemStack stack)
     {
-        UUID uuid = player.getUniqueID();
-        boolean nbtSensitive = (stack.getItem() instanceof ItemBlockAutoverse) &&
-                ((ItemBlockAutoverse) stack.getItem()).getPlacementPropertyNBTSensitive();
-        ItemType type = new ItemType(stack, nbtSensitive);
-        NBTTagCompound props = this.getPropertyTag(uuid, type);
-
-        if (props != null)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockAutoverse)
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setString("UUID", uuid.toString());
-            tag.setTag("ItemType", stack.writeToNBT(new NBTTagCompound()));
-            tag.setByte("Index", (byte) this.getPropertyIndex(uuid, type));
-            tag.setTag("Tag", props);
+            ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
 
-            MessageSyncNBTTag message = new MessageSyncNBTTag(MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
-            PacketHandler.INSTANCE.sendTo(message, player);
+            if (item.hasPlacementProperty(stack))
+            {
+                UUID uuid = player.getUniqueID();
+                boolean nbtSensitive = item.getPlacementProperty(stack).isNBTSensitive();
+                ItemType type = new ItemType(stack, nbtSensitive);
+                NBTTagCompound props = this.getPropertyTag(uuid, type);
+
+                if (props != null)
+                {
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setString("UUID", uuid.toString());
+                    tag.setTag("ItemType", stack.writeToNBT(new NBTTagCompound()));
+                    tag.setByte("Index", (byte) this.getPropertyIndex(uuid, type));
+                    tag.setTag("Tag", props);
+
+                    MessageSyncNBTTag message = new MessageSyncNBTTag(MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
+                    PacketHandler.INSTANCE.sendTo(message, player);
+                }
+            }
         }
     }
 
