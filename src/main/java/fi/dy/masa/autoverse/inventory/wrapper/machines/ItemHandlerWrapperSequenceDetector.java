@@ -80,11 +80,6 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
         return this.sequenceDetection;
     }
 
-    public int getCurrentDetectionSequenceLength()
-    {
-        return this.sequenceDetection.getCurrentSequenceLength();
-    }
-
     protected Mode getMode()
     {
         return this.mode;

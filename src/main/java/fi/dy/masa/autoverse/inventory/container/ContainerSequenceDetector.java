@@ -11,7 +11,6 @@ public class ContainerSequenceDetector extends ContainerTile
 {
     private final TileEntitySequenceDetector tesd;
     private final ItemHandlerWrapperSequenceDetector detector;
-    private int sequenceLength = -1;
     private int matchedLength = -1;
 
     public ContainerSequenceDetector(EntityPlayer player, TileEntitySequenceDetector te)
@@ -48,24 +47,15 @@ public class ContainerSequenceDetector extends ContainerTile
     @Override
     public void detectAndSendChanges()
     {
-        if (this.isClient)
+        if (this.isClient == false)
         {
-            return;
-        }
+            int matchedLength = this.detector.getDetectionSequence().getCurrentPosition();
 
-        int sequenceLength = this.detector.getCurrentDetectionSequenceLength();
-        int matchedLength = this.detector.getDetectionSequence().getCurrentPosition();
-
-        if (sequenceLength != this.sequenceLength)
-        {
-            this.syncProperty(0, (byte) sequenceLength);
-            this.sequenceLength = sequenceLength;
-        }
-
-        if (matchedLength != this.matchedLength)
-        {
-            this.syncProperty(1, (byte) matchedLength);
-            this.matchedLength = matchedLength;
+            if (matchedLength != this.matchedLength)
+            {
+                this.syncProperty(0, (byte) matchedLength);
+                this.matchedLength = matchedLength;
+            }
         }
 
         super.detectAndSendChanges();
@@ -79,10 +69,6 @@ public class ContainerSequenceDetector extends ContainerTile
         switch (id)
         {
             case 0:
-                this.sequenceLength = value;
-                break;
-
-            case 1:
                 this.matchedLength = value;
                 break;
         }
@@ -91,11 +77,6 @@ public class ContainerSequenceDetector extends ContainerTile
     public ItemHandlerWrapperSequenceDetector getDetector()
     {
         return this.detector;
-    }
-
-    public int getSequenceLength()
-    {
-        return this.sequenceLength;
     }
 
     public int getMatchedLength()

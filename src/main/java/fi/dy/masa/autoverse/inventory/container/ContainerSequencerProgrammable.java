@@ -59,6 +59,7 @@ public class ContainerSequencerProgrammable extends ContainerTile
 
         // Add the sequence slots
         SlotPlacer.create(8, 56, inv, this).setSlotType(SlotType.SPECIAL).place();
+        this.addVariableSequence(this.sequencer.getGenerationSequence()); // Add the sequence so the length gets synced to the client
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesp.getInventoryOut(), 0, 152, 151));

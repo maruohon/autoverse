@@ -11,6 +11,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperSequenceBase
 {
     public static final int MAX_INV_SIZE = 45;
+    private final SequenceMatcherVariable sequenceGeneration;
     private final ItemStackHandlerLockable sequenceInventory;
     private final IItemHandler inventoryOutput;
     private Mode mode = Mode.CONFIGURE_END_MARKER;
@@ -24,6 +25,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         super(4, inventoryInput);
 
         this.inventoryOutput = inventoryOutput;
+        this.sequenceGeneration = new SequenceMatcherVariable(MAX_INV_SIZE, "SequenceGeneration");
         this.sequenceInventory  = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
         this.sequenceInventory.setInventorySize(0);
     }
@@ -37,6 +39,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
                 if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
                     this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.sequenceGeneration.setSequenceEndMarker(inputStack);
                     this.setMode(Mode.CONFIGURE_RESET);
                 }
                 break;
@@ -49,22 +52,28 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
                 break;
 
             case CONFIGURE_SEQUENCE:
-                if (InventoryUtils.areItemStacksEqual(inputStack, this.getEndMarkerSequence().getStackInSlot(0)))
+                if (this.sequenceGeneration.configureSequence(inputStack))
                 {
+                    /*
+                    final int length = this.sequenceGeneration.getCurrentSequenceLength();
+                    this.sequenceInventory.setInventorySize(length);
+
+                    for (int slot = 0; slot < length; slot++)
+                    {
+                        this.sequenceInventory.setTemplateStackInSlot(slot, this.sequenceGeneration.getStackInSlot(slot));
+                        this.sequenceInventory.setSlotLocked(slot, true);
+                    }
+                    */
+
                     this.position = 0;
                     this.setMode(Mode.NORMAL_OPERATION);
                 }
                 else
                 {
-                    this.sequenceInventory.setTemplateStackInSlot(this.position, inputStack);
-                    this.sequenceInventory.setSlotLocked(this.position, true);
                     this.sequenceInventory.setInventorySize(this.position + 1);
-
-                    if (++this.position >= MAX_INV_SIZE)
-                    {
-                        this.position = 0;
-                        this.setMode(Mode.NORMAL_OPERATION);
-                    }
+                    this.sequenceInventory.setTemplateStackInSlot(this.position, this.sequenceGeneration.getStackInSlot(this.position));
+                    this.sequenceInventory.setSlotLocked(this.position, true);
+                    this.position++;
                 }
                 break;
 
@@ -86,6 +95,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         super.onReset();
 
+        this.sequenceGeneration.reset();
         this.position = 0;
         this.setMode(Mode.RESET_FLUSH_SEQUENCE);
     }
@@ -168,6 +178,11 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         return ItemStack.EMPTY;
     }
 
+    public SequenceMatcherVariable getGenerationSequence()
+    {
+        return this.sequenceGeneration;
+    }
+
     public ItemStackHandlerLockable getSequenceInventory()
     {
         return this.sequenceInventory;
@@ -196,6 +211,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         tag.setByte("State", (byte) this.mode.getId());
         tag.setByte("Position", (byte) this.position);
 
+        this.sequenceGeneration.writeToNBT(tag);
         tag.merge(this.sequenceInventory.serializeNBT());
 
         return tag;
@@ -209,6 +225,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         this.setMode(Mode.fromId(tag.getByte("State")));
         this.position = tag.getByte("Position");
 
+        this.sequenceGeneration.readFromNBT(tag);
         this.sequenceInventory.deserializeNBT(tag);
     }
 

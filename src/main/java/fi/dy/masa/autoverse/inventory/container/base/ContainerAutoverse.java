@@ -159,11 +159,16 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
     {
         if (sequence instanceof SequenceMatcherVariable)
         {
-            this.variableSequences.add((SequenceMatcherVariable) sequence);
-            this.variableSequenceLengths.add(-1);
+            this.addVariableSequence((SequenceMatcherVariable) sequence);
         }
 
         return SlotPlacerSequence.create(posX, posY, sequence, this);
+    }
+
+    protected void addVariableSequence(SequenceMatcherVariable sequence)
+    {
+        this.variableSequences.add(sequence);
+        this.variableSequenceLengths.add(-1);
     }
 
     public int getSequenceLength(int sequenceId)
