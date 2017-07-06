@@ -666,6 +666,43 @@ public class InventoryUtils
         return -1;
     }
 
+    public static boolean tryShiftSlots(IItemHandlerModifiable inv, int startSlot, boolean backwards)
+    {
+        if (startSlot < 0 || startSlot >= inv.getSlots())
+        {
+            return false;
+        }
+
+        // Shift slots backwards by one
+        if (backwards && inv.getStackInSlot(startSlot).isEmpty())
+        {
+            final int lastSlot = inv.getSlots() - 2;
+
+            for (int slot = startSlot; slot <= lastSlot; slot++)
+            {
+                inv.setStackInSlot(slot, inv.getStackInSlot(slot + 1));
+            }
+
+            inv.setStackInSlot(inv.getSlots() - 1, ItemStack.EMPTY);
+
+            return true;
+        }
+        // Shift slots forward by one
+        else if (backwards == false && inv.getStackInSlot(inv.getSlots() - 1).isEmpty())
+        {
+            for (int slot = inv.getSlots() - 1; slot > startSlot; slot--)
+            {
+                inv.setStackInSlot(slot, inv.getStackInSlot(slot - 1));
+            }
+
+            inv.setStackInSlot(startSlot, ItemStack.EMPTY);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public static enum InvResult
     {
         MOVED_NOTHING,

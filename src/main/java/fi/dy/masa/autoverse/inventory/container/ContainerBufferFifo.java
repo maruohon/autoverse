@@ -2,10 +2,12 @@ package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.IContainerListener;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.client.HotKeys.EnumKey;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
@@ -14,6 +16,7 @@ import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerOffset;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 {
@@ -55,7 +58,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
 
         for (int slot = 0, x = posX; slot < slots; slot++)
         {
-            this.addSlotToContainer(new SlotItemHandlerOffset(this.inventory, slot, x, posY, this));
+            this.addSlotToContainer(new SlotItemHandlerOffset(this.inventoryBase, slot, x, posY, this));
             x += 18;
 
             if (slot % 13 == 12)
@@ -89,56 +92,45 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
         int extract = this.inventoryFifo.getExtractSlot();
         int invSize = this.tefifo.getFifoLength();
 
-        for (int i = 0; i < this.listeners.size(); ++i)
+        if (insert != this.insertPosLast)
         {
-            IContainerListener listener = this.listeners.get(i);
-
-            if (insert != this.insertPosLast)
-            {
-                listener.sendWindowProperty(this, 0, insert);
-            }
-
-            if (extract != this.extractPosLast)
-            {
-                listener.sendWindowProperty(this, 1, extract);
-            }
-
-            if (invSize != this.invSizeLast)
-            {
-                listener.sendWindowProperty(this, 2, invSize);
-            }
+            this.syncProperty(0, insert);
+            this.insertPosLast = insert;
         }
 
-        this.insertPosLast = insert;
-        this.extractPosLast = extract;
+        if (extract != this.extractPosLast)
+        {
+            this.syncProperty(1, extract);
+            this.extractPosLast = extract;
+        }
 
         if (invSize != this.invSizeLast)
         {
+            this.syncProperty(2, invSize);
+            this.invSizeLast = invSize;
             this.reAddSlots();
         }
-
-        this.invSizeLast = invSize;
 
         super.detectAndSendChanges();
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
-        super.updateProgressBar(id, data);
+        super.updateProgressBar(id, value);
 
         switch (id)
         {
             case 0:
-                this.insertPos = data;
+                this.insertPos = value;
                 break;
 
             case 1:
-                this.extractPos = data;
+                this.extractPos = value;
                 break;
 
             case 2:
-                this.tefifo.setFifoLength(data);
+                this.tefifo.setFifoLength(value);
                 this.reAddSlots();
                 break;
 
@@ -178,7 +170,6 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
         }
 
         return MathHelper.clamp(slot, 0, invSize - 1);
-
     }
 
     /**
@@ -208,5 +199,41 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
         }
 
         return super.slotClick(slotNum, dragType, clickType, player);
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        Slot slot = this.getSlot(element);
+
+        if (slot != null)
+        {
+            // Ctrl + Middle click: Shift the sequence
+            if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_CTRL))
+            {
+                // Ctrl + middle click on a slot with items: Move the rest of the items towards the end of the inventory
+                if (slot.getHasStack())
+                {
+                    InventoryUtils.tryShiftSlots(this.inventoryBase, slot.getSlotIndex(), false);
+                }
+                // Ctrl + middle click on a slot without items: Move the rest of the items towards the beginning of the inventory
+                else
+                {
+                    InventoryUtils.tryShiftSlots(this.inventoryBase, slot.getSlotIndex(), true);
+                }
+            }
+            // Shift + Middle click: Move the extract position to this slot
+            else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
+            {
+                this.inventoryFifo.setExtractPosition(slot.getSlotIndex());
+                this.tefifo.markDirty();
+            }
+            // Alt + Middle click: Move the insert position to this slot
+            else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_ALT))
+            {
+                this.inventoryFifo.setInsertPosition(slot.getSlotIndex());
+                this.tefifo.markDirty();
+            }
+        }
     }
 }
