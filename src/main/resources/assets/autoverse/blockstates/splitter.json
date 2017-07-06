@@ -9,25 +9,23 @@
             "bottom":           "#side",
             "left":             "#side",
             "right":            "#side",
-            "back":             "#base"
+            "back":             "autoverse:blocks/splitter_base"
         }
     },
     "variants": {
         "type" :{
-            "selectable": {
+            "switchable": {
                 "textures": {
-                    "out_1":    "autoverse:blocks/splitter_selectable_out_1",
-                    "out_2":    "autoverse:blocks/splitter_selectable_out_2",
-                    "side":     "autoverse:blocks/splitter_selectable_side",
-                    "base":     "autoverse:blocks/splitter_selectable_base"
+                    "out_1":    "autoverse:blocks/splitter_switchable_out_1",
+                    "out_2":    "autoverse:blocks/splitter_switchable_out_2",
+                    "side":     "autoverse:blocks/splitter_switchable_side"
                 }
             },
             "redstone": {
                 "textures": {
                     "out_1":    "autoverse:blocks/splitter_redstone_out_1",
                     "out_2":    "autoverse:blocks/splitter_redstone_out_2",
-                    "side":     "autoverse:blocks/splitter_redstone_side",
-                    "base":     "autoverse:blocks/splitter_redstone_base"
+                    "side":     "autoverse:blocks/splitter_redstone_side"
                 }
             }
         },

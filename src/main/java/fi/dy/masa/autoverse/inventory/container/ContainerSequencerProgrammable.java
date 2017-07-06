@@ -49,10 +49,10 @@ public class ContainerSequencerProgrammable extends ContainerTile
         this.addSideDependentSlot(0, 8, 16, this.inventory, this.tesp.getInventoryIn());
 
         // Add the sequence end marker slot
-        this.addSpecialSlot(new SlotItemHandlerGeneric(this.sequencer.getMarkerInventory(), 0, 8, 34));
+        this.addSpecialSlot(new SlotItemHandlerGeneric(this.sequencer.getEndMarkerInventory(), 0, 26, 16));
 
         // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 16, this.sequencer.getResetSequence(), this).place();
+        this.addSequenceSlots(98, 16, this.sequencer.getResetSequence()).place();
 
         final IItemHandler inv = this.sequencer.getSequenceInventory();
         this.slotRangeSequenceInventory = new SlotRange(this.getSpecialSlots().size(), inv.getSlots());
@@ -86,11 +86,17 @@ public class ContainerSequencerProgrammable extends ContainerTile
             this.syncProperty(1, (byte) invSize);
             this.reAddSlots();
             this.invSize = invSize;
+
+            this.forceSyncAll = true;
+            super.detectAndSendChanges();
+            this.forceSyncAll = false;
+            this.syncLockableSlots(this.sequencer.getSequenceInventory(), 0, 2, this.lockedLast, this.templateStacksLast);
         }
-
-        this.syncLockableSlots(this.sequencer.getSequenceInventory(), 0, 2, this.lockedLast, this.templateStacksLast);
-
-        super.detectAndSendChanges();
+        else
+        {
+            this.syncLockableSlots(this.sequencer.getSequenceInventory(), 0, 2, this.lockedLast, this.templateStacksLast);
+            super.detectAndSendChanges();
+        }
     }
 
     @Override

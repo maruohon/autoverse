@@ -8,20 +8,20 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.SlotRange;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperDetector;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperBlockDetector;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockDetector;
 
-public class ContainerDetector extends ContainerTile
+public class ContainerBlockDetector extends ContainerTile
 {
     private final TileEntityBlockDetector ted;
-    private final ItemHandlerWrapperDetector detector;
+    private final ItemHandlerWrapperBlockDetector detector;
     private SlotRange slotRangeDetectionInventory;
     private int invSize = -1;
-    private final BitSet lockedLast = new BitSet(ItemHandlerWrapperDetector.MAX_INV_SIZE);
+    private final BitSet lockedLast = new BitSet(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE);
     private final NonNullList<ItemStack> templateStacksLast =
-            NonNullList.withSize(ItemHandlerWrapperDetector.MAX_INV_SIZE, ItemStack.EMPTY);
+            NonNullList.withSize(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE, ItemStack.EMPTY);
 
-    public ContainerDetector(EntityPlayer player, TileEntityBlockDetector te)
+    public ContainerBlockDetector(EntityPlayer player, TileEntityBlockDetector te)
     {
         super(player, te);
 
@@ -46,7 +46,7 @@ public class ContainerDetector extends ContainerTile
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 16, this.inventory, this.ted.getInventoryInput());
 
-        ItemHandlerWrapperDetector detector = this.ted.getDetector();
+        ItemHandlerWrapperBlockDetector detector = this.ted.getDetector();
 
         // Add the sequence end marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getEndMarkerInventory(), 0, 26, 16));
@@ -55,26 +55,26 @@ public class ContainerDetector extends ContainerTile
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getBitMarkerInventory(), 0, 26, 34));
 
         // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 16, detector.getResetSequence(), this).place();
+        this.addSequenceSlots(98, 16, detector.getResetSequence()).place();
 
         // Add the distance config sequence slots
-        SlotPlacerSequence.create( 8, 65, detector.getSequenceDistance(), this).setAddMatchedSlots(false).place();
+        this.addSequenceSlots( 8, 65, detector.getSequenceDistance()).setAddMatchedSlots(false).place();
 
         // Add the angle config sequence slots
-        SlotPlacerSequence.create( 8, 83, detector.getSequenceAngle(), this).setAddMatchedSlots(false).place();
+        this.addSequenceSlots( 8, 83, detector.getSequenceAngle()).setAddMatchedSlots(false).place();
 
         // Add the delay config sequence slots
-        SlotPlacerSequence.create(98, 65, detector.getSequenceDelay(), this).setAddMatchedSlots(false).setMaxSlotsPerRow(4).place();
+        this.addSequenceSlots(98, 65, detector.getSequenceDelay()).setAddMatchedSlots(false).setMaxSlotsPerRow(4).place();
 
         // Add the detection slots
         this.slotRangeDetectionInventory = new SlotRange(this.getSpecialSlots().size(), detector.getDetectionInventory().getSlots());
         SlotPlacer.create(8, 114, detector.getDetectionInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
         // Add the normal items output buffer slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 8, 153));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 8, 151));
 
         // Add the detection items output buffer slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutDetection(), 0, 152, 153));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutDetection(), 0, 152, 151));
     }
 
     @Override
@@ -143,11 +143,6 @@ public class ContainerDetector extends ContainerTile
         {
             super.putCustomStack(typeId, slotNum, stack);
         }
-    }
-
-    public int getDetectionInvSize()
-    {
-        return this.detector.getDetectionInventory().getSlots();
     }
 
     public ItemStackHandlerLockable getDetectionInventory()

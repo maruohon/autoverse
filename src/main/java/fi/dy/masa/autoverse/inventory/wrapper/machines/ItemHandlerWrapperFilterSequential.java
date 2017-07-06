@@ -8,22 +8,31 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
 {
-    private final IItemHandler inventoryFilteredBuffer;
+    private final ItemStackHandlerTileEntity inventoryFilteredBuffer;
     private final IItemHandler inventoryFilteredOut;
-    private final int filterLength;
-    protected int outputPosition;
+    private int filterLength;
+    private int outputPosition;
 
-    public ItemHandlerWrapperFilterSequential(int resetLength, int filterLength,
+    public ItemHandlerWrapperFilterSequential(
             ItemStackHandlerTileEntity inventoryInput,
             ItemStackHandlerTileEntity inventoryOutFiltered,
             ItemStackHandlerTileEntity inventoryOutNormal,
             ItemStackHandlerTileEntity inventoryFilteredBuffer)
     {
-        super(resetLength, filterLength, inventoryInput, inventoryOutFiltered, inventoryOutNormal);
+        super(inventoryInput, inventoryOutFiltered, inventoryOutNormal);
 
         this.inventoryFilteredOut = inventoryOutFiltered;
         this.inventoryFilteredBuffer = inventoryFilteredBuffer;
-        this.filterLength = this.getFilterSequence().getLength();
+        this.filterLength = this.getFilterSequence().getMaxLength();
+    }
+
+    @Override
+    protected void onFilterConfigured()
+    {
+        super.onFilterConfigured();
+
+        this.filterLength = this.getFilterSequence().getCurrentSequenceLength();
+        this.inventoryFilteredBuffer.setInventorySize(this.filterLength);
     }
 
     @Override
@@ -107,7 +116,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
         if (this.outputPosition >= this.filterLength)
         {
             this.outputPosition = 0;
-            this.setMode(Mode.CONFIGURE_RESET);
+            this.setMode(Mode.CONFIGURE_END_MARKER);
             return true;
         }
 
@@ -117,6 +126,8 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     @Override
     protected void onReset()
     {
+        super.onReset();
+
         this.outputPosition = 0;
         this.setMode(Mode.RESET);
     }

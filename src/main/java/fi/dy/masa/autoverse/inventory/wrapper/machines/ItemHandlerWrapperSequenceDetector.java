@@ -8,10 +8,8 @@ import fi.dy.masa.autoverse.tileentity.TileEntitySequenceDetector;
 public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequenceBase
 {
     private final TileEntitySequenceDetector te;
-    private final SequenceMatcher sequenceMarkerItem;
     private final SequenceMatcherVariable sequenceDetection;
-    private final IItemHandler markerInventory;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private int position;
 
     public ItemHandlerWrapperSequenceDetector(IItemHandler inventoryInput, TileEntitySequenceDetector te)
@@ -19,10 +17,7 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
         super(4, inventoryInput);
 
         this.te = te;
-        this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");
         this.sequenceDetection  = new SequenceMatcherVariable(45, "SequenceDetection");
-
-        this.markerInventory = this.sequenceMarkerItem.getSequenceInventory(false);
     }
 
     @Override
@@ -30,22 +25,23 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
     {
         switch (this.getMode())
         {
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
+                {
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.sequenceDetection.setSequenceEndMarker(inputStack);
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
             case CONFIGURE_RESET:
                 if (this.getResetSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_MARKER);
+                    this.setMode(Mode.CONFIGURE_DETECTOR);
                 }
                 break;
 
-            case CONFIGURE_MARKER:
-                if (this.sequenceMarkerItem.configureSequence(inputStack))
-                {
-                    this.sequenceDetection.setSequenceEndMarker(inputStack);
-                    this.setMode(Mode.CONFIGURE_SEQUENCE);
-                }
-                break;
-
-            case CONFIGURE_SEQUENCE:
+            case CONFIGURE_DETECTOR:
                 if (this.sequenceDetection.configureSequence(inputStack))
                 {
                     this.setMode(Mode.NORMAL_OPERATION);
@@ -55,11 +51,7 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.sequenceMarkerItem.reset();
-                    this.sequenceDetection.reset();
-                    this.position = 0;
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.onReset();
                 }
                 else if (this.sequenceDetection.checkInputItem(inputStack))
                 {
@@ -72,9 +64,15 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
         }
     }
 
-    public IItemHandler getMarkerInventory()
+    @Override
+    protected void onReset()
     {
-        return this.markerInventory;
+        super.onReset();
+
+        this.sequenceDetection.reset();
+        this.position = 0;
+
+        this.setMode(Mode.CONFIGURE_END_MARKER);
     }
 
     public SequenceMatcherVariable getDetectionSequence()
@@ -110,7 +108,6 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
         tag.setByte("State", (byte) this.mode.getId());
         tag.setByte("Position", (byte) this.position);
 
-        this.sequenceMarkerItem.writeToNBT(tag);
         this.sequenceDetection.writeToNBT(tag);
 
         return tag;
@@ -124,15 +121,14 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
         this.setMode(Mode.fromId(tag.getByte("State")));
         this.position = tag.getByte("Position");
 
-        this.sequenceMarkerItem.readFromNBT(tag);
         this.sequenceDetection.readFromNBT(tag);
     }
 
     public enum Mode
     {
-        CONFIGURE_RESET         (0),
-        CONFIGURE_MARKER        (1),
-        CONFIGURE_SEQUENCE      (2),
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_RESET         (1),
+        CONFIGURE_DETECTOR      (2),
         NORMAL_OPERATION        (3);
 
         private final int id;

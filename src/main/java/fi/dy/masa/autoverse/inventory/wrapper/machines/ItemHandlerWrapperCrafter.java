@@ -16,9 +16,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcher sequenceEmpty;
     private final SequenceMatcher sequenceRecipe;
-    private final IItemHandler emptyMarkerInventory;
-    private final IItemHandler recipeSequenceInventory;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private int outputPosition;
     private ItemStack resultStackTemplate = ItemStack.EMPTY;
 
@@ -44,8 +42,6 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         this.sequenceEmpty  = new SequenceMatcher(1, "SequenceEmpty");
         this.sequenceRecipe = new SequenceMatcher(9, "SequenceRecipe");
 
-        this.emptyMarkerInventory = this.sequenceEmpty.getSequenceInventory(false);
-        this.recipeSequenceInventory = this.sequenceRecipe.getSequenceInventory(false);
         this.inventoryCraftingSequenceCraftingWrapper = new InventoryCraftingWrapper(3, 3,
                 this.sequenceRecipe.getSequenceInventory(false), inventoryCraftingOutput, null);
     }
@@ -55,57 +51,64 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-                //System.out.printf("CONFIGURE_RESET\n");
-                if (this.getResetSequence().configureSequence(inputStack))
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
-                    //System.out.printf("CONFIGURE_RESET - done\n");
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
                     this.setMode(Mode.CONFIGURE_EMPTY_MARKER);
                 }
                 break;
 
             case CONFIGURE_EMPTY_MARKER:
-                //System.out.printf("CONFIGURE_EMPTY_MARKER\n");
                 if (this.sequenceEmpty.configureSequence(inputStack))
                 {
-                    //System.out.printf("CONFIGURE_EMPTY_MARKER - done\n");
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
+            case CONFIGURE_RESET:
+                if (this.getResetSequence().configureSequence(inputStack))
+                {
                     this.setMode(Mode.CONFIGURE_RECIPE);
                 }
                 break;
 
             case CONFIGURE_RECIPE:
-                if (InventoryUtils.areItemStacksEqual(inputStack, this.emptyMarkerInventory.getStackInSlot(0)))
+                if (InventoryUtils.areItemStacksEqual(inputStack, this.sequenceEmpty.getStackInSlot(0)))
                 {
                     inputStack = ItemStack.EMPTY;
                 }
 
-                //System.out.printf("CONFIGURE_RECIPE\n");
                 if (this.sequenceRecipe.configureSequence(inputStack))
                 {
-                    //System.out.printf("CONFIGURE_RECIPE - done\n");
                     this.setMode(Mode.CONFIGURE_RECIPE_DONE);
                 }
                 break;
 
             case NORMAL_OPERATION:
-                //System.out.printf("NORMAL_OPERATION\n");
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    //System.out.printf("NORMAL_OPERATION - reset\n");
-                    this.getResetSequence().reset();
-                    this.sequenceEmpty.reset();
-                    this.sequenceRecipe.reset();
                     this.onReset();
                 }
                 break;
 
             case OUTPUT_ITEMS_FROM_GRID:
             case OUTPUT_ITEMS_FROM_BUFFER:
-                break;
-
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.sequenceEmpty.reset();
+        this.sequenceRecipe.reset();
+        this.outputPosition = 0;
+
+        this.setMode(Mode.RESET);
     }
 
     @Override
@@ -115,30 +118,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
         switch (mode)
         {
-            case CONFIGURE_RESET:
-            case CONFIGURE_EMPTY_MARKER:
-            case CONFIGURE_RECIPE:
-            case CONFIGURE_RECIPE_DONE:
-                //System.out.printf("moveItems - conf\n");
-                if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutputBuffer, 0) == InvResult.MOVED_ALL)
-                {
-                    if (mode == Mode.CONFIGURE_RECIPE_DONE)
-                    {
-                        this.createMatchingSlotsMap(this.sequenceRecipe.getSequence());
-                        this.setMode(Mode.NORMAL_OPERATION);
-
-                        this.resultStackTemplate = CraftingManager.getInstance()
-                                .findMatchingRecipe(this.inventoryCraftingSequenceCraftingWrapper, this.inventoryCrafting.getWorld());
-                        //System.out.printf("moveItems - CONFIGURE_FILTER_DONE - done\n");
-                    }
-                    //else System.out.printf("moveItems - done\n");
-
-                    return true;
-                }
-                break;
-
             case NORMAL_OPERATION:
-                //System.out.printf("moveItems - sorting\n");
                 return this.moveInputItem();
 
             case OUTPUT_ITEMS_FROM_GRID:
@@ -151,6 +131,19 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
                 return this.flushItems();
 
             default:
+                if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutputBuffer, 0) == InvResult.MOVED_ALL)
+                {
+                    if (mode == Mode.CONFIGURE_RECIPE_DONE)
+                    {
+                        this.createMatchingSlotsMap(this.sequenceRecipe.getSequence());
+                        this.setMode(Mode.NORMAL_OPERATION);
+
+                        this.resultStackTemplate = CraftingManager.getInstance()
+                                .findMatchingRecipe(this.inventoryCraftingSequenceCraftingWrapper, this.inventoryCrafting.getWorld());
+                    }
+
+                    return true;
+                }
                 break;
         }
 
@@ -175,7 +168,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
                 // Only move one item at a time to each grid slot
                 if (this.inventoryCraftingGrid.getStackInSlot(slot).isEmpty() &&
-                    InventoryUtils.areItemStacksEqual(this.recipeSequenceInventory.getStackInSlot(slot), inputStack))
+                    InventoryUtils.areItemStacksEqual(this.sequenceRecipe.getStackInSlot(slot), inputStack))
                 {
                     InventoryUtils.tryMoveStack(this.getInputInventory(), 0, this.inventoryCraftingGrid, slot, 1);
                 }
@@ -253,7 +246,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         if (this.outputPosition >= 9)
         {
             this.outputPosition = 0;
-            this.setMode(Mode.CONFIGURE_RESET);
+            this.setMode(Mode.CONFIGURE_END_MARKER);
             return true;
         }
 
@@ -266,7 +259,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         {
             if (InventoryUtils.areItemStacksEqual(
                     this.inventoryCraftingGrid.getStackInSlot(slot),
-                    this.recipeSequenceInventory.getStackInSlot(slot)) == false)
+                    this.sequenceRecipe.getStackInSlot(slot)) == false)
             {
                 return false;
             }
@@ -282,7 +275,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
             ItemStack stackOnGrid = this.inventoryCraftingGrid.getStackInSlot(slot);
 
             if (stackOnGrid.isEmpty() == false &&
-                InventoryUtils.areItemStacksEqual(stackOnGrid, this.recipeSequenceInventory.getStackInSlot(slot)) == false)
+                InventoryUtils.areItemStacksEqual(stackOnGrid, this.sequenceRecipe.getStackInSlot(slot)) == false)
             {
                 return InventoryUtils.tryMoveStack(this.inventoryCraftingGrid, slot,
                         this.inventoryOutputBuffer, 0) != InvResult.MOVED_NOTHING ? GridMoveResult.MOVED_SOME : GridMoveResult.MOVED_NOTHING;
@@ -292,20 +285,14 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         return GridMoveResult.GRID_MATCHES;
     }
 
-    private void onReset()
-    {
-        this.outputPosition = 0;
-        this.setMode(Mode.RESET);
-    }
-
     public IItemHandler getEmptyMarkerInventory()
     {
-        return this.emptyMarkerInventory;
+        return this.sequenceEmpty.getSequenceInventory(false);
     }
 
     public IItemHandler getRecipeSequenceInventory()
     {
-        return this.recipeSequenceInventory;
+        return this.sequenceRecipe.getSequenceInventory(false);
     }
 
     @Override
@@ -353,14 +340,15 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
     public enum Mode
     {
-        CONFIGURE_RESET             (0),
-        CONFIGURE_EMPTY_MARKER      (1),
-        CONFIGURE_RECIPE            (2),
-        CONFIGURE_RECIPE_DONE       (3),
-        NORMAL_OPERATION            (4),
-        OUTPUT_ITEMS_FROM_GRID      (5),
-        OUTPUT_ITEMS_FROM_BUFFER    (6),
-        RESET                       (7);
+        CONFIGURE_END_MARKER        (0),
+        CONFIGURE_RESET             (1),
+        CONFIGURE_EMPTY_MARKER      (2),
+        CONFIGURE_RECIPE            (3),
+        CONFIGURE_RECIPE_DONE       (4),
+        NORMAL_OPERATION            (5),
+        OUTPUT_ITEMS_FROM_GRID      (6),
+        OUTPUT_ITEMS_FROM_BUFFER    (7),
+        RESET                       (8);
 
         private final int id;
 

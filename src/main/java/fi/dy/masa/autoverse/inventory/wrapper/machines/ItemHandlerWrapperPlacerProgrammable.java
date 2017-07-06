@@ -12,13 +12,11 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 {
     private final TileEntityPlacerProgrammable te;
     private final IItemHandler inventoryOutput;
-    private final SequenceMatcher sequenceMarkerEnd;
     private final SequenceMatcher sequenceMarkerHighBit;
     private final SequenceMatcherVariable sequenceTrigger;
     private final SequenceMatcherVariable[] propertySequences;
     private final byte[] propertyValues;
-    //private final IItemHandler inventoryOutput;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private int position;
 
     public ItemHandlerWrapperPlacerProgrammable(
@@ -30,15 +28,14 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
         this.te = te;
         this.inventoryOutput = inventoryOutput;
-        this.sequenceMarkerEnd      = new SequenceMatcher(1, "SequenceMarkerEnd");
-        this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceMarkerBit");
-        this.sequenceTrigger = new SequenceMatcherVariable(4, "SequenceTrigger");
+        this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceBitMarker");
+        this.sequenceTrigger = (new SequenceMatcherVariable(4, "SequenceTrigger")).setAllowEmptySequence(true);
 
         this.propertySequences = new SequenceMatcherVariable[]
         {
-                new SequenceMatcherVariable(8, "SequenceProperty0"),
-                new SequenceMatcherVariable(8, "SequenceProperty1"),
-                new SequenceMatcherVariable(8, "SequenceProperty2")
+                (new SequenceMatcherVariable(8, "SequenceProperty0")).setAllowEmptySequence(true),
+                (new SequenceMatcherVariable(8, "SequenceProperty1")).setAllowEmptySequence(true),
+                (new SequenceMatcherVariable(8, "SequenceProperty2")).setAllowEmptySequence(true)
         };
 
         this.propertyValues = new byte[this.propertySequences.length];
@@ -50,16 +47,10 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-                if (this.getResetSequence().configureSequence(inputStack))
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_MARKER_END);
-                }
-                break;
-
-            case CONFIGURE_MARKER_END:
-                if (this.sequenceMarkerEnd.configureSequence(inputStack))
-                {
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
                     this.sequenceTrigger.setSequenceEndMarker(inputStack);
 
                     for (SequenceMatcherVariable matcher : this.propertySequences)
@@ -67,14 +58,20 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
                         matcher.setSequenceEndMarker(inputStack);
                     }
 
-                    this.setMode(Mode.CONFIGURE_MARKER_BIT);
+                    this.setMode(Mode.CONFIGURE_BIT_MARKER);
                 }
                 break;
 
-            case CONFIGURE_MARKER_BIT:
+            case CONFIGURE_BIT_MARKER:
                 if (this.sequenceMarkerHighBit.configureSequence(inputStack))
                 {
-                    this.position = 0;
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
+            case CONFIGURE_RESET:
+                if (this.getResetSequence().configureSequence(inputStack))
+                {
                     this.setMode(Mode.CONFIGURE_TRIGGER);
                 }
                 break;
@@ -101,18 +98,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.sequenceTrigger.reset();
-                    this.sequenceMarkerEnd.reset();
-                    this.sequenceMarkerHighBit.reset();
-
-                    for (SequenceMatcherVariable matcher : this.propertySequences)
-                    {
-                        matcher.reset();
-                    }
-
-                    this.position = 0;
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.onReset();
                 }
                 break;
 
@@ -122,17 +108,27 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     }
 
     @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.sequenceTrigger.reset();
+        this.sequenceMarkerHighBit.reset();
+
+        for (SequenceMatcherVariable matcher : this.propertySequences)
+        {
+            matcher.reset();
+        }
+
+        this.position = 0;
+        this.setMode(Mode.CONFIGURE_END_MARKER);
+    }
+
+    @Override
     public boolean moveItems()
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-            case CONFIGURE_MARKER_END:
-            case CONFIGURE_MARKER_BIT:
-            case CONFIGURE_TRIGGER:
-            case CONFIGURE_PROPERTIES:
-                return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
-
             case NORMAL_OPERATION:
                 ItemStack stack = this.getInputInventory().extractItem(0, 1, true);
 
@@ -158,6 +154,9 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
                     }
                 }
                 break;
+
+            default:
+                return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
         }
 
         return false;
@@ -165,17 +164,12 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
     private void parsePropertyValues()
     {
-        ItemStack highBitMarker = this.sequenceMarkerHighBit.getSequenceInventory(false).getStackInSlot(0);
+        ItemStack highBitMarker = this.sequenceMarkerHighBit.getSequence().get(0);
 
         for (int id = 0; id < this.propertySequences.length; id++)
         {
             this.propertyValues[id] = (byte) this.propertySequences[id].parseValueFromSequence(highBitMarker);
         }
-    }
-
-    public IItemHandler getEndMarkerInventory()
-    {
-        return this.sequenceMarkerEnd.getSequenceInventory(false);
     }
 
     public IItemHandler getHighBitMarkerInventory()
@@ -252,7 +246,6 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         tag.setByte("Position", (byte) this.position);
         tag.setByteArray("PropertyValues", this.propertyValues);
 
-        this.sequenceMarkerEnd.writeToNBT(tag);
         this.sequenceMarkerHighBit.writeToNBT(tag);
         this.sequenceTrigger.writeToNBT(tag);
 
@@ -279,16 +272,15 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
             this.propertyValues[i] = props[i];
         }
 
-        this.sequenceMarkerEnd.readFromNBT(tag);
         this.sequenceMarkerHighBit.readFromNBT(tag);
         this.sequenceTrigger.readFromNBT(tag);
     }
 
     public enum Mode
     {
-        CONFIGURE_RESET         (0),
-        CONFIGURE_MARKER_END    (1),
-        CONFIGURE_MARKER_BIT    (2),
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_BIT_MARKER    (1),
+        CONFIGURE_RESET         (2),
         CONFIGURE_TRIGGER       (3),
         CONFIGURE_PROPERTIES    (4),
         NORMAL_OPERATION        (5);

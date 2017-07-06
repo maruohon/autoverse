@@ -32,7 +32,7 @@ public class BlockSplitter extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
-                .withProperty(TYPE, SplitterType.SELECTABLE)
+                .withProperty(TYPE, SplitterType.SWITCHABLE)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING2, EnumFacing.DOWN));
     }
@@ -41,7 +41,7 @@ public class BlockSplitter extends BlockAutoverseInventory
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                this.blockName + "_selectable",
+                this.blockName + "_switchable",
                 this.blockName + "_redstone"
         };
     }
@@ -122,7 +122,7 @@ public class BlockSplitter extends BlockAutoverseInventory
 
     public enum SplitterType implements IStringSerializable
     {
-        SELECTABLE      (0, "selectable"),
+        SWITCHABLE      (0, "switchable"),
         REDSTONE        (1, "redstone");
 
         private final int meta;

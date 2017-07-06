@@ -30,17 +30,20 @@ public class ContainerRedstoneEmitter extends ContainerTile
 
         ItemHandlerWrapperRedstoneEmitter emitter = this.tere.getEmitterHandler();
 
-        // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 30, emitter.getResetSequence(), this).place();
+        // Add the end marker slot
+        this.addSpecialSlot(new SlotItemHandlerGeneric(emitter.getEndMarkerInventory(), 0, 26, 30));
 
         // Add the side config enabled marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(emitter.getMarkerInventory(), 0, 26, 48));
 
+        // Add the reset sequence slots
+        this.addSequenceSlots(98, 30, emitter.getResetSequence()).place();
+
         // Add the ON sequence slots
-        SlotPlacerSequence.create(98,  78, emitter.getSwitchOnSequence(), this).place();
+        this.addSequenceSlots(98,  78, emitter.getSwitchOnSequence()).place();
 
         // Add the OFF sequence slots
-        SlotPlacerSequence.create(98, 126, emitter.getSwitchOffSequence(), this).place();
+        this.addSequenceSlots(98, 126, emitter.getSwitchOffSequence()).place();
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tere.getInventoryOut(), 0, 8, 144));

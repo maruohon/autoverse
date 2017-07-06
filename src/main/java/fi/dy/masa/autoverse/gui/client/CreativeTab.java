@@ -15,7 +15,7 @@ public class CreativeTab
         @Override
         public ItemStack getTabIconItem()
         {
-            return new ItemStack(AutoverseBlocks.FILTER_SEQUENTIAL, 1, 3);
+            return new ItemStack(AutoverseBlocks.FILTER, 1, 1);
         }
 
         @SideOnly(Side.CLIENT)

@@ -11,26 +11,23 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 {
-    private final SequenceMatcher sequenceFilter;
-    private final IItemHandler filterSequenceInventory;
+    private final SequenceMatcherVariable sequenceFilter;
     private final IItemHandler inventoryOutFiltered;
     private final IItemHandler inventoryOutNormal;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     @Nullable
     protected List<Integer> matchingSlots;
 
     public ItemHandlerWrapperFilter(
-            int resetLength, int filterLength,
             ItemStackHandlerTileEntity inventoryInput,
             ItemStackHandlerTileEntity inventoryOutFiltered,
             ItemStackHandlerTileEntity inventoryOutNormal)
     {
-        super(resetLength, inventoryInput);
+        super(4, inventoryInput);
 
         this.inventoryOutFiltered = inventoryOutFiltered;
         this.inventoryOutNormal = inventoryOutNormal;
-        this.sequenceFilter = new SequenceMatcher(filterLength, "SequenceFilter");
-        this.filterSequenceInventory = this.sequenceFilter.getSequenceInventory(false);
+        this.sequenceFilter = new SequenceMatcherVariable(18, "SequenceFilter");
     }
 
     @Override
@@ -38,20 +35,25 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
     {
         switch (this.getMode())
         {
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
+                {
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.sequenceFilter.setSequenceEndMarker(inputStack);
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
             case CONFIGURE_RESET:
-                //System.out.printf("CONFIGURE_RESET\n");
                 if (this.getResetSequence().configureSequence(inputStack))
                 {
-                    //System.out.printf("CONFIGURE_RESET - done\n");
                     this.setMode(Mode.CONFIGURE_FILTER);
                 }
                 break;
 
             case CONFIGURE_FILTER:
-                //System.out.printf("CONFIGURE_FILTER\n");
                 if (this.getFilterSequence().configureSequence(inputStack))
                 {
-                    //System.out.printf("CONFIGURE_FILTER - done\n");
                     // The separate state is for handling the last configuration input item by
                     // moving it to the normal output, before moving to the sort state
                     // where it would be moved to the filtered output instead.
@@ -61,12 +63,8 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 
             case SORT_ITEMS:
             case OUTPUT_ITEMS:
-                //System.out.printf("SORT_ITEMS\n");
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    //System.out.printf("SORT_ITEMS - reset\n");
-                    this.getResetSequence().reset();
-                    this.getFilterSequence().reset();
                     this.onReset();
                 }
                 else
@@ -80,6 +78,15 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
         }
     }
 
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.getFilterSequence().reset();
+        this.setMode(Mode.CONFIGURE_END_MARKER);
+    }
+
     /**
      * Moves the item from the input slot/inventory to where it needs to go.
      * @return true when the item was successfully moved, false if it couldn't be moved
@@ -91,26 +98,23 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 
         switch (mode)
         {
+            case CONFIGURE_END_MARKER:
             case CONFIGURE_RESET:
             case CONFIGURE_FILTER:
             case CONFIGURE_FILTER_DONE:
-                //System.out.printf("moveInputItem - conf\n");
                 if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutNormal, 0) == InvResult.MOVED_ALL)
                 {
                     if (mode == Mode.CONFIGURE_FILTER_DONE)
                     {
-                        this.createMatchingSlotsMap(this.getFilterSequence().getSequence());
+                        this.onFilterConfigured();
                         this.setMode(Mode.SORT_ITEMS);
-                        //System.out.printf("moveInputItem - CONFIGURE_FILTER_DONE - done\n");
                     }
-                    //else System.out.printf("moveInputItem - done\n");
 
                     return true;
                 }
                 break;
 
             case SORT_ITEMS:
-                //System.out.printf("moveInputItem - sorting\n");
                 return this.sortItem();
 
             case OUTPUT_ITEMS:
@@ -124,6 +128,11 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
         }
 
         return false;
+    }
+
+    protected void onFilterConfigured()
+    {
+        this.createMatchingSlotsMap(this.getFilterSequence().getSequence());
     }
 
     protected boolean sortItem()
@@ -164,22 +173,9 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
         return true;
     }
 
-    /**
-     * Called when an input item completes a reset sequence
-     */
-    protected void onReset()
-    {
-        this.setMode(Mode.CONFIGURE_RESET);
-    }
-
-    public SequenceMatcher getFilterSequence()
+    public SequenceMatcherVariable getFilterSequence()
     {
         return this.sequenceFilter;
-    }
-
-    public IItemHandler getFilterSequenceInventory()
-    {
-        return this.filterSequenceInventory;
     }
 
     protected IItemHandler getInventoryNormalOut()
@@ -223,12 +219,13 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 
     public enum Mode
     {
-        CONFIGURE_RESET         (0),
-        CONFIGURE_FILTER        (1),
-        CONFIGURE_FILTER_DONE   (2),
-        SORT_ITEMS              (3),
-        OUTPUT_ITEMS            (4),
-        RESET                   (5);
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_RESET         (1),
+        CONFIGURE_FILTER        (2),
+        CONFIGURE_FILTER_DONE   (3),
+        SORT_ITEMS              (4),
+        OUTPUT_ITEMS            (5),
+        RESET                   (6);
 
         private final int id;
 

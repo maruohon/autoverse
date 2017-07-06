@@ -6,17 +6,17 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 
 public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
 {
-    private final SequenceMatcher sequenceSwitch1;
-    private final SequenceMatcher sequenceSwitch2;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private final SequenceMatcherVariable sequenceSwitch1;
+    private final SequenceMatcherVariable sequenceSwitch2;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private boolean outputIsSecondary;
 
     public ItemHandlerWrapperSplitter(ItemStackHandlerTileEntity inventoryInput)
     {
         super(4, inventoryInput);
 
-        this.sequenceSwitch1 = new SequenceMatcher(4, "SequenceSwitch1");
-        this.sequenceSwitch2 = new SequenceMatcher(4, "SequenceSwitch2");
+        this.sequenceSwitch1 = new SequenceMatcherVariable(4, "SequenceSwitch1");
+        this.sequenceSwitch2 = new SequenceMatcherVariable(4, "SequenceSwitch2");
     }
 
     @Override
@@ -24,6 +24,16 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
     {
         switch (this.getMode())
         {
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
+                {
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.sequenceSwitch1.setSequenceEndMarker(inputStack);
+                    this.sequenceSwitch2.setSequenceEndMarker(inputStack);
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
             case CONFIGURE_RESET:
                 if (this.getResetSequence().configureSequence(inputStack))
                 {
@@ -48,11 +58,7 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.getSwitchSequence1().reset();
-                    this.getSwitchSequence2().reset();
-                    this.setSecondaryOutputActive(false);
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.onReset();
                 }
                 else
                 {
@@ -70,6 +76,18 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.getSwitchSequence1().reset();
+        this.getSwitchSequence2().reset();
+
+        this.setSecondaryOutputActive(false);
+        this.setMode(Mode.CONFIGURE_END_MARKER);
     }
 
     protected void setSecondaryOutputActive(boolean secondaryActive)
@@ -92,12 +110,12 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
         this.mode = mode;
     }
 
-    public SequenceMatcher getSwitchSequence1()
+    public SequenceMatcherVariable getSwitchSequence1()
     {
         return this.sequenceSwitch1;
     }
 
-    public SequenceMatcher getSwitchSequence2()
+    public SequenceMatcherVariable getSwitchSequence2()
     {
         return this.sequenceSwitch2;
     }
@@ -130,10 +148,11 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
 
     public enum Mode
     {
-        CONFIGURE_RESET       (0),
-        CONFIGURE_SEQUENCE_1  (1),
-        CONFIGURE_SEQUENCE_2  (2),
-        NORMAL_OPERATION      (3);
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_RESET         (1),
+        CONFIGURE_SEQUENCE_1    (2),
+        CONFIGURE_SEQUENCE_2    (3),
+        NORMAL_OPERATION        (4);
 
         private final int id;
 

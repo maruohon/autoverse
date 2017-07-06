@@ -16,13 +16,15 @@ import fi.dy.masa.autoverse.util.ItemType;
 public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, IItemHandlerSize, INBTSerializable<NBTTagCompound>
 {
     private final IItemHandler inventoryInput;
-    private final SequenceMatcher sequenceReset;
+    private final SequenceMatcherVariable sequenceReset;
+    private final SequenceMatcher sequenceEndMarker;
     private final Map<ItemType, List<Integer>> matchingSlotsMap = new HashMap<ItemType, List<Integer>>();
 
     public ItemHandlerWrapperSequenceBase(int resetSequenceLength, IItemHandler inventoryInput)
     {
         this.inventoryInput = inventoryInput;
-        this.sequenceReset   = new SequenceMatcher(resetSequenceLength, "SequenceReset");
+        this.sequenceReset      = new SequenceMatcherVariable(resetSequenceLength, "SequenceReset");
+        this.sequenceEndMarker  = new SequenceMatcher(1, "SequenceEnd");
     }
 
     @Override
@@ -81,17 +83,25 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
         return false;
     }
 
+    protected void onReset()
+    {
+        this.sequenceEndMarker.reset();
+        this.sequenceReset.reset();
+        this.matchingSlotsMap.clear();
+    }
+
     protected void createMatchingSlotsMap(NonNullList<ItemStack> items)
     {
-        final int filterLength = items.size();
+        this.matchingSlotsMap.clear();
+        final int length = items.size();
 
-        for (int slot = 0; slot < filterLength; ++slot)
+        for (int slot = 0; slot < length; ++slot)
         {
             this.addItemTypeToMap(slot, items.get(slot));
         }
     }
 
-    protected void addItemTypeToMap(int slot, ItemStack stack)
+    private void addItemTypeToMap(int slot, ItemStack stack)
     {
         ItemType itemType = new ItemType(stack);
         List<Integer> list = this.matchingSlotsMap.get(itemType);
@@ -116,20 +126,31 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
         return this.inventoryInput;
     }
 
-    public SequenceMatcher getResetSequence()
+    public SequenceMatcher getEndMarkerSequence()
+    {
+        return this.sequenceEndMarker;
+    }
+
+    public SequenceMatcherVariable getResetSequence()
     {
         return this.sequenceReset;
     }
 
+    public IItemHandler getEndMarkerInventory()
+    {
+        return this.sequenceEndMarker.getSequenceInventory(false);
+    }
+
     protected NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
+        this.sequenceEndMarker.writeToNBT(tag);
         this.sequenceReset.writeToNBT(tag);
-
         return tag;
     }
 
     protected void readFromNBT(NBTTagCompound tag)
     {
+        this.sequenceEndMarker.readFromNBT(tag);
         this.sequenceReset.readFromNBT(tag);
     }
 
@@ -137,7 +158,7 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setTag("Splitter", this.writeToNBT(new NBTTagCompound()));
+        nbt.setTag("Sequences", this.writeToNBT(new NBTTagCompound()));
 
         return nbt;
     }
@@ -145,6 +166,6 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     @Override
     public void deserializeNBT(NBTTagCompound nbt)
     {
-        this.readFromNBT(nbt.getCompoundTag("Splitter"));
+        this.readFromNBT(nbt.getCompoundTag("Sequences"));
     }
 }

@@ -8,7 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -33,7 +32,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     protected EnumFacing facingFilteredOut = EnumFacing.WEST;
     protected BlockPos posFilteredOut;
-    protected int filterTier;
     protected int delay = 1;
 
     public TileEntityFilter()
@@ -62,41 +60,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected void initFilterInventory()
     {
         this.inventoryFilter = new ItemHandlerWrapperFilter(
-                                    this.getResetSlotCount(),
-                                    this.getFilterSlotCount(),
                                     this.inventoryInput,
                                     this.inventoryOutFiltered,
                                     this.inventoryOutNormal);
-    }
-
-    public int getResetSlotCount()
-    {
-        int tier = this.getFilterTier();
-
-        switch (tier)
-        {
-            case 0: return 2;
-            case 1: return 2;
-            case 2: return 3;
-            case 3: return 4;
-            case 4: return 4;
-            default: return 1;
-        }
-    }
-
-    public int getFilterSlotCount()
-    {
-        int tier = this.getFilterTier();
-
-        switch (tier)
-        {
-            case 0: return 1;
-            case 1: return 3;
-            case 2: return 6;
-            case 3: return 9;
-            case 4: return 18;
-            default: return 1;
-        }
     }
 
     @Override
@@ -135,23 +101,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public ItemHandlerWrapperFilter getInventoryFilter()
     {
         return this.inventoryFilter;
-    }
-
-    public int getFilterTier()
-    {
-        return this.filterTier;
-    }
-
-    protected int getMaxFilterTier()
-    {
-        return 4;
-    }
-
-    public void setFilterTier(int tier)
-    {
-        this.filterTier = MathHelper.clamp(tier, 0, this.getMaxFilterTier());
-
-        this.initInventories();
     }
 
     public void setFilterOutputSide(EnumFacing side)
@@ -226,9 +175,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(nbt);
 
-        // Setting the tier and thus initializing the inventories needs to
-        // happen before reading the inventories!
-        this.setFilterTier(nbt.getByte("Tier"));
         this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")));
 
         this.inventoryInput.deserializeNBT(nbt);
@@ -248,7 +194,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.writeToNBT(nbt);
 
-        nbt.setByte("Tier", (byte)this.getFilterTier());
         nbt.setByte("FilterFacing", (byte)this.facingFilteredOut.getIndex());
 
         return nbt;
@@ -269,21 +214,16 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        //tag.setByte("m", (byte)this.inventoryInput.getMode().getId());
         tag.setByte("f", (byte)((this.facingFilteredOut.getIndex() << 4) | this.facing.getIndex()));
-        tag.setByte("t", (byte)this.getFilterTier());
         return tag;
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        //this.inventoryInput.setMode(ItemHandlerWrapperFilter.EnumMode.fromId(tag.getByte("m")));
         int facings = tag.getByte("f");
         this.setFacing(EnumFacing.getFront(facings & 0x7));
         this.setFilterOutputSide(EnumFacing.getFront(facings >> 4));
-
-        this.setFilterTier(tag.getByte("t"));
 
         super.handleUpdateTag(tag);
     }

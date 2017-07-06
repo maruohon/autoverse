@@ -25,15 +25,16 @@ import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.PlayerInvWrapperNoSync;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcher;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcherVariable;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
-import fi.dy.masa.autoverse.network.message.MessageSyncCustomSlot;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ContainerAutoverse extends Container implements ICustomSlotSync
 {
-    protected static final int SLOT_TYPE_SPECIAL = 10;
+    public static final int SLOT_TYPE_NORMAL  = 10;
+    public static final int SLOT_TYPE_SPECIAL = 11;
     protected final EntityPlayer player;
     protected final boolean isClient;
     protected final InventoryPlayer inventoryPlayer;
@@ -48,6 +49,8 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
     private final List<MergeSlotRange> mergeSlotRangesPlayerToExt = new ArrayList<MergeSlotRange>();
     private final List<Slot> specialSlots = new ArrayList<Slot>();
     private final NonNullList<ItemStack> specialSlotStacks = NonNullList.create();
+    private final List<SequenceMatcherVariable> variableSequences = new ArrayList<SequenceMatcherVariable>();
+    private final List<Integer> variableSequenceLengths = new ArrayList<Integer>();
     protected boolean forceSyncAll;
 
     public ContainerAutoverse(EntityPlayer player, IItemHandler inventory)
@@ -74,6 +77,9 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
 
         this.specialSlots.clear();
         this.specialSlotStacks.clear();
+
+        this.variableSequences.clear();
+        this.variableSequenceLengths.clear();
 
         this.addCustomInventorySlots();
         this.addPlayerInventorySlots(playerInventoryX, playerInventoryY);
@@ -139,6 +145,30 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
                 return "minecraft:items/empty_armor_slot_shield";
             }
         });
+    }
+
+    /**
+     * Creates and returns a SlotPlacer, and if the given sequence is a SequenceMatcherVariable,
+     * the then the sequence is added to a list, which is used to sync the sequence lengths to the client.
+     * @param posX
+     * @param posY
+     * @param sequence
+     * @return
+     */
+    protected SlotPlacerSequence addSequenceSlots(int posX, int posY, SequenceMatcher sequence)
+    {
+        if (sequence instanceof SequenceMatcherVariable)
+        {
+            this.variableSequences.add((SequenceMatcherVariable) sequence);
+            this.variableSequenceLengths.add(-1);
+        }
+
+        return SlotPlacerSequence.create(posX, posY, sequence, this);
+    }
+
+    public int getSequenceLength(int sequenceId)
+    {
+        return sequenceId < this.variableSequenceLengths.size() ? this.variableSequenceLengths.get(sequenceId) : 0;
     }
 
     public EntityPlayer getPlayer()
@@ -450,7 +480,7 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
                     if (listener instanceof EntityPlayerMP)
                     {
                         PacketHandler.INSTANCE.sendTo(
-                            new MessageSyncCustomSlot(this.windowId, slotTypeId, slot, templateStack), (EntityPlayerMP) listener);
+                            new MessageSyncSlot(this.windowId, slotTypeId, slot, templateStack), (EntityPlayerMP) listener);
                     }
                 }
 
@@ -513,7 +543,9 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
 
                         if (listener instanceof EntityPlayerMP)
                         {
-                            PacketHandler.INSTANCE.sendTo(new MessageSyncSlot(this.windowId, slot, prevStack), (EntityPlayerMP) listener);
+                            PacketHandler.INSTANCE.sendTo(
+                                new MessageSyncSlot(this.windowId, SLOT_TYPE_NORMAL, slot, prevStack),
+                                (EntityPlayerMP) listener);
                         }
                     }
                 }
@@ -534,12 +566,27 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
                     for (int i = 0; i < this.listeners.size(); i++)
                     {
                         IContainerListener listener = this.listeners.get(i);
+
                         if (listener instanceof EntityPlayerMP)
                         {
                             PacketHandler.INSTANCE.sendTo(
-                                new MessageSyncCustomSlot(this.windowId, SLOT_TYPE_SPECIAL, slot, prevStack), (EntityPlayerMP) listener);
+                                new MessageSyncSlot(this.windowId, SLOT_TYPE_SPECIAL, slot, prevStack),
+                                (EntityPlayerMP) listener);
                         }
                     }
+                }
+            }
+
+            for (int i = 0; i < this.variableSequences.size(); i++)
+            {
+                SequenceMatcherVariable sequence = this.variableSequences.get(i);
+
+                int length = sequence.getSequenceLengthForRender();
+
+                if (this.variableSequenceLengths.get(i) != length)
+                {
+                    this.syncProperty(0x0100 | i, (byte) length);
+                    this.variableSequenceLengths.set(i, length);
                 }
             }
         }
@@ -585,6 +632,11 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
 
     public void receiveProperty(int id, int value)
     {
+        // SequenceMatcherVariable's sequence lengths
+        if ((id & 0xFF00) == 0x0100)
+        {
+            this.variableSequenceLengths.set(id & 0xFF, value);
+        }
     }
 
     protected static class SlotPlacer

@@ -27,6 +27,7 @@ public class GuiRedstoneEmitter extends GuiAutoverse
         this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 19, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),                            8,  19, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end_marker"),                      46,  38, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.redstone_emitter.enabled_marker"), 46,  56, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.redstone_emitter.side_config"),     8,  68, 0x404040);
@@ -59,8 +60,8 @@ public class GuiRedstoneEmitter extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
-        this.drawSlotBackgrounds(97,  29, 0, 238, 4, 8);
-        this.drawSlotBackgrounds(97,  77, 0, 238, 4, 8);
-        this.drawSlotBackgrounds(97, 125, 0, 238, 4, 8);
+        this.drawSlotBackgrounds(97,  29, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(97,  77, 0, 238, this.container.getSequenceLength(1), this.container.getSequenceLength(1) * 2); // Sequence ON
+        this.drawSlotBackgrounds(97, 125, 0, 238, this.container.getSequenceLength(2), this.container.getSequenceLength(2) * 2); // Sequence OFF
     }
 }

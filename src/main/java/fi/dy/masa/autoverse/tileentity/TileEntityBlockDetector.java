@@ -19,11 +19,11 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.gui.client.GuiAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiDetector;
+import fi.dy.masa.autoverse.gui.client.GuiBlockDetector;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.inventory.container.ContainerDetector;
+import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperDetector;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperBlockDetector;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -35,7 +35,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOutDetection;
     private ItemStackHandlerTileEntity inventoryOutNormal;
-    private ItemHandlerWrapperDetector detector;
+    private ItemHandlerWrapperBlockDetector detector;
     private IItemHandler inventoryWrapperOutDetection;
 
     private EnumFacing facingDetectionOut = EnumFacing.EAST;
@@ -60,7 +60,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.itemHandlerBase        = this.inventoryInput;
         this.inventoryWrapperOutDetection = new ItemHandlerWrapperExtractOnly(this.inventoryOutDetection);
 
-        this.detector = new ItemHandlerWrapperDetector(this.inventoryInput, this.inventoryOutNormal, this);
+        this.detector = new ItemHandlerWrapperBlockDetector(this.inventoryInput, this.inventoryOutNormal, this);
 
         this.itemHandlerExternal = this.detector;
     }
@@ -80,7 +80,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         return this.inventoryOutNormal;
     }
 
-    public ItemHandlerWrapperDetector getDetector()
+    public ItemHandlerWrapperBlockDetector getDetector()
     {
         return this.detector;
     }
@@ -381,15 +381,15 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     }
 
     @Override
-    public ContainerDetector getContainer(EntityPlayer player)
+    public ContainerBlockDetector getContainer(EntityPlayer player)
     {
-        return new ContainerDetector(player, this);
+        return new ContainerBlockDetector(player, this);
     }
 
     @SideOnly(Side.CLIENT)
     @Override
     public GuiAutoverse getGui(EntityPlayer player)
     {
-        return new GuiDetector(this.getContainer(player), this);
+        return new GuiBlockDetector(this.getContainer(player), this);
     }
 }

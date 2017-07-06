@@ -10,12 +10,18 @@ import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 public class ContainerFilter extends ContainerTile
 {
     private final TileEntityFilter tefi;
+    private int invSize = -1;
 
     public ContainerFilter(EntityPlayer player, TileEntityFilter te)
     {
         super(player, te);
 
         this.tefi = te;
+        this.reAddSlots();
+    }
+
+    private void reAddSlots()
+    {
         this.reAddSlots(8, 174);
     }
 
@@ -30,11 +36,14 @@ public class ContainerFilter extends ContainerTile
 
         ItemHandlerWrapperFilter filter = this.tefi.getInventoryFilter();
 
+        // Add the end marker slot
+        this.addSpecialSlot(new SlotItemHandlerGeneric(filter.getEndMarkerInventory(), 0, 26, 16));
+
         // Add the Reset Sequence slots
-        SlotPlacerSequence.create(98, 16, filter.getResetSequence(), this).place();
+        this.addSequenceSlots(98, 16, filter.getResetSequence()).place();
 
         // Add the Filter slots
-        SlotPlacer.create(8, 63, filter.getFilterSequenceInventory(), this).setSlotType(SlotType.SPECIAL).place();
+        this.addSequenceSlots(8, 63, filter.getFilterSequence()).place();
 
         if (this.tefi instanceof TileEntityFilterSequential)
         {
@@ -48,5 +57,39 @@ public class ContainerFilter extends ContainerTile
 
         // Add the filtered output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tefi.getInventoryOutFiltered(), 0, 152, 151));
+    }
+
+    @Override
+    public void detectAndSendChanges()
+    {
+        if (this.isClient == false && this.tefi instanceof TileEntityFilterSequential)
+        {
+            int invSize = ((TileEntityFilterSequential) this.tefi).getInventoryFilteredBuffer().getSlots();
+
+            if (invSize != this.invSize)
+            {
+                this.syncProperty(0, (byte) invSize);
+                this.reAddSlots();
+                this.invSize = invSize;
+
+                this.forceSyncAll = true;
+                super.detectAndSendChanges();
+                this.forceSyncAll = false;
+            }
+        }
+
+        super.detectAndSendChanges();
+    }
+
+    @Override
+    public void receiveProperty(int id, int value)
+    {
+        super.receiveProperty(id, value);
+
+        if (id == 0)
+        {
+            ((TileEntityFilterSequential) this.tefi).getInventoryFilteredBuffer().setInventorySize(value);
+            this.reAddSlots();
+        }
     }
 }

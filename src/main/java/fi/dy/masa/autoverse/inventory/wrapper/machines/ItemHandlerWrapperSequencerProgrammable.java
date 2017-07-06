@@ -3,7 +3,7 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockableVariable;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencerProgrammable;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
@@ -11,11 +11,9 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperSequenceBase
 {
     public static final int MAX_INV_SIZE = 45;
-    private final SequenceMatcher sequenceMarkerItem;
-    private final ItemStackHandlerLockableVariable sequenceInventory;
-    private final IItemHandler markerInventory;
+    private final ItemStackHandlerLockable sequenceInventory;
     private final IItemHandler inventoryOutput;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private int position;
 
     public ItemHandlerWrapperSequencerProgrammable(
@@ -26,11 +24,8 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         super(4, inventoryInput);
 
         this.inventoryOutput = inventoryOutput;
-        this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");
-        this.sequenceInventory  = new ItemStackHandlerLockableVariable(2, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
+        this.sequenceInventory  = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
         this.sequenceInventory.setInventorySize(0);
-
-        this.markerInventory = this.sequenceMarkerItem.getSequenceInventory(false);
     }
 
     @Override
@@ -38,23 +33,23 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-                if (this.getResetSequence().configureSequence(inputStack))
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_MARKER);
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.setMode(Mode.CONFIGURE_RESET);
                 }
                 break;
 
-            case CONFIGURE_MARKER:
-                if (this.sequenceMarkerItem.configureSequence(inputStack))
+            case CONFIGURE_RESET:
+                if (this.getResetSequence().configureSequence(inputStack))
                 {
                     this.setMode(Mode.CONFIGURE_SEQUENCE);
-                    this.position = 0;
                 }
                 break;
 
             case CONFIGURE_SEQUENCE:
-                if (InventoryUtils.areItemStacksEqual(inputStack, this.markerInventory.getStackInSlot(0)))
+                if (InventoryUtils.areItemStacksEqual(inputStack, this.getEndMarkerSequence().getStackInSlot(0)))
                 {
                     this.position = 0;
                     this.setMode(Mode.NORMAL_OPERATION);
@@ -76,19 +71,23 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.sequenceMarkerItem.reset();
-                    this.position = 0;
-                    this.setMode(Mode.RESET_FLUSH_SEQUENCE);
+                    this.onReset();
                 }
                 break;
 
             case RESET_FLUSH_SEQUENCE:
-                break;
-
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.position = 0;
+        this.setMode(Mode.RESET_FLUSH_SEQUENCE);
     }
 
     @Override
@@ -96,11 +95,6 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-            case CONFIGURE_MARKER:
-            case CONFIGURE_SEQUENCE:
-                return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
-
             case NORMAL_OPERATION:
                 if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
                 {
@@ -124,10 +118,12 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
                     this.sequenceInventory.clearLockedStatus();
                     this.sequenceInventory.setInventorySize(0);
                     this.position = 0;
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.setMode(Mode.CONFIGURE_END_MARKER);
                 }
-
                 return success;
+
+            default:
+                return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
         }
 
         return false;
@@ -172,12 +168,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         return ItemStack.EMPTY;
     }
 
-    public IItemHandler getMarkerInventory()
-    {
-        return this.markerInventory;
-    }
-
-    public ItemStackHandlerLockableVariable getSequenceInventory()
+    public ItemStackHandlerLockable getSequenceInventory()
     {
         return this.sequenceInventory;
     }
@@ -205,7 +196,6 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         tag.setByte("State", (byte) this.mode.getId());
         tag.setByte("Position", (byte) this.position);
 
-        this.sequenceMarkerItem.writeToNBT(tag);
         tag.merge(this.sequenceInventory.serializeNBT());
 
         return tag;
@@ -219,14 +209,13 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
         this.setMode(Mode.fromId(tag.getByte("State")));
         this.position = tag.getByte("Position");
 
-        this.sequenceMarkerItem.readFromNBT(tag);
         this.sequenceInventory.deserializeNBT(tag);
     }
 
     public enum Mode
     {
-        CONFIGURE_RESET         (0),
-        CONFIGURE_MARKER        (1),
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_RESET         (1),
         CONFIGURE_SEQUENCE      (2),
         NORMAL_OPERATION        (3),
         RESET_FLUSH_SEQUENCE    (5);

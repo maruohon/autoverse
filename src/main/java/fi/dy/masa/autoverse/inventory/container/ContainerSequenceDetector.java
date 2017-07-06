@@ -32,14 +32,14 @@ public class ContainerSequenceDetector extends ContainerTile
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 16, this.inventory, this.tesd.getInventoryIn());
 
-        // Add the sequence end marker slot
-        this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getMarkerInventory(), 0, 8, 34));
+        // Add the end marker slot
+        this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getEndMarkerInventory(), 0, 26, 16));
 
         // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 16, this.detector.getResetSequence(), this).place();
+        this.addSequenceSlots(98, 16, this.detector.getResetSequence()).place();
 
         // Add the detection sequence slots
-        SlotPlacerSequence.create(8, 56, this.detector.getDetectionSequence(), this).setAddMatchedSlots(false).place();
+        this.addSequenceSlots(8, 56, this.detector.getDetectionSequence()).setAddMatchedSlots(false).place();
 
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesd.getInventoryOut(), 0, 152, 151));
@@ -56,38 +56,34 @@ public class ContainerSequenceDetector extends ContainerTile
         int sequenceLength = this.detector.getCurrentDetectionSequenceLength();
         int matchedLength = this.detector.getDetectionSequence().getCurrentPosition();
 
-        for (int i = 0; i < this.listeners.size(); i++)
+        if (sequenceLength != this.sequenceLength)
         {
-            if (sequenceLength != this.sequenceLength)
-            {
-                this.listeners.get(i).sendWindowProperty(this, 0, sequenceLength);
-            }
-
-            if (matchedLength != this.matchedLength)
-            {
-                this.listeners.get(i).sendWindowProperty(this, 1, matchedLength);
-            }
+            this.syncProperty(0, (byte) sequenceLength);
+            this.sequenceLength = sequenceLength;
         }
 
-        this.sequenceLength = sequenceLength;
-        this.matchedLength = matchedLength;
+        if (matchedLength != this.matchedLength)
+        {
+            this.syncProperty(1, (byte) matchedLength);
+            this.matchedLength = matchedLength;
+        }
 
         super.detectAndSendChanges();
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
-        super.updateProgressBar(id, data);
+        super.receiveProperty(id, value);
 
         switch (id)
         {
             case 0:
-                this.sequenceLength = data;
+                this.sequenceLength = value;
                 break;
 
             case 1:
-                this.matchedLength = data;
+                this.matchedLength = value;
                 break;
         }
     }

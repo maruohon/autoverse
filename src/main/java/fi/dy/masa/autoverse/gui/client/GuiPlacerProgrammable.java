@@ -10,7 +10,8 @@ public class GuiPlacerProgrammable extends GuiAutoverse
 
     public GuiPlacerProgrammable(ContainerAutoverse container, TileEntityPlacerProgrammable te)
     {
-        super(container, 176, 256, "gui.container.placer_programmable");
+        // Same GUI background as the filter
+        super(container, 176, 256, "gui.container.filter");
         this.te = te;
     }
 
@@ -26,23 +27,12 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.placer_programmable.end_marker");
-        this.fontRenderer.drawString(s, 45, 24, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.1_bit_marker");
-        this.fontRenderer.drawString(s, 45, 42, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.placer_programmable.trigger");
-        this.fontRenderer.drawString(s,  8, 54, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 1);
-        this.fontRenderer.drawString(s, 98, 54, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 2);
-        this.fontRenderer.drawString(s,  8, 104, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.placer_programmable.property", 3);
-        this.fontRenderer.drawString(s, 98, 104, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.placer_programmable.end_marker"),  45,  24, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.1_bit_marker"),                    45,  42, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.placer_programmable.trigger"),      8,  53, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.placer_programmable.property", 1), 98,  53, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.placer_programmable.property", 2),  8, 100, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.placer_programmable.property", 3), 98, 100, 0x404040);
 
         s = I18n.format("autoverse.gui.label.out");
         this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 152, 0x404040);
@@ -55,48 +45,15 @@ public class GuiPlacerProgrammable extends GuiAutoverse
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        /*
-        int x = this.guiLeft + 7;
-        int y = this.guiTop + 55;
+        this.drawSlotBackgrounds( 25,  33, 0, 238, 1, 1); // 1-bit marker
 
-        final int invSize = this.containerPP.getSequenceLength();
-        final int maxRowLength = 9;
-        int rows = (int) (Math.ceil((double) invSize / maxRowLength));
+        this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(  7,  62, 0, 238, this.container.getSequenceLength(1), this.container.getSequenceLength(1) * 2); // Trigger
 
-        if (invSize > 0)
-        {
-            rows = Math.max(rows, 1);
-        }
+        this.drawSlotBackgrounds( 97,  62, 0, 238, 4, 8); // Property 1
+        this.drawSlotBackgrounds(  7, 109, 0, 238, 4, 8); // Property 2
+        this.drawSlotBackgrounds( 97, 109, 0, 238, 4, 8); // Property 3
 
-        // Draw the slot backgrounds according to how many slots the sequencer has at the moment
-        for (int row = 0; row < rows; row++)
-        {
-            int rowLen = MathHelper.clamp(invSize - (row * maxRowLength), 1, maxRowLength);
-            this.drawTexturedModalRect(x, y + row * 18, 16, 238, rowLen * 18, 18);
-        }
-
-        this.bindTexture(this.guiTextureWidgets);
-
-        ItemStackHandlerLockable inv = this.containerPP.getSequenceInventory();
-        final int first = this.containerPP.getSequenceInventorySlotRange().first;
-        List<Slot> slotList = this.containerPP.getSpecialSlots();
-
-        this.drawLockedSlotBackgrounds(inv, first, slotList);
-
-        if (invSize > 0)
-        {
-            // Draw the hilighted slot background for the current output slot
-            final int outSlot = this.containerPP.getOutputSlot();
-
-            this.drawTexturedModalRect(x + (outSlot % 9) * 18, y + (outSlot / 9) * 18, 102, 162, 18, 18);
-        }
-
-        this.drawTemplateStacks(inv, first, slotList);
-        */
-    }
-
-    private void drawPropertySlots(int propId, int x, int y)
-    {
-        
+        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Output
     }
 }

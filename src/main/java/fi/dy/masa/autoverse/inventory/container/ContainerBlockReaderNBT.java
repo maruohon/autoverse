@@ -34,42 +34,30 @@ public class ContainerBlockReaderNBT extends ContainerTile
     @Override
     public void detectAndSendChanges()
     {
-        if (this.isClient)
+        if (this.isClient == false)
         {
-            return;
-        }
+            int maxLength = this.ter.getMaxLength();
 
-        int maxLength = this.ter.getMaxLength();
-
-        for (int i = 0; i < this.listeners.size(); i++)
-        {
             if (maxLength != this.lengthLast)
             {
-                this.listeners.get(i).sendWindowProperty(this, 0, maxLength);
+                this.syncProperty(0, (byte) maxLength);
+                this.reAddSlots();
+                this.lengthLast = maxLength;
             }
         }
-
-        if (maxLength != this.lengthLast)
-        {
-            this.reAddSlots();
-        }
-
-        this.lengthLast = maxLength;
 
         super.detectAndSendChanges();
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
-        super.updateProgressBar(id, data);
+        super.receiveProperty(id, value);
 
-        switch (id)
+        if (id == 0)
         {
-            case 0:
-                this.ter.setMaxLength(data);
-                this.reAddSlots();
-                break;
+            this.ter.setMaxLength(value);
+            this.reAddSlots();
         }
     }
 }

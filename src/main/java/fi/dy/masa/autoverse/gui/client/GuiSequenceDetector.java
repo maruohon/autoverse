@@ -11,7 +11,8 @@ public class GuiSequenceDetector extends GuiAutoverse
 
     public GuiSequenceDetector(ContainerSequenceDetector container, TileEntitySequenceDetector te)
     {
-        super(container, 176, 256, "gui.container.sequence_detector");
+        // Same GUI background as the filter
+        super(container, 176, 256, "gui.container.filter");
         this.containerSD = container;
         this.te = te;
     }
@@ -24,16 +25,12 @@ public class GuiSequenceDetector extends GuiAutoverse
         String unloc = "autoverse.container.sequence_detector";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"), 26, 24, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.reset_sequence");
-        this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 16, 0x404040);
+        s = I18n.format("autoverse.gui.label.rst");
+        this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.end_marker");
-        this.fontRenderer.drawString(s, 26, 42, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.sequence_detector.sequence");
-        this.fontRenderer.drawString(s, 8, 150, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),                        45,  25, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequence_detector.sequence"),  8, 150, 0x404040);
 
         s = I18n.format("autoverse.gui.label.output_buffer");
         this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 163, 0x404040);
@@ -51,8 +48,10 @@ public class GuiSequenceDetector extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
-        // Draw the slot backgrounds according to how many slots the detector has at the moment
-        this.drawSlotBackgrounds(7, 55, 0, 238, 9, this.containerSD.getSequenceLength());
+        // Draw the slot backgrounds according to how many slots the machine has at the moment
+        this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(  7,  55, 0, 238, 9, this.containerSD.getSequenceLength()); // Detection sequence
+        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Output slot
 
         // Draw the hilighted slot backgrounds according to how many slots the detector has matched thus far
         final int matched = this.containerSD.getMatchedLength();

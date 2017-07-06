@@ -3,28 +3,25 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockableVariable;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockDetector;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
-public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
+public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceBase
 {
     public static final int MAX_INV_SIZE = 18;
     private final TileEntityBlockDetector te;
-    private final SequenceMatcher sequenceEndMarker;
     private final SequenceMatcher sequenceBitMarker;
     private final SequenceMatcherVariable sequenceDistance;
     private final SequenceMatcherVariable sequenceAngle;
     private final SequenceMatcherVariable sequenceDelay;
-    private final ItemStackHandlerLockableVariable detectionInventory;
+    private final ItemStackHandlerLockable detectionInventory;
     private final IItemHandler inventoryOutput;
-    private final IItemHandler endMarkerInventory;
-    private final IItemHandler bitMarkerInventory;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private int position;
 
-    public ItemHandlerWrapperDetector(
+    public ItemHandlerWrapperBlockDetector(
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput,
             TileEntityBlockDetector te)
@@ -32,18 +29,14 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
         super(4, inventoryInput);
 
         this.te = te;
-        this.sequenceEndMarker  = new SequenceMatcher(1, "SequenceEndMarker");
         this.sequenceBitMarker  = new SequenceMatcher(1, "SequenceBitMarker");
-        this.sequenceDistance   = new SequenceMatcherVariable(4, "SequenceDistance");
-        this.sequenceAngle      = new SequenceMatcherVariable(4, "SequenceAngle");
-        this.sequenceDelay      = new SequenceMatcherVariable(8, "SequenceDelay");
+        this.sequenceDistance   = (new SequenceMatcherVariable(4, "SequenceDistance")).setAllowEmptySequence(true);
+        this.sequenceAngle      = (new SequenceMatcherVariable(4, "SequenceAngle")).setAllowEmptySequence(true);
+        this.sequenceDelay      = (new SequenceMatcherVariable(8, "SequenceDelay")).setAllowEmptySequence(true);
 
-        this.detectionInventory = new ItemStackHandlerLockableVariable(5, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
+        this.detectionInventory = new ItemStackHandlerLockable(5, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
         this.detectionInventory.setInventorySize(0);
         this.inventoryOutput = inventoryOutput;
-
-        this.endMarkerInventory = this.sequenceEndMarker.getSequenceInventory(false);
-        this.bitMarkerInventory = this.sequenceBitMarker.getSequenceInventory(false);
     }
 
     @Override
@@ -51,16 +44,10 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-                if (this.getResetSequence().configureSequence(inputStack))
-                {
-                    this.setMode(Mode.CONFIGURE_END_MARKER);
-                }
-                break;
-
             case CONFIGURE_END_MARKER:
-                if (this.sequenceEndMarker.configureSequence(inputStack))
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
                     this.sequenceDistance.setSequenceEndMarker(inputStack);
                     this.sequenceAngle.setSequenceEndMarker(inputStack);
                     this.sequenceDelay.setSequenceEndMarker(inputStack);
@@ -70,6 +57,13 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
 
             case CONFIGURE_BIT_MARKER:
                 if (this.sequenceBitMarker.configureSequence(inputStack))
+                {
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
+            case CONFIGURE_RESET:
+                if (this.getResetSequence().configureSequence(inputStack))
                 {
                     this.setMode(Mode.CONFIGURE_DISTANCE);
                 }
@@ -101,7 +95,7 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
                 break;
 
             case CONFIGURE_DETECTOR:
-                if (InventoryUtils.areItemStacksEqual(inputStack, this.endMarkerInventory.getStackInSlot(0)))
+                if (InventoryUtils.areItemStacksEqual(inputStack, this.getEndMarkerSequence().getStackInSlot(0)))
                 {
                     this.position = 0;
                     this.setMode(Mode.NORMAL_OPERATION);
@@ -125,21 +119,28 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.sequenceEndMarker.reset();
-                    this.sequenceBitMarker.reset();
-                    this.sequenceDistance.reset();
-                    this.sequenceAngle.reset();
-                    this.sequenceDelay.reset();
-                    this.position = 0;
-                    this.te.stopDetector();
-                    this.setMode(Mode.RESET_FLUSH_ITEMS);
+                    this.onReset();
                 }
                 break;
 
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.sequenceBitMarker.reset();
+        this.sequenceDistance.reset();
+        this.sequenceAngle.reset();
+        this.sequenceDelay.reset();
+
+        this.position = 0;
+        this.te.stopDetector();
+        this.setMode(Mode.RESET_FLUSH_ITEMS);
     }
 
     @Override
@@ -170,7 +171,7 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
                     this.detectionInventory.clearLockedStatus();
                     this.detectionInventory.setInventorySize(0);
                     this.position = 0;
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.setMode(Mode.CONFIGURE_END_MARKER);
                 }
 
                 return success;
@@ -202,14 +203,9 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
         return slot == 0 ? this.inventoryOutput.extractItem(0, amount, simulate) : ItemStack.EMPTY;
     }
 
-    public IItemHandler getEndMarkerInventory()
-    {
-        return this.endMarkerInventory;
-    }
-
     public IItemHandler getBitMarkerInventory()
     {
-        return this.bitMarkerInventory;
+        return this.sequenceBitMarker.getSequenceInventory(false);
     }
 
     public SequenceMatcher getSequenceDistance()
@@ -227,7 +223,7 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
         return this.sequenceDelay;
     }
 
-    public ItemStackHandlerLockableVariable getDetectionInventory()
+    public ItemStackHandlerLockable getDetectionInventory()
     {
         return this.detectionInventory;
     }
@@ -255,7 +251,6 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
         tag.setByte("State", (byte) this.mode.getId());
         tag.setByte("Position", (byte) this.position);
 
-        this.sequenceEndMarker.writeToNBT(tag);
         this.sequenceBitMarker.writeToNBT(tag);
         this.sequenceDistance.writeToNBT(tag);
         this.sequenceAngle.writeToNBT(tag);
@@ -274,7 +269,6 @@ public class ItemHandlerWrapperDetector extends ItemHandlerWrapperSequenceBase
         this.setMode(Mode.fromId(tag.getByte("State")));
         this.position = tag.getByte("Position");
 
-        this.sequenceEndMarker.readFromNBT(tag);
         this.sequenceBitMarker.readFromNBT(tag);
         this.sequenceDistance.readFromNBT(tag);
         this.sequenceAngle.readFromNBT(tag);

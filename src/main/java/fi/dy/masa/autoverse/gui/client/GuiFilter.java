@@ -24,9 +24,10 @@ public class GuiFilter extends GuiAutoverse
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2,  4, 0x404040);
         s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s),  17, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),               28,  24, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filter_items"),         8,  53, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.out_normal"),          28, 151, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.in"),              8,  35, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),            45,  25, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.filter_items"),    8,  53, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.out_normal"),     28, 151, 0x404040);
 
         s = I18n.format("autoverse.gui.label.out_filtered");
         this.fontRenderer.drawString(s, 148 - this.fontRenderer.getStringWidth(s), 160, 0x404040);
@@ -37,39 +38,20 @@ public class GuiFilter extends GuiAutoverse
         }
     }
 
-    protected int getTier()
-    {
-        return this.te.getFilterTier();
-    }
-
     @Override
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.renderAllSlotBackgrounds();
-    }
-
-    protected void renderAllSlotBackgrounds()
-    {
-        int resetSlots = this.te.getResetSlotCount();
-        int filterSlots = this.te.getFilterSlotCount();
-
-        this.bindTexture(this.guiTextureWidgets);
+        this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(  7,  62, 0, 238, 9, this.container.getSequenceLength(1)); // Filter sequence
+        this.drawSlotBackgrounds(  7, 150, 0, 202, 1, 1); // Out Normal
+        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out Filtered
 
         if (this.te instanceof TileEntityFilterSequential)
         {
             // Filtered items buffer slots
-            this.drawSlotBackgrounds(7, 109, 0, 238, 9, filterSlots);
+            this.drawSlotBackgrounds(7, 109, 0, 238, 9, this.container.getSequenceLength(1));
         }
-
-        // Reset sequence slots
-        this.drawSlotBackgrounds(97, 15, 0, 238, 4, resetSlots);
-
-        // Reset sequence matched slots
-        this.drawSlotBackgrounds(97, 33, 0, 238, 4, resetSlots);
-
-        // Filter item slots
-        this.drawSlotBackgrounds( 7, 62, 0, 238, 9, filterSlots);
     }
 }

@@ -32,11 +32,14 @@ public class ContainerCrafter extends ContainerTile
         ItemHandlerWrapperCrafter crafter = this.tec.getInventoryCrafter();
         InventoryCraftingWrapper matrix = this.tec.getCraftingInventory();
 
-        // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 30, crafter.getResetSequence(), this).place();
+        // Add the end marker slot
+        this.addSpecialSlot(new SlotItemHandlerGeneric(crafter.getEndMarkerInventory(), 0, 8, 48));
 
         // Add the empty item marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(crafter.getEmptyMarkerInventory(), 0, 8, 66));
+
+        // Add the reset sequence slots
+        this.addSequenceSlots(98, 30, crafter.getResetSequence()).place();
 
         // Add the crafting pattern slots
         SlotPlacer.create( 8, 97, crafter.getRecipeSequenceInventory(), this).setMaxSlotsPerRow(3).setSlotType(SlotType.SPECIAL).place();

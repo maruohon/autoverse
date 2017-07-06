@@ -43,10 +43,7 @@ public class ContainerSplitterRedstone extends ContainerTile
 
             if (this.secondaryOutput != isSecondary)
             {
-                for (int i = 0; i < this.listeners.size(); i++)
-                {
-                    this.listeners.get(i).sendWindowProperty(this, 0, isSecondary ? 0x1 : 0x0);
-                }
+                this.syncProperty(0, (byte) (isSecondary ? 0x1 : 0x0));
             }
 
             this.secondaryOutput = isSecondary;
@@ -56,13 +53,13 @@ public class ContainerSplitterRedstone extends ContainerTile
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
+        super.receiveProperty(id, value);
+
         if (id == 0)
         {
-            this.secondaryOutput = data != 0;
+            this.secondaryOutput = value != 0;
         }
-
-        super.updateProgressBar(id, data);
     }
 }

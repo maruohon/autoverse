@@ -14,8 +14,8 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
     public GuiSequencerProgrammable(ContainerSequencerProgrammable container, TileEntitySequencerProgrammable te)
     {
-        // Same GUI background as the detector
-        super(container, 176, 256, "gui.container.sequence_detector");
+        // Same GUI background as the filter
+        super(container, 176, 256, "gui.container.filter");
         this.containerSP = container;
         this.te = te;
     }
@@ -31,10 +31,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
         s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
-
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"), 28, 24, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end_marker"), 28, 42, 0x404040);
-
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),    45, 25, 0x404040);
         this.fontRenderer.drawString("^ " + I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 150, 0x404040);
 
         s = I18n.format("autoverse.gui.label.out");
@@ -55,7 +52,9 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
-        this.drawSlotBackgrounds(7, 55, 0, 238, 9, invSize);
+        this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(  7,  55, 0, 202, 9, invSize);
+        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out
 
         final int first = this.containerSP.getSequenceInventorySlotRange().first;
         final List<Slot> slotList = this.containerSP.getSpecialSlots();

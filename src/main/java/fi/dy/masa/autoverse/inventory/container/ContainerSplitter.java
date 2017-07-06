@@ -30,14 +30,17 @@ public class ContainerSplitter extends ContainerTile
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 30, this.inventory, this.tesp.getInventoryIn());
 
+        // Add the end marker slot
+        this.addSpecialSlot(new SlotItemHandlerGeneric(splitter.getEndMarkerInventory(), 0, 8, 48));
+
         // Add the reset sequence slots
-        SlotPlacerSequence.create(98, 30, splitter.getResetSequence(), this).place();
+        this.addSequenceSlots(98, 30, splitter.getResetSequence()).place();
 
         // Add the selection sequence 1 slots
-        SlotPlacerSequence.create( 8, 83, splitter.getSwitchSequence1(), this).place();
+        this.addSequenceSlots( 8, 83, splitter.getSwitchSequence1()).place();
 
         // Add the selection sequence 2 slots
-        SlotPlacerSequence.create(98, 83, splitter.getSwitchSequence2(), this).place();
+        this.addSequenceSlots(98, 83, splitter.getSwitchSequence2()).place();
 
         // Add the output buffer 1 slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tesp.getInventoryOut1(), 0,   8, 128));
@@ -53,12 +56,9 @@ public class ContainerSplitter extends ContainerTile
         {
             boolean isSecondary = this.tesp.outputIsSecondaryCached();
 
-            for (int i = 0; i < this.listeners.size(); i++)
+            if (this.secondaryOutput != isSecondary)
             {
-                if (this.secondaryOutput != isSecondary)
-                {
-                    this.listeners.get(i).sendWindowProperty(this, 0, isSecondary ? 0x1 : 0x0);
-                }
+                this.syncProperty(0, (byte) (isSecondary ? 0x1 : 0x0));
             }
 
             this.secondaryOutput = isSecondary;
@@ -68,15 +68,13 @@ public class ContainerSplitter extends ContainerTile
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
-        switch (id)
-        {
-            case 0:
-                this.secondaryOutput = data != 0;
-                break;
-        }
+        super.receiveProperty(id, value);
 
-        super.updateProgressBar(id, data);
+        if (id == 0)
+        {
+            this.secondaryOutput = value != 0;
+        }
     }
 }

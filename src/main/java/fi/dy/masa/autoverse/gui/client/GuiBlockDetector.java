@@ -4,17 +4,18 @@ import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
-import fi.dy.masa.autoverse.inventory.container.ContainerDetector;
+import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockDetector;
 
-public class GuiDetector extends GuiAutoverse
+public class GuiBlockDetector extends GuiAutoverse
 {
-    private final ContainerDetector containerD;
+    private final ContainerBlockDetector containerD;
     private final TileEntityBlockDetector te;
 
-    public GuiDetector(ContainerDetector container, TileEntityBlockDetector te)
+    public GuiBlockDetector(ContainerBlockDetector container, TileEntityBlockDetector te)
     {
-        super(container, 176, 256, "gui.container.detector");
+        // Same GUI background as the filter
+        super(container, 176, 256, "gui.container.filter");
         this.containerD = container;
         this.te = te;
     }
@@ -24,7 +25,7 @@ public class GuiDetector extends GuiAutoverse
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String unloc = "autoverse.container.detector";
+        String unloc = "autoverse.container.block_detector";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
@@ -47,10 +48,10 @@ public class GuiDetector extends GuiAutoverse
         this.fontRenderer.drawString(s,  8, 104, 0x404040);
 
         s = I18n.format("autoverse.gui.label.out_normal");
-        this.fontRenderer.drawString(s, 28, 152, 0x404040);
+        this.fontRenderer.drawString(s, 28, 150, 0x404040);
 
         s = I18n.format("autoverse.gui.label.detector.out_detection");
-        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 162, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 160, 0x404040);
     }
 
     @Override
@@ -58,13 +59,22 @@ public class GuiDetector extends GuiAutoverse
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        final int invSize = this.containerD.getDetectionInvSize();
-
         this.bindTexture(this.guiTextureWidgets);
 
-        this.drawSlotBackgrounds(7, 113, 0, 238, 9, invSize);
+        final ItemStackHandlerLockable inv = this.containerD.getDetectionInventory();
+        final int invSize = inv.getSlots() > 0 ? inv.getSlots() : 18;
 
-        ItemStackHandlerLockable inv = this.containerD.getDetectionInventory();
+        this.drawSlotBackgrounds( 25,  33, 0, 238, 1, 1); // 1-bit marker
+
+        this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
+        this.drawSlotBackgrounds(  7,  64, 0, 238, 4, 4); // Config: Distance
+        this.drawSlotBackgrounds(  7,  82, 0, 238, 4, 4); // Config: Angle
+        this.drawSlotBackgrounds( 97,  64, 0, 238, 4, 8); // Config: Delay
+        this.drawSlotBackgrounds(  7, 113, 0, 238, 9, invSize); // Detector
+
+        this.drawSlotBackgrounds(  7, 150, 0, 202, 1, 1); // Out Normal
+        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out Detector
+
         final int first = this.containerD.getDetectionInventorySlotRange().first;
         List<Slot> slotList = this.containerD.getSpecialSlots();
 

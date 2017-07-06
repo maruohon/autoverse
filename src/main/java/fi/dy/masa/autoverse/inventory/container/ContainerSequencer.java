@@ -37,21 +37,19 @@ public class ContainerSequencer extends ContainerTile
 
         if (this.outputSlot != outputSlot)
         {
-            for (int i = 0; i < this.listeners.size(); i++)
-            {
-                this.listeners.get(i).sendWindowProperty(this, 0, outputSlot);
-            }
+            this.syncProperty(0, (byte) outputSlot);
+            this.outputSlot = outputSlot;
         }
-
-        this.outputSlot = outputSlot;
     }
 
     @Override
-    public void updateProgressBar(int id, int data)
+    public void receiveProperty(int id, int value)
     {
+        super.receiveProperty(id, value);
+
         if (id == 0)
         {
-            this.outputSlot = data;
+            this.outputSlot = value;
         }
     }
 

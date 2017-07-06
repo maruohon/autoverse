@@ -34,7 +34,7 @@ public class MessageSyncContainerProperty implements IMessage
     public void toBytes(ByteBuf buf)
     {
         buf.writeByte(this.windowId);
-        buf.writeByte(this.valueId);
+        buf.writeShort(this.valueId);
         buf.writeByte((byte) this.type.getId());
 
         switch (this.type)
@@ -57,7 +57,7 @@ public class MessageSyncContainerProperty implements IMessage
     public void fromBytes(ByteBuf buf)
     {
         this.windowId = buf.readByte();
-        this.valueId = buf.readByte();
+        this.valueId = buf.readShort();
         this.type = Type.fromId(buf.readByte());
 
         switch (this.type)

@@ -116,8 +116,8 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(AutoverseBlocks.BUFFER, 2, "facing=north,type=fifo_auto");
         this.registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north");
         this.registerItemBlockModel(AutoverseBlocks.DETECTOR, 0, "facing=north,facing_out=east");
-        this.registerAllItemBlockModels(AutoverseBlocks.FILTER_BASIC, "facing=north,facing_filter=east,tier=", "", true);
-        this.registerAllItemBlockModels(AutoverseBlocks.FILTER_SEQUENTIAL, "facing=north,facing_filter=east,tier=", "", true);
+        this.registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,type=basic");
+        this.registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,type=sequential");
         this.registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
         this.registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
         this.registerItemBlockModel(AutoverseBlocks.PLACER, 0, "facing=north,type=nbt");
@@ -126,7 +126,7 @@ public class ClientProxy extends CommonProxy
         this.registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
         this.registerAllItemBlockModels(AutoverseBlocks.SEQUENCER, "facing=north,tier=", "", true);
         this.registerItemBlockModel(AutoverseBlocks.SEQUENCER_PROGRAMMABLE, 0, "facing=north");
-        this.registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=selectable");
+        this.registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=switchable");
         this.registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,type=redstone");
     }
 

@@ -48,11 +48,6 @@ public class SequenceMatcher
         this.configured = true;
     }
 
-    public int getCurrentSequenceLength()
-    {
-        return this.sequence.size();
-    }
-
     /**
      * Checks the current input item against the configured sequence.
      * When a full sequence has been matched, true is returned, and the internal
@@ -83,7 +78,7 @@ public class SequenceMatcher
     }
 
     /**
-     * Returns whether the sequence has currently been matched. Not that
+     * Returns whether the sequence has currently been matched. Note that
      * this is normally only ever true for 0-length variable-length sequences!
      * All normal sequence matchers get reset immediately upon match in {@link #checkInputItem(ItemStack)}
      * and thus the return value from that method is the only match indication.
@@ -91,7 +86,7 @@ public class SequenceMatcher
      */
     public boolean isSequenceMatched()
     {
-        return this.position >= this.getCurrentSequenceLength();
+        return this.configured ? this.position >= this.getCurrentSequenceLength() : false;
     }
 
     private void shiftSequence(ItemStack inputStack)
@@ -161,22 +156,17 @@ public class SequenceMatcher
         NBTUtils.readStoredItemsFromTag(tag, this.sequence, this.tagName);
     }
 
-    public int getLength()
-    {
-        return this.sequence.size();
-    }
-
-    public String getTagName()
+    public final String getTagName()
     {
         return this.tagName;
     }
 
-    public boolean isConfigured()
+    public final boolean isConfigured()
     {
         return this.configured;
     }
 
-    protected int getPosition()
+    protected final int getPosition()
     {
         return this.position;
     }
@@ -192,9 +182,38 @@ public class SequenceMatcher
         return this.configured ? this.position : 0;
     }
 
-    public NonNullList<ItemStack> getSequence()
+    public final NonNullList<ItemStack> getSequence()
     {
         return this.sequence;
+    }
+
+    public ItemStack getStackInSlot(int slot)
+    {
+        return this.sequence.get(slot);
+    }
+
+    public final int getMaxLength()
+    {
+        return this.sequence.size();
+    }
+
+    public int getCurrentSequenceLength()
+    {
+        return this.getMaxLength();
+    }
+
+    /**
+     * Get the number of slots that should be rendered on the GUI for this sequence.
+     * For a configured sequence this returns {@link getCurrentSequenceLength()}.
+     * For sequences still being configured, the return value is initially the full maximum sequence length,
+     * but after the first item has been configured, the value will be the number of items configured thus far.
+     * This way, the GUI will initially indicate the maximum sequence length, but will then show the current
+     * sequence length after the configuration of a sequence has begun.
+     * @return
+     */
+    public int getSequenceLengthForRender()
+    {
+        return this.configured ? this.getCurrentSequenceLength() : (this.position == 0 ? this.getMaxLength() : this.position);
     }
 
     /**
@@ -216,7 +235,7 @@ public class SequenceMatcher
 
             for (int bit = 0; bit < invSize; bit++)
             {
-                if (InventoryUtils.areItemStacksEqual(this.getSequence().get(bit), highBitMarker))
+                if (InventoryUtils.areItemStacksEqual(this.sequence.get(bit), highBitMarker))
                 {
                     value |= (1 << bit);
                 }

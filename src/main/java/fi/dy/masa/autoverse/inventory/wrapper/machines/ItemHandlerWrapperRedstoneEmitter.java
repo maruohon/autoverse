@@ -11,10 +11,9 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
 {
     private final TileEntityRedstoneEmitter te;
     private final SequenceMatcher sequenceMarkerItem;
-    private final SequenceMatcher sequenceSwitchOn;
-    private final SequenceMatcher sequenceSwitchOff;
-    private final IItemHandler markerInventory;
-    private Mode mode = Mode.CONFIGURE_RESET;
+    private final SequenceMatcherVariable sequenceSwitchOn;
+    private final SequenceMatcherVariable sequenceSwitchOff;
+    private Mode mode = Mode.CONFIGURE_END_MARKER;
     private boolean isOn;
     private int position;
 
@@ -24,10 +23,8 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
         this.te = te;
 
         this.sequenceMarkerItem = new SequenceMatcher(1, "SequenceMarker");
-        this.sequenceSwitchOn   = new SequenceMatcher(4, "SequenceOn");
-        this.sequenceSwitchOff  = new SequenceMatcher(4, "SequenceOff");
-
-        this.markerInventory = this.sequenceMarkerItem.getSequenceInventory(false);
+        this.sequenceSwitchOn   = new SequenceMatcherVariable(4, "SequenceOn");
+        this.sequenceSwitchOff  = new SequenceMatcherVariable(4, "SequenceOff");
     }
 
     @Override
@@ -35,22 +32,32 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
     {
         switch (this.getMode())
         {
-            case CONFIGURE_RESET:
-                if (this.getResetSequence().configureSequence(inputStack))
+            case CONFIGURE_END_MARKER:
+                if (this.getEndMarkerSequence().configureSequence(inputStack))
                 {
-                    this.setMode(Mode.CONFIGURE_MARKER);
+                    this.getResetSequence().setSequenceEndMarker(inputStack);
+                    this.sequenceSwitchOn.setSequenceEndMarker(inputStack);
+                    this.sequenceSwitchOff.setSequenceEndMarker(inputStack);
+                    this.setMode(Mode.CONFIGURE_MARKER_ITEM);
                 }
                 break;
 
-            case CONFIGURE_MARKER:
+            case CONFIGURE_MARKER_ITEM:
                 if (this.sequenceMarkerItem.configureSequence(inputStack))
+                {
+                    this.setMode(Mode.CONFIGURE_RESET);
+                }
+                break;
+
+            case CONFIGURE_RESET:
+                if (this.getResetSequence().configureSequence(inputStack))
                 {
                     this.setMode(Mode.CONFIGURE_SIDES);
                 }
                 break;
 
             case CONFIGURE_SIDES:
-                boolean enabled = InventoryUtils.areItemStacksEqual(inputStack, this.markerInventory.getStackInSlot(0));
+                boolean enabled = InventoryUtils.areItemStacksEqual(inputStack, this.sequenceMarkerItem.getStackInSlot(0));
 
                 this.te.setSideEnabled(this.position, enabled);
 
@@ -78,14 +85,7 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
             case NORMAL_OPERATION:
                 if (this.getResetSequence().checkInputItem(inputStack))
                 {
-                    this.getResetSequence().reset();
-                    this.sequenceMarkerItem.reset();
-                    this.sequenceSwitchOn.reset();
-                    this.sequenceSwitchOff.reset();
-                    this.setIsOn(false);
-                    this.te.setSideMask(0);
-                    this.position = 0;
-                    this.setMode(Mode.CONFIGURE_RESET);
+                    this.onReset();
                 }
                 else if (this.isOn == false && this.sequenceSwitchOn.checkInputItem(inputStack))
                 {
@@ -102,9 +102,25 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
         }
     }
 
+    @Override
+    protected void onReset()
+    {
+        super.onReset();
+
+        this.sequenceMarkerItem.reset();
+        this.sequenceSwitchOn.reset();
+        this.sequenceSwitchOff.reset();
+
+        this.position = 0;
+        this.setIsOn(false);
+        this.te.setSideMask(0);
+
+        this.setMode(Mode.CONFIGURE_END_MARKER);
+    }
+
     public IItemHandler getMarkerInventory()
     {
-        return this.markerInventory;
+        return this.sequenceMarkerItem.getSequenceInventory(false);
     }
 
     public SequenceMatcher getSwitchOnSequence()
@@ -165,12 +181,13 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
 
     public enum Mode
     {
-        CONFIGURE_RESET         (0),
-        CONFIGURE_MARKER        (1),
-        CONFIGURE_SIDES         (2),
-        CONFIGURE_SEQUENCE_ON   (3),
-        CONFIGURE_SEQUENCE_OFF  (4),
-        NORMAL_OPERATION        (5);
+        CONFIGURE_END_MARKER    (0),
+        CONFIGURE_MARKER_ITEM   (1),
+        CONFIGURE_RESET         (2),
+        CONFIGURE_SIDES         (3),
+        CONFIGURE_SEQUENCE_ON   (4),
+        CONFIGURE_SEQUENCE_OFF  (5),
+        NORMAL_OPERATION        (6);
 
         private final int id;
 

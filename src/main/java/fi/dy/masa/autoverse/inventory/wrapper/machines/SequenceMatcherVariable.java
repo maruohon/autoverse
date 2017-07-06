@@ -8,10 +8,23 @@ public class SequenceMatcherVariable extends SequenceMatcher
 {
     private ItemStack endMarker = ItemStack.EMPTY;
     private int configuredLength;
+    private boolean allowEmptySequence;
 
     public SequenceMatcherVariable(int length, String tagName)
     {
         super(length, tagName);
+    }
+
+    /**
+     * Sets whether the sequence can be configured as an empty sequence,
+     * by terminating the programming phase with the first configuration item.
+     * @param allowEmpty
+     * @return
+     */
+    public SequenceMatcherVariable setAllowEmptySequence(boolean allowEmpty)
+    {
+        this.allowEmptySequence = allowEmpty;
+        return this;
     }
 
     public void setSequenceEndMarker(ItemStack marker)
@@ -20,20 +33,12 @@ public class SequenceMatcherVariable extends SequenceMatcher
     }
 
     /**
-     * Returns the current total configured length of the sequence
-     * @return
+     * @return the current total configured length of the sequence
      */
     @Override
     public int getCurrentSequenceLength()
     {
-        if (this.isConfigured() == false)
-        {
-            return this.getPosition();
-        }
-        else
-        {
-            return this.configuredLength;
-        }
+        return this.isConfigured() ? this.configuredLength : this.getPosition();
     }
 
     @Override
@@ -41,7 +46,8 @@ public class SequenceMatcherVariable extends SequenceMatcher
     {
         boolean finished = false;
 
-        if (InventoryUtils.areItemStacksEqual(inputStack, this.endMarker))
+        if ((this.allowEmptySequence || this.getPosition() > 0) &&
+            InventoryUtils.areItemStacksEqual(inputStack, this.endMarker))
         {
             this.onSequenceConfigured(inputStack);
             finished = true;
@@ -57,11 +63,19 @@ public class SequenceMatcherVariable extends SequenceMatcher
 
             if (this.configuredLength == -1)
             {
-                this.configuredLength = this.getLength();
+                this.configuredLength = this.getMaxLength();
             }
         }
 
         return finished;
+    }
+
+    @Override
+    public void reset()
+    {
+        super.reset();
+
+        this.endMarker = ItemStack.EMPTY;
     }
 
     @Override
@@ -70,6 +84,7 @@ public class SequenceMatcherVariable extends SequenceMatcher
         nbt = super.writeToNBT(nbt);
         NBTTagCompound tag = nbt.getCompoundTag(this.getTagName());
         tag.setByte("ConfiguredLength", (byte) this.configuredLength);
+        tag.setBoolean("AllowEmpty", this.allowEmptySequence);
 
         if (this.endMarker.isEmpty() == false)
         {
@@ -86,6 +101,7 @@ public class SequenceMatcherVariable extends SequenceMatcher
 
         NBTTagCompound tag = nbt.getCompoundTag(this.getTagName());
         this.configuredLength = tag.getByte("ConfiguredLength");
+        this.allowEmptySequence = tag.getBoolean("AllowEmpty");
 
         this.endMarker = new ItemStack(tag.getCompoundTag("EndMarker"));
     }

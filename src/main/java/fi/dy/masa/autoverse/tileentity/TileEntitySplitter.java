@@ -66,7 +66,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     {
         switch (type)
         {
-            case SELECTABLE:
+            case SWITCHABLE:
                 this.splitter = new ItemHandlerWrapperSplitter(this.inventoryInput);
                 this.itemHandlerExternal = this.splitter;
                 break;

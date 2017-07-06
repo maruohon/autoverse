@@ -131,6 +131,8 @@ public class GuiAutoverse extends GuiContainer
     {
         if (count > 0)
         {
+            this.bindTexture(this.guiTextureWidgets);
+
             // Draw the slot backgrounds according to how many slots this tier has
             int rows = Math.max((int) (Math.ceil((double) count / maxPerRow)), 1);
 
