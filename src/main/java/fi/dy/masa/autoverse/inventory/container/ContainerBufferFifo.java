@@ -12,7 +12,6 @@ import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.inventory.slot.ISlotOffset;
-import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerOffset;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
@@ -23,11 +22,9 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
     private final TileEntityBufferFifo tefifo;
     protected final IItemHandlerModifiable inventoryBase;
     protected final ItemHandlerWrapperFifo inventoryFifo;
-    private int insertPos;
-    private int extractPos;
-    private int insertPosLast = -1;
-    private int extractPosLast = -1;
-    private int invSizeLast = -1;
+    private int insertPos = -1;
+    private int extractPos = -1;
+    private int invSize = -1;
 
     public ContainerBufferFifo(EntityPlayer player, TileEntityBufferFifo te)
     {
@@ -69,46 +66,33 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
         }
     }
 
-    protected boolean transferStackToPrioritySlots(EntityPlayer player, int slotNum, boolean reverse)
-    {
-        SlotItemHandlerGeneric slot = this.getSlotItemHandler(slotNum);
-
-        if (slot == null || slot.getHasStack() == false || slot.canTakeStack(player) == false)
-        {
-            return false;
-        }
-
-        // This will try to only insert items into the insertPosition slot
-        MergeSlotRange range = new MergeSlotRange(this.insertPos, 1); // FIXME how does this go with the wrapping?
-        this.transferStackToSlotRange(player, slotNum, range, false);
-
-        return true;
-    }
-
     @Override
     public void detectAndSendChanges()
     {
-        int insert = this.inventoryFifo.getInsertSlot();
-        int extract = this.inventoryFifo.getExtractSlot();
-        int invSize = this.tefifo.getFifoLength();
-
-        if (insert != this.insertPosLast)
+        if (this.isClient == false)
         {
-            this.syncProperty(0, insert);
-            this.insertPosLast = insert;
-        }
+            int insert = this.inventoryFifo.getInsertSlot();
+            int extract = this.inventoryFifo.getExtractSlot();
+            int invSize = this.tefifo.getFifoLength();
 
-        if (extract != this.extractPosLast)
-        {
-            this.syncProperty(1, extract);
-            this.extractPosLast = extract;
-        }
+            if (insert != this.insertPos)
+            {
+                this.syncProperty(0, insert);
+                this.insertPos = insert;
+            }
 
-        if (invSize != this.invSizeLast)
-        {
-            this.syncProperty(2, invSize);
-            this.invSizeLast = invSize;
-            this.reAddSlots();
+            if (extract != this.extractPos)
+            {
+                this.syncProperty(1, extract);
+                this.extractPos = extract;
+            }
+
+            if (invSize != this.invSize)
+            {
+                this.syncProperty(2, invSize);
+                this.invSize = invSize;
+                this.reAddSlots();
+            }
         }
 
         super.detectAndSendChanges();
@@ -117,7 +101,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
     @Override
     public void receiveProperty(int id, int value)
     {
-        super.updateProgressBar(id, value);
+        super.receiveProperty(id, value);
 
         switch (id)
         {
