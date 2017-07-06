@@ -48,11 +48,7 @@ public class CommonProxy
         return false;
     }
 
-    public void registerColorHandlers() { }
-
     public void registerEventHandlers() { }
-
-    public void registerKeyBindings() { }
 
     public void registerModels() { }
 

@@ -19,6 +19,7 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.event.InputEventHandler;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
 import fi.dy.masa.autoverse.reference.Reference;
 
@@ -81,15 +82,12 @@ public class ClientProxy extends CommonProxy
         super.registerEventHandlers();
 
         MinecraftForge.EVENT_BUS.register(new Configs());
+        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
         MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
-    }
 
-    @Override
-    public void registerKeyBindings()
-    {
         HotKeys.keyToggleMode = new KeyBinding(HotKeys.KEYBIND_NAME_TOGGLE_MODE,
-                                               HotKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
-                                               HotKeys.KEYBIND_CATEGORY_ENDERUTILITIES);
+                HotKeys.DEFAULT_KEYBIND_TOGGLE_MODE,
+                HotKeys.KEYBIND_CATEGORY_AUTOVERSE);
 
         ClientRegistry.registerKeyBinding(HotKeys.keyToggleMode);
     }
@@ -107,7 +105,8 @@ public class ClientProxy extends CommonProxy
 
     private void registerItemBlockModels()
     {
-        this.registerBarrelItemBlockModels(AutoverseBlocks.BARREL);
+        this.registerItemBlockModel(AutoverseBlocks.BARREL, 0, "pulsed=false,tier=0");
+        this.registerItemBlockModel(AutoverseBlocks.BARREL, 1, "pulsed=true,tier=0");
         this.registerItemBlockModel(AutoverseBlocks.BLOCK_READER, 0, "facing=north,type=nbt");
         this.registerItemBlockModel(AutoverseBlocks.BREAKER, 0, "facing=north,type=normal");
         this.registerItemBlockModel(AutoverseBlocks.BREAKER, 1, "facing=north,type=greedy");
@@ -155,22 +154,6 @@ public class ClientProxy extends CommonProxy
                 ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), variantPre + variant + variantPost);
                 ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
             }
-        }
-    }
-
-    private void registerBarrelItemBlockModels(BlockAutoverse blockIn)
-    {
-        NonNullList<ItemStack> stacks = NonNullList.create();
-        blockIn.getSubBlocks(Item.getItemFromBlock(blockIn), blockIn.getCreativeTabToDisplayOn(), stacks);
-
-        for (ItemStack stack : stacks)
-        {
-            Item item = stack.getItem();
-            int meta = stack.getMetadata();
-            int tier = meta & 0xF;
-            boolean pulsed = meta >= 16;
-            ModelResourceLocation mrl = new ModelResourceLocation(item.getRegistryName(), "pulsed=" + pulsed + ",tier=" + tier);
-            ModelLoader.setCustomModelResourceLocation(item, meta, mrl);
         }
     }
 }

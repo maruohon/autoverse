@@ -27,6 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
+import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.ItemType;
 import fi.dy.masa.autoverse.util.PlacementProperties;
@@ -182,7 +183,7 @@ public class RenderEventHandler
             {
                 String key = pair.getLeft();
                 String pre = (i == index) ? "> " : "  ";
-                String name = I18n.format("enderutilities.placement_properties." + key);
+                String name = I18n.format(Reference.MOD_ID + ".placement_properties." + key);
                 int value = props.getPropertyValue(uuid, type, key, pair.getRight());
                 String valueName = item.getPlacementPropertyValueName(key, value);
 
@@ -192,7 +193,14 @@ public class RenderEventHandler
                 }
                 else
                 {
-                    valueName = I18n.format("enderutilities.placement_properties.valuenames." + key + "." + valueName);
+                    String translationKey = Reference.MOD_ID + ".placement_properties.valuenames." + key + "." + valueName;
+                    String translated = I18n.format(translationKey);
+
+                    // If there is a translation, use that, otherwise use the value name key directly
+                    if (translated.equals(translationKey) == false)
+                    {
+                        valueName = translated;
+                    }
                 }
 
                 lines.add(String.format("%s%s: %s%s%s", pre, name, preGreen, valueName, rst));

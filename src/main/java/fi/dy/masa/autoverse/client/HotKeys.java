@@ -9,7 +9,7 @@ public class HotKeys
 {
     public static KeyBinding keyToggleMode;
 
-    public static final String KEYBIND_CATEGORY_ENDERUTILITIES = "category." + Reference.MOD_ID;
+    public static final String KEYBIND_CATEGORY_AUTOVERSE = "category." + Reference.MOD_ID;
     public static final String KEYBIND_NAME_TOGGLE_MODE = Reference.MOD_ID + ".key.togglemode";
     public static final int DEFAULT_KEYBIND_TOGGLE_MODE = Keyboard.KEY_H;
     private static final TIntIntHashMap KEY_CODE_MAPPINGS = new TIntIntHashMap(16);

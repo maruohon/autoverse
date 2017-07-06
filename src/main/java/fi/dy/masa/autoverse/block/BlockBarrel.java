@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -10,7 +9,6 @@ import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -21,6 +19,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
@@ -52,19 +51,10 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     protected String[] generateUnlocalizedNames()
     {
-        String[] names = new String[32];
-
-        for (int i = 0; i < 16; i++)
-        {
-            names[i] = ReferenceNames.NAME_BLOCK_BARREL + "_" + i;
-        }
-
-        for (int i = 16; i < 32; i++)
-        {
-            names[i] = ReferenceNames.NAME_BLOCK_BARREL + "_pulsed_" + (i - 16);
-        }
-
-        return names;
+        return new String[] {
+            ReferenceNames.NAME_BLOCK_BARREL,
+            ReferenceNames.NAME_BLOCK_BARREL + "_pulsed"
+        };
     }
 
     @Override
@@ -77,14 +67,24 @@ public class BlockBarrel extends BlockAutoverseInventory
     protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
         TileEntityBarrel te = new TileEntityBarrel();
-        te.setTier(state.getValue(TIER));
+        te.setIsPulsed(state.getValue(PULSED));
         return te;
     }
 
     @Override
     public ItemBlock createItemBlock()
     {
-        return new ItemBlockStorage(this);
+        ItemBlockStorage item = new ItemBlockStorage(this);
+        item.setHasPlacementProperties(true);
+        item.addPlacementProperty("barrel.tier", Constants.NBT.TAG_BYTE, 0, 15);
+        String[] names = new String[] {
+                "1 (max: 1)",     "2 (max: 2)",     "3 (max: 4)",      "4 (max: 8)",
+                "5 (max: 16)",    "6 (max: 32)",    "7 (max: 64)",     "8 (max: 128)",
+                "9 (max: 256)",   "10 (max: 512)",  "11 (max: 1024)",  "12 (max: 2048)",
+                "13 (max: 4096)", "14 (max: 8192)", "15 (max: 16384)", "16 (max: 32768)"
+        };
+        item.addPlacementPropertyValueNames("barrel.tier", names);
+        return item;
     }
 
     @Override
@@ -108,13 +108,13 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, meta & 0xF);
+        return this.getDefaultState().withProperty(PULSED, (meta & 0x1) != 0);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER);
+        return state.getValue(PULSED) ? 0x1 : 0x0;
     }
 
     @Override
@@ -124,23 +124,10 @@ public class BlockBarrel extends BlockAutoverseInventory
 
         if (te != null)
         {
-            return state.withProperty(PULSED, te.isPulsed());
+            return state.withProperty(TIER, te.getTier());
         }
 
         return state;
-    }
-
-    @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-        super.onBlockPlacedBy(world, pos, state, placer, stack);
-
-        TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
-
-        if (te != null)
-        {
-            te.setIsPulsed(stack.getMetadata() >= 16);
-        }
     }
 
     @Override
@@ -165,6 +152,12 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
+    public int damageDropped(IBlockState state)
+    {
+        return state.getValue(PULSED) ? 1 : 0;
+    }
+
+    @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
     {
         List<ItemStack> items = new ArrayList<ItemStack>();
@@ -182,19 +175,12 @@ public class BlockBarrel extends BlockAutoverseInventory
 
     protected ItemStack getDroppedItemWithNBT(IBlockAccess world, BlockPos pos, IBlockState state, boolean addNBTLore)
     {
-        Random rand = world instanceof World ? ((World) world).rand : RANDOM;
-        int meta = state.getValue(TIER);
-        ItemStack stack = new ItemStack(this.getItemDropped(state, rand, 0), 1, meta);
+        ItemStack stack = new ItemStack(this, 1, this.damageDropped(state));
 
         TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
 
         if (te != null)
         {
-            if (te.isPulsed())
-            {
-                stack.setItemDamage(meta + 16);
-            }
-
             if (InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
             {
                 return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
@@ -215,9 +201,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for (int meta = 0; meta < 32; meta++)
-        {
-            list.add(new ItemStack(item, 1, meta));
-        }
+        list.add(new ItemStack(item, 1, 0)); // Normal
+        list.add(new ItemStack(item, 1, 1)); // Pulsed
     }
 }

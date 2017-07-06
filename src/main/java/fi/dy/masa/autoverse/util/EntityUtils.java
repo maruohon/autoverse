@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.util;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -13,6 +14,36 @@ import net.minecraft.world.World;
 
 public class EntityUtils
 {
+    public static boolean isHoldingItemOfType(EntityLivingBase entity, Class<?> clazz)
+    {
+        return getHeldItemOfType(entity, clazz).isEmpty() == false;
+    }
+
+    public static ItemStack getHeldItemOfType(EntityLivingBase entity, Class<?> clazz)
+    {
+        ItemStack stack = entity.getHeldItemMainhand();
+
+        if (stack.isEmpty() == false)
+        {
+            if (clazz.isAssignableFrom(stack.getItem().getClass()))
+            {
+                return stack;
+            }
+        }
+
+        stack = entity.getHeldItemOffhand();
+
+        if (stack.isEmpty() == false)
+        {
+            if (clazz.isAssignableFrom(stack.getItem().getClass()))
+            {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     public static Vec3d getEyesVec(Entity entity)
     {
         return new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);

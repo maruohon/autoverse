@@ -14,14 +14,13 @@ public class ContainerBarrel extends ContainerTileLargeStacks
 
         this.inventoryNonWrapped = te.getBaseItemHandler();
 
-        this.reAddSlots(8, 51);
+        this.reAddSlots(8, 68);
     }
 
     @Override
     protected void addCustomInventorySlots()
     {
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.te.getBaseItemHandler(), 0, 80, 19));
-
-        this.customInventorySlots = new MergeSlotRange(0, 1);
+        this.customInventorySlots = new MergeSlotRange(this.inventorySlots.size(), 1);
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.te.getBaseItemHandler(), 0, 8, 19));
     }
 }

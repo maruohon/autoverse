@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -25,7 +26,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 {
     protected boolean isPulsed;
     protected int tier;
-    private BlockPos posBottom;
+    private BlockPos posBottom = BlockPos.ORIGIN;
 
     public TileEntityBarrel()
     {
@@ -42,8 +43,22 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public boolean applyProperty(int propId, int value)
     {
-        // NO-OP
+        if (propId == 0)
+        {
+            this.setTier(value);
+            return true;
+        }
+
         return false;
+    }
+
+    @Override
+    public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
+    {
+        if (tag.hasKey("barrel.tier", Constants.NBT.TAG_BYTE))
+        {
+            this.setTier(tag.getByte("barrel.tier"));
+        }
     }
 
     public void setTier(int tier)
@@ -137,9 +152,26 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         super.handleUpdateTag(tag);
 
-        byte data = tag.getByte("d");
-        this.setTier(data & 0xF);
-        this.setIsPulsed(data >= 16);
+        int data = tag.getByte("d");
+        this.setIsPulsed((data & 0x10) != 0);
+
+        data = data & 0xF;
+
+        if (this.tier != data)
+        {
+            this.setTier(data);
+            this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
+        }
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0)
+        {
+            this.setTier(this.tier + element);
+            this.notifyBlockUpdate(this.getPos());
+        }
     }
 
     private class ItemHandlerWrapperExternal implements IItemHandler
