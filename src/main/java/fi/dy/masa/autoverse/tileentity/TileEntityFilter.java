@@ -170,6 +170,28 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
+    public int getComparatorOutput()
+    {
+        int output = 0;
+
+        if (this.inventoryFilter.isFullyConfigured())
+        {
+            output |= 0x08;
+        }
+
+        if (InventoryUtils.getFirstNonEmptySlot(this.getInventoryOutFiltered()) != -1)
+        {
+            output |= 0x04;
+        }
+
+        if (InventoryUtils.getFirstNonEmptySlot(this.getInventoryOutNormal()) != -1)
+        {
+            output |= 0x02;
+        }
+
+        return output;
+    }
+
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {

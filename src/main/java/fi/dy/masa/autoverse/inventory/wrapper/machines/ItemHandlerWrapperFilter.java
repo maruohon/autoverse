@@ -183,6 +183,11 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
         return this.inventoryOutNormal;
     }
 
+    public boolean isFullyConfigured()
+    {
+        return this.getMode() == Mode.SORT_ITEMS || this.getMode() == Mode.OUTPUT_ITEMS;
+    }
+
     protected Mode getMode()
     {
         return this.mode;

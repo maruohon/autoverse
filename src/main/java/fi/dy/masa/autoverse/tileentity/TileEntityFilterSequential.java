@@ -38,6 +38,19 @@ public class TileEntityFilterSequential extends TileEntityFilter
     }
 
     @Override
+    public int getComparatorOutput()
+    {
+        int output = super.getComparatorOutput();
+
+        if (InventoryUtils.getFirstNonEmptySlot(this.inventoryFilteredBuffer) != -1)
+        {
+            output |= 0x01;
+        }
+
+        return output;
+    }
+
+    @Override
     public void dropInventories()
     {
         super.dropInventories();

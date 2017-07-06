@@ -116,8 +116,8 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        // TODO
-        return super.getComparatorInputOverride(blockState, worldIn, pos);
+        TileEntityFilter te = getTileEntitySafely(worldIn, pos, TileEntityFilter.class);
+        return te != null ? te.getComparatorOutput() : 0;
     }
 
     @SideOnly(Side.CLIENT)
