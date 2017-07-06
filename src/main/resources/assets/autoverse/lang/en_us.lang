@@ -65,6 +65,7 @@ autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
 autoverse.gui.label.tier_num=Tier: %d
 
 autoverse.placement_properties.barrel.tier=Barrel tier
+autoverse.placement_properties.fifo.size=Buffer size
 
 tile.autoverse.barrel.name=Barrel
 tile.autoverse.barrel_pulsed.name=Pulsed Barrel

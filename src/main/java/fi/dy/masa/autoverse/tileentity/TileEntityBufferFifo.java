@@ -24,7 +24,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public static final int MAX_LENGTH = 117;
     protected ItemHandlerWrapperFifo itemHandlerFifo;
     protected boolean spawnItemsInWorld;
-    private int fifoLength = 26;
 
     public TileEntityBufferFifo()
     {
@@ -41,9 +40,10 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        this.itemHandlerBase = new ItemHandlerFifoBase(0, MAX_LENGTH, 1, false, "Items", this);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, MAX_LENGTH, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;
+        this.itemHandlerBase.setInventorySize(26); // just a default value...
     }
 
     public ItemHandlerWrapperFifo getFifoInventory()
@@ -77,35 +77,19 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
     public void setFifoLength(int length)
     {
-        this.fifoLength = MathHelper.clamp(length, 1, MAX_LENGTH);
+        this.itemHandlerBase.setInventorySize(MathHelper.clamp(length, 1, MAX_LENGTH));
         this.markDirty();
     }
 
     public int getFifoLength()
     {
-        return this.fifoLength;
+        return this.itemHandlerBase.getSlots();
     }
 
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);
-    }
-
-    @Override
-    public void readFromNBTCustom(NBTTagCompound nbt)
-    {
-        super.readFromNBTCustom(nbt);
-
-        this.fifoLength = nbt.getByte("Length");
-    }
-
-    @Override
-    protected NBTTagCompound writeToNBTCustom(NBTTagCompound nbt)
-    {
-        nbt.setByte("Length", (byte) this.fifoLength);
-
-        return super.writeToNBTCustom(nbt);
     }
 
     @Override
@@ -176,21 +160,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         if (action == 0)
         {
             this.changeInventorySize(element);
-        }
-    }
-
-    protected class ItemHandlerFifoBase extends ItemStackHandlerTileEntity
-    {
-        public ItemHandlerFifoBase(int inventoryId, int invSize, int stackLimit,
-                boolean allowCustomStackSizes, String tagName, TileEntityAutoverseInventory te)
-        {
-            super(inventoryId, invSize, stackLimit, allowCustomStackSizes, tagName, te);
-        }
-
-        @Override
-        public int getSlots()
-        {
-            return TileEntityBufferFifo.this.getFifoLength();
         }
     }
 

@@ -7,13 +7,16 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoAuto;
@@ -63,6 +66,14 @@ public class BlockBuffer extends BlockAutoverseInventory
         }
 
         return new TileEntityBufferFifo();
+    }
+
+    @Override
+    public ItemBlock createItemBlock()
+    {
+        ItemBlockAutoverse item = new ItemBlockAutoverse(this);
+        item.addPlacementProperty("fifo.size", Constants.NBT.TAG_BYTE, 1, TileEntityBufferFifo.MAX_LENGTH);
+        return item;
     }
 
     @Override
