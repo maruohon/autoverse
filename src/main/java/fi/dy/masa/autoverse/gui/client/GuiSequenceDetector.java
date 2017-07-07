@@ -31,7 +31,7 @@ public class GuiSequenceDetector extends GuiAutoverse
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),                        45,  25, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequence_detector.sequence"),  8, 150, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 45, 0x404040);
 
         s = I18n.format("autoverse.gui.label.output_buffer");
         this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 163, 0x404040);

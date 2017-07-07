@@ -33,7 +33,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),    45, 25, 0x404040);
-        this.fontRenderer.drawString("^ " + I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 150, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 45, 0x404040);
 
         s = I18n.format("autoverse.gui.label.out");
         this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 151, 0x404040);
