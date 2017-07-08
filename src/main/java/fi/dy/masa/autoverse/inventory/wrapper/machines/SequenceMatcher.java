@@ -4,8 +4,13 @@ import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
+import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 import fi.dy.masa.autoverse.util.NBTUtils;
 
 public class SequenceMatcher
@@ -29,6 +34,77 @@ public class SequenceMatcher
         this.callback = callback;
         this.callbackId = callbackId;
         return this;
+    }
+
+    protected void onSequenceConfigured(ItemStack inputStack)
+    {
+        this.position = 0;
+        this.configured = true;
+    }
+
+    /**
+     * Called when the sequence is about to be reset, and flushing the items starts.
+     * Sets the internal position to 0 to keep track of the flush progress.
+     */
+    public void flushStart()
+    {
+        this.position = 0;
+    }
+
+    /**
+     * Clears any stored sequences, and resets the internal positions to 0.
+     */
+    public void reset()
+    {
+        this.sequence.clear();
+        this.position = 0;
+        this.configured = false;
+    }
+
+    /**
+     * Flushes all sequence items to the provided <b>inventoryOut</b>, and
+     * after all of them have been moved, resets the matcher.
+     * @param inventoryOut
+     * @return MOVED_ALL after all items have been moved and the matcher reset, otherwise MOVED_NOTHING or MOVED_SOME depending on if an item was moved
+     */
+    public InvResult flushItemsAndReset(IItemHandler inventoryOut)
+    {
+        ItemStack stack = this.sequence.get(this.position);
+        InvResult result = InvResult.MOVED_NOTHING;
+
+        // Items in the sequence slot
+        if (stack.isEmpty() == false)
+        {
+            stack = InventoryUtils.tryInsertItemStackToInventory(inventoryOut, stack, false);
+            this.sequence.set(this.position, stack);
+
+            if (stack.isEmpty())
+            {
+                result = InvResult.MOVED_SOME;
+            }
+        }
+
+        // All items moved to the output inventory
+        if (stack.isEmpty() && ++this.position >= this.getCurrentSequenceLength())
+        {
+            this.reset();
+            return InvResult.MOVED_ALL;
+        }
+
+        return result;
+    }
+
+    /**
+     * Drops all items from the sequence as EntityItems in the World
+     * @param world
+     * @param pos
+     */
+    public void dropAllItems(World world, BlockPos pos)
+    {
+        for (int slot = 0; slot < this.getCurrentSequenceLength(); slot++)
+        {
+            EntityUtils.dropItemStacksInWorld(world, pos, this.sequence.get(slot), -1, true);
+        }
     }
 
     /**
@@ -56,12 +132,6 @@ public class SequenceMatcher
         }
 
         return false;
-    }
-
-    protected void onSequenceConfigured(ItemStack inputStack)
-    {
-        this.position = 0;
-        this.configured = true;
     }
 
     /**
@@ -144,22 +214,12 @@ public class SequenceMatcher
         }
     }
 
-    /**
-     * Clears any stored sequences, and resets the internal positions to 0.
-     */
-    public void reset()
-    {
-        this.sequence.clear();
-        this.position = 0;
-        this.configured = false;
-    }
-
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setBoolean("Configured", this.configured);
         tag.setByte("Position", (byte) this.position);
-        NBTUtils.writeItemsToTag(tag, this.sequence, this.tagName, false);
+        NBTUtils.writeItemsToTag(tag, this.sequence, "Items", false);
         nbt.setTag(this.tagName, tag);
         return nbt;
     }
@@ -169,7 +229,7 @@ public class SequenceMatcher
         NBTTagCompound tag = nbt.getCompoundTag(this.tagName);
         this.configured = tag.getBoolean("Configured");
         this.position = tag.getByte("Position");
-        NBTUtils.readStoredItemsFromTag(tag, this.sequence, this.tagName);
+        NBTUtils.readStoredItemsFromTag(tag, this.sequence, "Items");
     }
 
     public final String getTagName()
@@ -261,7 +321,7 @@ public class SequenceMatcher
         }
     }
 
-    public IItemHandlerModifiable getSequenceInventory(boolean matched)
+    public SequenceInventory getSequenceInventory(boolean matched)
     {
         return new SequenceInventory(this, matched);
     }
@@ -269,14 +329,19 @@ public class SequenceMatcher
     public static class SequenceInventory implements IItemHandlerModifiable
     {
         private final SequenceMatcher matcher;
-        private final NonNullList<ItemStack> sequence;
         private final boolean matched;
+        private NonNullList<ItemStack> sequence;
 
         public SequenceInventory(SequenceMatcher matcher, boolean matched)
         {
             this.matcher = matcher;
-            this.sequence = matcher.getSequence();
             this.matched = matched;
+            this.sequence = matcher.getSequence();
+        }
+
+        public void setSequence(NonNullList<ItemStack> sequence)
+        {
+            this.sequence = sequence;
         }
 
         @Override

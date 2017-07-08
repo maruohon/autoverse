@@ -23,7 +23,7 @@ public class ItemHandlerWrapperSequenceDetector extends ItemHandlerWrapperSequen
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         boolean ret = this.moveInputItemToOutput();
 

@@ -25,7 +25,7 @@ public class TileEntityFilterSequential extends TileEntityFilter
     {
         this.inventoryFilteredBuffer = new ItemStackHandlerTileEntity(3, 18, 1, false, "ItemsFilteredBuffer", this);
 
-        this.inventoryFilter = new ItemHandlerWrapperFilterSequential(
+        this.filter = new ItemHandlerWrapperFilterSequential(
                                     this.inventoryInput,
                                     this.inventoryOutFiltered,
                                     this.inventoryOutNormal,

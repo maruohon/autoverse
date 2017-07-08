@@ -1,10 +1,14 @@
 package fi.dy.masa.autoverse.inventory.container;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.client.HotKeys.EnumKey;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class ContainerSequencer extends ContainerTile
 {
@@ -77,5 +81,35 @@ public class ContainerSequencer extends ContainerTile
     public int getExtractSlot()
     {
         return this.outputSlot;
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        Slot slot = this.getSlot(element);
+
+        if (slot != null)
+        {
+            // Ctrl + Middle click: Shift the sequence
+            if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_CTRL))
+            {
+                // Ctrl + middle click on a slot with items: Move the rest of the items towards the end of the inventory
+                if (slot.getHasStack())
+                {
+                    InventoryUtils.tryShiftSlots(this.teseq.getBaseItemHandler(), slot.getSlotIndex(), false);
+                }
+                // Ctrl + middle click on a slot without items: Move the rest of the items towards the beginning of the inventory
+                else
+                {
+                    InventoryUtils.tryShiftSlots(this.teseq.getBaseItemHandler(), slot.getSlotIndex(), true);
+                }
+            }
+            // Shift + Middle click: Move the extract position to this slot
+            else if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
+            {
+                this.teseq.getSequencer().setExtractPosition(slot.getSlotIndex());
+                this.teseq.markDirty();
+            }
+        }
     }
 }

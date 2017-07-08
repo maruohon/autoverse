@@ -9,6 +9,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.autoverse.inventory.wrapper.InventoryCraftingWrapper;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcher.SequenceInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
@@ -25,6 +26,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     private final InventoryCraftingWrapper inventoryCraftingSequenceCraftingWrapper;
     private final IItemHandler inventoryCraftingGrid;
     private final IItemHandler inventoryCraftingOutput;
+    private final SequenceInventory inventoryRecipePattern;
 
     public ItemHandlerWrapperCrafter(
             IItemHandler inventoryInput,
@@ -44,7 +46,9 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         this.sequenceRecipeConfig = new SequenceMatcher(9, "SequenceRecipe");
 
         // This is the final recipe sequence, and is not saved or added to the manager, but used internally
-        this.sequenceRecipe = new SequenceMatcher(9, "SequenceRecipeActual");
+        this.sequenceRecipe = new SequenceMatcher(9, "SequenceRecipeMasked");
+
+        this.inventoryRecipePattern = this.sequenceRecipeConfig.getSequenceInventory(false);
 
         this.inventoryCraftingSequenceCraftingWrapper = new InventoryCraftingWrapper(3, 3,
                 this.sequenceRecipe.getSequenceInventory(false), inventoryCraftingOutput, null);
@@ -59,11 +63,16 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         super.onReset();
 
         this.outputPosition = 0;
+
+        // Switch the underlying sequence to the full, empty-marker-including one for
+        // the duration of the reset and the following configuration phase (for GUI purposes).
+        this.inventoryRecipePattern.setSequence(this.sequenceRecipeConfig.getSequence());
     }
 
     @Override
     protected void onResetFlushComplete()
     {
+        this.sequenceRecipe.reset();
         this.subState = 1;
     }
 
@@ -71,6 +80,9 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     protected void onFullyConfigured()
     {
         this.setRecipeFromConfigurationSequence();
+
+        // Switch to the empty-marker-removed sequence for normal mode (for GUI purposes)
+        this.inventoryRecipePattern.setSequence(this.sequenceRecipe.getSequence());
 
         this.resultStackTemplate = CraftingManager.getInstance()
                 .findMatchingRecipe(this.inventoryCraftingSequenceCraftingWrapper, this.inventoryCrafting.getWorld());
@@ -83,26 +95,23 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
-        switch (this.subState)
-        {
-            case 0:
-                return this.moveInputItem(stack);
-
-            case 1:
-                return this.moveItemsFromGrid();
-        }
-
-        return false;
+        return this.subState == 0 ? this.moveInputItem(stack) : this.moveItemsFromGrid();
     }
 
     @Override
-    protected InvResult flushAndResetSequences()
+    protected boolean onScheduledTick()
+    {
+        return this.subState == 1 ? this.moveItemsFromGrid() : false;
+    }
+
+    @Override
+    protected boolean resetFlushItems()
     {
         if (this.subState == 0)
         {
-            return super.flushAndResetSequences();
+            return super.resetFlushItems();
         }
         else
         {
@@ -226,7 +235,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
      * to the programming phase for the next operation cycle.
      * @return
      */
-    private InvResult flushItems()
+    private boolean flushItems()
     {
         InvResult result = InvResult.MOVED_NOTHING;
 
@@ -255,10 +264,10 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
             this.outputPosition = 0;
             this.subState = 0;
             this.setState(State.CONFIGURE);
-            return InvResult.MOVED_ALL;
+            return true;
         }
 
-        return result;
+        return result != InvResult.MOVED_NOTHING;
     }
 
     public IItemHandler getEmptyMarkerInventory()
@@ -268,7 +277,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
     public IItemHandler getRecipeSequenceInventory()
     {
-        return this.sequenceRecipe.getSequenceInventory(false);
+        return this.inventoryRecipePattern;
     }
 
     @Override

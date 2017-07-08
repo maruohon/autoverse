@@ -55,7 +55,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         if ((this.subState == 1 || this.sequenceTrigger.isSequenceMatched()) && this.te.tryPlaceBlock(stack))
         {

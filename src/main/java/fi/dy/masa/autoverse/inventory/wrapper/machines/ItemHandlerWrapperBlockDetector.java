@@ -80,7 +80,7 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         if (this.moveInputItemToInventory(this.inventoryDetector))
         {

@@ -195,19 +195,20 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         if (movedIn || movedOut)
         {
-            this.scheduleUpdateIfNeeded();
+            this.scheduleUpdateIfNeeded(movedIn);
         }
     }
 
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
-    private void scheduleUpdateIfNeeded()
+    private void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOut1.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOut2.getStackInSlot(0).isEmpty() == false)
         {
@@ -221,6 +222,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut1);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOut2);
+
+        if (this.splitter != null)
+        {
+            this.splitter.dropAllItems(this.getWorld(), this.getPos());
+        }
     }
 
     @Override

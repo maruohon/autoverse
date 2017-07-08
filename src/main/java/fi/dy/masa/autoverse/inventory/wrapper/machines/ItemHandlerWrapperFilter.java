@@ -10,7 +10,7 @@ import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcherVariable sequenceFilter;
-    private final IItemHandler inventoryFilteredOut;
+    protected final IItemHandler inventoryFilteredOut;
     @Nullable
     protected List<Integer> matchingSlots;
 
@@ -35,7 +35,7 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         if (this.matchingSlots == null)
         {

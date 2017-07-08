@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
@@ -108,19 +110,24 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
                     if (this.getSequenceManager().checkForReset(inputStack))
                     {
                         this.onReset();
+                        return true;
                     }
                     else
                     {
-                        return this.moveItemNormal(inputStack);
+                        return this.moveInputItemNormal(inputStack);
                     }
                 }
-                break;
+                else
+                {
+                    return this.onScheduledTick();
+                }
 
             // The point of this state is to move the reset item to the output first,
             // before starting to flush the sequences.
             case RESET:
                 if (this.moveInputItemToOutput())
                 {
+                    this.onResetFlushStart();
                     this.setState(State.RESET_FLUSH);
                     return true;
                 }
@@ -145,12 +152,25 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
         this.setState(State.RESET);
     }
 
+    protected void onResetFlushStart()
+    {
+    }
+
     protected void onResetFlushComplete()
     {
         this.setState(State.CONFIGURE);
     }
 
-    protected abstract boolean moveItemNormal(ItemStack stack);
+    protected abstract boolean moveInputItemNormal(ItemStack stack);
+
+    /**
+     * Called via moveItems(), but when the input slot is currently empty
+     * @return true if a new update should be scheduled
+     */
+    protected boolean onScheduledTick()
+    {
+        return false;
+    }
 
     protected boolean resetFlushItems()
     {
@@ -164,6 +184,11 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
         return result != InvResult.MOVED_NOTHING;
     }
 
+    public void dropAllItems(World world, BlockPos pos)
+    {
+        this.sequenceManager.dropAllItems(world, pos);
+    }
+
     protected boolean moveInputItemToOutput()
     {
         return this.moveInputItemToInventory(this.inventoryOutput);
@@ -172,11 +197,6 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     protected boolean moveInputItemToInventory(IItemHandler inv)
     {
         return InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), inv, 0, false) != InvResult.MOVED_NOTHING;
-    }
-
-    protected InvResult flushAndResetSequences()
-    {
-        return this.getSequenceManager().flushSequencesAndReset(this.inventoryOutput);
     }
 
     protected void createMatchingSlotsMap(NonNullList<ItemStack> items)
@@ -252,29 +272,29 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
 
     protected NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
-        return this.sequenceManager.writeToNBT(tag);
+        tag.setByte("State", (byte) this.getState().getId());
+        tag.setTag("Sequences", this.sequenceManager.writeToNBT(new NBTTagCompound()));
+        return tag;
     }
 
     protected void readFromNBT(NBTTagCompound tag)
     {
-        this.sequenceManager.readFromNBT(tag);
+        this.setState(State.fromId(tag.getByte("State")));
+        this.sequenceManager.readFromNBT(tag.getCompoundTag("Sequences"));
     }
 
     @Override
     public NBTTagCompound serializeNBT()
     {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setByte("State", (byte) this.getState().getId());
-        nbt.setTag("Sequences", this.writeToNBT(new NBTTagCompound()));
-
-        return nbt;
+        NBTTagCompound wrapper = new NBTTagCompound();
+        wrapper.setTag("InventoryWrapper", this.writeToNBT(new NBTTagCompound()));
+        return wrapper;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt)
     {
-        this.setState(State.fromId(nbt.getByte("State")));
-        this.readFromNBT(nbt.getCompoundTag("Sequences"));
+        this.readFromNBT(nbt.getCompoundTag("InventoryWrapper"));
     }
 
     public enum State

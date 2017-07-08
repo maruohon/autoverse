@@ -28,19 +28,24 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
     }
 
     @Override
-    protected void onReset()
+    protected void onResetFlushStart()
     {
-        super.onReset();
-
+        // Switch the output only after the item that caused the reset has been moved out,
+        // so that it ends up on the same output as the other items in the reset command.
         this.setSecondaryOutputActive(false);
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemToOutput()
     {
         IItemHandler inv = this.secondaryOutputActive() ? this.inventoryOutput2 : this.getOutputInventory();
+        return this.moveInputItemToInventory(inv);
+    }
 
-        if (this.moveInputItemToInventory(inv))
+    @Override
+    protected boolean moveInputItemNormal(ItemStack stack)
+    {
+        if (this.moveInputItemToOutput())
         {
             if (this.secondaryOutputActive() && this.getSwitchSequence1().checkInputItem(stack))
             {

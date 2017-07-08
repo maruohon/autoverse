@@ -30,7 +30,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryCraftingBase;
     private ItemHandlerWrapperCraftingOutput inventoryCraftingOutput;
     private InventoryCraftingWrapper inventoryCrafting;
-    private ItemHandlerWrapperCrafter inventoryWrapperCrafter;
+    private ItemHandlerWrapperCrafter crafter;
     private int delay = 1;
 
     public TileEntityCrafter()
@@ -53,43 +53,43 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         // Set the callback, which is used to consume the ingredient items
         this.inventoryCraftingOutput.setCraftingInventory(this.inventoryCrafting);
 
-        this.inventoryWrapperCrafter = new ItemHandlerWrapperCrafter(
+        this.crafter = new ItemHandlerWrapperCrafter(
                 this.inventoryInput,
                 this.inventoryCrafting,
                 this.inventoryCraftingOutput,
                 this.inventoryOutput);
 
-        this.itemHandlerExternal = new ItemHandlerWrapperCrafterExternal(this.inventoryWrapperCrafter, this.inventoryOutput);
+        this.itemHandlerExternal = new ItemHandlerWrapperCrafterExternal(this.crafter, this.inventoryOutput);
     }
 
     @Override
     public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
     {
-        return new ItemHandlerWrapperContainer(this.itemHandlerBase, this.inventoryWrapperCrafter, false);
+        return new ItemHandlerWrapperContainer(this.itemHandlerBase, this.crafter, false);
     }
 
     @Override
     public void onLoad()
     {
         this.inventoryCrafting.setWorld(this.getWorld());
-        this.inventoryWrapperCrafter.onLoad(this.getWorld());
+        this.crafter.onLoad(this.getWorld());
     }
 
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
-        boolean movedIn = this.inventoryWrapperCrafter.moveItems();
+        boolean movedIn = this.crafter.moveItems();
 
         if (movedIn || movedOut)
         {
-            this.scheduleUpdateIfNeeded();
+            this.scheduleUpdateIfNeeded(movedIn);
         }
     }
 
     public ItemHandlerWrapperCrafter getInventoryCrafter()
     {
-        return this.inventoryWrapperCrafter;
+        return this.crafter;
     }
 
     public IItemHandler getInventoryInput()
@@ -115,12 +115,13 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
-    protected void scheduleUpdateIfNeeded()
+    protected void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutput.getStackInSlot(0).isEmpty() == false)
         {
             this.scheduleBlockUpdate(this.delay, false);
@@ -143,6 +144,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryCraftingBase);
+        this.crafter.dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override
@@ -158,7 +160,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         this.inventoryOutput.deserializeNBT(nbt);
         this.inventoryCraftingBase.deserializeNBT(nbt);
 
-        this.inventoryWrapperCrafter.deserializeNBT(nbt);
+        this.crafter.deserializeNBT(nbt);
     }
 
     @Override
@@ -178,7 +180,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryOutput.serializeNBT());
         nbt.merge(this.inventoryCraftingBase.serializeNBT());
 
-        nbt.merge(this.inventoryWrapperCrafter.serializeNBT());
+        nbt.merge(this.crafter.serializeNBT());
     }
 
     private class ItemHandlerWrapperCrafterExternal implements IItemHandler

@@ -2,6 +2,9 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class SequenceMatcherVariable extends SequenceMatcher
@@ -71,10 +74,40 @@ public class SequenceMatcherVariable extends SequenceMatcher
     }
 
     @Override
+    public void flushStart()
+    {
+        super.flushStart();
+
+        // This sequence has been terminated by an end marker item.
+        // We also want to flush the end marker item, so we move that
+        // to the end of the sequence when the flush starts.
+        if (this.endMarker.isEmpty() == false && this.configuredLength < this.getMaxLength())
+        {
+            this.getSequence().set(this.configuredLength, this.endMarker);
+            this.endMarker = ItemStack.EMPTY;
+            this.configuredLength++;
+        }
+    }
+
+    @Override
+    public void dropAllItems(World world, BlockPos pos)
+    {
+        super.dropAllItems(world, pos);
+
+        // Only drop the marker if the sequence has actually been configured already,
+        // otherwise dropping it would just duplicate the marker item.
+        if (this.isConfigured() && this.configuredLength < this.getMaxLength() && this.endMarker.isEmpty() == false)
+        {
+            EntityUtils.dropItemStacksInWorld(world, pos, this.endMarker, -1, true);
+        }
+    }
+
+    @Override
     public void reset()
     {
         super.reset();
 
+        this.configuredLength = 0;
         this.endMarker = ItemStack.EMPTY;
     }
 

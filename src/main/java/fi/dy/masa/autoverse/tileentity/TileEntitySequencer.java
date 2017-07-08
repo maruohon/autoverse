@@ -39,6 +39,11 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         this.itemHandlerExternal = this.inventorySequencer;
     }
 
+    public ItemHandlerWrapperSequencer getSequencer()
+    {
+        return this.inventorySequencer;
+    }
+
     @Override
     public boolean applyProperty(int propId, int value)
     {

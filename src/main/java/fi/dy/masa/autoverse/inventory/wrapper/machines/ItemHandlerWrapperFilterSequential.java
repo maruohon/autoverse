@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
@@ -10,7 +9,6 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
 {
     private final ItemStackHandlerTileEntity inventoryFilteredBuffer;
-    private final IItemHandler inventoryFilteredOut;
     private int filterLength;
     private int outputPosition;
     private int subState = 0;
@@ -23,7 +21,6 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     {
         super(inventoryInput, inventoryOutFiltered, inventoryOutNormal);
 
-        this.inventoryFilteredOut = inventoryOutFiltered;
         this.inventoryFilteredBuffer = inventoryFilteredBuffer;
     }
 
@@ -51,16 +48,15 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
-        if (this.subState == 0)
-        {
-            return this.sortItem(stack);
-        }
-        else
-        {
-            return this.outputItems();
-        }
+        return this.subState == 0 ? this.sortItem(stack) : this.outputItems();
+    }
+
+    @Override
+    protected boolean onScheduledTick()
+    {
+        return this.subState == 1 ? this.outputItems() : false;
     }
 
     @Override
@@ -72,7 +68,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
         }
         else
         {
-            return this.flushItems();
+            return this.flushFilterBufferItems();
         }
     }
 
@@ -89,17 +85,18 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
             {
                 if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryFilteredBuffer, slot) == InvResult.MOVED_ALL)
                 {
-                    this.matchingSlots = null;
-
                     if (++this.outputPosition >= this.filterLength)
                     {
                         this.outputPosition = 0;
                         this.subState = 1;
                     }
 
+                    this.matchingSlots = null;
                     return true;
                 }
             }
+
+            this.matchingSlots = null;
         }
 
         // If the item didn't fit or belong to the filtered buffer, move it to the normal output
@@ -134,7 +131,7 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
      * to the programming phase for the next operation cycle.
      * @return
      */
-    private boolean flushItems()
+    private boolean flushFilterBufferItems()
     {
         boolean success = false;
 

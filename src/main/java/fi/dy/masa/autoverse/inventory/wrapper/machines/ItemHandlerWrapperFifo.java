@@ -30,12 +30,12 @@ public class ItemHandlerWrapperFifo implements IItemHandlerSize, INBTSerializabl
 
     public void setInsertPosition(int slot)
     {
-        this.insertSlot = Math.min(slot, this.baseHandler.getSlots());
+        this.insertSlot = MathHelper.clamp(slot, 0, this.baseHandler.getSlots() - 1);
     }
 
     public void setExtractPosition(int slot)
     {
-        this.extractSlot = Math.min(slot, this.baseHandler.getSlots());
+        this.extractSlot = MathHelper.clamp(slot, 0, this.baseHandler.getSlots() - 1);
     }
 
     @Override

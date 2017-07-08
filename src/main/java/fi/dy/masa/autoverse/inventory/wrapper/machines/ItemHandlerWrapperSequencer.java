@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -27,6 +28,11 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
         {
             this.extractSlot = 0;
         }
+    }
+
+    public void setExtractPosition(int slot)
+    {
+        this.extractSlot = MathHelper.clamp(slot, 0, this.baseHandler.getSlots() - 1);
     }
 
     public int getOutputSlot()
@@ -107,6 +113,7 @@ public class ItemHandlerWrapperSequencer implements IItemHandler, INBTSerializab
         if (stack.isEmpty() && nextSlot != -1)
         {
             stack = this.baseHandler.extractItem(nextSlot, 1, simulate);
+            nextSlot = InventoryUtils.getNextNonEmptySlot(this.baseHandler, nextSlot + 1);
         }
 
         if (simulate == false)

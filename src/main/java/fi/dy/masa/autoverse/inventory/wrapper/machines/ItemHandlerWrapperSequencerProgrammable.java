@@ -54,7 +54,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         if (this.moveInputItemToInventory(this.inventorySequence))
         {

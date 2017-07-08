@@ -351,19 +351,20 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     {
         if (this.placer.moveItems())
         {
-            this.scheduleUpdateIfNeeded();
+            this.scheduleUpdateIfNeeded(true);
         }
     }
 
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(true);
     }
 
-    private void scheduleUpdateIfNeeded()
+    private void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutput.getStackInSlot(0).isEmpty() == false)
         {
             this.scheduleBlockUpdate(1, false);
@@ -375,6 +376,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutput);
+        this.placer.dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override

@@ -43,7 +43,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, MAX_LENGTH, 1, false, "Items", this);
         this.itemHandlerFifo = new ItemHandlerWrapperFifo(this.itemHandlerBase);
         this.itemHandlerExternal = this.itemHandlerFifo;
-        this.itemHandlerBase.setInventorySize(26); // just a default value...
     }
 
     public ItemHandlerWrapperFifo getFifoInventory()

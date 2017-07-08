@@ -118,7 +118,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     {
         this.detectorRunning = true;
         this.setNextDetectionTime();
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
     public void stopDetector()
@@ -244,7 +244,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, this.posDetectionOut, this.facingOpposite, false);
-        this.detector.moveItems();
+        boolean movedIn = this.detector.moveItems();
 
         if (this.nextDetection == this.getWorld().getTotalWorldTime())
         {
@@ -255,18 +255,19 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
             }
         }
 
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(movedIn);
     }
 
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
-    private void scheduleUpdateIfNeeded()
+    private void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutDetection.getStackInSlot(0).isEmpty() == false)
         {
             this.reScheduleUpdateIfSooner(1);
@@ -288,7 +289,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(true);
     }
 
     @Override
@@ -298,6 +299,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutDetection);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutNormal);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.detector.getDetectionInventory());
+        this.detector.dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override

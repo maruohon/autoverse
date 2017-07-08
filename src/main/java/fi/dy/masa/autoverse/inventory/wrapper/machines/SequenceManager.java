@@ -5,8 +5,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class SequenceManager
@@ -16,7 +17,7 @@ public class SequenceManager
     private SequenceMatcher sequenceReset;
     private final boolean firstIsEndMarker;
     private int position;
-    private int slotIndex;
+    private int state;
 
     public SequenceManager(boolean firstSequenceIsEndMarker)
     {
@@ -80,7 +81,7 @@ public class SequenceManager
         if (result)
         {
             this.position = 0;
-            this.slotIndex = 0;
+            this.state = 0;
         }
 
         return result;
@@ -94,46 +95,48 @@ public class SequenceManager
      */
     public InvResult flushSequencesAndReset(IItemHandler inventoryOut)
     {
-        SequenceMatcher sequence = this.sequences.get(this.position);
-        ItemStack stack = sequence.getStackInSlot(this.slotIndex);
-        InvResult result = InvResult.MOVED_NOTHING;
-
-        // Items in the sequence slot
-        if (stack.isEmpty() == false)
+        if (this.state == 0)
         {
-            stack = InventoryUtils.tryInsertItemStackToInventory(inventoryOut, stack, false);
+            for (SequenceMatcher sequence : this.sequences)
+            {
+                sequence.flushStart();
+            }
 
-            // Couldn't move (all) items to output, return the rest
-            if (stack.isEmpty() == false)
-            {
-                sequence.getSequence().set(this.slotIndex, stack);
-            }
-            else
-            {
-                result = InvResult.MOVED_SOME;
-            }
+            this.state = 1;
         }
 
-        // All items from the current sequence moved to output
-        if (stack.isEmpty() && ++this.slotIndex >= sequence.getCurrentSequenceLength())
-        {
-            sequence.reset();
-            this.slotIndex = 0;
+        SequenceMatcher sequence = this.sequences.get(this.position);
+        InvResult result = sequence.flushItemsAndReset(inventoryOut);
 
+        if (result == InvResult.MOVED_ALL)
+        {
             if (++this.position >= this.sequences.size())
             {
                 this.position = 0;
-                return InvResult.MOVED_ALL;
+                this.state = 0;
+            }
+            else
+            {
+                // Don't return MOVED_ALL until all the sequences have been flushed!
+                result = InvResult.MOVED_SOME;
             }
         }
 
         return result;
     }
 
+    public void dropAllItems(World world, BlockPos pos)
+    {
+        for (SequenceMatcher sequence : this.sequences)
+        {
+            sequence.dropAllItems(world, pos);
+        }
+    }
+
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         tag.setByte("Position", (byte) this.position);
-        tag.setByte("Slot", (byte) this.slotIndex);
+        tag.setByte("State", (byte) this.state);
 
         for (SequenceMatcher sequence : this.sequences)
         {
@@ -146,7 +149,7 @@ public class SequenceManager
     public void readFromNBT(NBTTagCompound tag)
     {
         this.position = tag.getByte("Position");
-        this.slotIndex = tag.getByte("Slot");
+        this.state = tag.getByte("State");
 
         for (SequenceMatcher sequence : this.sequences)
         {

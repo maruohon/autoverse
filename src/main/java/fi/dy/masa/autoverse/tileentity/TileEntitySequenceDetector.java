@@ -96,19 +96,20 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
         }
         else if (movedIn || movedOut)
         {
-            this.scheduleUpdateIfNeeded();
+            this.scheduleUpdateIfNeeded(movedIn);
         }
     }
 
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
-    private void scheduleUpdateIfNeeded()
+    private void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutput.getStackInSlot(0).isEmpty() == false)
         {
             this.scheduleBlockUpdate(1, false);
@@ -120,6 +121,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutput);
+        this.detector.dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override

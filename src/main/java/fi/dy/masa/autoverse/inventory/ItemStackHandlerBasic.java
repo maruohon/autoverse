@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -33,7 +34,7 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
 
     public void setInventorySize(int invSize)
     {
-        this.inventorySize = Math.min(invSize, this.items.size());
+        this.inventorySize = MathHelper.clamp(invSize, 0, this.items.size());
     }
 
     @Override
@@ -182,25 +183,31 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
     @Override
     public NBTTagCompound serializeNBT()
     {
-        NBTTagCompound nbt = NBTUtils.writeItemsToTag(new NBTTagCompound(), this.items, this.tagName, true);
+        NBTTagCompound wrapper = new NBTTagCompound();
+        NBTTagCompound nbt = new NBTTagCompound();
 
         if (this.inventorySize != this.items.size())
         {
             nbt.setByte("SlotCount", (byte) this.inventorySize);
         }
 
-        return nbt;
+        NBTUtils.writeItemsToTag(nbt, this.items, "Items", true);
+        wrapper.setTag(this.tagName, nbt);
+
+        return wrapper;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt)
     {
-        NBTUtils.readStoredItemsFromTag(nbt, this.items, this.tagName);
+        nbt = nbt.getCompoundTag(this.tagName);
 
         if (nbt.hasKey("SlotCount", Constants.NBT.TAG_BYTE))
         {
-            this.inventorySize = nbt.getByte("SlotCount");
+            this.setInventorySize(nbt.getByte("SlotCount"));
         }
+
+        NBTUtils.readStoredItemsFromTag(nbt, this.items, "Items");
     }
 
     @Override

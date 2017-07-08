@@ -54,7 +54,7 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
     }
 
     @Override
-    protected boolean moveItemNormal(ItemStack stack)
+    protected boolean moveInputItemNormal(ItemStack stack)
     {
         if (this.moveInputItemToOutput())
         {

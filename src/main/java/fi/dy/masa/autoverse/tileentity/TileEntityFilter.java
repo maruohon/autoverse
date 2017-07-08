@@ -28,7 +28,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected ItemStackHandlerTileEntity inventoryInput;
     protected ItemStackHandlerTileEntity inventoryOutFiltered;
     protected ItemStackHandlerTileEntity inventoryOutNormal;
-    protected ItemHandlerWrapperFilter inventoryFilter;
+    protected ItemHandlerWrapperFilter filter;
 
     protected EnumFacing facingFilteredOut = EnumFacing.WEST;
     protected BlockPos posFilteredOut;
@@ -54,12 +54,12 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         this.initFilterInventory();
 
-        this.itemHandlerExternal = this.inventoryFilter;
+        this.itemHandlerExternal = this.filter;
     }
 
     protected void initFilterInventory()
     {
-        this.inventoryFilter = new ItemHandlerWrapperFilter(
+        this.filter = new ItemHandlerWrapperFilter(
                                     this.inventoryInput,
                                     this.inventoryOutFiltered,
                                     this.inventoryOutNormal);
@@ -100,7 +100,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public ItemHandlerWrapperFilter getInventoryFilter()
     {
-        return this.inventoryFilter;
+        return this.filter;
     }
 
     public void setFilterOutputSide(EnumFacing side)
@@ -145,23 +145,24 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         boolean movedOut = false;
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.posFront, this.facingOpposite, false);
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.posFilteredOut, this.facingFilteredOut.getOpposite(), false);
-        boolean movedIn = this.inventoryFilter.moveItems();
+        boolean movedIn = this.filter.moveItems();
 
         if (movedIn || movedOut)
         {
-            this.scheduleUpdateIfNeeded();
+            this.scheduleUpdateIfNeeded(movedIn);
         }
     }
 
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        this.scheduleUpdateIfNeeded();
+        this.scheduleUpdateIfNeeded(false);
     }
 
-    protected void scheduleUpdateIfNeeded()
+    protected void scheduleUpdateIfNeeded(boolean force)
     {
-        if (this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
+        if (force ||
+            this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutNormal.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutFiltered.getStackInSlot(0).isEmpty() == false)
         {
@@ -173,7 +174,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         int output = 0;
 
-        if (this.inventoryFilter.isFullyConfigured())
+        if (this.filter.isFullyConfigured())
         {
             output |= 0x08;
         }
@@ -202,7 +203,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         this.inventoryOutNormal.deserializeNBT(nbt);
         this.inventoryOutFiltered.deserializeNBT(nbt);
 
-        this.inventoryFilter.deserializeNBT(nbt);
+        this.filter.deserializeNBT(nbt);
     }
 
     @Override
@@ -229,7 +230,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryOutNormal.serializeNBT());
         nbt.merge(this.inventoryOutFiltered.serializeNBT());
 
-        nbt.merge(this.inventoryFilter.serializeNBT());
+        nbt.merge(this.filter.serializeNBT());
     }
 
     @Override
@@ -255,6 +256,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutNormal);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutFiltered);
+        this.filter.dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override
