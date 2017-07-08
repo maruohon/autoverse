@@ -18,7 +18,7 @@ public class GuiBarrel extends GuiAutoverse
 
     public GuiBarrel(ContainerAutoverse container, TileEntityBarrel te)
     {
-        super(container, 176, 150, "gui.container.barrel");
+        super(container, 176, 168, "gui.container.barrel");
 
         this.te = te;
     }
@@ -38,10 +38,22 @@ public class GuiBarrel extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.tier_num", this.te.getTier() + 1),            44, 18, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.max_stack_num", this.te.getMaxStackSize()),   44, 28, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.tier_num", this.te.getTier() + 1),            21, 53, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.max_stack_num", this.te.getMaxStackSize()),   21, 64, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 57, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 75, 0x404040);
+    }
+
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
+    {
+        super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
+
+        if (this.te.isCreative())
+        {
+            this.bindTexture(this.guiTextureWidgets);
+            this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 7, 210, 0, 10, 10);
+        }
     }
 
     protected void createButtons()
@@ -51,8 +63,11 @@ public class GuiBarrel extends GuiAutoverse
         int x = (this.width - this.xSize) / 2;
         int y = (this.height - this.ySize) / 2;
 
-        this.buttonList.add(new GuiButtonHoverText(0, x + 30, y + 19, 8, 8, 0, 0,
+        this.buttonList.add(new GuiButtonHoverText(0, x + 8, y + 54, 8, 8, 0, 0,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.barrel.change_tier"));
+
+        this.buttonList.add(new GuiButtonHoverText(1, x + 160, y + 8, 8, 8, 0, 8,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.toggle_creative"));
     }
 
     @Override
@@ -70,7 +85,7 @@ public class GuiBarrel extends GuiAutoverse
             amount = -1;
         }
 
-        if (button.id == 0)
+        if (button.id == 0 || button.id == 1)
         {
             if (GuiScreen.isShiftKeyDown()) { amount *= 2; }
             if (GuiScreen.isCtrlKeyDown())  { amount *= 4; }

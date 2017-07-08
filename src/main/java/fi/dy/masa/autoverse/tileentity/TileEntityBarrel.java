@@ -19,25 +19,27 @@ import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBarrel;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperCreative;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntityBarrel extends TileEntityAutoverseInventory
 {
-    protected boolean isPulsed;
-    protected int tier;
+    private boolean isPulsed;
+    private int tier;
+    private boolean isCreative;
     private BlockPos posBottom = BlockPos.ORIGIN;
 
     public TileEntityBarrel()
     {
-        super(ReferenceNames.NAME_BLOCK_BARREL);
+        super(ReferenceNames.NAME_BLOCK_BARREL, true);
     }
 
     @Override
     protected void initInventories()
     {
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 1, this.getMaxStackSize(), true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperExternal(this.itemHandlerBase);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 1, 64, true, "Items", this);
+        this.itemHandlerExternal = new ItemHandlerWrapperBarrel(this.itemHandlerBase, this);
     }
 
     @Override
@@ -84,6 +86,17 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         return this.isPulsed;
     }
 
+    @Override
+    public boolean isCreative()
+    {
+        return this.isCreative;
+    }
+
+    public void setIsCreative(boolean isCreative)
+    {
+        this.isCreative = isCreative;
+    }
+
     public int getMaxStackSize()
     {
         return (int) Math.pow(2, this.tier);
@@ -125,6 +138,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         super.writeToNBT(nbt);
 
         nbt.setBoolean("Pulsed", this.isPulsed);
+        nbt.setBoolean("Creative", this.isCreative);
         nbt.setByte("Tier", (byte)this.tier);
 
         return nbt;
@@ -134,6 +148,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.isPulsed = nbt.getBoolean("Pulsed");
+        this.isCreative = nbt.getBoolean("Creative");
         this.setTier(nbt.getByte("Tier"));
 
         super.readFromNBTCustom(nbt);
@@ -167,60 +182,54 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public void performGuiAction(EntityPlayer player, int action, int element)
     {
+        // Change Barrel tier
         if (action == 0)
         {
             this.setTier(this.tier + element);
             this.notifyBlockUpdate(this.getPos());
         }
+        // Toggle creative mode
+        else if (action == 1)
+        {
+            if (player.capabilities.isCreativeMode)
+            {
+                this.isCreative = ! this.isCreative;
+                this.markDirty();
+            }
+        }
     }
 
-    private class ItemHandlerWrapperExternal implements IItemHandler
+    private class ItemHandlerWrapperBarrel extends ItemHandlerWrapperCreative
     {
-        private final IItemHandler parent;
+        private final TileEntityBarrel te;
 
-        public ItemHandlerWrapperExternal(IItemHandler parent)
+        public ItemHandlerWrapperBarrel(IItemHandler baseHandler, TileEntityBarrel te)
         {
-            this.parent = parent;
-        }
+            super(baseHandler, te);
 
-        @Override
-        public int getSlots()
-        {
-            return this.parent.getSlots();
-        }
-
-        @Override
-        public int getSlotLimit(int slot)
-        {
-            return this.parent.getSlotLimit(slot);
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return this.parent.getStackInSlot(slot);
+            this.te = te;
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            if (TileEntityBarrel.this.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
+            if (this.te.getWorld().isBlockPowered(this.te.getPos()))
             {
                 return stack;
             }
 
-            return this.parent.insertItem(slot, stack, simulate);
+            return super.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            if (TileEntityBarrel.this.getWorld().isBlockPowered(TileEntityBarrel.this.getPos()))
+            if (this.te.getWorld().isBlockPowered(this.te.getPos()))
             {
                 return ItemStack.EMPTY;
             }
 
-            return this.parent.extractItem(slot, amount, simulate);
+            return super.extractItem(slot, amount, simulate);
         }
     }
 

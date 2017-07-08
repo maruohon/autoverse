@@ -77,6 +77,11 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
                 this.itemHandlerExternal, this.useWrapperHandlerForContainerExtract);
     }
 
+    public boolean isCreative()
+    {
+        return false;
+    }
+
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
         this.getBaseItemHandler().deserializeNBT(nbt);
