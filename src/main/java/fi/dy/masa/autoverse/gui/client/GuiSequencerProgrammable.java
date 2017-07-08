@@ -55,7 +55,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
 
         this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
         this.drawSlotBackgrounds(  7,  55, 0, 238, 9, this.container.getSequenceLength(1)); // The generation sequence
-        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out
+        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Out
 
         final int first = this.containerSP.getSequenceInventorySlotRange().first;
         final List<Slot> slotList = this.containerSP.getSpecialSlots();

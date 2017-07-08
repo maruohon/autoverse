@@ -55,6 +55,6 @@ public class GuiPlacerProgrammable extends GuiAutoverse
         this.drawSlotBackgrounds(  7, 109, 0, 238, 4, 8); // Property 2
         this.drawSlotBackgrounds( 97, 109, 0, 238, 4, 8); // Property 3
 
-        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Output
+        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Output
     }
 }

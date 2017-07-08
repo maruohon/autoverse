@@ -55,7 +55,7 @@ public class GuiBufferFifo extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
-        this.drawSlotBackgrounds(11, 12, 0, 184, 13, this.te.getFifoLength());
+        this.drawSlotBackgrounds(11, 12, 0, 220, 13, this.te.getFifoLength());
 
         // Draw a purple background for the current extract slot
         int slot = Configs.fifoBufferOffsetSlots ? 0 : this.containerFifo.getExtractPosition();

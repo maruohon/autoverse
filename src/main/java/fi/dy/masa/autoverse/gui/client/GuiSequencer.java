@@ -47,7 +47,7 @@ public class GuiSequencer extends GuiAutoverse
     {
         super.drawGuiContainerBackgroundLayer(gameTicks, mouseX, mouseY);
 
-        this.drawSlotBackgrounds(7, 31, 0, 202, 9, this.teseq.getBaseItemHandler().getSlots());
+        this.drawSlotBackgrounds(7, 31, 0, 220, 9, this.teseq.getBaseItemHandler().getSlots());
         this.hilightOutputSlot();
     }
 

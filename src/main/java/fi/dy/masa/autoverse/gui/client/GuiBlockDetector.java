@@ -73,8 +73,8 @@ public class GuiBlockDetector extends GuiAutoverse
         this.drawSlotBackgrounds( 97,  64, 0, 238, 4, 8); // Config: Delay
         this.drawSlotBackgrounds(  7, 113, 0, 238, 9, invSize); // Detector
 
-        this.drawSlotBackgrounds(  7, 150, 0, 202, 1, 1); // Out Normal
-        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out Detector
+        this.drawSlotBackgrounds(  7, 150, 0, 220, 1, 1); // Out Normal
+        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Out Detector
 
         final int first = this.containerD.getDetectionInventorySlotRange().first;
         List<Slot> slotList = this.containerD.getSpecialSlots();

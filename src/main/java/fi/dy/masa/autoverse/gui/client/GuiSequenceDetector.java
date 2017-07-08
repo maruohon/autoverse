@@ -52,7 +52,7 @@ public class GuiSequenceDetector extends GuiAutoverse
         // Draw the slot backgrounds according to how many slots the machine has at the moment
         this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
         this.drawSlotBackgrounds(  7,  55, 0, 238, 9, this.container.getSequenceLength(1)); // Detection sequence
-        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Output slot
+        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Output slot
 
         // Draw the hilighted slot backgrounds according to how many slots the detector has matched thus far
         final int matched = this.containerSD.getMatchedLength();

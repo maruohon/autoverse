@@ -46,8 +46,8 @@ public class GuiFilter extends GuiAutoverse
 
         this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
         this.drawSlotBackgrounds(  7,  62, 0, 238, 9, this.container.getSequenceLength(1)); // Filter sequence
-        this.drawSlotBackgrounds(  7, 150, 0, 202, 1, 1); // Out Normal
-        this.drawSlotBackgrounds(151, 150, 0, 202, 1, 1); // Out Filtered
+        this.drawSlotBackgrounds(  7, 150, 0, 220, 1, 1); // Out Normal
+        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Out Filtered
 
         if (this.te instanceof TileEntityFilterSequential)
         {
