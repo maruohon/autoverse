@@ -41,7 +41,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     private EnumFacing facing2 = EnumFacing.WEST;
     private BlockPos posOut2;
     private int delay = 2;
-    private boolean outputIsSecondaryCached;
 
     public TileEntitySplitter()
     {
@@ -67,7 +66,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         switch (type)
         {
             case SWITCHABLE:
-                this.splitter = new ItemHandlerWrapperSplitter(this.inventoryInput);
+                this.splitter = new ItemHandlerWrapperSplitter(this.inventoryInput, this.inventoryOut1, this.inventoryOut2);
                 this.itemHandlerExternal = this.splitter;
                 break;
 
@@ -121,12 +120,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.initSplitterInventory(type);
     }
 
-    public boolean outputIsSecondaryCached()
-    {
-        return this.outputIsSecondaryCached;
-    }
-
-    protected boolean outputIsSecondary()
+    public boolean outputIsSecondary()
     {
         if (this.type == BlockSplitter.SplitterType.REDSTONE)
         {
@@ -185,37 +179,24 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = false;
-        boolean movedIn = false;
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.posFront, this.facingOpposite, false);
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
+        boolean movedIn = false;
 
-        // We used a cached value, so that the last item of the switch or reset sequence
-        // still goes to the same output as the previous ones did.
-        if (this.outputIsSecondaryCached)
+        if (this.type == BlockSplitter.SplitterType.SWITCHABLE)
         {
-            movedIn |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOut2, 0) != InvResult.MOVED_NOTHING;
+            movedIn = this.splitter.moveItems();
         }
         else
         {
-            movedIn |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOut1, 0) != InvResult.MOVED_NOTHING;
-        }
-
-        // Update the cached value after the input item has been moved
-        if (movedIn)
-        {
-            this.outputIsSecondaryCached = this.outputIsSecondary();
+            IItemHandler inv = this.redstoneState ? this.inventoryOut2 : this.inventoryOut1;
+            movedIn = InventoryUtils.tryMoveStack(this.inventoryInput, 0, inv, 0) != InvResult.MOVED_NOTHING;
         }
 
         if (movedIn || movedOut)
         {
             this.scheduleUpdateIfNeeded();
         }
-    }
-
-    @Override
-    protected void onRedstoneChange(boolean state)
-    {
-        this.outputIsSecondaryCached = state;
     }
 
     @Override
@@ -267,14 +248,9 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.inventoryOut1.deserializeNBT(tag);
         this.inventoryOut2.deserializeNBT(tag);
 
-        if (this.type == BlockSplitter.SplitterType.REDSTONE)
-        {
-            this.outputIsSecondaryCached = this.redstoneState;
-        }
-        else
+        if (this.splitter != null)
         {
             this.splitter.deserializeNBT(tag);
-            this.outputIsSecondaryCached = this.splitter.secondaryOutputActive();
         }
     }
 

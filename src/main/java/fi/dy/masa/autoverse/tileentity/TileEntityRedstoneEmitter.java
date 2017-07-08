@@ -20,7 +20,6 @@ import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperRedston
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
-import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
 {
@@ -41,7 +40,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.emitter            = new ItemHandlerWrapperRedstoneEmitter(this.inventoryInput, this);
+        this.emitter            = new ItemHandlerWrapperRedstoneEmitter(this.inventoryInput, this.inventoryOutput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.emitter;
     }
@@ -117,7 +116,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
-        boolean movedIn = InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
+        boolean movedIn = this.emitter.moveItems();
 
         if (movedIn || movedOut)
         {

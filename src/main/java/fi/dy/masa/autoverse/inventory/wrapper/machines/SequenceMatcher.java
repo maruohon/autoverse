@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
+import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
@@ -13,11 +14,21 @@ public class SequenceMatcher
     private final String tagName;
     private int position;
     private boolean configured;
+    @Nullable
+    protected ISequenceCallback callback;
+    protected int callbackId;
 
     public SequenceMatcher(int length, String tagName)
     {
         this.sequence = NonNullList.withSize(length, ItemStack.EMPTY);
         this.tagName = tagName;
+    }
+
+    public SequenceMatcher setCallback(ISequenceCallback callback, int callbackId)
+    {
+        this.callback = callback;
+        this.callbackId = callbackId;
+        return this;
     }
 
     /**
@@ -31,6 +42,11 @@ public class SequenceMatcher
         if (inputStack.isEmpty() == false)
         {
             this.sequence.set(this.position, inputStack.copy());
+        }
+
+        if (this.callback != null)
+        {
+            this.callback.onConfigureSequenceSlot(this.callbackId, this.position, (this.position + 1) >= this.sequence.size());
         }
 
         if (++this.position >= this.sequence.size())
@@ -141,7 +157,8 @@ public class SequenceMatcher
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setByte("State", (byte) ((this.configured ? 0x80 : 0x00) | this.position));
+        tag.setBoolean("Configured", this.configured);
+        tag.setByte("Position", (byte) this.position);
         NBTUtils.writeItemsToTag(tag, this.sequence, this.tagName, false);
         nbt.setTag(this.tagName, tag);
         return nbt;
@@ -150,9 +167,8 @@ public class SequenceMatcher
     public void readFromNBT(NBTTagCompound nbt)
     {
         NBTTagCompound tag = nbt.getCompoundTag(this.tagName);
-        int state = tag.getByte("State");
-        this.position = state & 0x7F;
-        this.configured = (state & 0x80) != 0;
+        this.configured = tag.getBoolean("Configured");
+        this.position = tag.getByte("Position");
         NBTUtils.readStoredItemsFromTag(tag, this.sequence, this.tagName);
     }
 

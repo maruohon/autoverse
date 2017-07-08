@@ -54,7 +54,7 @@ public class ContainerSplitter extends ContainerTile
     {
         if (this.isClient == false)
         {
-            boolean isSecondary = this.tesp.outputIsSecondaryCached();
+            boolean isSecondary = this.tesp.outputIsSecondary();
 
             if (this.secondaryOutput != isSecondary)
             {

@@ -78,10 +78,8 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        boolean movedOut = false;
-        boolean movedIn = false;
-        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
-        movedIn = this.inventoryWrapperCrafter.moveItems();
+        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
+        boolean movedIn = this.inventoryWrapperCrafter.moveItems();
 
         if (movedIn || movedOut)
         {

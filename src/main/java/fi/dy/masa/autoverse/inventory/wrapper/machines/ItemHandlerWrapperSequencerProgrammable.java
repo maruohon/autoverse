@@ -8,13 +8,11 @@ import fi.dy.masa.autoverse.tileentity.TileEntitySequencerProgrammable;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
-public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperSequenceBase
+public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperSequenceBase implements ISequenceCallback
 {
     public static final int MAX_INV_SIZE = 45;
     private final SequenceMatcherVariable sequenceGeneration;
-    private final ItemStackHandlerLockable sequenceInventory;
-    private final IItemHandler inventoryOutput;
-    private Mode mode = Mode.CONFIGURE_END_MARKER;
+    private final ItemStackHandlerLockable inventorySequence;
     private int position;
 
     public ItemHandlerWrapperSequencerProgrammable(
@@ -22,72 +20,23 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
             IItemHandler inventoryOutput,
             TileEntitySequencerProgrammable te)
     {
-        super(4, inventoryInput);
+        super(4, inventoryInput, inventoryOutput);
 
-        this.inventoryOutput = inventoryOutput;
         this.sequenceGeneration = new SequenceMatcherVariable(MAX_INV_SIZE, "SequenceGeneration");
-        this.sequenceInventory  = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
-        this.sequenceInventory.setInventorySize(0);
+        this.sequenceGeneration.setCallback(this, 0);
+
+        this.getSequenceManager().add(this.sequenceGeneration);
+
+        this.inventorySequence = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsSequence", te);
+        this.inventorySequence.setInventorySize(0);
     }
 
     @Override
-    protected void handleInputItem(ItemStack inputStack)
+    public void onConfigureSequenceSlot(int callbackId, int slot, boolean finished)
     {
-        switch (this.getMode())
-        {
-            case CONFIGURE_END_MARKER:
-                if (this.getEndMarkerSequence().configureSequence(inputStack))
-                {
-                    this.getResetSequence().setSequenceEndMarker(inputStack);
-                    this.sequenceGeneration.setSequenceEndMarker(inputStack);
-                    this.setMode(Mode.CONFIGURE_RESET);
-                }
-                break;
-
-            case CONFIGURE_RESET:
-                if (this.getResetSequence().configureSequence(inputStack))
-                {
-                    this.setMode(Mode.CONFIGURE_SEQUENCE);
-                }
-                break;
-
-            case CONFIGURE_SEQUENCE:
-                if (this.sequenceGeneration.configureSequence(inputStack))
-                {
-                    /*
-                    final int length = this.sequenceGeneration.getCurrentSequenceLength();
-                    this.sequenceInventory.setInventorySize(length);
-
-                    for (int slot = 0; slot < length; slot++)
-                    {
-                        this.sequenceInventory.setTemplateStackInSlot(slot, this.sequenceGeneration.getStackInSlot(slot));
-                        this.sequenceInventory.setSlotLocked(slot, true);
-                    }
-                    */
-
-                    this.position = 0;
-                    this.setMode(Mode.NORMAL_OPERATION);
-                }
-                else
-                {
-                    this.sequenceInventory.setInventorySize(this.position + 1);
-                    this.sequenceInventory.setTemplateStackInSlot(this.position, this.sequenceGeneration.getStackInSlot(this.position));
-                    this.sequenceInventory.setSlotLocked(this.position, true);
-                    this.position++;
-                }
-                break;
-
-            case NORMAL_OPERATION:
-                if (this.getResetSequence().checkInputItem(inputStack))
-                {
-                    this.onReset();
-                }
-                break;
-
-            case RESET_FLUSH_SEQUENCE:
-            default:
-                break;
-        }
+        this.inventorySequence.setInventorySize(slot + 1);
+        this.inventorySequence.setTemplateStackInSlot(slot, this.sequenceGeneration.getStackInSlot(slot));
+        this.inventorySequence.setSlotLocked(slot, true);
     }
 
     @Override
@@ -95,48 +44,55 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         super.onReset();
 
-        this.sequenceGeneration.reset();
         this.position = 0;
-        this.setMode(Mode.RESET_FLUSH_SEQUENCE);
     }
 
     @Override
-    public boolean moveItems()
+    protected void onResetFlushComplete()
     {
-        switch (this.getMode())
+        this.position = 1;
+    }
+
+    @Override
+    protected boolean moveItemNormal(ItemStack stack)
+    {
+        if (this.moveInputItemToInventory(this.inventorySequence))
         {
-            case NORMAL_OPERATION:
-                if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
-                {
-                    if (InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), this.sequenceInventory, 0, false) != InvResult.MOVED_NOTHING)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), this.inventoryOutput, 0, false) != InvResult.MOVED_NOTHING;
-                    }
-                }
-                break;
+            return true;
+        }
+        else
+        {
+            return this.moveInputItemToOutput();
+        }
+    }
 
-            case RESET_FLUSH_SEQUENCE:
-                boolean success = InventoryUtils.tryMoveAllItems(this.sequenceInventory, this.inventoryOutput) != InvResult.MOVED_NOTHING;
+    @Override
+    protected boolean resetFlushItems()
+    {
+        if (this.position == 0)
+        {
+            return super.resetFlushItems();
+        }
+        else
+        {
+            return this.flushItems();
+        }
+    }
 
-                if (InventoryUtils.isInventoryEmpty(this.sequenceInventory))
-                {
-                    this.sequenceInventory.clearTemplateStacks();
-                    this.sequenceInventory.clearLockedStatus();
-                    this.sequenceInventory.setInventorySize(0);
-                    this.position = 0;
-                    this.setMode(Mode.CONFIGURE_END_MARKER);
-                }
-                return success;
+    private boolean flushItems()
+    {
+        boolean success = InventoryUtils.tryMoveAllItems(this.inventorySequence, this.getOutputInventory()) != InvResult.MOVED_NOTHING;
 
-            default:
-                return InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
+        if (InventoryUtils.isInventoryEmpty(this.inventorySequence))
+        {
+            this.inventorySequence.clearTemplateStacks();
+            this.inventorySequence.clearLockedStatus();
+            this.inventorySequence.setInventorySize(0);
+            this.position = 0;
+            this.setState(State.CONFIGURE);
         }
 
-        return false;
+        return success;
     }
 
     @Override
@@ -149,9 +105,9 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     public ItemStack getStackInSlot(int slot)
     {
         // The first "virtual slot" is for extraction, the second is for insertion (and thus always empty)
-        if (slot == 0 && this.getMode() == Mode.NORMAL_OPERATION)
+        if (slot == 0 && this.getState() == State.NORMAL)
         {
-            return this.sequenceInventory.getStackInSlot(this.position);
+            return this.inventorySequence.getStackInSlot(this.position);
         }
 
         return ItemStack.EMPTY;
@@ -160,13 +116,13 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        if (slot == 0 && this.getMode() == Mode.NORMAL_OPERATION)
+        if (slot == 0 && this.getState() == State.NORMAL)
         {
-            ItemStack stack = this.sequenceInventory.extractItem(this.position, amount, simulate);
+            ItemStack stack = this.inventorySequence.extractItem(this.position, amount, simulate);
 
             if (simulate == false && stack.isEmpty() == false)
             {
-                if (++this.position >= this.sequenceInventory.getSlots())
+                if (++this.position >= this.inventorySequence.getSlots())
                 {
                     this.position = 0;
                 }
@@ -185,22 +141,12 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
 
     public ItemStackHandlerLockable getSequenceInventory()
     {
-        return this.sequenceInventory;
+        return this.inventorySequence;
     }
 
     public int getExtractPosition()
     {
-        return this.getMode() == Mode.NORMAL_OPERATION ? this.position : 0;
-    }
-
-    protected Mode getMode()
-    {
-        return this.mode;
-    }
-
-    protected void setMode(Mode mode)
-    {
-        this.mode = mode;
+        return this.getState() == State.NORMAL ? this.position : 0;
     }
 
     @Override
@@ -208,11 +154,8 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         tag = super.writeToNBT(tag);
 
-        tag.setByte("State", (byte) this.mode.getId());
         tag.setByte("Position", (byte) this.position);
-
-        this.sequenceGeneration.writeToNBT(tag);
-        tag.merge(this.sequenceInventory.serializeNBT());
+        tag.merge(this.inventorySequence.serializeNBT());
 
         return tag;
     }
@@ -222,36 +165,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     {
         super.readFromNBT(tag);
 
-        this.setMode(Mode.fromId(tag.getByte("State")));
         this.position = tag.getByte("Position");
-
-        this.sequenceGeneration.readFromNBT(tag);
-        this.sequenceInventory.deserializeNBT(tag);
-    }
-
-    public enum Mode
-    {
-        CONFIGURE_END_MARKER    (0),
-        CONFIGURE_RESET         (1),
-        CONFIGURE_SEQUENCE      (2),
-        NORMAL_OPERATION        (3),
-        RESET_FLUSH_SEQUENCE    (5);
-
-        private final int id;
-
-        private Mode (int id)
-        {
-            this.id = id;
-        }
-
-        public int getId()
-        {
-            return this.id;
-        }
-
-        public static Mode fromId(int id)
-        {
-            return values()[id % values().length];
-        }
+        this.inventorySequence.deserializeNBT(tag);
     }
 }

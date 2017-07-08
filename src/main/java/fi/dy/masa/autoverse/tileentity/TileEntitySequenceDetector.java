@@ -19,7 +19,6 @@ import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSequenc
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
-import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
 {
@@ -39,7 +38,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.detector           = new ItemHandlerWrapperSequenceDetector(this.inventoryInput, this);
+        this.detector           = new ItemHandlerWrapperSequenceDetector(this.inventoryInput, this.inventoryOutput, this);
         this.itemHandlerBase    = this.inventoryInput;
         this.itemHandlerExternal = this.detector;
     }
@@ -76,7 +75,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
-        boolean movedIn = InventoryUtils.tryMoveEntireStackOnly(this.inventoryInput, 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
+        boolean movedIn = this.detector.moveItems();
 
         // Emit a 1 redstone tick pulse when the detector triggers
         if (this.changePending)

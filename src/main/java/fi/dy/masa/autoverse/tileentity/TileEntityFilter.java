@@ -143,10 +143,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = false;
-        boolean movedIn = false;
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.posFront, this.facingOpposite, false);
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.posFilteredOut, this.facingFilteredOut.getOpposite(), false);
-        movedIn = this.inventoryFilter.moveItems();
+        boolean movedIn = this.inventoryFilter.moveItems();
 
         if (movedIn || movedOut)
         {
