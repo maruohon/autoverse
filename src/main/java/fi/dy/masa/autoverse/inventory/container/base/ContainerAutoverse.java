@@ -19,7 +19,6 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.inventory.ICustomSlotSync;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
-import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.PlayerInvWrapperNoSync;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcher;
@@ -213,7 +212,7 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
     public boolean canMergeSlot(ItemStack stack, Slot slot)
     {
         return (slot instanceof SlotItemHandler) &&
-                (slot instanceof SlotItemHandlerCraftResult) == false &&
+                //(slot instanceof SlotItemHandlerCraftResult) == false &&
                 //(slot instanceof SlotItemHandlerFurnaceOutput) == false &&
                 this.inventoryPlayer.getItemStack().isEmpty() == false;
     }

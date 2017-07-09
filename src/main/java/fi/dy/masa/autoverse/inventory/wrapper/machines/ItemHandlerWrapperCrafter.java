@@ -20,7 +20,6 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     private final IItemHandlerModifiable inventoryCraftingGrid;
     private final IItemHandler inventoryCraftingOutput;
     private final InventoryCraftingWrapper inventoryCrafting;
-    //private final InventoryCraftingWrapper inventoryCraftingSequenceCraftingWrapper;
     private ItemStack resultStackTemplate = ItemStack.EMPTY;
     private int outputPosition;
     private int subState;
@@ -35,7 +34,6 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         super(4, inventoryInput, inventoryOutput);
 
         this.inventoryCrafting = inventoryCraftingWrapper;
-        //this.inventoryCraftingGrid = new InvWrapper(this.inventoryCrafting);
         this.inventoryCraftingGrid = inventoryCraftingGridBase;
         this.inventoryCraftingOutput = inventoryCraftingOutput;
 
@@ -48,9 +46,6 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         this.sequenceRecipe = new SequenceMatcher(9, "SequenceRecipeMasked");
 
         this.inventoryRecipePattern = this.sequenceRecipeConfig.getSequenceInventory(false);
-
-        //this.inventoryCraftingSequenceCraftingWrapper = new InventoryCraftingWrapper(3, 3,
-        //        this.sequenceRecipe.getSequenceInventory(false), inventoryCraftingOutput);
 
         this.getSequenceManager().add(this.sequenceEmpty, 1);
         this.getSequenceManager().add(this.sequenceRecipeConfig);

@@ -8,7 +8,6 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
-import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
@@ -126,11 +125,13 @@ public class ContainerCustomSlotClick extends ContainerAutoverse
 
         amount = Math.min(amount, spaceAvailable);
 
+        /*
         // only allow taking the whole stack from crafting slots
         if (amount <= 0 || ((slot instanceof SlotItemHandlerCraftResult) && spaceAvailable < stackSlot.getCount()))
         {
             return false;
         }
+        */
 
         stackSlot = slot.decrStackSize(amount);
 
@@ -347,7 +348,7 @@ public class ContainerCustomSlotClick extends ContainerAutoverse
             // only allow taking the whole stack from crafting slots
             int amount = stackSlot.getCount();
 
-            if ((slot instanceof SlotItemHandlerCraftResult) == false)
+            //if ((slot instanceof SlotItemHandlerCraftResult) == false)
             {
                 amount = Math.min((int) Math.ceil((double) stackSlot.getCount() / 2.0d),
                                   (int) Math.ceil((double) stackSlot.getMaxStackSize() / 2.0d));
