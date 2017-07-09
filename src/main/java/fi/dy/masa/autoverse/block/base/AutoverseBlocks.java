@@ -31,6 +31,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,            4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,                           4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                             4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse TRASH                    = new BlockTrash(ReferenceNames.NAME_BLOCK_TRASH,                                   4.0f, 10f, 1, Material.ROCK);
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event)
@@ -50,6 +51,7 @@ public class AutoverseBlocks
         registerBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
         registerBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
+        registerBlock(registry, TRASH,                  Configs.disableBlockTrash);
 
         registerTileEntities();
     }
@@ -72,6 +74,7 @@ public class AutoverseBlocks
         registerItemBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerItemBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
         registerItemBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
+        registerItemBlock(registry, TRASH,                  Configs.disableBlockTrash);
     }
 
     private static void registerBlock(IForgeRegistry<Block> registry, BlockAutoverse block, boolean isDisabled)
@@ -121,6 +124,8 @@ public class AutoverseBlocks
         registerTileEntity(TileEntitySequencer.class,               ReferenceNames.NAME_BLOCK_SEQUENCER);
         registerTileEntity(TileEntitySequencerProgrammable.class,   ReferenceNames.NAME_BLOCK_SEQUENCER_PROGRAMMABLE);
         registerTileEntity(TileEntitySplitter.class,                ReferenceNames.NAME_BLOCK_SPLITTER);
+        registerTileEntity(TileEntityTrashBin.class,                ReferenceNames.NAME_TILE_ENTITY_TRASH_BIN);
+        registerTileEntity(TileEntityTrashBuffer.class,             ReferenceNames.NAME_TILE_ENTITY_TRASH_BUFFER);
     }
 
     private static void registerTileEntity(Class<? extends TileEntity> clazz, String id)

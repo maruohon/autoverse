@@ -22,6 +22,8 @@ autoverse.container.sequencer_basic=Sequencer
 autoverse.container.sequencer_programmable=Programmable Sequencer
 autoverse.container.splitter_redstone=Redstone Controllable Splitter
 autoverse.container.splitter_switchable=Switchable Splitter
+autoverse.container.trash_bin=Trash Bin
+autoverse.container.trash_buffer=Trash Buffer
 
 autoverse.gui.label.1_bit_marker=1-bit
 autoverse.gui.label.barrel.change_tier=Change Barrel tier
@@ -63,7 +65,11 @@ autoverse.gui.label.splitter.output=Out %d
 autoverse.gui.label.splitter.switching_sequence=Switch seq.
 autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
 autoverse.gui.label.tier_num=Tier: %d
+autoverse.gui.label.trash.count=Trashed items: %d
+autoverse.gui.label.trash.feedback=Feedback: %s
 autoverse.gui.label.toggle_creative=Toggle Creative mode
+
+autoverse.tooltip.item.holdshift=Hold §e§oShift§7 for more
 
 autoverse.placement_properties.barrel.tier=Barrel tier
 autoverse.placement_properties.buffer.size=Buffer size
@@ -91,6 +97,8 @@ tile.autoverse.sequencer_basic.name=Sequencer (Basic)
 tile.autoverse.sequencer_programmable.name=Sequencer (Programmable)
 tile.autoverse.splitter_redstone.name=Redstone Controllable Splitter
 tile.autoverse.splitter_switchable.name=Switchable Splitter
+tile.autoverse.trash_bin.name=Trash Bin
+tile.autoverse.trash_buffer.name=Trash Buffer
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description

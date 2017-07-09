@@ -17,12 +17,15 @@ public class ReferenceNames
     public static final String NAME_BLOCK_SEQUENCER                 = "sequencer";
     public static final String NAME_BLOCK_SEQUENCER_PROGRAMMABLE    = "sequencer_programmable";
     public static final String NAME_BLOCK_SPLITTER                  = "splitter";
+    public static final String NAME_BLOCK_TRASH                     = "trash";
 
     public static final String NAME_TILE_ENTITY_BLOCK_READER_NBT    = "block_reader_nbt";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO         = "buffer_fifo";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_AUTO    = "buffer_fifo_auto";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
     public static final String NAME_TILE_ENTITY_PLACER_PROGRAMMABLE = "placer_programmable";
+    public static final String NAME_TILE_ENTITY_TRASH_BIN           = "trash_bin";
+    public static final String NAME_TILE_ENTITY_TRASH_BUFFER        = "trash_buffer";
 
 
     public static String getPrefixedName(String name)

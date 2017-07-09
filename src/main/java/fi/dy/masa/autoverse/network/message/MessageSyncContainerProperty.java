@@ -16,13 +16,13 @@ public class MessageSyncContainerProperty implements IMessage
     private Type type;
     private int windowId;
     private int valueId;
-    private int value;
+    private long value;
 
     public MessageSyncContainerProperty()
     {
     }
 
-    public MessageSyncContainerProperty(Type type, int windowId, int id, int value)
+    public MessageSyncContainerProperty(Type type, int windowId, int id, long value)
     {
         this.type = type;
         this.windowId = windowId;
@@ -48,7 +48,11 @@ public class MessageSyncContainerProperty implements IMessage
                 break;
 
             case INT:
-                buf.writeInt(this.value);
+                buf.writeInt((int) this.value);
+                break;
+
+            case LONG:
+                buf.writeLong(this.value);
                 break;
         }
     }
@@ -72,6 +76,10 @@ public class MessageSyncContainerProperty implements IMessage
 
             case INT:
                 this.value = buf.readInt();
+                break;
+
+            case LONG:
+                this.value = buf.readLong();
                 break;
         }
     }
@@ -112,7 +120,15 @@ public class MessageSyncContainerProperty implements IMessage
             if (player.openContainer instanceof ContainerAutoverse && message.windowId == player.openContainer.windowId)
             {
                 ContainerAutoverse container = (ContainerAutoverse) player.openContainer;
-                container.receiveProperty(message.valueId, message.value);
+
+                if (message.type == Type.LONG)
+                {
+                    container.receivePropertyLong(message.valueId, message.value);
+                }
+                else
+                {
+                    container.receiveProperty(message.valueId, (int) message.value);
+                }
             }
         }
     }
@@ -121,7 +137,8 @@ public class MessageSyncContainerProperty implements IMessage
     {
         BYTE    (1),
         SHORT   (2),
-        INT     (4);
+        INT     (4),
+        LONG    (8);
 
         private final int id;
 
@@ -137,7 +154,14 @@ public class MessageSyncContainerProperty implements IMessage
 
         public static Type fromId(int id)
         {
-            return id == 1 ? BYTE : (id == 2 ? SHORT : INT);
+            switch (id)
+            {
+                case 1: return BYTE;
+                case 2: return SHORT;
+                case 4: return INT;
+                case 8: return LONG;
+                default: return BYTE;
+            }
         }
     }
 }

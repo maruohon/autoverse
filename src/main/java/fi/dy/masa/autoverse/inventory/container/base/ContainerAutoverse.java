@@ -627,7 +627,12 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         this.syncProperty(MessageSyncContainerProperty.Type.INT, id, value);
     }
 
-    private void syncProperty(MessageSyncContainerProperty.Type type, int id, int value)
+    protected void syncProperty(int id, long value)
+    {
+        this.syncProperty(MessageSyncContainerProperty.Type.LONG, id, value);
+    }
+
+    private void syncProperty(MessageSyncContainerProperty.Type type, int id, long value)
     {
         if (this.isClient == false)
         {
@@ -642,6 +647,10 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         {
             this.variableSequenceLengths.set(id & 0xFF, value);
         }
+    }
+
+    public void receivePropertyLong(int id, long value)
+    {
     }
 
     protected static class SlotPlacer

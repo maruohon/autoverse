@@ -25,6 +25,7 @@ public class Configs
     public static boolean disableBlockSequenceDetector;
     public static boolean disableBlockSequencer;
     public static boolean disableBlockSplitter;
+    public static boolean disableBlockTrash;
 
     public static File configurationFile;
     public static Configuration config;
@@ -108,6 +109,7 @@ public class Configs
         disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();
         disableBlockSplitter                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSplitter", false).getBoolean();
+        disableBlockTrash                   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockTrash", false).getBoolean();
 
         if (conf.hasChanged())
         {
