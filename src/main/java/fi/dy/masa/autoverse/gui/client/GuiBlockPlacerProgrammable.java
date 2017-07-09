@@ -5,15 +5,17 @@ import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 
-public class GuiPlacerProgrammable extends GuiAutoverse
+public class GuiBlockPlacerProgrammable extends GuiAutoverse
 {
     private final TileEntityBlockPlacerProgrammable te;
 
-    public GuiPlacerProgrammable(ContainerAutoverse container, TileEntityBlockPlacerProgrammable te)
+    public GuiBlockPlacerProgrammable(ContainerAutoverse container, TileEntityBlockPlacerProgrammable te)
     {
         // Same GUI background as the filter
         super(container, 176, 256, "gui.container.filter");
+
         this.te = te;
+        this.infoArea = new InfoArea(7, 36, 11, 11, "autoverse.gui.infoarea.block_placer_programmable");
     }
 
     @Override

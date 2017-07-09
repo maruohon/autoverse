@@ -12,7 +12,9 @@ public class GuiCrafter extends GuiAutoverse
     public GuiCrafter(ContainerCrafter container, TileEntityCrafter te)
     {
         super(container, 176, 256, "gui.container.crafter");
+
         this.tec = te;
+        this.infoArea = new InfoArea(159, 6, 11, 11, "autoverse.gui.infoarea.crafter");
     }
 
     @Override

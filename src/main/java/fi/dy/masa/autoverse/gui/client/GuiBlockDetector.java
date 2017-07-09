@@ -17,8 +17,10 @@ public class GuiBlockDetector extends GuiAutoverse
     {
         // Same GUI background as the filter
         super(container, 176, 256, "gui.container.filter");
+
         this.containerD = container;
         this.te = te;
+        this.infoArea = new InfoArea(7, 36, 11, 11, "autoverse.gui.infoarea.block_detector");
     }
 
     @Override

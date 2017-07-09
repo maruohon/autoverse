@@ -12,7 +12,9 @@ public class GuiRedstoneEmitter extends GuiAutoverse
     public GuiRedstoneEmitter(ContainerAutoverse container, TileEntityRedstoneEmitter te)
     {
         super(container, 176, 256, "gui.container.redstone_emitter");
+
         this.te = te;
+        this.infoArea = new InfoArea(7, 50, 11, 11, "autoverse.gui.infoarea.redstone_emitter");
     }
 
     @Override

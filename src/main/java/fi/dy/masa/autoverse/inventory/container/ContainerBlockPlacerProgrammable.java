@@ -7,11 +7,11 @@ import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperPlacerProgrammable;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 
-public class ContainerPlacerProgrammable extends ContainerTile
+public class ContainerBlockPlacerProgrammable extends ContainerTile
 {
     private final TileEntityBlockPlacerProgrammable tepp;
 
-    public ContainerPlacerProgrammable(EntityPlayer player, TileEntityBlockPlacerProgrammable te)
+    public ContainerBlockPlacerProgrammable(EntityPlayer player, TileEntityBlockPlacerProgrammable te)
     {
         super(player, te);
         this.tepp = te;

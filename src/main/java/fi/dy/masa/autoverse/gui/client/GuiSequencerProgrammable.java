@@ -67,7 +67,7 @@ public class GuiSequencerProgrammable extends GuiAutoverse
             // Draw the hilighted slot background for the current output slot
             final int outSlot = this.containerSP.getOutputSlot();
 
-            this.drawTexturedModalRect(x + (outSlot % 9) * 18, y + (outSlot / 9) * 18, 238, 0, 18, 18);
+            this.drawTexturedModalRect(x + (outSlot % 9) * 18, y + (outSlot / 9) * 18, 220, 72, 18, 18);
         }
 
         this.drawTemplateStacks(inv, first, slotList);

@@ -14,8 +14,10 @@ public class GuiSequenceDetector extends GuiAutoverse
     {
         // Same GUI background as the filter
         super(container, 176, 256, "gui.container.filter");
+
         this.containerSD = container;
         this.te = te;
+        this.infoArea = new InfoArea(7, 147, 11, 11, "autoverse.gui.infoarea.sequence_detector");
     }
 
     @Override

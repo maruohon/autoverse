@@ -21,9 +21,9 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiPlacer;
+import fi.dy.masa.autoverse.gui.client.GuiBlockPlacer;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.inventory.container.ContainerPlacer;
+import fi.dy.masa.autoverse.inventory.container.ContainerBlockPlacer;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -276,13 +276,13 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
     @Override
     public ContainerAutoverse getContainer(EntityPlayer player)
     {
-        return new ContainerPlacer(player, this);
+        return new ContainerBlockPlacer(player, this);
     }
 
     @Override
     public Object getGui(EntityPlayer player)
     {
-        return new GuiPlacer(this.getContainer(player), this);
+        return new GuiBlockPlacer(this.getContainer(player), this);
     }
 
     private enum State

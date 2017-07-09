@@ -14,8 +14,10 @@ public class GuiSplitter extends GuiAutoverse
     public GuiSplitter(ContainerSplitter container, TileEntitySplitter te)
     {
         super(container, 176, 238, "gui.container.splitter_switchable");
+
         this.containerSP = container;
         this.te = te;
+        this.infoArea = new InfoArea(159, 6, 11, 11, "autoverse.gui.infoarea.splitter_switchable");
     }
 
     @Override

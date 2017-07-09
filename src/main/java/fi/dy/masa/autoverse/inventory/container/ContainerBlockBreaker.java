@@ -5,9 +5,9 @@ import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.container.base.MergeSlotRange;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 
-public class ContainerBreaker extends ContainerTile
+public class ContainerBlockBreaker extends ContainerTile
 {
-    public ContainerBreaker(EntityPlayer player, TileEntityBlockBreaker te)
+    public ContainerBlockBreaker(EntityPlayer player, TileEntityBlockBreaker te)
     {
         super(player, te);
 

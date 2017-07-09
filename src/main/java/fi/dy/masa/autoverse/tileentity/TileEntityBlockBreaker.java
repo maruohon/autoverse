@@ -11,9 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.autoverse.event.BlockBreakDropsHandler;
-import fi.dy.masa.autoverse.gui.client.GuiBreaker;
+import fi.dy.masa.autoverse.gui.client.GuiBlockBreaker;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.inventory.container.ContainerBreaker;
+import fi.dy.masa.autoverse.inventory.container.ContainerBlockBreaker;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -174,12 +174,12 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     @Override
     public ContainerAutoverse getContainer(EntityPlayer player)
     {
-        return new ContainerBreaker(player, this);
+        return new ContainerBlockBreaker(player, this);
     }
 
     @Override
     public Object getGui(EntityPlayer player)
     {
-        return new GuiBreaker(this.getContainer(player), this);
+        return new GuiBlockBreaker(this.getContainer(player), this);
     }
 }

@@ -20,12 +20,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
-import fi.dy.masa.autoverse.gui.client.GuiPlacerProgrammable;
+import fi.dy.masa.autoverse.gui.client.GuiBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.inventory.container.ContainerPlacerProgrammable;
+import fi.dy.masa.autoverse.inventory.container.ContainerBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperPlacerProgrammable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -83,7 +84,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                 return true;
 
             case 2:
-                this.placementOffset = value;
+                this.setPlacementOffset(value, true);
                 return true;
 
             default:
@@ -125,6 +126,16 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         this.updatePlacementPosition();
     }
 
+    private void setPlacementOffset(int offset, boolean updatePosition)
+    {
+        this.placementOffset = MathHelper.clamp(offset, 0, 15);
+
+        if (updatePosition)
+        {
+            this.updatePlacementPosition();
+        }
+    }
+
     private void updatePlacementPosition()
     {
         this.placementPosition = this.getPos().offset(this.getFacing(), this.placementOffset);
@@ -152,9 +163,8 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     {
         super.readFromNBTCustom(nbt);
 
-        this.placementOffset = nbt.getByte("PlacementOffset");
         this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
-        this.updatePlacementPosition();
+        this.setPlacementOffset(nbt.getByte("PlacementOffset"), true);
     }
 
     @Override
@@ -379,12 +389,12 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     @Override
     public ContainerAutoverse getContainer(EntityPlayer player)
     {
-        return new ContainerPlacerProgrammable(player, this);
+        return new ContainerBlockPlacerProgrammable(player, this);
     }
 
     @Override
     public Object getGui(EntityPlayer player)
     {
-        return new GuiPlacerProgrammable(this.getContainer(player), this);
+        return new GuiBlockPlacerProgrammable(this.getContainer(player), this);
     }
 }

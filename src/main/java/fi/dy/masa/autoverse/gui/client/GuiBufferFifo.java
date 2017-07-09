@@ -23,8 +23,10 @@ public class GuiBufferFifo extends GuiAutoverse
     public GuiBufferFifo(ContainerBufferFifo container, TileEntityBufferFifo te)
     {
         super(container, 256, 256, "gui.container.buffer_fifo");
+
         this.containerFifo = container;
         this.te = te;
+        this.infoArea = new InfoArea(240, 187, 11, 11, "autoverse.gui.infoarea.buffer_fifo");
     }
 
     @Override

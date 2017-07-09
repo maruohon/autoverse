@@ -21,6 +21,7 @@ public class GuiBarrel extends GuiAutoverse
         super(container, 176, 168, "gui.container.barrel");
 
         this.te = te;
+        this.infoArea = new InfoArea(158, 21, 11, 11, "autoverse.gui.infoarea.barrel");
     }
 
     @Override

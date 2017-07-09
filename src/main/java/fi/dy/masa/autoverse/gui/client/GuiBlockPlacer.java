@@ -1,22 +1,20 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
+import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacer;
 
-public class GuiBreaker extends GuiAutoverse
+public class GuiBlockPlacer extends GuiAutoverse
 {
-    protected final TileEntityBlockBreaker te;
+    protected final TileEntityBlockPlacer te;
 
-    public GuiBreaker(ContainerAutoverse container, TileEntityBlockBreaker te)
+    public GuiBlockPlacer(ContainerAutoverse container, TileEntityBlockPlacer te)
     {
-        super(container, 176, 166, "dummy");
+        super(container, 176, 192, "gui.container.block_placer");
 
         this.te = te;
-        // Use the vanilla Dropper/Dispenser GUI texture
-        this.guiTexture = new ResourceLocation("textures/gui/container/dispenser.png");
+        this.infoArea = new InfoArea(159, 6, 11, 11, "autoverse.gui.infoarea.block_placer_nbt");
     }
 
     @Override
@@ -26,6 +24,6 @@ public class GuiBreaker extends GuiAutoverse
 
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 71, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 98, 0x404040);
     }
 }
