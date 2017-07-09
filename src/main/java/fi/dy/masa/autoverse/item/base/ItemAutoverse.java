@@ -11,8 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.gui.client.base.CreativeTab;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -153,13 +151,11 @@ public class ItemAutoverse extends Item
         return this;
     }
 
-    @SideOnly(Side.CLIENT)
     public ResourceLocation[] getItemVariants()
     {
         return new ResourceLocation[] { ForgeRegistries.ITEMS.getKey(this) };
     }
 
-    @SideOnly(Side.CLIENT)
     public ModelResourceLocation getModelLocation(ItemStack stack)
     {
         return null;

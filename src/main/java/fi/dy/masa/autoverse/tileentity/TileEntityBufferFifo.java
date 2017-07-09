@@ -9,10 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFifo;
@@ -168,9 +165,8 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         return new ContainerBufferFifo(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiBufferFifo(this.getContainer(player), this);
     }

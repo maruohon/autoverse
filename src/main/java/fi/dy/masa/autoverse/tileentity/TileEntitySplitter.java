@@ -11,13 +11,10 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockSplitter;
 import fi.dy.masa.autoverse.gui.client.GuiSplitter;
 import fi.dy.masa.autoverse.gui.client.GuiSplitterRedstone;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitterRedstone;
@@ -324,9 +321,8 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         if (this.type == BlockSplitter.SplitterType.REDSTONE)
         {

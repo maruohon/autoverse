@@ -12,8 +12,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
@@ -139,7 +137,6 @@ public class ContainerAutoverse extends Container implements ICustomSlotSync
         // Add the Offhand slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.playerInv, 40, posX, posY)
         {
-            @SideOnly(Side.CLIENT)
             public String getSlotTexture()
             {
                 return "minecraft:items/empty_armor_slot_shield";

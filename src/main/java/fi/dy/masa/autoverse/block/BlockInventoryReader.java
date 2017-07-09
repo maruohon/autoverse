@@ -29,8 +29,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseTileEntity;
@@ -353,7 +351,6 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
@@ -417,7 +414,6 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {

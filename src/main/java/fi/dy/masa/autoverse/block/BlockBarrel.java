@@ -20,8 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.item.block.ItemBlockStorage;
@@ -199,7 +197,6 @@ public class BlockBarrel extends BlockAutoverseInventory
         world.removeTileEntity(pos);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {

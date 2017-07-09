@@ -11,11 +11,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiBarrel;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBarrel;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
@@ -239,9 +236,8 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         return new ContainerBarrel(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiBarrel(this.getContainer(player), this);
     }

@@ -3,10 +3,7 @@ package fi.dy.masa.autoverse.tileentity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiTrashBin;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerTrashBin;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
@@ -89,9 +86,8 @@ public class TileEntityTrashBin extends TileEntityAutoverseInventory
         return new ContainerTrashBin(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiTrashBin(this.getContainer(player), this, false);
     }

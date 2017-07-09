@@ -13,8 +13,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
@@ -89,7 +87,6 @@ public class BlockBuffer extends BlockAutoverseInventory
         return state.getValue(TYPE).getMeta();
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {

@@ -19,8 +19,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
@@ -297,12 +295,10 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
         return this.getUnlocalizedName(stack);
     }
 
-    @SideOnly(Side.CLIENT)
     public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
     {
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
     {
@@ -347,7 +343,6 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
         }
     }
 
-    @SideOnly(Side.CLIENT)
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
         ItemAutoverse.addTooltips(this.getTooltipName(stack) + ".tooltips", list, verbose);
@@ -358,7 +353,7 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @Override
     public boolean isFull3D()
     {
         return true;

@@ -9,10 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.gui.client.GuiSequencer;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequencer;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSequencer;
@@ -161,9 +158,8 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
         return new ContainerSequencer(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiSequencer(this.getContainer(player), this);
     }

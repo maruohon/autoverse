@@ -9,12 +9,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.autoverse.event.BlockBreakDropsHandler;
 import fi.dy.masa.autoverse.gui.client.GuiBreaker;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBreaker;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
@@ -180,9 +177,8 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         return new ContainerBreaker(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiBreaker(this.getContainer(player), this);
     }

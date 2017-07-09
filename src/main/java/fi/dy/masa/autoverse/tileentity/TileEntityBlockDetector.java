@@ -13,13 +13,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.gui.client.GuiBlockDetector;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
@@ -388,9 +385,8 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         return new ContainerBlockDetector(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiBlockDetector(this.getContainer(player), this);
     }

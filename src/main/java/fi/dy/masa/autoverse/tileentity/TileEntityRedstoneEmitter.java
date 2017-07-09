@@ -7,12 +7,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockRedstoneEmitter;
 import fi.dy.masa.autoverse.gui.client.GuiRedstoneEmitter;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerRedstoneEmitter;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
@@ -232,9 +229,8 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
         return new ContainerRedstoneEmitter(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiRedstoneEmitter(this.getContainer(player), this);
     }

@@ -14,8 +14,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacer;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
@@ -103,7 +101,6 @@ public class BlockPlacer extends BlockAutoverseInventory
         }
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {

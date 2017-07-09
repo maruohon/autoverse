@@ -56,7 +56,6 @@ public class BlockReader extends BlockAutoverseInventory
     }
 
     /*
-    @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
     {

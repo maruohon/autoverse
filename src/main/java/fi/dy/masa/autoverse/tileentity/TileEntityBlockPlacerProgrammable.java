@@ -21,12 +21,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPlacerProgrammable;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPlacerProgrammable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
@@ -385,9 +382,8 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         return new ContainerPlacerProgrammable(player, this);
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public GuiAutoverse getGui(EntityPlayer player)
+    public Object getGui(EntityPlayer player)
     {
         return new GuiPlacerProgrammable(this.getContainer(player), this);
     }
