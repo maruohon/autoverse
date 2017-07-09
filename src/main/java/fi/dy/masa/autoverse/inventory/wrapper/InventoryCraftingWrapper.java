@@ -1,41 +1,51 @@
 package fi.dy.masa.autoverse.inventory.wrapper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import fi.dy.masa.autoverse.inventory.ItemHandlerCraftResult;
 
 public class InventoryCraftingWrapper extends InventoryCrafting
 {
     private final int inventoryWidth;
     private final int inventoryHeight;
-    private final IItemHandlerModifiable craftMatrix;
-    private final IItemHandlerModifiable resultInventory;
-    private World world;
+    private final ItemHandlerCraftResult craftResult;
+    private IItemHandlerModifiable craftMatrix;
+    @Nullable
+    private EntityPlayerMP player;
+    private boolean inhibitResultUpdate;
 
-    public InventoryCraftingWrapper(int width, int height,
-            IItemHandlerModifiable craftMatrix, IItemHandlerModifiable resultInventory, World world)
+    public InventoryCraftingWrapper(int width, int height, IItemHandlerModifiable craftMatrix, ItemHandlerCraftResult resultInventory)
     {
         super(null, 0, 0); // dummy
 
         this.inventoryWidth = width;
         this.inventoryHeight = height;
         this.craftMatrix = craftMatrix;
-        this.resultInventory = resultInventory;
-        this.world = world;
+        this.craftResult = resultInventory;
     }
 
-    public void setWorld(World world)
+    public void setPlayer(EntityPlayerMP player)
     {
-        this.world = world;
+        this.player = player;
     }
 
-    public World getWorld()
+    public void setCraftMatrix(IItemHandlerModifiable craftMatrix)
     {
-        return this.world;
+        this.craftMatrix = craftMatrix;
+    }
+
+    public void setInhibitResultUpdate(boolean inhibitUpdate)
+    {
+        this.inhibitResultUpdate = inhibitUpdate;
     }
 
     @Override
@@ -57,7 +67,6 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     }
 
     @Override
-    @Nullable
     public ItemStack getStackInSlot(int slot)
     {
         return slot >= this.getSizeInventory() ? ItemStack.EMPTY : this.craftMatrix.getStackInSlot(slot);
@@ -70,7 +79,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
 
         for (int slot = 0; slot < invSize; ++slot)
         {
-            if (this.craftMatrix.getStackInSlot(slot).isEmpty() == false)
+            if (this.getStackInSlot(slot).isEmpty() == false)
             {
                 return false;
             }
@@ -91,7 +100,6 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     }
 
     @Override
-    @Nullable
     public ItemStack removeStackFromSlot(int slot)
     {
         return this.craftMatrix.extractItem(slot, Integer.MAX_VALUE, false);
@@ -130,6 +138,8 @@ public class InventoryCraftingWrapper extends InventoryCrafting
         {
             this.craftMatrix.setStackInSlot(slot, ItemStack.EMPTY);
         }
+
+        this.markDirty();
     }
 
     @Override
@@ -137,7 +147,7 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     {
         super.markDirty();
 
-        this.resultInventory.setStackInSlot(0, CraftingManager.getInstance().findMatchingRecipe(this, this.world));
+        this.updateCraftingOutput();
     }
 
     @Override
@@ -150,6 +160,43 @@ public class InventoryCraftingWrapper extends InventoryCrafting
     public boolean isItemValidForSlot(int slot, ItemStack stack)
     {
         return true;
+    }
+
+    private void setCraftResult(@Nonnull ItemStack stack)
+    {
+        this.craftResult.setStackInSlot(0, stack);
+    }
+
+    public void updateCraftingOutput()
+    {
+        if (this.inhibitResultUpdate == false && this.player != null && this.player.getEntityWorld().isRemote == false)
+        {
+            World world = this.player.getEntityWorld();
+            IRecipe recipe = CraftingManager.findMatchingRecipe(this, world);
+            ItemStack stack = ItemStack.EMPTY;
+
+            // isHidden() is rather something like "isNBT()" or "modifiesData()"
+            if (recipe != null)
+               //&& (recipe.isHidden() || world.getGameRules().getBoolean("doLimitedCrafting") == false || this.player.getRecipeBook().containsRecipe(recipe)))
+            {
+                this.craftResult.setRecipe(recipe);
+                stack = recipe.getCraftingResult(this);
+            }
+
+            this.setCraftResult(stack);
+            //player.connection.sendPacket(new SPacketSetSlot(this.windowId, 0, stack));
+        }
+    }
+
+    @Override
+    public void fillStackedContents(RecipeItemHelper recipeItemHelper)
+    {
+        final int invSize = this.craftMatrix.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            recipeItemHelper.accountStack(this.craftMatrix.getStackInSlot(slot));
+        }
     }
 
     public void openInventory(EntityPlayer player)

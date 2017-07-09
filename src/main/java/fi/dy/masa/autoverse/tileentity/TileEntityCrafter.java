@@ -3,18 +3,18 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiCrafter;
+import fi.dy.masa.autoverse.inventory.ItemHandlerCraftResult;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerCrafter;
 import fi.dy.masa.autoverse.inventory.wrapper.InventoryCraftingWrapper;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperContainer;
-import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperCraftingOutput;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperCrafter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
@@ -25,7 +25,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOutput;
     private ItemStackHandlerTileEntity inventoryCraftingBase;
-    private ItemHandlerWrapperCraftingOutput inventoryCraftingOutput;
+    private ItemHandlerCraftResult inventoryCraftResult;
     private InventoryCraftingWrapper inventoryCrafting;
     private ItemHandlerWrapperCrafter crafter;
     private int delay = 1;
@@ -38,25 +38,25 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     @Override
     protected void initInventories()
     {
-        this.inventoryInput             = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
-        this.inventoryOutput            = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.inventoryCraftingBase      = new ItemStackHandlerTileEntity(2, 9, 64, false, "ItemsCrafting", this);
-        this.inventoryCraftingOutput    = new ItemHandlerWrapperCraftingOutput();
-        this.itemHandlerBase            = this.inventoryInput;
+        this.inventoryInput         = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
+        this.inventoryOutput        = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
+        this.inventoryCraftingBase  = new ItemStackHandlerTileEntity(2, 9, 64, false, "ItemsCrafting", this);
+        this.inventoryCraftResult   = new ItemHandlerCraftResult();
+        this.itemHandlerBase        = this.inventoryInput;
 
-        this.inventoryCrafting = new InventoryCraftingWrapper(3, 3,
-                this.inventoryCraftingBase, this.inventoryCraftingOutput, null);
+        this.inventoryCrafting = new InventoryCraftingWrapper(3, 3, this.inventoryCraftingBase, this.inventoryCraftResult);
 
         // Set the callback, which is used to consume the ingredient items
-        this.inventoryCraftingOutput.setCraftingInventory(this.inventoryCrafting);
+        //this.inventoryCraftResult.setCraftingInventory(this.inventoryCrafting);
 
         this.crafter = new ItemHandlerWrapperCrafter(
                 this.inventoryInput,
-                this.inventoryCrafting,
-                this.inventoryCraftingOutput,
-                this.inventoryOutput);
+                this.inventoryOutput,
+                this.inventoryCraftingBase,
+                this.inventoryCraftResult,
+                this.inventoryCrafting);
 
-        this.itemHandlerExternal = new ItemHandlerWrapperCrafterExternal(this.crafter, this.inventoryOutput);
+        this.itemHandlerExternal = this.crafter;
     }
 
     @Override
@@ -68,8 +68,13 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     @Override
     public void onLoad()
     {
-        this.inventoryCrafting.setWorld(this.getWorld());
-        this.crafter.onLoad(this.getWorld());
+        if (this.getWorld().isRemote == false)
+        {
+            FakePlayer player = this.getPlayer();
+            this.inventoryCrafting.setPlayer(player);
+            this.inventoryCraftResult.init(this.inventoryCrafting, this.getWorld(), player, this.posFront);
+            this.crafter.onLoad();
+        }
     }
 
     @Override
@@ -106,7 +111,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
 
     public IItemHandler getInventoryCraftingOutput()
     {
-        return this.inventoryCraftingOutput;
+        return this.inventoryCraftResult;
     }
 
     @Override
@@ -178,48 +183,6 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         nbt.merge(this.inventoryCraftingBase.serializeNBT());
 
         nbt.merge(this.crafter.serializeNBT());
-    }
-
-    private class ItemHandlerWrapperCrafterExternal implements IItemHandler
-    {
-        private final IItemHandler inventoryInput;
-        private final IItemHandler inventoryOutput;
-
-        private ItemHandlerWrapperCrafterExternal(IItemHandler inventoryInput, IItemHandler inventoryOutput)
-        {
-            this.inventoryInput = inventoryInput;
-            this.inventoryOutput = inventoryOutput;
-        }
-
-        @Override
-        public int getSlots()
-        {
-            return 2;
-        }
-
-        @Override
-        public int getSlotLimit(int slot)
-        {
-            return 1;
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot)
-        {
-            return slot == 1 ? this.inventoryOutput.getStackInSlot(0) : ItemStack.EMPTY;
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            return slot == 1 ? ItemStack.EMPTY : this.inventoryInput.insertItem(0, stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            return slot == 1 ? this.inventoryOutput.extractItem(0, amount, simulate) : ItemStack.EMPTY;
-        }
     }
 
     @Override

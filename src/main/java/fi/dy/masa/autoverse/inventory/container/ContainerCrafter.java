@@ -50,9 +50,6 @@ public class ContainerCrafter extends ContainerTile
         // Add the crafting output slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.tec.getInventoryCraftingOutput(), 0, 152, 115));
 
-        // Update the crafting output slot contents
-        matrix.markDirty();
-
         // Add the output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tec.getInventoryOutput(), 0, 152, 151));
     }

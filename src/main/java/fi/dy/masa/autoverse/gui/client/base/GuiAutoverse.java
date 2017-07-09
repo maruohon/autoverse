@@ -60,6 +60,8 @@ public class GuiAutoverse extends GuiContainer
     @Override
     public void drawScreen(int mouseX, int mouseY, float gameTicks)
     {
+        this.drawDefaultBackground();
+
         super.drawScreen(mouseX, mouseY, gameTicks);
 
         this.drawSpecialSlots();
@@ -85,7 +87,6 @@ public class GuiAutoverse extends GuiContainer
     {
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.pushMatrix();
-        //GlStateManager.translate((float)this.guiLeft, (float)this.guiTop, 0.0F);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.enableRescaleNormal();
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
@@ -121,7 +122,6 @@ public class GuiAutoverse extends GuiContainer
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
         this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, stack, x, y, null);
-        //this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, slotPosX, slotPosY, str);
     }
 
     /**
@@ -164,6 +164,37 @@ public class GuiAutoverse extends GuiContainer
         {
             this.drawHoveringText(this.infoArea.getInfoLines(), mouseX, mouseY, this.fontRenderer);
         }
+
+        // Added in vanilla 1.12
+        this.renderHoveredToolTip(mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderHoveredToolTip(int mouseX, int mouseY)
+    {
+        super.renderHoveredToolTip(mouseX, mouseY);
+
+        this.renderHoveredTooltipForSpecialSlots(mouseX, mouseY);
+    }
+
+    private void renderHoveredTooltipForSpecialSlots(int mouseX, int mouseY)
+    {
+        if (this.mc.player.inventory.getItemStack().isEmpty() && this.getSlotUnderMouse() == null)
+        {
+            for (Slot slot : this.container.getSpecialSlots())
+            {
+                if (this.isMouseOverSlotAutoverse(slot, mouseX, mouseY) && slot.isEnabled() && slot.getHasStack())
+                {
+                    this.renderToolTip(slot.getStack(), mouseX, mouseY);
+                    break;
+                }
+            }
+        }
+    }
+
+    private boolean isMouseOverSlotAutoverse(Slot slotIn, int mouseX, int mouseY)
+    {
+        return this.isPointInRegion(slotIn.xPos, slotIn.yPos, 16, 16, mouseX, mouseY);
     }
 
     @Override
@@ -376,7 +407,7 @@ public class GuiAutoverse extends GuiContainer
         public List<String> getInfoLines()
         {
             List<String> lines = new ArrayList<String>();
-            ItemAutoverse.addTooltips(this.infoText, lines, false, this.args);
+            ItemAutoverse.addTranslatedTooltip(this.infoText, lines, false, this.args);
             return lines;
         }
 

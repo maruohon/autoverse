@@ -1,45 +1,39 @@
 package fi.dy.masa.autoverse.config;
 
-import java.util.Set;
-import net.minecraft.client.Minecraft;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.fml.client.IModGuiFactory;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.fml.client.DefaultGuiFactory;
+import net.minecraftforge.fml.client.config.GuiConfig;
+import net.minecraftforge.fml.client.config.IConfigElement;
+import fi.dy.masa.autoverse.reference.Reference;
 
-public class AutoverseGuiFactory implements IModGuiFactory
+public class AutoverseGuiFactory extends DefaultGuiFactory
 {
-    @Override
-    public void initialize(Minecraft minecraftInstance)
+    public AutoverseGuiFactory()
     {
+        super(Reference.MOD_ID, getTitle());
     }
 
     @Override
-    public Class<? extends GuiScreen> mainConfigGuiClass()
+    public GuiScreen createConfigGui(GuiScreen parent)
     {
-        return AutoverseConfigGui.class;
+        return new GuiConfig(parent, getConfigElements(), this.modid, false, false, this.title);
     }
 
-    @Override
-    public boolean hasConfigGui()
+    private static List<IConfigElement> getConfigElements()
     {
-        return true;
+        List<IConfigElement> configElements = new ArrayList<IConfigElement>();
+
+        configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_CLIENT)));
+        configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_GENERIC)));
+
+        return configElements;
     }
 
-    @Override
-    public GuiScreen createConfigGui(GuiScreen parentScreen)
+    private static String getTitle()
     {
-        return new AutoverseConfigGui(parentScreen);
-    }
-
-    @Override
-    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
-    {
-        return null;
-    }
-
-    @Deprecated
-    @Override
-    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
-    {
-        return null;
+        return GuiConfig.getAbridgedConfigPath(Configs.configurationFile.toString());
     }
 }

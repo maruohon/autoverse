@@ -15,7 +15,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -415,11 +414,11 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (ReaderType type : ReaderType.values())
         {
-            list.add(new ItemStack(item, 1, type.getItemMeta()));
+            list.add(new ItemStack(this, 1, type.getItemMeta()));
         }
     }
 

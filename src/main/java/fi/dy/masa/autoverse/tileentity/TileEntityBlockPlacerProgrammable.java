@@ -177,7 +177,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                 int meta = itemBlock.getMetadata(stack.getMetadata());
                 player.rotationYaw = this.facingHorizontal.getHorizontalAngle();
 
-                return itemBlock.block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
+                return itemBlock.getBlock().getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
             }
         }
 

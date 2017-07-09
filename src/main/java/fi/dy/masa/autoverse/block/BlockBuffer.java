@@ -6,7 +6,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
@@ -88,11 +87,11 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (int meta = 0; meta < BufferType.values().length; meta++)
         {
-            list.add(new ItemStack(item, 1, meta));
+            list.add(new ItemStack(this, 1, meta));
         }
     }
 

@@ -6,7 +6,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
@@ -81,11 +80,11 @@ public class BlockSequencer extends BlockAutoverseInventory
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
         for (SequencerType type : SequencerType.values())
         {
-            list.add(new ItemStack(item, 1, type.getMeta()));
+            list.add(new ItemStack(this, 1, type.getMeta()));
         }
     }
 

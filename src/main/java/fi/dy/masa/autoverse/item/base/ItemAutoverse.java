@@ -3,16 +3,22 @@ package fi.dy.masa.autoverse.item.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.gui.client.base.CreativeTab;
+import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class ItemAutoverse extends Item
@@ -61,12 +67,12 @@ public class ItemAutoverse extends Item
     /**
      * Custom addInformation() method, which allows selecting a subset of the tooltip strings.
      */
-    public void addInformationSelective(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)
+    public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean verbose)
     {
     }
 
     @Override
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips)
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> list, ITooltipFlag advanced)
     {
         ArrayList<String> tmpList = new ArrayList<String>();
         boolean verbose = Autoverse.proxy.isShiftKeyDown();
@@ -78,7 +84,7 @@ public class ItemAutoverse extends Item
 
             if (verbose == false && tmpList.size() > 2)
             {
-                list.add(I18n.format("enderutilities.tooltip.item.holdshiftfordescription"));
+                list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshiftfordescription"));
             }
             else
             {
@@ -87,19 +93,24 @@ public class ItemAutoverse extends Item
         }
 
         tmpList.clear();
-        this.addInformationSelective(stack, player, tmpList, advancedTooltips, true);
+
+        EntityPlayer player = Autoverse.proxy.getClientPlayer();
+
+        this.addTooltipLines(stack, player, tmpList, true);
 
         // If we want the compact version of the tooltip, and the compact list has more than 2 lines, only show the first line
         // plus the "Hold Shift for more" tooltip.
         if (verbose == false && tmpList.size() > 2)
         {
             tmpList.clear();
-            this.addInformationSelective(stack, player, tmpList, advancedTooltips, false);
+            this.addTooltipLines(stack, player, tmpList, false);
+
             if (tmpList.size() > 0)
             {
                 list.add(tmpList.get(0));
             }
-            list.add(I18n.format("enderutilities.tooltip.item.holdshift"));
+
+            list.add(I18n.format(Reference.MOD_ID + ".tooltip.item.holdshift"));
         }
         else
         {
@@ -107,7 +118,7 @@ public class ItemAutoverse extends Item
         }
     }
 
-    public static void addTooltips(String key, List<String> list, boolean verbose, Object... args)
+    public static void addTranslatedTooltip(String key, List<String> list, boolean verbose, Object... args)
     {
         String translated = I18n.format(key, args);
 
@@ -118,6 +129,7 @@ public class ItemAutoverse extends Item
             if (translated.contains("|lf"))
             {
                 String[] lines = translated.split(Pattern.quote("|lf"));
+
                 for (String line : lines)
                 {
                     list.add(line);
@@ -132,11 +144,25 @@ public class ItemAutoverse extends Item
 
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        addTooltips(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+        addTranslatedTooltip(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
 
         if (this.commonTooltip != null)
         {
-            addTooltips(this.commonTooltip, list, verbose);
+            addTranslatedTooltip(this.commonTooltip, list, verbose);
+        }
+    }
+
+    public void getSubItemsCustom(CreativeTabs tab, NonNullList<ItemStack> items)
+    {
+        super.getSubItems(tab, items);
+    }
+
+    @Override
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    {
+        if (this.isInCreativeTab(tab))
+        {
+            this.getSubItemsCustom(tab, items);
         }
     }
 

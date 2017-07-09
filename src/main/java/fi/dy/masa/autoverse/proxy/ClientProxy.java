@@ -26,6 +26,12 @@ import fi.dy.masa.autoverse.event.RenderEventHandler;
 public class ClientProxy extends CommonProxy
 {
     @Override
+    public EntityPlayer getClientPlayer()
+    {
+        return FMLClientHandler.instance().getClientPlayerEntity();
+    }
+
+    @Override
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
         switch (ctx.side)

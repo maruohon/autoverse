@@ -2,12 +2,10 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import java.util.List;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import fi.dy.masa.autoverse.inventory.wrapper.InventoryCraftingWrapper;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.SequenceMatcher.SequenceInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -18,26 +16,27 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     private final SequenceMatcher sequenceEmpty;
     private final SequenceMatcher sequenceRecipeConfig;
     private final SequenceMatcher sequenceRecipe;
+    private final SequenceInventory inventoryRecipePattern;
+    private final IItemHandlerModifiable inventoryCraftingGrid;
+    private final IItemHandler inventoryCraftingOutput;
+    private final InventoryCraftingWrapper inventoryCrafting;
+    //private final InventoryCraftingWrapper inventoryCraftingSequenceCraftingWrapper;
+    private ItemStack resultStackTemplate = ItemStack.EMPTY;
     private int outputPosition;
     private int subState;
-    private ItemStack resultStackTemplate = ItemStack.EMPTY;
-
-    private final InventoryCraftingWrapper inventoryCrafting;
-    private final InventoryCraftingWrapper inventoryCraftingSequenceCraftingWrapper;
-    private final IItemHandler inventoryCraftingGrid;
-    private final IItemHandler inventoryCraftingOutput;
-    private final SequenceInventory inventoryRecipePattern;
 
     public ItemHandlerWrapperCrafter(
             IItemHandler inventoryInput,
-            InventoryCraftingWrapper inventoryCrafting,
-            IItemHandlerModifiable inventoryCraftingOutput,
-            IItemHandler inventoryOutput)
+            IItemHandler inventoryOutput,
+            IItemHandlerModifiable inventoryCraftingGridBase,
+            IItemHandler inventoryCraftingOutput,
+            InventoryCraftingWrapper inventoryCraftingWrapper)
     {
         super(4, inventoryInput, inventoryOutput);
 
-        this.inventoryCrafting = inventoryCrafting;
-        this.inventoryCraftingGrid = new InvWrapper(this.inventoryCrafting);
+        this.inventoryCrafting = inventoryCraftingWrapper;
+        //this.inventoryCraftingGrid = new InvWrapper(this.inventoryCrafting);
+        this.inventoryCraftingGrid = inventoryCraftingGridBase;
         this.inventoryCraftingOutput = inventoryCraftingOutput;
 
         this.sequenceEmpty  = new SequenceMatcher(1, "SequenceEmpty");
@@ -50,8 +49,8 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
         this.inventoryRecipePattern = this.sequenceRecipeConfig.getSequenceInventory(false);
 
-        this.inventoryCraftingSequenceCraftingWrapper = new InventoryCraftingWrapper(3, 3,
-                this.sequenceRecipe.getSequenceInventory(false), inventoryCraftingOutput, null);
+        //this.inventoryCraftingSequenceCraftingWrapper = new InventoryCraftingWrapper(3, 3,
+        //        this.sequenceRecipe.getSequenceInventory(false), inventoryCraftingOutput);
 
         this.getSequenceManager().add(this.sequenceEmpty, 1);
         this.getSequenceManager().add(this.sequenceRecipeConfig);
@@ -81,17 +80,38 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     {
         this.setRecipeFromConfigurationSequence();
 
-        // Switch to the empty-marker-removed sequence for normal mode (for GUI purposes)
-        this.inventoryRecipePattern.setSequence(this.sequenceRecipe.getSequence());
+        // Set the grid contents to the recipe pattern, for the duration of getting the result item
+        InventoryUtils.setInventoryContents(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence(), false);
 
-        this.resultStackTemplate = CraftingManager.getInstance()
-                .findMatchingRecipe(this.inventoryCraftingSequenceCraftingWrapper, this.inventoryCrafting.getWorld());
+        this.updateCraftingOutput();
+        this.resultStackTemplate = this.inventoryCraftingOutput.getStackInSlot(0).copy();
+
+        // Clear the temporarily set recipe pattern stacks from the inventory
+        InventoryUtils.clearInventory(this.inventoryCraftingGrid);
+
+        // Clear the crafting output after the template has been stored
+        this.updateCraftingOutput();
+
+        // Switch to the empty-markers-removed sequence for normal mode (only used for GUI purposes)
+        this.inventoryRecipePattern.setSequence(this.sequenceRecipe.getSequence());
     }
 
-    public void onLoad(World world)
+    public void onLoad()
     {
-        this.inventoryCraftingSequenceCraftingWrapper.setWorld(world);
-        this.resultStackTemplate = CraftingManager.getInstance().findMatchingRecipe(this.inventoryCraftingSequenceCraftingWrapper, world);
+        // When loading from disk, init the crafting patterns and the crafting result template
+        if (this.getState() == State.NORMAL)
+        {
+            // Store the current contents of the grid first, as they will be temporarily overridden by the pattern 
+            NonNullList<ItemStack> stacks = InventoryUtils.createInventorySnapshot(this.inventoryCraftingGrid);
+            this.onFullyConfigured();
+            InventoryUtils.setInventoryContents(this.inventoryCraftingGrid, stacks, false);
+        }
+    }
+
+    private void updateCraftingOutput()
+    {
+        // This updates the crafting output
+        this.inventoryCrafting.markDirty();
     }
 
     @Override
@@ -149,20 +169,26 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         {
             for (int slot : slots)
             {
-                if (inputStack.isEmpty())
-                {
-                    success = true;
-                    break;
-                }
-
                 // Only move one item at a time to each grid slot
                 if (this.inventoryCraftingGrid.getStackInSlot(slot).isEmpty() &&
                     InventoryUtils.areItemStacksEqual(this.sequenceRecipe.getStackInSlot(slot), inputStack))
                 {
                     InventoryUtils.tryMoveStack(this.getInputInventory(), 0, this.inventoryCraftingGrid, slot, 1);
-                }
+                    inputStack = this.getInputInventory().getStackInSlot(0);
 
-                inputStack = this.getInputInventory().getStackInSlot(0);
+                    if (inputStack.isEmpty())
+                    {
+                        success = true;
+
+                        // Full recipe moved to the grid
+                        if (InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
+                        {
+                            this.updateCraftingOutput();
+                        }
+
+                        break;
+                    }
+                }
             }
 
             if (success == false)
@@ -172,6 +198,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
             }
         }
 
+        // Items in the crafting output, that match the current recipe
         if (this.resultStackTemplate.isEmpty() == false &&
             InventoryUtils.areItemStacksEqual(this.inventoryCraftingOutput.getStackInSlot(0), this.resultStackTemplate))
         {
@@ -278,6 +305,30 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     public IItemHandler getRecipeSequenceInventory()
     {
         return this.inventoryRecipePattern;
+    }
+
+    @Override
+    public int getSlots()
+    {
+        return 2;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int slot)
+    {
+        return slot == 1 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+    {
+        return slot == 1 ? ItemStack.EMPTY : this.getInputInventory().insertItem(0, stack, simulate);
+    }
+
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate)
+    {
+        return slot == 1 ? this.getOutputInventory().extractItem(0, amount, simulate) : ItemStack.EMPTY;
     }
 
     @Override

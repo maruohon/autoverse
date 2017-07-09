@@ -6,6 +6,11 @@ import fi.dy.masa.autoverse.Autoverse;
 
 public class CommonProxy
 {
+    public EntityPlayer getClientPlayer()
+    {
+        return null;
+    }
+
     public EntityPlayer getPlayerFromMessageContext(MessageContext ctx)
     {
         switch (ctx.side)

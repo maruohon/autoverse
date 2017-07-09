@@ -144,7 +144,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     @Nonnull
     protected FakePlayer getPlayer()
     {
-        if (this.fakePlayer == null)
+        if (this.fakePlayer == null && this.getWorld() instanceof WorldServer)
         {
             int dim = this.getWorld().provider.getDimension();
 

@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.util;
 import java.util.List;
 import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -219,6 +220,92 @@ public class InventoryUtils
         }
 
         return true;
+    }
+
+    /**
+     * Checks whether all slots in the inventory <b>inv</b> match the stacks in the list <b>template</b>.
+     * Note that the list must be at least as long as the inventory has slots!
+     * @param inv
+     * @param template
+     * @return
+     */
+    public static boolean doesInventoryMatchTemplate(IItemHandler inv, NonNullList<ItemStack> template)
+    {
+        final int invSize = inv.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            if (areItemStacksEqual(inv.getStackInSlot(slot), template.get(slot)) == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Sets all the stacks in <b>inv</b> from the list <b>stacks</b>.
+     * @param inv
+     * @param stacks
+     * @param copy if true, then the stacks are copied, instead of set to the same reference
+     */
+    public static void setInventoryContents(IItemHandlerModifiable inv, NonNullList<ItemStack> stacks, boolean copy)
+    {
+        final int invSize = inv.getSlots();
+
+        if (copy)
+        {
+            for (int slot = 0; slot < invSize; slot++)
+            {
+                ItemStack stack = stacks.get(slot);
+                inv.setStackInSlot(slot, stack.isEmpty() ? ItemStack.EMPTY : stack.copy());
+            }
+        }
+        else
+        {
+            for (int slot = 0; slot < invSize; slot++)
+            {
+                inv.setStackInSlot(slot, stacks.get(slot));
+            }
+        }
+    }
+
+    /**
+     * Sets all slots to ItemStack.EMPTY
+     * @param inv
+     */
+    public static void clearInventory(IItemHandlerModifiable inv)
+    {
+        final int invSize = inv.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            inv.setStackInSlot(slot, ItemStack.EMPTY);
+        }
+    }
+
+    /**
+     * Creates a copy of the whole inventory and returns it in a new NonNullList.
+     * @param inv
+     * @return a NonNullList containing a copy of the entire inventory
+     */
+    public static NonNullList<ItemStack> createInventorySnapshot(IItemHandler inv)
+    {
+        final int invSize = inv.getSlots();
+        NonNullList<ItemStack> items = NonNullList.withSize(invSize, ItemStack.EMPTY);
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            ItemStack stack = inv.getStackInSlot(slot);
+
+            if (stack.isEmpty() == false)
+            {
+                items.set(slot, stack.copy());
+            }
+        }
+
+        return items;
     }
 
     /**

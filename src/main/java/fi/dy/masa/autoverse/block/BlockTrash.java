@@ -9,7 +9,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -171,10 +170,10 @@ public class BlockTrash extends BlockAutoverseInventory
     }
 
     @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        list.add(new ItemStack(item, 1, 0)); // Trash Bin
-        list.add(new ItemStack(item, 1, 1)); // Trash Buffer
+        list.add(new ItemStack(this, 1, 0)); // Trash Bin
+        list.add(new ItemStack(this, 1, 1)); // Trash Buffer
     }
 
     public static enum TrashType implements IStringSerializable

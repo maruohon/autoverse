@@ -18,11 +18,9 @@ import fi.dy.masa.autoverse.util.PlacementProperties;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
     guiFactory = "fi.dy.masa.autoverse.config.AutoverseGuiFactory",
     updateJSON = "https://raw.githubusercontent.com/maruohon/autoverse/master/update.json",
-    acceptedMinecraftVersions = "1.11.2")
+    acceptedMinecraftVersions = "1.12")
 public class Autoverse
 {
-    public static final int DATA_FIXER_VERSION = 922;
-
     @Mod.Instance(Reference.MOD_ID)
     public static Autoverse instance;
 
