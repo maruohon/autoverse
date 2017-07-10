@@ -60,7 +60,7 @@ public class MessageAddEffects implements IMessage
     public void toBytes(ByteBuf buf)
     {
         buf.writeByte(this.effectType);
-        buf.writeByte(this.flags);
+        buf.writeInt(this.flags);
         buf.writeFloat((float) this.x);
         buf.writeFloat((float) this.y);
         buf.writeFloat((float) this.z);
@@ -74,7 +74,7 @@ public class MessageAddEffects implements IMessage
     public void fromBytes(ByteBuf buf)
     {
         this.effectType = buf.readByte();
-        this.flags = buf.readByte();
+        this.flags = buf.readInt();
         this.x = buf.readFloat();
         this.y = buf.readFloat();
         this.z = buf.readFloat();
@@ -119,8 +119,13 @@ public class MessageAddEffects implements IMessage
         {
             if (message.effectType == EFFECT_PARTICLES)
             {
-                Effects.spawnParticles(world, EnumParticleTypes.getParticleFromId(message.flags),
-                        message.x, message.y, message.z, message.particleCount, message.offset, message.velocity);
+                EnumParticleTypes particle = EnumParticleTypes.getParticleFromId(message.flags);
+
+                if (particle != null)
+                {
+                    Effects.spawnParticles(world, particle, message.x, message.y, message.z,
+                            message.particleCount, message.offset, message.velocity);
+                }
             }
         }
     }

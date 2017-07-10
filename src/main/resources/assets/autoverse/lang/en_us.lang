@@ -9,7 +9,7 @@ autoverse.commands.loadconfig.success=Autoverse: Loaded configuration
 ############################
 
 autoverse.container.barrel=Barrel
-autoverse.container.block_detector=Programmable Block Detector
+autoverse.container.block_detector=Block Detector
 autoverse.container.block_reader_nbt=Block State Reader
 autoverse.container.breaker=Block Breaker
 autoverse.container.buffer_fifo=FIFO Buffer
@@ -52,6 +52,7 @@ autoverse.gui.infoarea.splitter_switchable=- Tip: Use the same sequence for both
 
 autoverse.gui.label.1_bit_marker=1-bit
 autoverse.gui.label.barrel.change_tier=Change Barrel tier
+autoverse.gui.label.block_detector.use_indicators=Use indicators
 autoverse.gui.label.block_reader.block_count=Length (number of blocks)
 autoverse.gui.label.block_reader_nbt.length_num=Length: %d
 autoverse.gui.label.block_reader.take_blocks=Take block states from world

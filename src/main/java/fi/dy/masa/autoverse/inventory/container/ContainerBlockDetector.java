@@ -17,6 +17,7 @@ public class ContainerBlockDetector extends ContainerTile
     private final ItemHandlerWrapperBlockDetector detector;
     private SlotRange slotRangeDetectionInventory;
     private int invSize = -1;
+    private boolean useIndicators;
     private final BitSet lockedLast = new BitSet(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE);
     private final NonNullList<ItemStack> templateStacksLast =
             NonNullList.withSize(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE, ItemStack.EMPTY);
@@ -86,6 +87,7 @@ public class ContainerBlockDetector extends ContainerTile
         }
 
         int invSize = this.detector.getDetectionInventory().getSlots();
+        boolean useIndicators = this.ted.getUseIndicators();
 
         if (invSize != this.invSize)
         {
@@ -109,6 +111,12 @@ public class ContainerBlockDetector extends ContainerTile
             this.invSize = invSize;
         }
 
+        if (useIndicators != this.useIndicators)
+        {
+            this.syncProperty(2, (byte) (useIndicators ? 1 : 0));
+            this.useIndicators = useIndicators;
+        }
+
         this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
 
         super.detectAndSendChanges();
@@ -128,6 +136,10 @@ public class ContainerBlockDetector extends ContainerTile
 
             case 1:
                 this.detector.getDetectionInventory().setSlotLocked(value & 0xFF, (value & 0x8000) != 0);
+                break;
+
+            case 2:
+                this.ted.setUseIndicators(value == 1);
                 break;
         }
     }

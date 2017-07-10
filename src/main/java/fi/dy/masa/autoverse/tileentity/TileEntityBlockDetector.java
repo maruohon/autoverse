@@ -3,11 +3,14 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -16,6 +19,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
+import fi.dy.masa.autoverse.effects.Effects;
 import fi.dy.masa.autoverse.gui.client.GuiBlockDetector;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
@@ -42,6 +46,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     private int distance = 1;
     private long nextDetection;
     private boolean detectorRunning;
+    private boolean useIndicators;
 
     public TileEntityBlockDetector()
     {
@@ -94,6 +99,16 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
             default:
                 return super.applyProperty(propId, value);
         }
+    }
+
+    public boolean getUseIndicators()
+    {
+        return this.useIndicators;
+    }
+
+    public void setUseIndicators(boolean useIndicators)
+    {
+        this.useIndicators = useIndicators;
     }
 
     public void setAngle(int angle)
@@ -206,9 +221,20 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         float angle1 = (Autoverse.RAND.nextFloat() - 0.5f) * 2f * (this.angle / 15f);
         float angle2 = (Autoverse.RAND.nextFloat() - 0.5f) * 2f * (this.angle / 15f);
 
+        if (this.useIndicators)
+        {
+            this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_NOTE_HAT, SoundCategory.BLOCKS, 0.4f, 0.8f);
+        }
+
         for (int distance = 0; distance <= this.distance; distance++)
         {
             BlockPos pos = this.getDetectionPosition(distance, angle1, angle2);
+
+            if (this.useIndicators)
+            {
+                Effects.spawnParticlesFromServer(this.getWorld().provider.getDimension(), pos,
+                        EnumParticleTypes.REDSTONE, 4, 0f, 0f);
+            }
 
             if (this.getWorld().isAirBlock(pos) == false)
             {
@@ -228,7 +254,6 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
                 // debugging
                 //BlockUtils.setBlockStateWithPlaceSound(this.getWorld(), pos, Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.ORANGE), 3);
-                //Effects.spawnParticlesFromServer(this.getWorld().provider.getDimension(), pos, EnumParticleTypes.VILLAGER_ANGRY, 1, 0f, 0f);
 
                 break;
             }
@@ -290,6 +315,16 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0)
+        {
+            this.useIndicators = ! this.useIndicators;
+            this.markDirty();
+        }
+    }
+
+    @Override
     public void dropInventories()
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
@@ -323,6 +358,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.distance = tag.getByte("Distance");
         this.nextDetection = tag.getLong("Next");
         this.detectorRunning = tag.getBoolean("Running");
+        this.useIndicators = tag.getBoolean("Indicators");
 
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOutNormal.deserializeNBT(tag);
@@ -341,6 +377,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         nbt.setByte("Distance", (byte) this.distance);
         nbt.setLong("Next", this.nextDetection);
         nbt.setBoolean("Running", this.detectorRunning);
+        nbt.setBoolean("Indicators", this.useIndicators);
         return nbt;
     }
 
