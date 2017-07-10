@@ -1,8 +1,11 @@
 package fi.dy.masa.autoverse.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import fi.dy.masa.autoverse.Autoverse;
+import fi.dy.masa.autoverse.event.BlockBreakDropsHandler;
+import fi.dy.masa.autoverse.event.ServerEventHandler;
 
 public class CommonProxy
 {
@@ -38,5 +41,9 @@ public class CommonProxy
         return false;
     }
 
-    public void registerEventHandlers() { }
+    public void registerEventHandlers()
+    {
+        MinecraftForge.EVENT_BUS.register(new BlockBreakDropsHandler());
+        MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
+    }
 }

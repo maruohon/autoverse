@@ -5,12 +5,10 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-@Mod.EventBusSubscriber
 public class BlockBreakDropsHandler
 {
     private static WeakReference<IItemHandler> inventory = new WeakReference<IItemHandler>(null);

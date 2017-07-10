@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -268,21 +267,21 @@ public class PlacementProperties
         }
     }
 
-    public void readSyncedItemData(EntityPlayer player, NBTTagCompound tag)
+    public void readSyncedItemData(UUID uuid, NBTTagCompound tag)
     {
-        Map<ItemType, NBTTagCompound> mapTags = this.properties.get(player.getUniqueID());
-        Map<ItemType, Integer> mapIndices = this.indices.get(player.getUniqueID());
+        Map<ItemType, NBTTagCompound> mapTags = this.properties.get(uuid);
+        Map<ItemType, Integer> mapIndices = this.indices.get(uuid);
 
         if (mapTags == null)
         {
             mapTags = new HashMap<ItemType, NBTTagCompound>();
-            this.properties.put(player.getUniqueID(), mapTags);
+            this.properties.put(uuid, mapTags);
         }
 
         if (mapIndices == null)
         {
             mapIndices = new HashMap<ItemType, Integer>();
-            this.indices.put(player.getUniqueID(), mapIndices);
+            this.indices.put(uuid, mapIndices);
         }
 
         this.readDataForItemTypeFromNBT(tag, mapTags, mapIndices);
@@ -348,7 +347,7 @@ public class PlacementProperties
                     tag.setByte("Index", (byte) this.getPropertyIndex(uuid, type));
                     tag.setTag("Tag", props);
 
-                    MessageSyncNBTTag message = new MessageSyncNBTTag(MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
+                    MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_CURRENT, tag);
                     PacketHandler.INSTANCE.sendTo(message, player);
                 }
             }
@@ -357,13 +356,14 @@ public class PlacementProperties
 
     public void syncAllDataForPlayer(EntityPlayerMP player)
     {
-        Map<ItemType, NBTTagCompound> playerData = this.properties.get(player.getUniqueID());
+        UUID uuid = player.getUniqueID();
+        Map<ItemType, NBTTagCompound> playerData = this.properties.get(uuid);
 
         if (playerData != null)
         {
-            NBTTagCompound tag = this.writeDataForPlayerToNBT(player.getUniqueID(), playerData);
+            NBTTagCompound tag = this.writeDataForPlayerToNBT(uuid, playerData);
 
-            MessageSyncNBTTag message = new MessageSyncNBTTag(MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_FULL, tag);
+            MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_FULL, tag);
             PacketHandler.INSTANCE.sendTo(message, player);
         }
     }
