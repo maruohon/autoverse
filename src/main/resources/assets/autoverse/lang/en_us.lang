@@ -43,6 +43,7 @@ autoverse.gui.infoarea.buffer_fifo=- Stores items in a FIFO-type inventory|lf- T
 autoverse.gui.infoarea.crafter=- The empty marker is used in the programming|lf  phase to represent empty slots
 autoverse.gui.infoarea.redstone_emitter=- The enabled marker is used to enable sides while programming
 autoverse.gui.infoarea.sequence_detector=- Outputs a 1-redstone-tick pulse on sequence match
+autoverse.gui.infoarea.sequencer_programmable=- The sequence items must be pulled out|lf  (from any side except the front, because of the next point)|lf- The block itself will push out the normal|lf  output items to the front side
 autoverse.gui.infoarea.splitter_switchable=- Tip: Use the same sequence for both|lf  Switch sequences to make it operate as a toggle
 
 
@@ -132,12 +133,43 @@ tile.autoverse.placer.tooltips=- A basic Block Placer|lf- Meant to be used with 
 tile.autoverse.placer_programmable.tooltips=- Can place blocks in specific states and apply|lf  properties to the TileEntity (Autoverse-TEs only atm)|lf- For non-Autoverse blocks:|lf  - The properties are applied first to any PropertyDirection|lf    type properties, then to PropertyInteger types|lf  - The properties are sorted alphabetically within both types|lf- Basically allows placing blocks with specific orientations/settings|lf- The placement position can be offset to a maximum of 15 blocks|lf  (currently it has to be done by placing the Block Placer|lf  with another Block Placer, and setting the Property 3 with it)
 tile.autoverse.redstone_emitter.tooltips=- Configurable output sides|lf- Switched on/off by arriving item sequences
 tile.autoverse.sequence_detector.tooltips=- Outputs a 1-tick redstone pulse, when it detects|lf  a sequence of items matching the programmed detection sequence
-tile.autoverse.sequencer_basic.tooltips=- Adjustable number of slots (up to 18)|lf- Outputs one item at a time from each slot,|lf  and then advances the output slot position
-tile.autoverse.sequencer_programmable.tooltips=- Creates a configurable sequence item buffer,|lf  which is otherwise similar to the basic sequencer, but with|lf  item-type locked slots, and no skipping of empty slots
+tile.autoverse.sequencer_basic.tooltips=- Adjustable number of slots (up to 18)|lf- Outputs one item at a time from each slot,|lf  and then advances the output slot position|lf- The items can be pulled out, or they will be pushed|lf  out one item at a time on a redstone pulse
+tile.autoverse.sequencer_programmable.tooltips=- Creates a configurable sequence item buffer,|lf  which is otherwise similar to the basic sequencer, but with|lf  item-type locked slots, and no skipping of empty slots|lf- The sequence items must be pulled out|lf- The block itself will push out other items
 tile.autoverse.splitter_redstone.tooltips=- The item output side can be switched with a redstone signal
 tile.autoverse.splitter_switchable.tooltips=- The item output side can be switched by matching|lf  switch sequences in the incoming item stream
 tile.autoverse.trash_bin.tooltips=- Just an ordinary trash bin - deletes all inserted items
 tile.autoverse.trash_buffer.tooltips=- Trash Bin with a large buffer (36 slots, max 1024 items per slot)|lf- Or you could also think of it as a storage block with a void upgrade
+
+
+############################################
+# Block Placer properties (on ItemBlocks):
+############################################
+
+autoverse.tooltip.config_props_title= |lf§f*** Block Placer config properties ***§r
+tile.autoverse.barrel.config_props=- Prop 1: Barrel tier|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.barrel_pulsed.config_props=- Prop 1: Barrel tier|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.block_reader_nbt.config_props=- Prop 1: Facing|lf- Prop 2: Max length|lf- Prop 3: N/A
+tile.autoverse.breaker_greedy.config_props=- Prop 1: Facing|lf- Prop 2: Delay (in ticks)|lf- Prop 3: N/A
+tile.autoverse.breaker_normal.config_props=- Prop 1: Facing|lf- Prop 2: Delay (in ticks)|lf- Prop 3: N/A
+tile.autoverse.buffer_fifo.config_props=- Prop 1: Facing|lf- Prop 2: FIFO inventory size|lf- Prop 3: N/A
+tile.autoverse.buffer_fifo_auto.config_props=- Prop 1: Facing|lf- Prop 2: FIFO inventory size|lf- Prop 3: N/A
+tile.autoverse.buffer_fifo_pulsed.config_props=- Prop 1: Facing|lf- Prop 2: FIFO inventory size|lf- Prop 3: N/A
+tile.autoverse.crafter.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.detector.config_props=- Prop 1: Facing|lf- Prop 2: Detection items output side|lf- Prop 3: N/A
+tile.autoverse.filter_basic.config_props=- Prop 1: Facing|lf- Prop 2: Filter items output side|lf- Prop 3: Delay (in ticks)
+tile.autoverse.filter_sequential.config_props=- Prop 1: Facing|lf- Prop 2: Filter items output side|lf- Prop 3: Delay (in ticks)
+tile.autoverse.inventory_reader_items.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.inventory_reader_slots.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.placer.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facing|lf- Prop 3: Delay (in ticks)
+tile.autoverse.placer_programmable.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facing|lf- Prop 3: Placement offset (0..15)
+tile.autoverse.redstone_emitter.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.sequence_detector.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.sequencer_basic.config_props=- Prop 1: Facing|lf- Prop 2: Inventory Size|lf- Prop 3: N/A
+tile.autoverse.sequencer_programmable.config_props=- Prop 1: Facing|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.splitter_redstone.config_props=- Prop 1: Facing|lf- Prop 2: Secondary output side|lf- Prop 3: Delay (in ticks)
+tile.autoverse.splitter_switchable.config_props=- Prop 1: Facing|lf- Prop 2: Secondary output side|lf- Prop 3: Delay (in ticks)
+tile.autoverse.trash_bin.config_props=- Prop 1: N/A|lf- Prop 2: N/A|lf- Prop 3: N/A
+tile.autoverse.trash_buffer.config_props=- Prop 1: N/A|lf- Prop 2: N/A|lf- Prop 3: N/A
 
 
 ##############

@@ -17,8 +17,10 @@ public class GuiSequencerProgrammable extends GuiAutoverse
     {
         // Same GUI background as the filter
         super(container, 176, 256, "gui.container.filter");
+
         this.containerSP = container;
         this.te = te;
+        this.infoArea = new InfoArea(8, 148, 11, 11, "autoverse.gui.infoarea.sequencer_programmable");
     }
 
     @Override
