@@ -192,7 +192,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         if (state && this.delay == 0)
         {
             this.nextDetection = this.getWorld().getTotalWorldTime() + 1;
-            this.scheduleUpdateIfNeeded(true);
+            this.reScheduleUpdateIfSooner(1);
         }
     }
 
@@ -271,20 +271,25 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, this.posDetectionOut, this.facingOpposite, false);
-        boolean movedIn = this.detector.moveItems();
+        boolean movedItems = false;
+        movedItems |= this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, this.posDetectionOut, this.facingOpposite, false);
+        movedItems |= this.detector.moveItems();
 
         if (this.detectorRunning)
         {
-            if (this.nextDetection == this.getWorld().getTotalWorldTime())
+            // In redstone mode nextDetection is initially 0, before a redstone pulse
+            if (this.nextDetection != 0 && this.nextDetection <= this.getWorld().getTotalWorldTime())
             {
                 this.detectBlocks();
+                this.setNextDetectionTime();
             }
 
-            this.setNextDetectionTime();
+            this.scheduleUpdateIfNeeded(movedItems);
         }
-
-        this.scheduleUpdateIfNeeded(movedIn);
+        else if (movedItems)
+        {
+            this.scheduleUpdateIfNeeded(true);
+        }
     }
 
     @Override
@@ -293,9 +298,9 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.scheduleUpdateIfNeeded(false);
     }
 
-    private void scheduleUpdateIfNeeded(boolean force)
+    private void scheduleUpdateIfNeeded(boolean immediate)
     {
-        if (force ||
+        if (immediate ||
             this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutDetection.getStackInSlot(0).isEmpty() == false)
         {
@@ -312,6 +317,10 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         if (this.delay > 0)
         {
             this.nextDetection = this.getWorld().getTotalWorldTime() + this.delay * 20;
+        }
+        else
+        {
+            this.nextDetection = 0;
         }
     }
 
