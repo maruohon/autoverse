@@ -92,7 +92,7 @@ autoverse.gui.label.splitter.output=Out %d
 autoverse.gui.label.splitter.switching_sequence=Switch seq.
 autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
 autoverse.gui.label.tier_num=Tier: %d
-autoverse.gui.label.trash.count=Trashed items: %d
+autoverse.gui.label.trash.count=Ruthlessly murdered items: %d
 autoverse.gui.label.trash.feedback=Feedback: %s
 autoverse.gui.label.toggle_creative=Toggle Creative mode
 
