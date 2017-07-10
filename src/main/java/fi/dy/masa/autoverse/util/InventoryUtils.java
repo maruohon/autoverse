@@ -245,6 +245,33 @@ public class InventoryUtils
     }
 
     /**
+     * Checks whether there are items in the inventory <b>inv</b>, that shouldn't be there according to <b>template</b>.
+     * This check is per-slot.<br>
+     * Note that the list must be at least as long as the inventory has slots!
+     * @param inv
+     * @param template
+     * @return
+     */
+    public static boolean doesInventoryHaveNonMatchingItems(IItemHandler inv, NonNullList<ItemStack> template)
+    {
+        final int invSize = inv.getSlots();
+
+        for (int slot = 0; slot < invSize; slot++)
+        {
+            ItemStack stackTemplate = template.get(slot);
+            ItemStack stackInv = inv.getStackInSlot(slot);
+
+            // Items in slot, which should be empty, or should be some other item
+            if (stackInv.isEmpty() == false && areItemStacksEqual(stackInv, stackTemplate) == false)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Sets all the stacks in <b>inv</b> from the list <b>stacks</b>.
      * @param inv
      * @param stacks

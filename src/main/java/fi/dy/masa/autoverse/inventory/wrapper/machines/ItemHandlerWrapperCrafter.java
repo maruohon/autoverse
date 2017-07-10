@@ -197,7 +197,21 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         if (this.resultStackTemplate.isEmpty() == false &&
             InventoryUtils.areItemStacksEqual(this.inventoryCraftingOutput.getStackInSlot(0), this.resultStackTemplate))
         {
-            success |= InventoryUtils.tryMoveEntireStackOnly(this.inventoryCraftingOutput, 0, this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING;
+            // Successfully crafted something
+            if (InventoryUtils.tryMoveEntireStackOnly(this.inventoryCraftingOutput, 0, this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING)
+            {
+                success = true;
+
+                if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
+                {
+                    this.subState = 1;
+                }
+            }
+        }
+        else if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
+        {
+            this.subState = 1;
+            success |= this.moveNonMatchingItemsFromGrid() != GridMoveResult.MOVED_NOTHING;
         }
         else if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
         {
@@ -211,32 +225,20 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     {
         GridMoveResult result = this.moveNonMatchingItemsFromGrid();
 
-        if (this.gridMatchesRecipe())
+        if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()) == false)
         {
             this.subState = 0;
             return true;
         }
 
-        return result == GridMoveResult.MOVED_SOME;
-    }
-
-    private boolean gridMatchesRecipe()
-    {
-        for (int slot = 0; slot < 9; ++slot)
-        {
-            if (InventoryUtils.areItemStacksEqual(
-                    this.inventoryCraftingGrid.getStackInSlot(slot),
-                    this.sequenceRecipe.getStackInSlot(slot)) == false)
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return result != GridMoveResult.MOVED_NOTHING;
     }
 
     private GridMoveResult moveNonMatchingItemsFromGrid()
     {
+        boolean matches = true;
+        boolean moved = false;
+
         for (int slot = 0; slot < 9; ++slot)
         {
             ItemStack stackOnGrid = this.inventoryCraftingGrid.getStackInSlot(slot);
@@ -244,12 +246,16 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
             if (stackOnGrid.isEmpty() == false &&
                 InventoryUtils.areItemStacksEqual(stackOnGrid, this.sequenceRecipe.getStackInSlot(slot)) == false)
             {
-                return InventoryUtils.tryMoveStack(this.inventoryCraftingGrid, slot,
-                        this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING ? GridMoveResult.MOVED_SOME : GridMoveResult.MOVED_NOTHING;
+                if (InventoryUtils.tryMoveStack(this.inventoryCraftingGrid, slot, this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING)
+                {
+                    moved = true;
+                }
+
+                matches = false;
             }
         }
 
-        return GridMoveResult.GRID_MATCHES;
+        return matches ? GridMoveResult.GRID_MATCHES : (moved ? GridMoveResult.MOVED_SOME : GridMoveResult.MOVED_NOTHING);
     }
 
     /**
