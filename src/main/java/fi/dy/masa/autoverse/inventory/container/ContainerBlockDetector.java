@@ -89,37 +89,41 @@ public class ContainerBlockDetector extends ContainerTile
         int invSize = this.detector.getDetectionInventory().getSlots();
         boolean useIndicators = this.ted.getUseIndicators();
 
-        if (invSize != this.invSize)
-        {
-            // Force sync all slots, because otherwise the client side
-            // detection inventory may be left out of sync when the inventory flushes
-            // and is set to size 0 immediately after (if the GUI is kept open over the reset and flush).
-            // The reAddSlots() clears the server side "previous stacks", so when the slots
-            // are added again during the next programming phase, both the slot and that "previous stack"
-            // are empty on the server, and thus the slot won't be synced to the client, although on the client,
-            // the last slot that had items during the previous operation cycle, hasn't been synced from the server.
-            if (invSize == 0)
-            {
-                this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
-                this.forceSyncAll = true;
-                super.detectAndSendChanges();
-                this.forceSyncAll = false;
-            }
-
-            this.syncProperty(0, (byte) invSize);
-            this.reAddSlots();
-            this.invSize = invSize;
-        }
-
         if (useIndicators != this.useIndicators)
         {
             this.syncProperty(2, (byte) (useIndicators ? 1 : 0));
             this.useIndicators = useIndicators;
         }
 
-        this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
+        if (invSize != this.invSize)
+        {
+            // Force sync all slots, because otherwise the client side inventory may be left out of sync.
+            // Whether we sync the contents before or after sending the new inventory size, depends
+            // on whether the inventory grew or shrank.
 
-        super.detectAndSendChanges();
+            if (invSize < this.invSize)
+            {
+                this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
+            }
+
+            this.syncProperty(0, (byte) invSize);
+            this.reAddSlots();
+
+            if (invSize > this.invSize)
+            {
+                this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
+            }
+
+            this.forceSyncAll = true;
+            super.detectAndSendChanges();
+            this.forceSyncAll = false;
+            this.invSize = invSize;
+        }
+        else
+        {
+            this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
+            super.detectAndSendChanges();
+        }
     }
 
     @Override
