@@ -221,6 +221,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
             {
                 this.isCreative = ! this.isCreative;
                 this.markDirty();
+                this.notifyBlockUpdate(this.getPos());
             }
         }
     }
