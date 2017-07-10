@@ -29,14 +29,34 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     public TileEntityBarrel()
     {
+        this(false);
+    }
+
+    public TileEntityBarrel(boolean isPulsed)
+    {
         super(ReferenceNames.NAME_BLOCK_BARREL, true);
+
+        this.isPulsed = isPulsed;
     }
 
     @Override
     protected void initInventories()
     {
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 1, 64, true, "Items", this);
-        this.itemHandlerExternal = new ItemHandlerWrapperBarrel(this.itemHandlerBase, this);
+        this.createInventoryWrapper();
+    }
+
+    private void createInventoryWrapper()
+    {
+        // The Pulsed barrel is not redstone-lockable
+        if (this.isPulsed)
+        {
+            this.itemHandlerExternal = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+        }
+        else
+        {
+            this.itemHandlerExternal = new ItemHandlerWrapperBarrel(this.itemHandlerBase, this);
+        }
     }
 
     @Override
@@ -60,11 +80,10 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         }
     }
 
-    public void setTier(int tier)
+    private void setTier(int tier)
     {
         this.tier = MathHelper.clamp(tier, 0, 15);
         this.itemHandlerBase.setStackLimit(this.getMaxStackSize());
-        this.markDirty();
     }
 
     public int getTier()
@@ -72,10 +91,10 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         return this.tier;
     }
 
-    public void setIsPulsed(boolean isPulsed)
+    private void setIsPulsed(boolean isPulsed)
     {
         this.isPulsed = isPulsed;
-        this.markDirty();
+        this.createInventoryWrapper();
     }
 
     public boolean isPulsed()
@@ -103,6 +122,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     public void onLoad()
     {
         this.posBottom = this.getPos().down();
+        this.createInventoryWrapper();
     }
 
     @Override
@@ -119,7 +139,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         if (this.isPulsed)
         {
-            this.pushItemsToAdjacentInventory(this.itemHandlerBase, 0, this.posBottom, EnumFacing.UP, true);
+            this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posBottom, EnumFacing.UP, true);
         }
     }
 
@@ -144,18 +164,25 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.isPulsed = nbt.getBoolean("Pulsed");
         this.isCreative = nbt.getBoolean("Creative");
         this.setTier(nbt.getByte("Tier"));
 
         super.readFromNBTCustom(nbt);
+
+        // (Re-)create/use the correct inventory wrapper based on whether the barrel is Pulsed type
+        this.setIsPulsed(nbt.getBoolean("Pulsed"));
     }
 
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag = super.getUpdatePacketTag(tag);
-        tag.setByte("d", (byte)(this.tier | (this.isPulsed ? 0x10 : 0)));
+
+        byte mask = (byte) this.tier;
+        mask |= (this.isPulsed ? 0x80 : 0);
+        mask |= (this.isCreative() ? 0x40 : 0);
+        tag.setByte("d", mask);
+
         return tag;
     }
 
@@ -165,7 +192,8 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         super.handleUpdateTag(tag);
 
         int data = tag.getByte("d");
-        this.setIsPulsed((data & 0x10) != 0);
+        this.setIsPulsed((data & 0x80) != 0);
+        this.setIsCreative((data & 0x40) != 0);
 
         data = data & 0xF;
 
@@ -183,6 +211,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         if (action == 0)
         {
             this.setTier(this.tier + element);
+            this.markDirty();
             this.notifyBlockUpdate(this.getPos());
         }
         // Toggle creative mode

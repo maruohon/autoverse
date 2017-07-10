@@ -64,9 +64,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
-        TileEntityBarrel te = new TileEntityBarrel();
-        te.setIsPulsed(state.getValue(PULSED));
-        return te;
+        return new TileEntityBarrel(state.getValue(PULSED));
     }
 
     @Override
