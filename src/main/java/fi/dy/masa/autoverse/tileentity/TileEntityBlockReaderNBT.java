@@ -74,7 +74,7 @@ public class TileEntityBlockReaderNBT extends TileEntityAutoverseInventory
         World world = this.getWorld();
         BlockPos pos = this.getPos().offset(this.getFacing(), position + 1);
 
-        if (world.isBlockLoaded(pos, world.isRemote == false) == false)
+        if (world.isBlockLoaded(pos, true) == false)
         {
             return false;
         }

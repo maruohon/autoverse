@@ -211,17 +211,21 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
             if (te != null)
             {
                 int output = this.calculateOutputSignal(state, world, pos);
-                int old = te.getOutpuStrength();
 
-                if (output != old)
+                if (output != -1)
                 {
-                    te.setOutputStrength(output);
-                    this.notifyNeighbors(world, pos, state.getValue(FACING));
+                    int old = te.getOutpuStrength();
 
-                    if (output == 0 || old == 0)
+                    if (output != old)
                     {
-                        // This marks the block for render update, if the powered state changes
-                        world.notifyBlockUpdate(pos, state, state, 3);
+                        te.setOutputStrength(output);
+                        this.notifyNeighbors(world, pos, state.getValue(FACING));
+
+                        if (output == 0 || old == 0)
+                        {
+                            // This marks the block for render update, if the powered state changes
+                            world.notifyBlockUpdate(pos, state, state, 3);
+                        }
                     }
                 }
             }
@@ -245,6 +249,12 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         EnumFacing targetSide = state.getValue(FACING);
         EnumFacing inputSide = targetSide.getOpposite();
         BlockPos posTarget = pos.offset(inputSide);
+
+        if (blockAccess instanceof World && ((World) blockAccess).isBlockLoaded(posTarget, true) == false)
+        {
+            return -1;
+        }
+
         TileEntity te = blockAccess.getTileEntity(posTarget);
 
         // If there is no inventory adjacent to this block, then offset the position one more

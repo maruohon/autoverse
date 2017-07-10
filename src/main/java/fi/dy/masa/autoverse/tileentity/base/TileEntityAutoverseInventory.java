@@ -186,6 +186,11 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
      */
     protected boolean pushItemsToAdjacentInventory(IItemHandler invSrc, int slot, int maxAmount, BlockPos targetPos, EnumFacing targetSide, boolean spawnInWorld)
     {
+        if (this.getWorld().isBlockLoaded(targetPos, true) == false)
+        {
+            return false;
+        }
+
         ItemStack stack = invSrc.extractItem(slot, maxAmount, true);
 
         if (stack.isEmpty() == false)

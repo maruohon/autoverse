@@ -231,6 +231,11 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         {
             BlockPos pos = this.getDetectionPosition(distance, angle1, angle2);
 
+            if (this.getWorld().isBlockLoaded(pos, true) == false)
+            {
+                continue;
+            }
+
             if (this.useIndicators)
             {
                 Effects.spawnParticlesFromServer(this.getWorld().provider.getDimension(), pos,
