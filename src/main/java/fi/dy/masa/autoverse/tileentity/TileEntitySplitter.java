@@ -246,6 +246,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
 
         this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("Type")));
+        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
 
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOut1.deserializeNBT(tag);
@@ -264,6 +265,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         nbt.setByte("Facing2", (byte)this.facing2.getIndex());
         nbt.setByte("Type", (byte) this.type.getMeta());
+        nbt.setByte("Delay", (byte) this.delay);
 
         if (this.splitter != null)
         {

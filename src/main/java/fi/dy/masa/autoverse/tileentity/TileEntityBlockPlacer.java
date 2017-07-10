@@ -238,6 +238,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         nbt.setByte("Position", (byte) this.position);
         nbt.setByte("State", (byte) this.state.getId());
         nbt.setByte("FacingHorizontal", (byte) this.facingHorizontal.getIndex());
+        nbt.setByte("Delay", (byte) this.delay);
         return nbt;
     }
 
@@ -249,6 +250,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
         this.position = nbt.getByte("Position");
         this.state = State.fromId(nbt.getByte("State"));
+        this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
     }
 
     private class ItemHandlerWrapperPlacer extends ItemHandlerWrapperSelective

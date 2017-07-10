@@ -195,6 +195,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super.readFromNBTCustom(nbt);
 
         this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")));
+        this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
 
         this.inventoryInput.deserializeNBT(nbt);
         this.inventoryOutNormal.deserializeNBT(nbt);
@@ -214,6 +215,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super.writeToNBT(nbt);
 
         nbt.setByte("FilterFacing", (byte)this.facingFilteredOut.getIndex());
+        nbt.setByte("Delay", (byte) this.delay);
 
         return nbt;
     }

@@ -57,20 +57,6 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
         return this.emitter;
     }
 
-    @Override
-    public boolean applyProperty(int propId, int value)
-    {
-        switch (propId)
-        {
-            case 1:
-                this.setSideMask(value);
-                return true;
-
-            default:
-                return super.applyProperty(propId, value);
-        }
-    }
-
     public void setSideEnabled(int side, boolean enabled)
     {
         if (enabled)
