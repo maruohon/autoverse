@@ -191,7 +191,8 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         // If delay is set to 0, then the detection runs on the rising edge of a redstone pulse
         if (state && this.delay == 0)
         {
-            this.detectBlocks();
+            this.nextDetection = this.getWorld().getTotalWorldTime() + 1;
+            this.scheduleUpdateIfNeeded(true);
         }
     }
 
@@ -268,13 +269,14 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, this.posDetectionOut, this.facingOpposite, false);
         boolean movedIn = this.detector.moveItems();
 
-        if (this.nextDetection == this.getWorld().getTotalWorldTime())
+        if (this.detectorRunning)
         {
-            if (this.detectorRunning)
+            if (this.nextDetection == this.getWorld().getTotalWorldTime())
             {
                 this.detectBlocks();
-                this.setNextDetectionTime();
             }
+
+            this.setNextDetectionTime();
         }
 
         this.scheduleUpdateIfNeeded(movedIn);
@@ -354,7 +356,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
         this.setDetectionOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
         this.angle = tag.getByte("Angle");
-        this.delay = tag.getByte("Delay");
+        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
         this.distance = tag.getByte("Distance");
         this.nextDetection = tag.getLong("Next");
         this.detectorRunning = tag.getBoolean("Running");
