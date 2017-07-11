@@ -40,8 +40,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOutput;
     private ItemHandlerWrapperPlacerProgrammable placer;
-    private BlockPos placementPosition = BlockPos.ORIGIN;
-    private int placementOffset = 1;
+    private int placementOffset;
     private EnumFacing facingHorizontal = BlockAutoverse.DEFAULT_FACING;
 
     public TileEntityBlockPlacerProgrammable()
@@ -102,43 +101,21 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     }
 
     @Override
-    public void setFacing(EnumFacing facing)
-    {
-        super.setFacing(facing);
-
-        this.updatePlacementPosition();
-    }
-
-    @Override
     public void rotate(Rotation rotationIn)
     {
         super.rotate(rotationIn);
 
         this.setHorizontalFacing(rotationIn.rotate(this.facingHorizontal));
-        this.updatePlacementPosition();
-    }
-
-    @Override
-    public void setPos(BlockPos posIn)
-    {
-        super.setPos(posIn);
-
-        this.updatePlacementPosition();
     }
 
     private void setPlacementOffset(int offset, boolean updatePosition)
     {
         this.placementOffset = MathHelper.clamp(offset, 0, 15);
-
-        if (updatePosition)
-        {
-            this.updatePlacementPosition();
-        }
     }
 
-    private void updatePlacementPosition()
+    private BlockPos getPlacementPosition()
     {
-        this.placementPosition = this.getPos().offset(this.getFacing(), this.placementOffset);
+        return this.getPos().offset(this.getFacing(), this.placementOffset + 1);
     }
 
     @Override
@@ -164,6 +141,8 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         super.readFromNBTCustom(nbt);
 
         this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
+
+        // This needs to happen after super, so that the TE position has been set
         this.setPlacementOffset(nbt.getByte("PlacementOffset"), true);
     }
 
@@ -273,7 +252,12 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
 
             for (int i = 0; i < count; i++)
             {
-                ((TileEntityAutoverse) te).applyProperty(i, this.placer.getPropertyValue(i));
+                int value = this.placer.getPropertyValue(i);
+
+                if (value != -1)
+                {
+                    ((TileEntityAutoverse) te).applyProperty(i, value);
+                }
             }
         }
     }
@@ -286,7 +270,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     public boolean tryPlaceBlock(ItemStack stack)
     {
         World world = this.getWorld();
-        BlockPos pos = this.placementPosition;
+        BlockPos pos = this.getPlacementPosition();
 
         if (world.isBlockLoaded(pos, true) &&
             world.getBlockState(pos).getBlock().isReplaceable(world, pos))

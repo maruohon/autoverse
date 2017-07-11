@@ -12,7 +12,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     private final SequenceMatcher sequenceMarkerHighBit;
     private final SequenceMatcherVariable sequenceTrigger;
     private final SequenceMatcherVariable[] propertySequences;
-    private final byte[] propertyValues;
+    private final int[] propertyValues;
     private int subState;
 
     public ItemHandlerWrapperPlacerProgrammable(
@@ -36,8 +36,8 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
             this.getSequenceManager().add(this.propertySequences[i]);
         }
 
-        this.propertyValues = new byte[this.propertySequences.length];
-        Arrays.fill(this.propertyValues, (byte) -1);
+        this.propertyValues = new int[this.propertySequences.length];
+        Arrays.fill(this.propertyValues, -1);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
         for (int id = 0; id < this.propertySequences.length; id++)
         {
-            this.propertyValues[id] = (byte) this.propertySequences[id].parseValueFromSequence(highBitMarker);
+            this.propertyValues[id] = this.propertySequences[id].parseValueFromSequence(highBitMarker);
         }
     }
 
@@ -150,7 +150,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         tag = super.writeToNBT(tag);
 
         tag.setByte("SubState", (byte) this.subState);
-        tag.setByteArray("PropertyValues", this.propertyValues);
+        tag.setIntArray("PropertyValues", this.propertyValues);
 
         return tag;
     }
@@ -161,7 +161,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         super.readFromNBT(tag);
 
         this.subState = tag.getByte("SubState");
-        byte[] props = tag.getByteArray("PropertyValues");
+        int[] props = tag.getIntArray("PropertyValues");
 
         for (int i = 0; i < props.length && i < this.propertyValues.length; i++)
         {
