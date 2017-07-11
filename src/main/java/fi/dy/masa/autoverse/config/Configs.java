@@ -21,6 +21,7 @@ public class Configs
     public static boolean disableBlockCrafter;
     public static boolean disableBlockFilter;
     public static boolean disableBlockInventoryReader;
+    public static boolean disableBlockPipe;
     public static boolean disableBlockRedstoneEmitter;
     public static boolean disableBlockSequenceDetector;
     public static boolean disableBlockSequencer;
@@ -105,6 +106,7 @@ public class Configs
         disableBlockCrafter                 = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockCrafter", false).getBoolean();
         disableBlockFilter                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockFilter", false).getBoolean();
         disableBlockInventoryReader         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockInventoryReader", false).getBoolean();
+        disableBlockPipe                    = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockPipe", false).getBoolean();
         disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
         disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();

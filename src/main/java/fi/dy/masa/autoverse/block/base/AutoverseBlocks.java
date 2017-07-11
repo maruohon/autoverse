@@ -27,6 +27,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                               4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FILTER                   = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse INVENTORY_READER         = new BlockInventoryReader(ReferenceNames.NAME_BLOCK_INVENTORY_READER,              4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse PIPE                     = new BlockPipe(ReferenceNames.NAME_BLOCK_PIPE,                                     4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,              4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,            4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,                           4.0f, 10f, 1, Material.ROCK);
@@ -47,6 +48,7 @@ public class AutoverseBlocks
         registerBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
         registerBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
@@ -70,6 +72,7 @@ public class AutoverseBlocks
         registerItemBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerItemBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerItemBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerItemBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerItemBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
         registerItemBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerItemBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
@@ -119,6 +122,7 @@ public class AutoverseBlocks
         registerTileEntity(TileEntityFilter.class,                  ReferenceNames.NAME_BLOCK_FILTER);
         registerTileEntity(TileEntityFilterSequential.class,        ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
         registerTileEntity(TileEntityInventoryReader.class,         ReferenceNames.NAME_BLOCK_INVENTORY_READER);
+        registerTileEntity(TileEntityPipe.class,                    ReferenceNames.NAME_BLOCK_PIPE);
         registerTileEntity(TileEntityRedstoneEmitter.class,         ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER);
         registerTileEntity(TileEntitySequenceDetector.class,        ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR);
         registerTileEntity(TileEntitySequencer.class,               ReferenceNames.NAME_BLOCK_SEQUENCER);

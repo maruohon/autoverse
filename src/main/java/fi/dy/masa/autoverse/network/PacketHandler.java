@@ -9,6 +9,7 @@ import fi.dy.masa.autoverse.network.message.MessageKeyPressed;
 import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncNBTTag;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
+import fi.dy.masa.autoverse.network.message.MessageSyncTileEntity;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public class PacketHandler
@@ -24,5 +25,6 @@ public class PacketHandler
         INSTANCE.registerMessage(MessageSyncContainerProperty.Handler.class,    MessageSyncContainerProperty.class,    12, Side.CLIENT);
         INSTANCE.registerMessage(MessageSyncNBTTag.Handler.class,               MessageSyncNBTTag.class,               13, Side.CLIENT);
         INSTANCE.registerMessage(MessageAddEffects.Handler.class,               MessageAddEffects.class,               14, Side.CLIENT);
+        INSTANCE.registerMessage(MessageSyncTileEntity.Handler.class,           MessageSyncTileEntity.class,           15, Side.CLIENT);
     }
 }

@@ -5,14 +5,17 @@ import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.google.common.base.Predicates;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -27,8 +30,10 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
+import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public abstract class TileEntityAutoverse extends TileEntity
@@ -329,7 +334,6 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
     }
 
-    /*
     protected void sendPacketToWatchers(IMessage message)
     {
         World world = this.getWorld();
@@ -350,7 +354,6 @@ public abstract class TileEntityAutoverse extends TileEntity
             }
         }
     }
-    */
 
     @Override
     public String toString()

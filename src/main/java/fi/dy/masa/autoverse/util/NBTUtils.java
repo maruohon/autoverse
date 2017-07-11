@@ -101,6 +101,81 @@ public class NBTUtils
     }
 
     /**
+     * Reads a byte array from NBT into the provided int array.
+     * The number of elements read is the minimum of the provided array's length and
+     * the read byte array's length.
+     * @param arr
+     * @param nbt
+     * @param tagName
+     */
+    public static void readByteArrayIntoIntArray(int[] arr, NBTTagCompound nbt, String tagName)
+    {
+        byte[] arrBytes = nbt.getByteArray(tagName);
+        final int len = Math.min(arr.length, arrBytes.length);
+
+        for (int i = 0; i < len; i++)
+        {
+            arr[i] = arrBytes[i];
+        }
+    }
+
+    /**
+     * Writes the provided int array into NBT as a byte array, by casting each element into a byte.
+     * @param arr
+     * @param nbt
+     * @param tagName
+     */
+    public static void writeIntArrayAsByteArray(int[] arr, NBTTagCompound nbt, String tagName)
+    {
+        byte[] bytes = new byte[arr.length];
+
+        for (int i = 0; i < arr.length; i++)
+        {
+            bytes[i] = (byte) arr[i];
+        }
+
+        nbt.setByteArray(tagName, bytes);
+    }
+
+    /**
+     * Reads a byte array from NBT into the provided byte array.
+     * The number of elements read is the minimum of the provided array's length and
+     * the read byte array's length.
+     * @param arr
+     * @param nbt
+     * @param tagName
+     */
+    public static void readByteArray(byte[] arr, NBTTagCompound nbt, String tagName)
+    {
+        byte[] arrNbt = nbt.getByteArray(tagName);
+        final int len = Math.min(arr.length, arrNbt.length);
+
+        for (int i = 0; i < len; i++)
+        {
+            arr[i] = arrNbt[i];
+        }
+    }
+
+    /**
+     * Reads an int array from NBT into the provided int array.
+     * The number of elements read is the minimum of the provided array's length and
+     * the read byte array's length.
+     * @param arr
+     * @param nbt
+     * @param tagName
+     */
+    public static void readIntArray(int[] arr, NBTTagCompound nbt, String tagName)
+    {
+        int[] arrNbt = nbt.getIntArray(tagName);
+        final int len = Math.min(arr.length, arrNbt.length);
+
+        for (int i = 0; i < len; i++)
+        {
+            arr[i] = arrNbt[i];
+        }
+    }
+
+    /**
      * Reads an ItemStack from the given compound tag, including the Ender Utilities-specific custom stackSize.
      * @param tag
      * @return
