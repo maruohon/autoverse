@@ -245,7 +245,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
             if (this.getWorld().isAirBlock(pos) == false)
             {
                 IBlockState state = this.getWorld().getBlockState(pos);
-                ItemStack stack = new ItemStack(state.getBlock());
+                ItemStack stack = new ItemStack(state.getBlock(), 1, state.getBlock().damageDropped(state));
 
                 if (stack.isEmpty() == false)
                 {
