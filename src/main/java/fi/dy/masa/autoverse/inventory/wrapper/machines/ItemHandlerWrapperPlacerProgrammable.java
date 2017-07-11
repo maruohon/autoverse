@@ -11,6 +11,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     private final TileEntityBlockPlacerProgrammable te;
     private final SequenceMatcher sequenceMarkerHighBit;
     private final SequenceMatcherVariable sequenceTrigger;
+    private final SequenceMatcherVariable sequenceOffset;
     private final SequenceMatcherVariable[] propertySequences;
     private final int[] propertyValues;
     private int subState;
@@ -25,10 +26,12 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         this.te = te;
         this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceBitMarker");
         this.sequenceTrigger = (new SequenceMatcherVariable(4, "SequenceTrigger")).setAllowEmptySequence(true);
-        this.propertySequences = new SequenceMatcherVariable[3];
+        this.sequenceOffset  = (new SequenceMatcherVariable(4, "SequenceOffset")).setAllowEmptySequence(true);
+        this.propertySequences = new SequenceMatcherVariable[4];
 
         this.getSequenceManager().add(this.sequenceMarkerHighBit, 1);
         this.getSequenceManager().add(this.sequenceTrigger);
+        this.getSequenceManager().add(this.sequenceOffset);
 
         for (int i = 0; i < this.propertySequences.length; i++)
         {
@@ -82,6 +85,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     private void parsePropertyValues()
     {
         ItemStack highBitMarker = this.sequenceMarkerHighBit.getSequence().get(0);
+        this.te.setPlacementOffset(this.sequenceOffset.parseValueFromSequence(highBitMarker));
 
         for (int id = 0; id < this.propertySequences.length; id++)
         {
@@ -97,6 +101,11 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     public SequenceMatcher getTriggerSequence()
     {
         return this.sequenceTrigger;
+    }
+
+    public SequenceMatcher getOffsetSequence()
+    {
+        return this.sequenceOffset;
     }
 
     public SequenceMatcher getPropertySequence(int id)

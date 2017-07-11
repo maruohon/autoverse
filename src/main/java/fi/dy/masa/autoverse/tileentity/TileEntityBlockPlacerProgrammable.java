@@ -83,7 +83,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                 return true;
 
             case 2:
-                this.setPlacementOffset(value, true);
+                this.setPlacementOffset(value);
                 return true;
 
             default:
@@ -108,9 +108,10 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         this.setHorizontalFacing(rotationIn.rotate(this.facingHorizontal));
     }
 
-    private void setPlacementOffset(int offset, boolean updatePosition)
+    public void setPlacementOffset(int offset)
     {
         this.placementOffset = MathHelper.clamp(offset, 0, 15);
+        this.markDirty();
     }
 
     private BlockPos getPlacementPosition()
@@ -141,9 +142,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         super.readFromNBTCustom(nbt);
 
         this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
-
-        // This needs to happen after super, so that the TE position has been set
-        this.setPlacementOffset(nbt.getByte("PlacementOffset"), true);
+        this.setPlacementOffset(nbt.getByte("PlacementOffset"));
     }
 
     @Override
