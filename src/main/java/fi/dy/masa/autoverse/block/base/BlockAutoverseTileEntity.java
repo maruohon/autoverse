@@ -96,7 +96,7 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 
         if (te != null && this.isTileEntityValid(te))
         {
-            if (te.onRightClickBlock(player, hand, side, hitX, hitY, hitZ))
+            if (te.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
             {
                 return true;
             }

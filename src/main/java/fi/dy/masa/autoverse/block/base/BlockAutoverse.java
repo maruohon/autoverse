@@ -152,23 +152,32 @@ public class BlockAutoverse extends Block
      * Invalid hits (ie. misses) return null.
      */
     @Nullable
-    public <T> T getPointedElementId(World world, BlockPos pos, EnumFacing side, Entity entity)
+    public static <T> T getPointedElementId(World world, BlockPos pos, BlockAutoverse block, @Nullable EnumFacing facing, @Nonnull Entity entity)
     {
-        this.updateBlockHilightBoxes(world, pos, side);
-        return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, this.getHilightBoxMap());
+        block.updateBlockHilightBoxes(world, pos, facing);
+        return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, block.getHilightBoxMap());
     }
 
-    public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
+    public void updateBlockHilightBoxes(World world, BlockPos pos, @Nullable EnumFacing facing)
     {
     }
 
     @Nullable
-    protected RayTraceResult collisionRayTraceToBoxes(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
+    protected static RayTraceResult collisionRayTraceToBoxes(IBlockState state, BlockAutoverseTileEntity block,
+            World world, BlockPos pos, Vec3d start, Vec3d end)
     {
-        this.updateBlockHilightBoxes(world, pos, state.getActualState(world, pos).getValue(FACING));
+        if (block.hasFacing)
+        {
+            block.updateBlockHilightBoxes(world, pos, state.getActualState(world, pos).getValue(FACING));
+        }
+        else
+        {
+            block.updateBlockHilightBoxes(world, pos, null);
+        }
+
         List<RayTraceResult> list = new ArrayList<RayTraceResult>();
 
-        for (AxisAlignedBB bb : this.getHilightBoxMap().values())
+        for (AxisAlignedBB bb : block.getHilightBoxMap().values())
         {
             RayTraceResult trace = bb.calculateIntercept(start, end);
 

@@ -1,9 +1,10 @@
 {
     "parent": "minecraft:block/block",
+    "textures": { "particle": "#base_side" },
     "elements": [ 
         {
-            "from": [  4,  4,  0 ],
-            "to":   [ 12, 12, 16 ],
+            "from": [  4,  4,  4 ],
+            "to":   [ 12, 12, 12 ],
             "faces": {
                 "down":  { "uv": [  0,  4, 16, 12 ], "texture": "#base_side", "rotation": 270 },
                 "up":    { "uv": [  0,  4, 16, 12 ], "texture": "#base_side", "rotation":  90 },

@@ -121,7 +121,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
+            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
         ItemStack stack = player.getHeldItem(hand);
 

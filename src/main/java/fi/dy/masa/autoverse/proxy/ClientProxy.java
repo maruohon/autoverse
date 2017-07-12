@@ -106,9 +106,9 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,type=sequential");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 0, "type=basic");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 1, "type=extraction");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 2, "type=directional");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 0, "down=none,east=none,north=basic,south=basic,type=basic,up=none,west=none");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 1, "down=none,east=none,north=basic,south=basic,type=extraction,up=none,west=none");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 2, "down=none,east=none,north=basic,south=basic,type=directional,up=none,west=none");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "down=true,east=true,facing=north,north=false,powered=true,south=true,up=true,west=true");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");

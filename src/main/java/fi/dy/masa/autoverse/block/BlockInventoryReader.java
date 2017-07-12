@@ -377,7 +377,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     @Nullable
     public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
     {
-        return this.collisionRayTraceToBoxes(state, world, pos, start, end);
+        return collisionRayTraceToBoxes(state, this, world, pos, start, end);
     }
 
     @SuppressWarnings("unchecked")

@@ -1,7 +1,11 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -12,6 +16,8 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
 public class TileEntityPipeExtraction extends TileEntityPipe
 {
+    private int disabledExtractionSides;
+
     public TileEntityPipeExtraction()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_PIPE_EXTRACTION);
@@ -22,6 +28,32 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         return super.canInputOnSide(side) &&
                (this.getWorld().getTileEntity(this.getPos().offset(side)) instanceof TileEntityPipe) == false;
+    }
+
+    @Override
+    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
+            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking() &&
+            player.getHeldItemMainhand().isEmpty() &&
+            player.getHeldItemOffhand().isEmpty() == false)
+        {
+            if (world.isRemote == false)
+            {
+                this.toggleExtractionOnSide(side);
+            }
+
+            return true;
+        }
+
+        return super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ);
+    }
+
+    private void toggleExtractionOnSide(EnumFacing side)
+    {
+        this.disabledExtractionSides ^= (1 << side.getIndex());
+        this.markDirty();
+        this.notifyBlockUpdate(this.getPos());
     }
 
     @Override
@@ -97,5 +129,23 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
         System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
         return -1;
+    }
+
+    @Override
+    public void readFromNBTCustom(NBTTagCompound nbt)
+    {
+        super.readFromNBTCustom(nbt);
+
+        this.disabledExtractionSides = nbt.getByte("DisabledExtSides");
+    }
+
+    @Override
+    protected NBTTagCompound writeToNBTCustom(NBTTagCompound nbt)
+    {
+        nbt = super.writeToNBTCustom(nbt);
+
+        nbt.setByte("DisabledExtSides", (byte) this.disabledExtractionSides);
+
+        return nbt;
     }
 }

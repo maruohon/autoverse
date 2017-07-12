@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +23,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.block.BlockPipe;
+import fi.dy.masa.autoverse.block.BlockPipe.PipePart;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPipe;
@@ -158,6 +161,9 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private void toggleSideDisabled(EnumFacing side)
     {
         this.disabledSides ^= (1 << side.getIndex());
+        this.updateConnectedSides();
+        this.notifyBlockUpdate(this.getPos());
+        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
         this.markDirty();
     }
 
@@ -181,7 +187,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             this.updateInputInventoryForSide(side);
         }
 
-        this.connectedSides = mask;
+        if (mask != this.connectedSides)
+        {
+            this.connectedSides = mask;
+            this.notifyBlockUpdate(this.getPos());
+        }
     }
 
     private boolean checkCanConnectOnSide(EnumFacing side)
@@ -369,7 +379,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.getOutputSideForInputSide(slot);
     }
 
-    private boolean checkCanOutputOnSide(EnumFacing side)
+    protected boolean checkCanOutputOnSide(EnumFacing side)
     {
         if ((this.disabledSides & (1 << side.getIndex())) == 0)
         {
@@ -493,15 +503,35 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public boolean onRightClickBlock(EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
+            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() && player.getHeldItem(hand).isEmpty())
+        if (player.isSneaking() && player.getHeldItem(EnumHand.MAIN_HAND).isEmpty())
         {
-            this.toggleSideDisabled(side);
+            if (world.isRemote == false)
+            {
+                this.toggleSide(world, pos, state, side, player);
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    protected void toggleSide(World world, BlockPos pos, IBlockState state, EnumFacing side, EntityPlayer player)
+    {
+        BlockPipe block = (BlockPipe) state.getBlock();
+        Pair<PipePart, EnumFacing> key = BlockPipe.getPointedElementId(world, pos, block, null, player);
+
+        // Targeting one of the side extrusions
+        if (key != null && key.getLeft() == PipePart.SIDE)
+        {
+            side = key.getRight();
+        }
+        //else: Targeting the middle part
+
+        this.toggleSideDisabled(side);
     }
 
     @Override
@@ -610,15 +640,22 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        return super.getUpdatePacketTag(tag);
+        nbt = super.getUpdatePacketTag(nbt);
+        nbt.setByte("sd", (byte) this.connectedSides);
+
+        return nbt;
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
+        this.connectedSides = tag.getByte("sd");
+
         super.handleUpdateTag(tag);
+
+        this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }
 
     @Override
