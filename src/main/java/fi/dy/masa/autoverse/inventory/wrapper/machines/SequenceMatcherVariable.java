@@ -117,7 +117,6 @@ public class SequenceMatcherVariable extends SequenceMatcher
         nbt = super.writeToNBT(nbt);
         NBTTagCompound tag = nbt.getCompoundTag(this.getTagName());
         tag.setByte("ConfiguredLength", (byte) this.configuredLength);
-        tag.setBoolean("AllowEmpty", this.allowEmptySequence);
 
         if (this.endMarker.isEmpty() == false)
         {
@@ -134,8 +133,6 @@ public class SequenceMatcherVariable extends SequenceMatcher
 
         NBTTagCompound tag = nbt.getCompoundTag(this.getTagName());
         this.configuredLength = tag.getByte("ConfiguredLength");
-        this.allowEmptySequence = tag.getBoolean("AllowEmpty");
-
         this.endMarker = new ItemStack(tag.getCompoundTag("EndMarker"));
     }
 }
