@@ -17,8 +17,8 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
-import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
+import fi.dy.masa.autoverse.tileentity.TileEntityPipeExtraction;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockPipe extends BlockAutoverseInventory
@@ -41,7 +41,8 @@ public class BlockPipe extends BlockAutoverseInventory
     {
         return new String[] {
                 this.blockName + "_basic",
-                this.blockName + "_extraction"
+                this.blockName + "_extraction",
+                this.blockName + "_directional"
         };
     }
 
@@ -77,6 +78,7 @@ public class BlockPipe extends BlockAutoverseInventory
     {
         switch (state.getValue(TYPE))
         {
+            case EXTRACTION: return new TileEntityPipeExtraction();
             default: return new TileEntityPipe();
         }
     }
@@ -128,7 +130,8 @@ public class BlockPipe extends BlockAutoverseInventory
     public static enum PipeType implements IStringSerializable
     {
         BASIC       (0, 0, "basic"),
-        EXTRACTION  (1, 1, "extraction");
+        EXTRACTION  (1, 1, "extraction"),
+        DIRECTIONAL (2, 2, "directional");
 
         private final int blockMeta;
         private final int itemMeta;
@@ -165,7 +168,14 @@ public class BlockPipe extends BlockAutoverseInventory
 
         public static PipeType fromBlockMeta(int meta)
         {
-            return meta == EXTRACTION.blockMeta ? EXTRACTION : BASIC;
+            switch (meta)
+            {
+                case 0: return BASIC;
+                case 1: return EXTRACTION;
+                case 2: return DIRECTIONAL;
+            }
+
+            return BASIC;
         }
     }
 }

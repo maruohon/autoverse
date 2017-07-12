@@ -499,7 +499,7 @@ public class InventoryUtils
             }
         }
 
-        return movedAll ? InvResult.MOVED_ALL : (movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING);
+        return (movedAll && movedSome) ? InvResult.MOVED_ALL : (movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING);
     }
 
     /**

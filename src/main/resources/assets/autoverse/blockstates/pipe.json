@@ -21,6 +21,12 @@
                     "base_side":    "autoverse:blocks/filter_sequential_side",
                     "base_end":     "autoverse:blocks/filter_sequential_side"
                 }
+            },
+            "directional": {
+                "textures": {
+                    "base_side":    "autoverse:blocks/sequencer_programmable_side",
+                    "base_end":     "autoverse:blocks/sequencer_programmable_side"
+                }
             }
         }
     }

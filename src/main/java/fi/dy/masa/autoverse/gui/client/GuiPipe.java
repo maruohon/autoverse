@@ -38,11 +38,11 @@ public class GuiPipe extends GuiAutoverse
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2,  4, 0x404040);
 
-        int val = this.te.getBaseItemHandler().getSlotLimit(0);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.max_stack_num", val), 48, 24, 0x404040);
+        int val = this.te.getDelay();
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.delay.num", val),     48, 24, 0x404040);
 
-        val = this.te.getDelay();
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.delay.num", val),     48, 36, 0x404040);
+        val = this.te.getBaseItemHandler().getSlotLimit(0);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.max_stack_num", val), 48, 36, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 100, 0x404040);
     }
