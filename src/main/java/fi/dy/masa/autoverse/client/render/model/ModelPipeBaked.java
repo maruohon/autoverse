@@ -40,6 +40,8 @@ public class ModelPipeBaked implements IBakedModel
     private static final String TEX_BASIC         = Reference.MOD_ID + ":blocks/pipe_basic";
     private static final String TEX_EXTRACTION    = Reference.MOD_ID + ":blocks/pipe_extraction";
     private static final String TEX_DIRECTIONAL   = Reference.MOD_ID + ":blocks/pipe_directional";
+    private static final String TEX_SIDE_INPUT    = Reference.MOD_ID + ":blocks/pipe_side_input";
+    private static final String TEX_SIDE_OUTPUT   = Reference.MOD_ID + ":blocks/pipe_side_output";
 
     private static final EnumFacing[] MODEL_FACES = new EnumFacing[] {
             EnumFacing.DOWN, EnumFacing.UP,
@@ -47,36 +49,36 @@ public class ModelPipeBaked implements IBakedModel
             EnumFacing.WEST, EnumFacing.EAST,
             null
     };
+
     private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>>();
     private final IModel baseModel;
-    private final IModel sideModelBasic;
-    private final IModel sideModelExtraction;
-    private final IModel sideModelDirectional;
+    private final IModel sideModelBase;
+    private final IModel sideModelInput;
+    private final IModel sideModelOutput;
     private final IModel[] cornerModels;
     private final VertexFormat format;
     private final IBakedModel bakedBaseModel;
     private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     private final TextureAtlasSprite particle;
 
-    private ModelPipeBaked(ModelPipe pipeModel, IModel baseModel, IModel sideModel, IModel[] cornerModels,
-            IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    private ModelPipeBaked(IModel baseModel, IModel sideModelBase, IModel sideModelInput, IModel sideModelOutput, IModel[] cornerModels,
+            ImmutableMap<String, String> textures, IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        ImmutableMap<String, String> textures = pipeModel.getTextureMapping();
-        this.baseModel            = baseModel.retexture(textures);
-        this.sideModelBasic       = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
-        this.sideModelExtraction  = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
-        this.sideModelDirectional = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
+        this.baseModel       = baseModel      .retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
+        this.sideModelBase   = sideModelBase  .retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
+        this.sideModelInput  = sideModelInput .retexture(ImmutableMap.of("texture", textures.get("side_input")));
+        this.sideModelOutput = sideModelOutput.retexture(ImmutableMap.of("texture", textures.get("side_output")));
         this.cornerModels = new IModel[cornerModels.length];
 
         for (int i = 0; i < this.cornerModels.length; i++)
         {
-            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("texture")));
+            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
         }
 
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.bakedBaseModel = this.baseModel.bake(modelState, format, bakedTextureGetter);
-        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("particle")));
+        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("pipe_base")));
     }
 
     @Override
@@ -290,15 +292,15 @@ public class ModelPipeBaked implements IBakedModel
             switch (conn)
             {
                 case BASIC:
-                    models.add(this.sideModelBasic.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                    models.add(this.sideModelBase.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
                     break;
 
                 case EXTRACT:
-                    models.add(this.sideModelExtraction.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                    models.add(this.sideModelInput.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
                     break;
 
                 case OUTPUT:
-                    models.add(this.sideModelDirectional.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                    models.add(this.sideModelOutput.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
                     break;
 
                 default:
@@ -310,8 +312,10 @@ public class ModelPipeBaked implements IBakedModel
 
     private static abstract class ModelPipe implements IModel
     {
-        private static final ResourceLocation BASE_MODEL     = new ResourceLocation(Reference.MOD_ID, "block/pipe_strip_y");
-        private static final ResourceLocation SIDE_MODEL     = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_strips");
+        private static final ResourceLocation BASE_MODEL        = new ResourceLocation(Reference.MOD_ID, "block/pipe_strip_y");
+        private static final ResourceLocation SIDE_MODEL_BASE   = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_strips");
+        private static final ResourceLocation SIDE_MODEL_INPUT  = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_input");
+        private static final ResourceLocation SIDE_MODEL_OUTPUT = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_output");
 
         protected final Map<String, String> textures = new HashMap<String, String>();
 
@@ -324,7 +328,7 @@ public class ModelPipeBaked implements IBakedModel
         @Override
         public List<ResourceLocation> getDependencies()
         {
-            List<ResourceLocation> models = Lists.newArrayList(BASE_MODEL, SIDE_MODEL);
+            List<ResourceLocation> models = Lists.newArrayList(BASE_MODEL, SIDE_MODEL_BASE, SIDE_MODEL_INPUT, SIDE_MODEL_OUTPUT);
 
             for (int i = 0; i < 8; i++)
             {
@@ -351,18 +355,22 @@ public class ModelPipeBaked implements IBakedModel
         public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
         {
             IModel baseModel = null;
-            IModel sideModel = null;
+            IModel sideModelBase = null;
+            IModel sideModelInput = null;
+            IModel sideModelOutput = null;
             IModel[] cornerModels = new IModel[8];
 
             try
             {
-                baseModel = ModelLoaderRegistry.getModel(BASE_MODEL);
-                sideModel = ModelLoaderRegistry.getModel(SIDE_MODEL);
+                baseModel       = ModelLoaderRegistry.getModel(BASE_MODEL);
+                sideModelBase   = ModelLoaderRegistry.getModel(SIDE_MODEL_BASE);
+                sideModelInput  = ModelLoaderRegistry.getModel(SIDE_MODEL_INPUT);
+                sideModelOutput = ModelLoaderRegistry.getModel(SIDE_MODEL_OUTPUT);
                 List<ResourceLocation> models = this.getDependencies();
 
                 for (int i = 0; i < cornerModels.length; i++)
                 {
-                    cornerModels[i] = ModelLoaderRegistry.getModel(models.get(i + 2));
+                    cornerModels[i] = ModelLoaderRegistry.getModel(models.get(i + (models.size() - 8)));
                 }
             }
             catch (Exception e)
@@ -370,10 +378,11 @@ public class ModelPipeBaked implements IBakedModel
                 Autoverse.logger.warn("Failed to load a model for the Pipe!", e);
             }
 
-            return new ModelPipeBaked(this, baseModel, sideModel, cornerModels, state, format, bakedTextureGetter);
+            return new ModelPipeBaked(baseModel, sideModelBase, sideModelInput, sideModelOutput, cornerModels,
+                    this.getTextureMapping(), state, format, bakedTextureGetter);
         }
 
-        public ImmutableMap<String, String> getTextureMapping()
+        protected ImmutableMap<String, String> getTextureMapping()
         {
             return ImmutableMap.copyOf(this.textures);
         }
@@ -383,8 +392,9 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeBasic()
         {
-            this.textures.put("particle",   TEX_BASIC);
-            this.textures.put("texture",    TEX_BASIC);
+            this.textures.put("pipe_base",   TEX_BASIC);
+            this.textures.put("side_input",  TEX_SIDE_INPUT);
+            this.textures.put("side_output", TEX_SIDE_OUTPUT);
         }
     }
 
@@ -392,8 +402,9 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeExtraction()
         {
-            this.textures.put("particle",   TEX_EXTRACTION);
-            this.textures.put("texture",    TEX_EXTRACTION);
+            this.textures.put("pipe_base",   TEX_EXTRACTION);
+            this.textures.put("side_input",  TEX_SIDE_INPUT);
+            this.textures.put("side_output", TEX_SIDE_OUTPUT);
         }
     }
 
@@ -401,8 +412,9 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeDirectional()
         {
-            this.textures.put("particle",   TEX_DIRECTIONAL);
-            this.textures.put("texture",    TEX_DIRECTIONAL);
+            this.textures.put("pipe_base",   TEX_DIRECTIONAL);
+            this.textures.put("side_input",  TEX_SIDE_INPUT);
+            this.textures.put("side_output", TEX_SIDE_OUTPUT);
         }
     }
 

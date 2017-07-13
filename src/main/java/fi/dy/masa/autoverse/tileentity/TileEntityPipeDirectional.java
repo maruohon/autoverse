@@ -7,6 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityPipeDirectional extends TileEntityPipe
@@ -31,6 +32,24 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     }
 
     @Override
+    public BlockPipe.Connection getConnectionType(int sideIndex)
+    {
+        if ((this.connectedSides & (1 << sideIndex)) != 0)
+        {
+            if ((this.outputSidesMask & (1 << sideIndex)) != 0)
+            {
+                return BlockPipe.Connection.OUTPUT;
+            }
+            else 
+            {
+                return BlockPipe.Connection.BASIC;
+            }
+        }
+
+        return BlockPipe.Connection.NONE;
+    }
+
+    @Override
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
@@ -40,7 +59,9 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         {
             if (world.isRemote == false)
             {
-                this.toggleOutputOnSide(side);
+                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
+                this.toggleOutputOnSide(targetSide);
+                this.updateConnectedSides(true);
             }
 
             return true;
@@ -72,5 +93,26 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         nbt.setByte("OutSides", (byte) this.outputSidesMask);
 
         return nbt;
+    }
+
+    @Override
+    public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
+    {
+        nbt = super.getUpdatePacketTag(nbt);
+        nbt.setShort("sd", (short) ((this.outputSidesMask << 6) | this.connectedSides));
+
+        return nbt;
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag)
+    {
+        int mask = tag.getShort("sd");
+        this.connectedSides = mask & 0x3F;
+        this.outputSidesMask = mask >>> 6;
+
+        super.handleUpdateTag(tag);
+
+        this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }
 }

@@ -133,6 +133,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.connectedSides;
     }
 
+    public BlockPipe.Connection getConnectionType(int sideIndex)
+    {
+        return (this.connectedSides & (1 << sideIndex)) != 0 ? BlockPipe.Connection.BASIC : BlockPipe.Connection.NONE;
+    }
+
     private void setDisabledSidesMask(int mask)
     {
         for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
@@ -158,7 +163,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private void toggleSideDisabled(EnumFacing side)
     {
         this.disabledSides ^= (1 << side.getIndex());
-        this.updateConnectedSides();
+        this.updateConnectedSides(true);
         this.notifyBlockUpdate(this.getPos());
         this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
         this.markDirty();
@@ -169,7 +174,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return (this.disabledSides & (1 << side.getIndex())) != 0;
     }
 
-    public void updateConnectedSides()
+    public boolean updateConnectedSides(boolean notify)
     {
         int mask = 0;
 
@@ -187,11 +192,19 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (mask != this.connectedSides)
         {
             this.connectedSides = mask;
-            this.notifyBlockUpdate(this.getPos());
+
+            if (notify)
+            {
+                this.notifyBlockUpdate(this.getPos());
+            }
+
+            return true;
         }
+
+        return false;
     }
 
-    private boolean checkCanConnectOnSide(EnumFacing side)
+    protected boolean checkCanConnectOnSide(EnumFacing side)
     {
         if ((this.disabledSides & (1 << side.getIndex())) == 0)
         {
@@ -483,7 +496,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
 
-        this.updateConnectedSides();
+        this.updateConnectedSides(true);
     }
 
     @Override
@@ -507,7 +520,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         {
             if (world.isRemote == false)
             {
-                this.toggleSide(world, pos, state, side, player);
+                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
+                this.toggleSideDisabled(targetSide);
             }
 
             return true;
@@ -516,19 +530,21 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return false;
     }
 
-    protected void toggleSide(World world, BlockPos pos, IBlockState state, EnumFacing side, EntityPlayer player)
+    protected EnumFacing getActionTargetSide(World world, BlockPos pos, IBlockState state, EnumFacing side, EntityPlayer player)
     {
-        BlockPipe block = (BlockPipe) state.getBlock();
-        Pair<PipePart, EnumFacing> key = BlockPipe.getPointedElementId(world, pos, block, null, player);
-
-        // Targeting one of the side extrusions
-        if (key != null && key.getLeft() == PipePart.SIDE)
+        if (state.getBlock() instanceof BlockPipe)
         {
-            side = key.getRight();
-        }
-        //else: Targeting the middle part
+            Pair<PipePart, EnumFacing> key = BlockPipe.getPointedElementId(world, pos, (BlockPipe) state.getBlock(), null, player);
 
-        this.toggleSideDisabled(side);
+            // Targeting one of the side connections
+            if (key != null && key.getLeft() == PipePart.SIDE)
+            {
+                side = key.getRight();
+            }
+            //else: Targeting the middle part
+        }
+
+        return side;
     }
 
     @Override

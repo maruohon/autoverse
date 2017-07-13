@@ -147,7 +147,7 @@ public class BlockPipe extends BlockAutoverseInventory
 
         if (te != null)
         {
-            te.updateConnectedSides();
+            te.updateConnectedSides(true);
 
             // This will schedule the first update after placing down the Inserter.
             // Otherwise it would need an external update to start moving items.
@@ -162,6 +162,12 @@ public class BlockPipe extends BlockAutoverseInventory
 
         if (te != null)
         {
+            for (int i = 0; i < 6; i++)
+            {
+                state = state.withProperty(CONNECTIONS.get(i), te.getConnectionType(i));
+            }
+
+            /*
             int mask = te.getConnectedSidesMask();
 
             for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
@@ -172,6 +178,7 @@ public class BlockPipe extends BlockAutoverseInventory
                     state = state.withProperty(CONNECTIONS.get(i), Connection.BASIC);
                 }
             }
+            */
         }
 
         return state;
