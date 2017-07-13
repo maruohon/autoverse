@@ -34,13 +34,10 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.NBTUtils;
+import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyncableTile
 {
-    protected static final EnumFacing[] SIDES_X = new EnumFacing[] { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.NORTH, EnumFacing.SOUTH };
-    protected static final EnumFacing[] SIDES_Z = new EnumFacing[] { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.WEST,  EnumFacing.EAST };
-    protected static final EnumFacing[] SIDES_Y = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST,  EnumFacing.EAST };
-
     protected final IItemHandler[] sideInventories;
     protected final EnumFacing[][] validSides;
     protected final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
@@ -453,16 +450,16 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         {
             case UP:
             case DOWN:
-                possibleSides = SIDES_Y;
+                possibleSides = PositionUtils.SIDES_Y;
                 break;
 
             case NORTH:
             case SOUTH:
-                possibleSides = SIDES_Z;
+                possibleSides = PositionUtils.SIDES_Z;
                 break;
 
             default:
-                possibleSides = SIDES_X;
+                possibleSides = PositionUtils.SIDES_X;
         }
 
         for (EnumFacing side : possibleSides)

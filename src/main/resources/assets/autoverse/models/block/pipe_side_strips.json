@@ -1,0 +1,56 @@
+{
+    "__comment": "Designed by Masa with BDcraft Cubik PRO 0.96 Beta - http://bdcraft.net",
+    "textures": {
+        "texture": "autoverse:blocks/pipe_basic"
+    },
+    "elements": [ 
+        {
+            "from": [ 4, 11, 0 ],
+            "to":   [ 5, 12, 4 ],
+            "faces": {
+                "down":  { "uv": [ 6,  4,  4,  0 ], "texture": "#texture" },
+                "up":    { "uv": [ 4,  0,  6,  4 ], "texture": "#texture" },
+                "north": { "uv": [ 8, 12, 10, 14 ], "texture": "#texture" },
+                "south": { "uv": [ 6, 12,  8, 14 ], "texture": "#texture" },
+                "west":  { "uv": [ 4,  0,  6,  4 ], "texture": "#texture", "rotation":  90 },
+                "east":  { "uv": [ 4,  0,  6,  4 ], "texture": "#texture", "rotation": 270 }
+            }
+        },
+        {
+            "from": [ 11, 11, 0 ],
+            "to":   [ 12, 12, 4 ],
+            "faces": {
+                "down":  { "uv": [ 12,  4, 10,  0 ], "texture": "#texture" },
+                "up":    { "uv": [ 10,  0, 12,  4 ], "texture": "#texture" },
+                "north": { "uv": [  6, 12,  8, 14 ], "texture": "#texture" },
+                "south": { "uv": [  8, 12, 10, 14 ], "texture": "#texture" },
+                "west":  { "uv": [ 10,  0, 12,  4 ], "texture": "#texture", "rotation":  90 },
+                "east":  { "uv": [ 10,  0, 12,  4 ], "texture": "#texture", "rotation": 270 }
+            }
+        },
+        {
+            "from": [ 4, 4, 0 ],
+            "to":   [ 5, 5, 4 ],
+            "faces": {
+                "down":  { "uv": [ 12,  4, 10,  0 ], "texture": "#texture" },
+                "up":    { "uv": [ 10,  0, 12,  4 ], "texture": "#texture" },
+                "north": { "uv": [  6, 12,  8, 14 ], "texture": "#texture" },
+                "south": { "uv": [  8, 12, 10, 14 ], "texture": "#texture" },
+                "west":  { "uv": [ 10,  0, 12,  4 ], "texture": "#texture", "rotation":  90 },
+                "east":  { "uv": [ 10,  0, 12,  4 ], "texture": "#texture", "rotation": 270 }
+            }
+        },
+        {
+            "from": [ 11, 4, 0 ],
+            "to":   [ 12, 5, 4 ],
+            "faces": {
+                "down":  { "uv": [ 6,  4,  4,  0 ], "texture": "#texture" },
+                "up":    { "uv": [ 4,  0,  6,  4 ], "texture": "#texture" },
+                "north": { "uv": [ 8, 12, 10, 14 ], "texture": "#texture" },
+                "south": { "uv": [ 6, 12,  8, 14 ], "texture": "#texture" },
+                "west":  { "uv": [ 4,  0,  6,  4 ], "texture": "#texture", "rotation":  90 },
+                "east":  { "uv": [ 4,  0,  6,  4 ], "texture": "#texture", "rotation": 270 }
+            }
+        }
+    ]
+}

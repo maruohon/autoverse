@@ -1,43 +1,13 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:pipe_base",
-        "transform": "forge:default-block",
-        "textures": {
-            "side":         "autoverse:blocks/filter_basic_side",
-            "base_side":    "autoverse:blocks/filter_basic_side",
-            "base_end":     "autoverse:blocks/filter_basic_side"
-        }
+        "transform": "forge:default-block"
     },
     "variants": {
         "type": {
-            "basic": {
-                "textures": {
-                    "side":         "autoverse:blocks/filter_basic_side",
-                    "base_side":    "autoverse:blocks/filter_basic_side",
-                    "base_end":     "autoverse:blocks/filter_basic_side"
-                }
-            },
-            "extraction": {
-                "textures": {
-                    "side":         "autoverse:blocks/filter_sequential_side",
-                    "base_side":    "autoverse:blocks/filter_sequential_side",
-                    "base_end":     "autoverse:blocks/filter_sequential_side"
-                }
-            },
-            "directional": {
-                "textures": {
-                    "side":         "autoverse:blocks/sequencer_programmable_side",
-                    "base_side":    "autoverse:blocks/sequencer_programmable_side",
-                    "base_end":     "autoverse:blocks/sequencer_programmable_side"
-                }
-            }
-        },
-        "down":  { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side", "x":  90 } },
-        "up":    { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side", "x": 270 } },
-        "north": { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side"           } },
-        "south": { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side", "x": 180 } },
-        "west":  { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side", "y": 270 } },
-        "east":  { "none": {}, "extract": {}, "output": {}, "basic": { "submodel": "autoverse:pipe_side", "y":  90 } }
+            "basic":        { "model" : "autoverse:custom/pipe_basic"       },
+            "extraction":   { "model" : "autoverse:custom/pipe_extraction"  },
+            "directional":  { "model" : "autoverse:custom/pipe_directional" }
+        }
     }
 }

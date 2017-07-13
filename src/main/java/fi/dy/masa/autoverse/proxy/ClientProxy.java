@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -18,6 +19,7 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.client.render.model.ModelPipeBaked;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.InputEventHandler;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
@@ -85,7 +87,14 @@ public class ClientProxy extends CommonProxy
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent event)
     {
+        registerBlockModels();
         registerItemBlockModels();
+    }
+
+    private static void registerBlockModels()
+    {
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new ModelPipeBaked.StateMapper());
+        ModelLoaderRegistry.registerLoader(new ModelPipeBaked.ModelLoaderPipe());
     }
 
     private static void registerItemBlockModels()
@@ -106,9 +115,9 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,type=sequential");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 0, "down=none,east=none,north=basic,south=basic,type=basic,up=none,west=none");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 1, "down=none,east=none,north=basic,south=basic,type=extraction,up=none,west=none");
-        registerItemBlockModel(AutoverseBlocks.PIPE, 2, "down=none,east=none,north=basic,south=basic,type=directional,up=none,west=none");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 0, "type=basic");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 1, "type=extraction");
+        registerItemBlockModel(AutoverseBlocks.PIPE, 2, "type=directional");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "down=true,east=true,facing=north,north=false,powered=true,south=true,up=true,west=true");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");

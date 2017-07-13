@@ -1,0 +1,18 @@
+{
+    "__comment": "Designed by Masa with BDcraft Cubik PRO 0.96 Beta - http://bdcraft.net",
+    "parent": "minecraft:block/block",
+    "elements": [ 
+        {
+            "from": [ 4,  5, 4 ],
+            "to":   [ 5, 11, 5 ],
+            "faces": {
+                "down":  { "uv": [ 10, 14,  8, 12 ], "texture": "#strip" },
+                "up":    { "uv": [  6, 12,  8, 14 ], "texture": "#strip" },
+                "north": { "uv": [ 10,  5, 12, 11 ], "texture": "#strip" },
+                "south": { "uv": [ 10,  5, 12, 11 ], "texture": "#strip" },
+                "west":  { "uv": [  4,  5,  6, 11 ], "texture": "#strip" },
+                "east":  { "uv": [  4,  5,  6, 11 ], "texture": "#strip" }
+            }
+        }
+    ]
+}
