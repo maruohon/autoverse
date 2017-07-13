@@ -1,5 +1,4 @@
 {
-    "__comment": "Designed by masa with BDcraft Cubik PRO 0.96 Beta - http://bdcraft.net",
     "textures": {
         "particle": "autoverse:blocks/trash_bin_top",
         "top":      "autoverse:blocks/trash_bin_top",

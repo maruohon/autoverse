@@ -37,9 +37,9 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class ModelPipeBaked implements IBakedModel
 {
-    private static final String TEX_BASIC_STRIP         = Reference.MOD_ID + ":blocks/pipe_basic";
-    private static final String TEX_EXTRACTION_STRIP    = Reference.MOD_ID + ":blocks/pipe_extraction";
-    private static final String TEX_DIRECTIONAL_STRIP   = Reference.MOD_ID + ":blocks/pipe_directional";
+    private static final String TEX_BASIC         = Reference.MOD_ID + ":blocks/pipe_basic";
+    private static final String TEX_EXTRACTION    = Reference.MOD_ID + ":blocks/pipe_extraction";
+    private static final String TEX_DIRECTIONAL   = Reference.MOD_ID + ":blocks/pipe_directional";
 
     private static final EnumFacing[] MODEL_FACES = new EnumFacing[] {
             EnumFacing.DOWN, EnumFacing.UP,
@@ -52,18 +52,27 @@ public class ModelPipeBaked implements IBakedModel
     private final IModel sideModelBasic;
     private final IModel sideModelExtraction;
     private final IModel sideModelDirectional;
+    private final IModel[] cornerModels;
     private final VertexFormat format;
     private final IBakedModel bakedBaseModel;
     private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
     private final TextureAtlasSprite particle;
 
-    private ModelPipeBaked(ModelPipe pipeModel, IModel baseModel, IModel sideModel, IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    private ModelPipeBaked(ModelPipe pipeModel, IModel baseModel, IModel sideModel, IModel[] cornerModels,
+            IModelState modelState, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         ImmutableMap<String, String> textures = pipeModel.getTextureMapping();
         this.baseModel            = baseModel.retexture(textures);
         this.sideModelBasic       = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
         this.sideModelExtraction  = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
         this.sideModelDirectional = sideModel.retexture(ImmutableMap.of("texture", textures.get("texture")));
+        this.cornerModels = new IModel[cornerModels.length];
+
+        for (int i = 0; i < this.cornerModels.length; i++)
+        {
+            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("texture")));
+        }
+
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.bakedBaseModel = this.baseModel.bake(modelState, format, bakedTextureGetter);
@@ -174,13 +183,15 @@ public class ModelPipeBaked implements IBakedModel
         this.addMiddleModelPieces(state, PositionUtils.SIDES_X, EnumFacing.EAST, models);
         this.addMiddleModelPieces(state, PositionUtils.SIDES_Z, EnumFacing.SOUTH, models);
 
+        this.addCornerPieces(state, models, EnumFacing.UP, null);
+        this.addCornerPieces(state, models, EnumFacing.DOWN, new TRSRTransformation(ModelRotation.X180_Y180));
+
         return models;
     }
 
     private void addMiddleModelPieces(IBlockState state, EnumFacing[] sides, EnumFacing rotationAxis, List<IBakedModel> models)
     {
         // NORTH, SOUTH, WEST, EAST
-        //ModelRotation[] rotY = new ModelRotation[] { ModelRotation.X0_Y0, ModelRotation.X0_Y180, ModelRotation.X0_Y270, ModelRotation.X0_Y90 };
         TRSRTransformation[] trY = new TRSRTransformation[] {
                 new TRSRTransformation(ModelRotation.X0_Y0),
                 new TRSRTransformation(ModelRotation.X0_Y180),
@@ -189,17 +200,14 @@ public class ModelPipeBaked implements IBakedModel
         };
 
         // DOWN, UP, NORTH, SOUTH
-        //ModelRotation[] rotX = new ModelRotation[] { ModelRotation.X90_Y270, ModelRotation.X270_Y270, ModelRotation.X0_Y0, ModelRotation.X0_Y180 };
         TRSRTransformation[] trX = new TRSRTransformation[] {
                 new TRSRTransformation(ModelRotation.X90_Y90),
                 new TRSRTransformation(ModelRotation.X270_Y270),
-                //(new TRSRTransformation(ModelRotation.X90_Y0)).compose(new TRSRTransformation(ModelRotation.X270_Y270)),
                 new TRSRTransformation(ModelRotation.X90_Y270),
                 new TRSRTransformation(ModelRotation.X270_Y90)
         };
 
         // DOWN, UP, WEST, EAST
-        //ModelRotation[] rotZ = new ModelRotation[] { ModelRotation.X90_Y180, ModelRotation.X270_Y0, ModelRotation.X270_Y270, ModelRotation.X270_Y270 };
         TRSRTransformation[] trZ = new TRSRTransformation[] {
                 new TRSRTransformation(ModelRotation.X90_Y180),
                 new TRSRTransformation(ModelRotation.X270_Y0),
@@ -214,17 +222,10 @@ public class ModelPipeBaked implements IBakedModel
             boolean conn1 = state.getValue(BlockPipe.CONNECTIONS.get(side.getIndex())) != Connection.NONE;
             boolean conn2 = state.getValue(BlockPipe.CONNECTIONS.get(other.getIndex())) != Connection.NONE;
             TRSRTransformation tr;
-            //if (sides == PositionUtils.SIDES_Y)         { tr = new TRSRTransformation(rotY[i]); }
-            //else if (sides == PositionUtils.SIDES_X)    { tr = new TRSRTransformation(rotX[i]); }
-            //else                                        { tr = new TRSRTransformation(rotZ[i]); }
             if (sides == PositionUtils.SIDES_Y)         { tr = trY[i]; }
             else if (sides == PositionUtils.SIDES_X)    { tr = trX[i]; }
             else                                        { tr = trZ[i]; }
 
-            if (sides == PositionUtils.SIDES_Z)
-            {
-                //System.out.printf("side: %s - other: %s\n", side, other);
-            }
             // When there is no connection on either of the sides around an edge,
             // or when there is a connection on both sides, then a vertical strip is added to that edge.
             //if (conn1 == conn2)
@@ -234,6 +235,45 @@ public class ModelPipeBaked implements IBakedModel
             {
                 models.add(this.baseModel.bake(tr, this.format, this.bakedTextureGetter));
             }
+
+            i++;
+        }
+    }
+
+    private void addCornerPieces(IBlockState state, List<IBakedModel> models, EnumFacing upAxis, @Nullable TRSRTransformation initialRot)
+    {
+        // NORTH, SOUTH, WEST, EAST
+        TRSRTransformation[] trY = new TRSRTransformation[] {
+                new TRSRTransformation(ModelRotation.X0_Y0),
+                new TRSRTransformation(ModelRotation.X0_Y180),
+                new TRSRTransformation(ModelRotation.X0_Y270),
+                new TRSRTransformation(ModelRotation.X0_Y90)
+        };
+
+        int i = 0;
+
+        for (EnumFacing side : PositionUtils.SIDES_Y)
+        {
+            int index = 0;
+            EnumFacing other = PositionUtils.rotateAround(side, upAxis);
+
+            if (state.getValue(BlockPipe.CONNECTIONS.get(upAxis.getIndex())) != Connection.NONE)
+            {
+                index |= 0x1;
+            }
+
+            if (state.getValue(BlockPipe.CONNECTIONS.get(other.getIndex())) != Connection.NONE)
+            {
+                index |= 0x2;
+            }
+
+            if (state.getValue(BlockPipe.CONNECTIONS.get(side.getIndex())) != Connection.NONE)
+            {
+                index |= 0x4;
+            }
+
+            TRSRTransformation tr = initialRot != null ? trY[i].compose(initialRot) : trY[i];
+            models.add(this.cornerModels[index].bake(tr, this.format, this.bakedTextureGetter));
 
             i++;
         }
@@ -270,8 +310,8 @@ public class ModelPipeBaked implements IBakedModel
 
     private static abstract class ModelPipe implements IModel
     {
-        private static final ResourceLocation BASE_MODEL = new ResourceLocation(Reference.MOD_ID, "block/pipe_strip_y");
-        private static final ResourceLocation SIDE_MODEL = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_strips");
+        private static final ResourceLocation BASE_MODEL     = new ResourceLocation(Reference.MOD_ID, "block/pipe_strip_y");
+        private static final ResourceLocation SIDE_MODEL     = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_strips");
 
         protected final Map<String, String> textures = new HashMap<String, String>();
 
@@ -282,15 +322,22 @@ public class ModelPipeBaked implements IBakedModel
         }
 
         @Override
-        public Collection<ResourceLocation> getDependencies()
+        public List<ResourceLocation> getDependencies()
         {
-            return Lists.newArrayList(BASE_MODEL, SIDE_MODEL);
+            List<ResourceLocation> models = Lists.newArrayList(BASE_MODEL, SIDE_MODEL);
+
+            for (int i = 0; i < 8; i++)
+            {
+                models.add(new ResourceLocation(Reference.MOD_ID, "block/pipe_corner_notch_" + i));
+            }
+
+            return models;
         }
 
         @Override
         public Collection<ResourceLocation> getTextures()
         {
-            List<ResourceLocation> textures = Lists.newArrayList();
+            Collection<ResourceLocation> textures = Lists.newArrayList();
 
             for (String name : this.getTextureMapping().values())
             {
@@ -305,18 +352,25 @@ public class ModelPipeBaked implements IBakedModel
         {
             IModel baseModel = null;
             IModel sideModel = null;
+            IModel[] cornerModels = new IModel[8];
 
             try
             {
                 baseModel = ModelLoaderRegistry.getModel(BASE_MODEL);
                 sideModel = ModelLoaderRegistry.getModel(SIDE_MODEL);
+                List<ResourceLocation> models = this.getDependencies();
+
+                for (int i = 0; i < cornerModels.length; i++)
+                {
+                    cornerModels[i] = ModelLoaderRegistry.getModel(models.get(i + 2));
+                }
             }
             catch (Exception e)
             {
-                Autoverse.logger.warn("Failed to load a model for the Pipe!");
+                Autoverse.logger.warn("Failed to load a model for the Pipe!", e);
             }
 
-            return new ModelPipeBaked(this, baseModel, sideModel, state, format, bakedTextureGetter);
+            return new ModelPipeBaked(this, baseModel, sideModel, cornerModels, state, format, bakedTextureGetter);
         }
 
         public ImmutableMap<String, String> getTextureMapping()
@@ -329,8 +383,8 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeBasic()
         {
-            this.textures.put("particle",   TEX_BASIC_STRIP);
-            this.textures.put("texture",    TEX_BASIC_STRIP);
+            this.textures.put("particle",   TEX_BASIC);
+            this.textures.put("texture",    TEX_BASIC);
         }
     }
 
@@ -338,8 +392,8 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeExtraction()
         {
-            this.textures.put("particle",   TEX_EXTRACTION_STRIP);
-            this.textures.put("texture",    TEX_EXTRACTION_STRIP);
+            this.textures.put("particle",   TEX_EXTRACTION);
+            this.textures.put("texture",    TEX_EXTRACTION);
         }
     }
 
@@ -347,8 +401,8 @@ public class ModelPipeBaked implements IBakedModel
     {
         private ModelPipeDirectional()
         {
-            this.textures.put("particle",   TEX_DIRECTIONAL_STRIP);
-            this.textures.put("texture",    TEX_DIRECTIONAL_STRIP);
+            this.textures.put("particle",   TEX_DIRECTIONAL);
+            this.textures.put("texture",    TEX_DIRECTIONAL);
         }
     }
 

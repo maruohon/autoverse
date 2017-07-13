@@ -1,16 +1,13 @@
 {
-    "__comment": "Designed by Masa with BDcraft Cubik PRO 0.96 Beta - http://bdcraft.net",
     "elements": [ 
         {
             "from": [ 11,  5, 4 ],
             "to":   [ 12, 11, 5 ],
             "faces": {
-                "down":  { "uv": [  8, 14,  6, 12 ], "texture": "#texture" },
-                "up":    { "uv": [  8, 12, 10, 14 ], "texture": "#texture" },
-                "north": { "uv": [  4,  5,  6, 11 ], "texture": "#texture" },
-                "south": { "uv": [  4,  5,  6, 11 ], "texture": "#texture" },
-                "west":  { "uv": [ 10,  5, 12, 11 ], "texture": "#texture" },
-                "east":  { "uv": [ 10,  5, 12, 11 ], "texture": "#texture" }
+                "north": { "uv": [ 0, 0, 3, 6 ], "texture": "#texture" },
+                "south": { "uv": [ 0, 0, 3, 6 ], "texture": "#texture" },
+                "west":  { "uv": [ 0, 0, 3, 6 ], "texture": "#texture" },
+                "east":  { "uv": [ 0, 0, 3, 6 ], "texture": "#texture" }
             }
         }
     ]
