@@ -32,6 +32,7 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.block.BlockPipe.Connection;
+import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
@@ -124,14 +125,14 @@ public class ModelPipeBaked implements IBakedModel
         // Item model
         if (state == null)
         {
-            return this.bakedBaseModel.getQuads(state, side, rand);
+            state = AutoverseBlocks.PIPE.getDefaultState();
+            //return this.bakedBaseModel.getQuads(state, side, rand);
         }
 
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = QUAD_CACHE.get(state);
 
-        //if (quads == null)
+        if (quads == null)
         {
-            //IModelState modelState = new ModelStateComposition(new TRSRTransformation(state.getValue(BlockInserter.FACING)), this.modelState);
             IModelState modelState = new TRSRTransformation(ModelRotation.X0_Y0);
             IBakedModel bakedBaseModel = this.baseModel.bake(modelState, this.format, this.bakedTextureGetter);
 
@@ -141,7 +142,7 @@ public class ModelPipeBaked implements IBakedModel
             return quads.get(Optional.ofNullable(side));
         }
 
-        //return QUAD_CACHE.get(state).get(Optional.ofNullable(side));
+        return QUAD_CACHE.get(state).get(Optional.ofNullable(side));
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(IBakedModel baseModel, IBlockState state, @Nullable EnumFacing side)

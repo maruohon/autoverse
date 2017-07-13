@@ -20,9 +20,11 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.client.render.model.ModelPipeBaked;
+import fi.dy.masa.autoverse.client.renderer.tile.TESRPipe;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.InputEventHandler;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
+import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
 public class ClientProxy extends CommonProxy
@@ -89,6 +91,7 @@ public class ClientProxy extends CommonProxy
     {
         registerBlockModels();
         registerItemBlockModels();
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPipe.class, new TESRPipe());
     }
 
     private static void registerBlockModels()

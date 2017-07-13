@@ -140,17 +140,17 @@ public class TileEntityPipeExtraction extends TileEntityPipe
             {
                 if (this.sideInventories[slot] != null)
                 {
-                    System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - trying to pull\n", pos, slot);
+                    //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - trying to pull\n", pos, slot);
                     return this.tryPullInItemsFromSide(world, pos, slot);
                 }
                 else
                 {
-                    System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - NOT VALID INV\n", pos, slot);
+                    //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - NOT VALID INV\n", pos, slot);
                 }
             }
             else
             {
-                System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - SUPER\n", pos, slot);
+                //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - SUPER\n", pos, slot);
                 return super.tryMoveItemsForSide(world, pos, slot);
             }
         }
@@ -171,20 +171,20 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
             if (inv != null)
             {
-                System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
+                //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
                 this.disableUpdateScheduling = true;
                 boolean movedSome = InventoryUtils.tryMoveAllItems(inv, this.sideInventories[slot]) != InvResult.MOVED_NOTHING;
                 this.disableUpdateScheduling = false;
 
                 if (movedSome)
                 {
-                    System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
+                    //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
                     return this.delay;
                 }
             }
         }
 
-        System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
+        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
         return -1;
     }
 

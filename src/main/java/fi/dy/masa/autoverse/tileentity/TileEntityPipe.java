@@ -41,13 +41,16 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     protected final IItemHandler[] sideInventories;
     protected final EnumFacing[][] validSides;
     protected final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
-    protected int delays[] = new int[6];
     protected int sideIndices[] = new int[6];
     protected int connectedSides;
     protected int disabledSides;
     protected long lastDelayUpdate;
     protected int delay = 8;
     protected boolean disableUpdateScheduling;
+    public int delays[] = new int[6];
+
+    public int delaysClient[] = new int[6];
+    public float partialTicksLast;
 
     public TileEntityPipe()
     {
@@ -74,6 +77,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         Arrays.fill(this.delays, -1);
+        Arrays.fill(this.delaysClient, -1);
     }
 
     @Override
@@ -237,7 +241,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 // This slot's item is ready to be moved out
                 if (this.delays[slot] <= elapsedTime)
                 {
-                    System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW\n", pos, slot);
+                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW\n", pos, slot);
                     int newDelay = this.tryMoveItemsForSide(world, pos, slot);
                     this.delays[slot] = newDelay;
 
@@ -249,7 +253,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 // Not ready to be moved out yet
                 else
                 {
-                    System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOT YET\n", pos, slot);
+                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOT YET\n", pos, slot);
                     // Update the time remaining in the delay
                     this.delays[slot] -= elapsedTime;
                 }
@@ -264,7 +268,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         if (nextSheduledTick > 0)
         {
-            System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - SCHED\n", pos);
+            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - SCHED\n", pos);
             this.scheduleBlockUpdate(nextSheduledTick, false);
         }
 
@@ -276,7 +280,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false && this.tryPushOutItem(world, pos, slot))
         {
-            System.out.printf("BASIC tryMoveItemsForSide(): pos: %s, slot: %d - PUSHED\n", pos, slot);
+            //System.out.printf("BASIC tryMoveItemsForSide(): pos: %s, slot: %d - PUSHED\n", pos, slot);
             /*
             if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
             {
@@ -291,26 +295,26 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
         else
         {
-            System.out.printf("BASIC tryMoveItemsForSide(): pos: %s, slot: %d - FAILED PUSH\n", pos, slot);
+            //System.out.printf("BASIC tryMoveItemsForSide(): pos: %s, slot: %d - FAILED PUSH\n", pos, slot);
             return -1;
         }
     }
 
     private boolean tryPushOutItem(World world, BlockPos pos, int slot)
     {
-        System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validSides[slot].length);
+        EnumFacing outputSide = this.getOutputSideForInputSide(slot);
+
+        //System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validSides[slot].length);
         for (int i = 0; i < this.validSides[slot].length; i++)
         {
-            EnumFacing outputSide = this.getOutputSideForInputSide(slot);
-
-            if (this.tryPushOutItemsToSide(world, pos, outputSide, slot))
+            if (outputSide != null && this.tryPushOutItemsToSide(world, pos, outputSide, slot))
             {
-                System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - SUCCESS\n", pos, outputSide);
+                //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - SUCCESS\n", pos, outputSide);
                 return true;
             }
             else
             {
-                System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - FAIL\n", pos, outputSide);
+                //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - FAIL\n", pos, outputSide);
             }
 
             outputSide = this.cycleOutputSideForInputSide(slot);
@@ -325,21 +329,32 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
         {
-            System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s\n", posSelf, slot, side);
+            //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s\n", posSelf, slot, side);
             IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
 
             if (inv != null)
             {
-                // This is used to prevent scheduling a new update because of an adjacent inventory changing
-                // while we push out items, and our own inventory changing due to this extract.
-                // The update will be scheduled, if needed, after the push is complete.
-                this.disableUpdateScheduling = true;
-
-                ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, false);
+                ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, true);
                 int sizeOrig = stack.getCount();
                 boolean movedSome = false;
 
-                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
+
+                if (stack.isEmpty() || stack.getCount() != sizeOrig)
+                {
+                    // This is used to prevent scheduling a new update because of an adjacent inventory changing
+                    // while we push out items, and our own inventory changing due to this extract.
+                    // The update will be scheduled, if needed, after the push is complete.
+                    this.disableUpdateScheduling = true;
+
+                    stack = this.itemHandlerBase.extractItem(slot, 64, false);
+                    sizeOrig = stack.getCount();
+                    stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+                }
+                else
+                {
+                    return false;
+                }
 
                 // Return the items that couldn't be moved
                 if (stack.isEmpty() == false)
@@ -550,15 +565,15 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        System.out.printf("*** BASIC onScheduledBlockUpdate(): pos: %s - START\n", pos);
+        //System.out.printf("*** BASIC onScheduledBlockUpdate(): pos: %s - START\n", pos);
         if (this.tryMoveScheduledItems(world, pos))
         {
-            System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - SUCCESS\n", pos);
+            //System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - SUCCESS\n", pos);
             this.scheduleBlockUpdate(this.delay, false);
         }
         else
         {
-            System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - FAIL\n", pos);
+            //System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - FAIL\n", pos);
         }
     }
 
@@ -568,16 +583,16 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (this.disableUpdateScheduling == false && this.getWorld().isRemote == false)
         {
             this.onSlotChange(slot, false);
+        }
 
-            ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
+        ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
 
-            // Yes that's right, we compare references here, as it should suffice
-            if (this.stacksLast.get(slot) != stack)
-            {
-                this.stacksLast.set(slot, stack);
-                this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(),
-                        new int[] { slot, this.delay }, new ItemStack[] { stack }));
-            }
+        // Yes that's right, we compare references here, as it should suffice
+        if (this.stacksLast.get(slot) != stack)
+        {
+            this.stacksLast.set(slot, stack);
+            this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(),
+                    new int[] { slot, this.delay }, new ItemStack[] { stack }));
         }
     }
 
@@ -585,13 +600,13 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (this.delays[slot] <= 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
         {
-            System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - SCHED\n", slot, EnumFacing.getFront(slot));
+            //System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - SCHED\n", slot, EnumFacing.getFront(slot));
             this.delays[slot] = this.delay;
             this.scheduleBlockUpdate(this.delay, false);
         }
         else
         {
-            System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - NOPE\n", slot, EnumFacing.getFront(slot));
+            //System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - NOPE\n", slot, EnumFacing.getFront(slot));
         }
     }
 
@@ -605,8 +620,19 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             if (stacks[0].isEmpty() == false)
             {
                 this.delays[intValues[0]] = intValues[1];
+                this.delaysClient[intValues[0]] = intValues[1];
+            }
+            else
+            {
+                this.delays[intValues[0]] = -2;
+                this.delaysClient[intValues[0]] = -2;
             }
         }
+    }
+
+    public NonNullList<ItemStack> getRenderStacks()
+    {
+        return this.stacksLast;
     }
 
     @Override
