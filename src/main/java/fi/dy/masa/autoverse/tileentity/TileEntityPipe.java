@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.base.Joiner;
 import net.minecraft.block.Block;
@@ -167,35 +166,26 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return (this.connectedSidesMask & (1 << sideIndex)) != 0 ? BlockPipe.Connection.BASIC : BlockPipe.Connection.NONE;
     }
 
-    private void setDisabledSidesMask(int mask)
-    {
-        for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
-        {
-            this.setSideDisabled(i, (mask & bit) != 0);
-        }
-    }
-
-    private void setSideDisabled(int sideIndex, boolean disabled)
-    {
-        if (disabled)
-        {
-            this.disabledSidesMask |= (1 << sideIndex);
-        }
-        else
-        {
-            this.disabledSidesMask &= ~(1 << sideIndex);
-        }
-
-        this.markDirty();
-    }
-
     private void toggleSideDisabled(EnumFacing side)
     {
+        this.setDisabledSidesMask(this.disabledSidesMask ^ (1 << side.getIndex()));
+        /*
         this.disabledSidesMask ^= (1 << side.getIndex());
         this.updateConnectedSides(true);
         this.markDirty();
 
         this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
+        this.notifyBlockUpdate(this.getPos());
+        */
+    }
+
+    private void setDisabledSidesMask(int mask)
+    {
+        this.disabledSidesMask = mask & 0x3F;
+        this.updateConnectedSides(true);
+        this.markDirty();
+
+        this.getWorld().notifyNeighborsOfStateChange(this.getPos(), this.getBlockType(), false);
         this.notifyBlockUpdate(this.getPos());
     }
 
@@ -394,6 +384,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 // Moved entire stack, notify neighbors only in this case
                 if (stack.isEmpty())
                 {
+                    this.cloggedItemsMask &= ~(1 << slot);
                     world.updateComparatorOutputLevel(posSelf, this.getBlockType());
                 }
                 // Return the items that couldn't be moved
@@ -415,7 +406,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return false;
     }
 
-    protected boolean reScheduleStuckItems()
+    protected boolean scheduleCurrentWork()
     {
         int nextSheduledTick = -1;
 
@@ -476,6 +467,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
     }
 
+    /*
     @Nullable
     private EnumFacing getOutputSideForInputSide(int slot)
     {
@@ -498,6 +490,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         return this.getOutputSideForInputSide(slot);
     }
+    */
 
     protected boolean checkCanOutputOnSide(EnumFacing side)
     {
@@ -626,6 +619,10 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.redstoneState == false;
     }
 
+    protected void onNeighborInventoryChange()
+    {
+    }
+
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
@@ -634,7 +631,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (worldIn.isRemote == false)
         {
             this.updateConnectedSides(true);
-            //this.reScheduleStuckItems();
+            this.scheduleCurrentWork();
         }
     }
 
@@ -644,7 +641,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         // When an adjacent tile changes, schedule a new tile tick.
         // Updates will not be scheduled due to the adjacent inventory changing
         // while we are pushing items to it (this.disableUpdateScheduling == true).
-        if (this.disableUpdateScheduling == false && this.getWorld().isRemote == false) // && this.shouldOperate())
+        if (this.disableUpdateScheduling == false && this.getWorld().isRemote == false && this.shouldOperate())
         {
             // When the pipe is clogged, try to push out the clogged items immediately
             // on neighbor tile change, instead of scheduling an update
@@ -654,6 +651,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             }
             else
             {
+                this.onNeighborInventoryChange();
                 // TODO this is only needed for the extraction pipe?
                 //this.reScheduleStuckItems();
                 //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
@@ -666,13 +664,20 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
+        if (world.isRemote == false)
+        {
+            for (int i = 0; i < this.validOutputSidesPerSide.length; i++)
+            {
+                System.out.printf("pos: %s, i: %d, valid out: %s\n", this.getPos(), i, Joiner.on(", ").join(this.validOutputSidesPerSide[i]));
+            }
+        }
         if (player.isSneaking() && player.getHeldItem(EnumHand.MAIN_HAND).isEmpty())
         {
             if (world.isRemote == false)
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleSideDisabled(targetSide);
-                this.reScheduleStuckItems();
+                this.scheduleCurrentWork();
             }
 
             return true;
@@ -819,6 +824,17 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         nbt.setByte("sd", (byte) this.connectedSidesMask);
 
+        for (int slot = 0; slot < this.itemHandlerBase.getSlots(); slot++)
+        {
+            ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
+
+            if (stack.isEmpty() == false)
+            {
+                NBTTagCompound tag = stack.writeToNBT(new NBTTagCompound());
+                nbt.setTag("st" + slot, tag);
+            }
+        }
+
         return nbt;
     }
 
@@ -826,6 +842,14 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     public void handleUpdateTag(NBTTagCompound tag)
     {
         this.connectedSidesMask = tag.getByte("sd");
+
+        for (int slot = 0; slot < this.itemHandlerBase.getSlots(); slot++)
+        {
+            if (tag.hasKey("st" + slot, Constants.NBT.TAG_COMPOUND))
+            {
+                this.stacksLast.set(slot, new ItemStack(tag.getCompoundTag("st" + slot)));
+            }
+        }
 
         this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }
@@ -850,7 +874,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         for (int i = 0; i < validSidesMasks.length; i++)
         {
-            this.validOutputSidesPerSide[i] = this.createFacingArrayFromMask(validSidesMasks[i]);
+            this.validOutputSidesPerSide[i] = this.createFacingArrayFromMask(i, validSidesMasks[i]);
         }
     }
 
@@ -881,15 +905,26 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return nbt;
     }
 
-    private EnumFacing[] createFacingArrayFromMask(int mask)
+    private EnumFacing[] createFacingArrayFromMask(int side, int mask)
     {
+        EnumFacing opposite = EnumFacing.getFront(side).getOpposite();
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
 
         for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
         {
             if ((mask & bit) != 0)
             {
-                sides.add(EnumFacing.getFront(i));
+                EnumFacing facing = EnumFacing.getFront(i);
+
+                // The "straight through" output side must be the first entry, if it's present
+                if (facing == opposite)
+                {
+                    sides.add(0, facing);
+                }
+                else
+                {
+                    sides.add(facing);
+                }
             }
         }
 

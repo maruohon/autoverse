@@ -22,10 +22,28 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
 
     @Override
+    public BlockPipe.Connection getConnectionType(int sideIndex)
+    {
+        //System.out.printf("in: 0x%02X, conn: 0x%02X\n", this.validInputSides, this.connectedSides);
+        if ((this.validInputSides & (1 << sideIndex)) != 0)
+        {
+            return BlockPipe.Connection.EXTRACT;
+        }
+        else if ((this.getConnectedSidesMask() & (1 << sideIndex)) != 0)
+        {
+            return BlockPipe.Connection.BASIC;
+        }
+
+        return BlockPipe.Connection.NONE;
+    }
+
+    /*
+    @Override
     protected boolean canInputOnSide(EnumFacing side)
     {
         return false;
     }
+    */
 
     protected boolean canPullFromSide(EnumFacing side)
     {
@@ -38,6 +56,20 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         }
 
         return false;
+    }
+
+    @Override
+    protected boolean hasWorkOnSide(int slot)
+    {
+        return super.hasWorkOnSide(slot) ||
+                (this.shouldOperate() && (this.validInputSides & (1 << slot)) != 0 &&
+                 this.itemHandlerBase.getStackInSlot(slot).isEmpty());
+    }
+
+    @Override
+    protected void onNeighborInventoryChange()
+    {
+        this.scheduleCurrentWork();
     }
 
     @Override
@@ -68,22 +100,6 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         return dirty;
     }
 
-    @Override
-    public BlockPipe.Connection getConnectionType(int sideIndex)
-    {
-        //System.out.printf("in: 0x%02X, conn: 0x%02X\n", this.validInputSides, this.connectedSides);
-        if ((this.validInputSides & (1 << sideIndex)) != 0)
-        {
-            return BlockPipe.Connection.EXTRACT;
-        }
-        else if ((this.getConnectedSidesMask() & (1 << sideIndex)) != 0)
-        {
-            return BlockPipe.Connection.BASIC;
-        }
-
-        return BlockPipe.Connection.NONE;
-    }
-
     /*
     @Override
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
@@ -112,10 +128,10 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
     */
 
+    /*
     @Override
     protected boolean reScheduleStuckItems()
     {
-        /*
         int nextSheduledTick = -1;
 
         for (int slot = 0; slot < 6; slot++)
@@ -144,17 +160,8 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         }
 
         return false;
-        */
-        return super.reScheduleStuckItems();
     }
-
-    @Override
-    protected boolean hasWorkOnSide(int slot)
-    {
-        return super.hasWorkOnSide(slot) ||
-                (this.shouldOperate() && (this.validInputSides & (1 << slot)) != 0 &&
-                 this.itemHandlerBase.getStackInSlot(slot).isEmpty());
-    }
+    */
 
     @Override
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
@@ -209,7 +216,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
                         InvResult result = InventoryUtils.tryMoveAllItems(inv, inputInv);
                         this.disableUpdateScheduling = false;
 
-                        if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
+                        //if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
                         return result;
                     }
                 }

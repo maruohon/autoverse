@@ -1,9 +1,9 @@
 package fi.dy.masa.autoverse.block;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -53,7 +53,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     public static final PropertyEnum<ReaderType> TYPE = PropertyEnum.<ReaderType>create("type", ReaderType.class);
     public static final PropertyBool POWERED = PropertyBool.create("powered");
 
-    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new HashMap<Integer, AxisAlignedBB>();
+    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
 
     public BlockInventoryReader(String name, float hardness, float resistance, int harvestLevel, Material material)
     {

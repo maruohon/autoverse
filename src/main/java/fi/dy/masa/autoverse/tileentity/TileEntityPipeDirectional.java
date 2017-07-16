@@ -20,10 +20,41 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     }
 
     @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        if (propId == 3)
+        {
+            this.setOutputMask(value);
+            return true;
+        }
+        else
+        {
+            return super.applyProperty(propId, value);
+        }
+    }
+
+    private void toggleOutputOnSide(EnumFacing side)
+    {
+        this.setOutputMask(this.outputSidesMask ^ (1 << side.getIndex()));
+    }
+
+    private void setOutputMask(int mask)
+    {
+        this.outputSidesMask = mask & 0x3F;
+        this.updateConnectedSides(true);
+        this.markDirty();
+
+        this.getWorld().notifyNeighborsOfStateChange(this.getPos(), this.getBlockType(), false);
+        this.notifyBlockUpdate(this.getPos());
+    }
+
+    /*
+    @Override
     protected boolean canInputOnSide(EnumFacing side)
     {
         return super.canInputOnSide(side) && (this.outputSidesMask & (1 << side.getIndex())) == 0;
     }
+    */
 
     @Override
     protected boolean checkCanOutputOnSide(EnumFacing side)
@@ -61,23 +92,13 @@ public class TileEntityPipeDirectional extends TileEntityPipe
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleOutputOnSide(targetSide);
-                this.reScheduleStuckItems();
+                this.scheduleCurrentWork();
             }
 
             return true;
         }
 
         return super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ);
-    }
-
-    private void toggleOutputOnSide(EnumFacing side)
-    {
-        this.outputSidesMask ^= (1 << side.getIndex());
-        this.updateConnectedSides(true);
-        this.markDirty();
-
-        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
-        this.notifyBlockUpdate(this.getPos());
     }
 
     @Override
