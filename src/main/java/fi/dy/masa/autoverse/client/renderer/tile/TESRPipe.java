@@ -65,7 +65,7 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
 
                     if (delay >= 0)
                     {
-                        progress = -0.5f + (((float) delay + 1f - partialTicks) / (float) te.delays[i]);
+                        progress = -0.5f + (((float) delay + 1f - partialTicks) / (float) te.getDelayForSide(i));
                     }
                     else
                     {

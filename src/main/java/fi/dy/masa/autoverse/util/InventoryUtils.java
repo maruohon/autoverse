@@ -819,6 +819,7 @@ public class InventoryUtils
 
     public static enum InvResult
     {
+        NO_WORK,
         MOVED_NOTHING,
         MOVED_SOME,
         MOVED_ALL;

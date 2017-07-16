@@ -34,7 +34,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     @Override
     public BlockPipe.Connection getConnectionType(int sideIndex)
     {
-        if ((this.connectedSides & (1 << sideIndex)) != 0)
+        if ((this.getConnectedSidesMask() & (1 << sideIndex)) != 0)
         {
             if ((this.outputSidesMask & (1 << sideIndex)) != 0)
             {
@@ -61,7 +61,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleOutputOnSide(targetSide);
-                this.updateConnectedSides(true);
+                this.reScheduleStuckItems();
             }
 
             return true;
@@ -73,7 +73,10 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     private void toggleOutputOnSide(EnumFacing side)
     {
         this.outputSidesMask ^= (1 << side.getIndex());
+        this.updateConnectedSides(true);
         this.markDirty();
+
+        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
         this.notifyBlockUpdate(this.getPos());
     }
 
@@ -82,7 +85,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     {
         super.readFromNBTCustom(nbt);
 
-        this.outputSidesMask = nbt.getByte("OutSides");
+        this.outputSidesMask = nbt.getByte("Outs");
     }
 
     @Override
@@ -90,7 +93,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     {
         nbt = super.writeToNBTCustom(nbt);
 
-        nbt.setByte("OutSides", (byte) this.outputSidesMask);
+        nbt.setByte("Outs", (byte) this.outputSidesMask);
 
         return nbt;
     }
@@ -98,8 +101,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getUpdatePacketTag(nbt);
-        nbt.setShort("sd", (short) ((this.outputSidesMask << 6) | this.connectedSides));
+        nbt.setShort("sd", (short) ((this.outputSidesMask << 6) | this.getConnectedSidesMask()));
 
         return nbt;
     }
@@ -108,10 +110,8 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int mask = tag.getShort("sd");
-        this.connectedSides = mask & 0x3F;
+        this.setConnectedSidesMask(mask & 0x3F);
         this.outputSidesMask = mask >>> 6;
-
-        super.handleUpdateTag(tag);
 
         this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
+import com.google.common.base.Joiner;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -38,17 +40,20 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyncableTile
 {
-    protected final IItemHandler[] sideInventories;
-    protected final EnumFacing[][] validSides;
-    protected final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
-    protected int sideIndices[] = new int[6];
-    protected int connectedSides;
-    protected int disabledSides;
-    protected long lastDelayUpdate;
-    protected int delay = 8;
+    private final IItemHandler[] inputInventories;
+    private final EnumFacing[][] validOutputSidesPerSide;
+    private final byte outputSideIndices[] = new byte[6];
+    private final int delaysPerSide[] = new int[6];
+    private int connectedSidesMask;
+    private int disabledSidesMask;
+    private int cloggedItemsMask;
+    private int delay = 8;
+    private long lastDelayUpdate;
     protected boolean disableUpdateScheduling;
-    public int delays[] = new int[6];
+    protected boolean disableNeighorNotification;
 
+    // Client-side or client sync/rendering related things
+    private final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
     public int delaysClient[] = new int[6];
     public float partialTicksLast;
 
@@ -62,21 +67,21 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         super(name);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 6, 64, false, "Items", this);
-        this.sideInventories = new IItemHandler[6];
+        this.inputInventories = new IItemHandler[6];
 
         for (int i = 0; i < 6; i++)
         {
-            this.sideInventories[i] = new InventoryWrapperSides(this.itemHandlerBase, i, this);
+            this.inputInventories[i] = new InventoryWrapperSides(this.itemHandlerBase, i, this);
         }
 
-        this.validSides = new EnumFacing[6][];
+        this.validOutputSidesPerSide = new EnumFacing[6][];
 
         for (int i = 0; i < 6; i++)
         {
-            this.validSides[i] = new EnumFacing[0];
+            this.validOutputSidesPerSide[i] = new EnumFacing[0];
         }
 
-        Arrays.fill(this.delays, -1);
+        Arrays.fill(this.delaysPerSide, -1);
         Arrays.fill(this.delaysClient, -1);
     }
 
@@ -127,6 +132,16 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.delay = MathHelper.clamp(delay, 1, 72000);
     }
 
+    public int getDelayForSide(int side)
+    {
+        return this.delaysPerSide[side];
+    }
+
+    protected void setDelayForSide(int side, int delay)
+    {
+        this.delaysPerSide[side] = delay;
+    }
+
     public void setMaxStackSize(int maxSize)
     {
         this.itemHandlerBase.setStackLimit(MathHelper.clamp(maxSize, 1, 64));
@@ -134,12 +149,22 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     public int getConnectedSidesMask()
     {
-        return this.connectedSides;
+        return this.connectedSidesMask;
+    }
+
+    protected void setConnectedSidesMask(int mask)
+    {
+        this.connectedSidesMask = mask;
+    }
+
+    protected IItemHandler getInputInventory(int side)
+    {
+        return this.inputInventories[side];
     }
 
     public BlockPipe.Connection getConnectionType(int sideIndex)
     {
-        return (this.connectedSides & (1 << sideIndex)) != 0 ? BlockPipe.Connection.BASIC : BlockPipe.Connection.NONE;
+        return (this.connectedSidesMask & (1 << sideIndex)) != 0 ? BlockPipe.Connection.BASIC : BlockPipe.Connection.NONE;
     }
 
     private void setDisabledSidesMask(int mask)
@@ -154,11 +179,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (disabled)
         {
-            this.disabledSides |= (1 << sideIndex);
+            this.disabledSidesMask |= (1 << sideIndex);
         }
         else
         {
-            this.disabledSides &= ~(1 << sideIndex);
+            this.disabledSidesMask &= ~(1 << sideIndex);
         }
 
         this.markDirty();
@@ -166,16 +191,17 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private void toggleSideDisabled(EnumFacing side)
     {
-        this.disabledSides ^= (1 << side.getIndex());
+        this.disabledSidesMask ^= (1 << side.getIndex());
         this.updateConnectedSides(true);
-        this.notifyBlockUpdate(this.getPos());
-        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
         this.markDirty();
+
+        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
+        this.notifyBlockUpdate(this.getPos());
     }
 
     private boolean isSideDisabled(EnumFacing side)
     {
-        return (this.disabledSides & (1 << side.getIndex())) != 0;
+        return (this.disabledSidesMask & (1 << side.getIndex())) != 0;
     }
 
     public boolean updateConnectedSides(boolean notify)
@@ -193,9 +219,9 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             this.updateInputInventoryForSide(side);
         }
 
-        if (mask != this.connectedSides)
+        if (mask != this.connectedSidesMask)
         {
-            this.connectedSides = mask;
+            this.connectedSidesMask = mask;
 
             if (notify)
             {
@@ -210,7 +236,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected boolean checkCanConnectOnSide(EnumFacing side)
     {
-        if ((this.disabledSides & (1 << side.getIndex())) == 0)
+        if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
         {
             TileEntity te = this.getWorld().getTileEntity(this.getPos().offset(side));
 
@@ -236,18 +262,22 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         for (int slot = 0; slot < 6; slot++)
         {
-            if (this.delays[slot] >= 0)
+            int delay = this.delaysPerSide[slot];
+
+            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - initial delay: %d\n", pos, slot, this.delaysPerSide[slot]);
+            if (delay >= 0)
             {
                 // This slot's item is ready to be moved out
-                if (this.delays[slot] <= elapsedTime)
+                if (delay <= elapsedTime)
                 {
-                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW\n", pos, slot);
-                    int newDelay = this.tryMoveItemsForSide(world, pos, slot);
-                    this.delays[slot] = newDelay;
+                    delay = this.tryMoveItemsForSide(world, pos, slot) ? this.delay : -1;
+                    this.delaysPerSide[slot] = delay;
+                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW, newDelay: %d\n", pos, slot, delay);
 
-                    if (newDelay == -1)
+                    if (delay < 0)
                     {
-                        continue;
+                        //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW -> FAIL\n", pos, slot);
+                        //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - final delay: %d\n", pos, slot, this.delaysPerSide[slot]);
                     }
                 }
                 // Not ready to be moved out yet
@@ -255,28 +285,32 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 {
                     //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOT YET\n", pos, slot);
                     // Update the time remaining in the delay
-                    this.delays[slot] -= elapsedTime;
+                    this.delaysPerSide[slot] -= elapsedTime;
+                    delay = this.delaysPerSide[slot];
                 }
 
                 // Get the soonest next scheduled update's delay
-                if (nextSheduledTick < 0 || this.delays[slot] < nextSheduledTick)
+                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
                 {
-                    nextSheduledTick = this.delays[slot];
+                    nextSheduledTick = delay;
                 }
             }
-        }
-
-        if (nextSheduledTick > 0)
-        {
-            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - SCHED\n", pos);
-            this.scheduleBlockUpdate(nextSheduledTick, false);
+            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - final delay: %d\n", pos, slot, this.delaysPerSide[slot]);
         }
 
         this.lastDelayUpdate = currentTime;
-        return nextSheduledTick > 0;
+
+        if (nextSheduledTick > 0)
+        {
+            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - SCHED @ %d\n", pos, nextSheduledTick);
+            this.scheduleBlockUpdate(nextSheduledTick, false);
+            return true;
+        }
+
+        return false;
     }
 
-    protected int tryMoveItemsForSide(World world, BlockPos pos, int slot)
+    protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
         if (this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false && this.tryPushOutItem(world, pos, slot))
         {
@@ -291,23 +325,23 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 return this.delay;
             }
             */
-            return this.delay;
+            return true;
         }
         else
         {
             //System.out.printf("BASIC tryMoveItemsForSide(): pos: %s, slot: %d - FAILED PUSH\n", pos, slot);
-            return -1;
+            return false;
         }
     }
 
     private boolean tryPushOutItem(World world, BlockPos pos, int slot)
     {
-        EnumFacing outputSide = this.getOutputSideForInputSide(slot);
-
-        //System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validSides[slot].length);
-        for (int i = 0; i < this.validSides[slot].length; i++)
+        //System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validOutputSidesPerSide[slot].length);
+        for (int i = 0; i < this.validOutputSidesPerSide[slot].length; i++)
         {
-            if (outputSide != null && this.tryPushOutItemsToSide(world, pos, outputSide, slot))
+            EnumFacing outputSide = this.validOutputSidesPerSide[slot][i];
+
+            if (this.tryPushOutItemsToSide(world, pos, outputSide, slot))
             {
                 //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - SUCCESS\n", pos, outputSide);
                 return true;
@@ -316,8 +350,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             {
                 //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - FAIL\n", pos, outputSide);
             }
-
-            outputSide = this.cycleOutputSideForInputSide(slot);
         }
 
         return false;
@@ -329,11 +361,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
         {
-            //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s\n", posSelf, slot, side);
             IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
 
             if (inv != null)
             {
+                //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s\n", posSelf, slot, side);
                 ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, true);
                 int sizeOrig = stack.getCount();
                 boolean movedSome = false;
@@ -346,6 +378,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                     // while we push out items, and our own inventory changing due to this extract.
                     // The update will be scheduled, if needed, after the push is complete.
                     this.disableUpdateScheduling = true;
+                    this.disableNeighorNotification = true;
 
                     stack = this.itemHandlerBase.extractItem(slot, 64, false);
                     sizeOrig = stack.getCount();
@@ -353,17 +386,27 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 }
                 else
                 {
+                    this.cloggedItemsMask |= (1 << slot);
+                    //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s - FAILED SIM\n", posSelf, slot, side);
                     return false;
                 }
 
-                // Return the items that couldn't be moved
-                if (stack.isEmpty() == false)
+                // Moved entire stack, notify neighbors only in this case
+                if (stack.isEmpty())
                 {
+                    world.updateComparatorOutputLevel(posSelf, this.getBlockType());
+                }
+                // Return the items that couldn't be moved
+                else
+                {
+                    //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushed to side: %s but not all\n", posSelf, slot, side);
                     movedSome = stack.getCount() != sizeOrig;
                     this.itemHandlerBase.insertItem(slot, stack, false);
                 }
 
                 this.disableUpdateScheduling = false;
+                this.disableNeighorNotification = false;
+                //System.out.printf("BASIC tryPushOutItemsToSide(): pos: %s, slot: %d pushed to side: %s - isEmpty: %s, movedSome: %s\n", posSelf, slot, side, stack.isEmpty(), movedSome);
 
                 return stack.isEmpty() || movedSome;
             }
@@ -374,31 +417,83 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected boolean reScheduleStuckItems()
     {
-        boolean addedDelays = false;
+        int nextSheduledTick = -1;
 
         for (int slot = 0; slot < 6; slot++)
         {
-            if (this.delays[slot] <= 0 && this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false)
+            if (this.hasWorkOnSide(slot))
             {
-                this.delays[slot] = this.delay;
-                addedDelays = true;
+                int delay = this.delaysPerSide[slot];
+
+                System.out.printf("re-schedule stuck items @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
+                if (delay < 0)
+                {
+                    delay = this.delay;
+                    this.delaysPerSide[slot] = delay;
+                }
+
+                // Get the soonest next scheduled update's delay
+                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
+                {
+                    nextSheduledTick = delay;
+                }
             }
         }
 
-        return addedDelays;
+        if (nextSheduledTick >= 0)
+        {
+            System.out.printf("re-scheduling stuck items @ %s for %d\n", this.getPos(), nextSheduledTick);
+            this.scheduleBlockUpdate(nextSheduledTick, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected void tryPushOutCloggedItems()
+    {
+        for (int slot = 0; slot < 6; slot++)
+        {
+            if (this.delaysPerSide[slot] < 0 &&
+                this.hasWorkOnSide(slot) &&
+                this.tryPushOutItem(this.getWorld(), this.getPos(), slot))
+            {
+                this.cloggedItemsMask &= ~(1 << slot);
+
+                if (this.hasWorkOnSide(slot))
+                {
+                    this.delaysPerSide[slot] = this.delay;
+                    this.scheduleBlockUpdate(this.delay, false);
+                }
+            }
+        }
+    }
+
+    protected boolean hasWorkOnSide(int slot)
+    {
+        return this.shouldOperate() &&
+               this.validOutputSidesPerSide[slot].length > 0 &&
+               this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
     }
 
     @Nullable
     private EnumFacing getOutputSideForInputSide(int slot)
     {
-        return this.sideIndices[slot] < this.validSides[slot].length ? this.validSides[slot][this.sideIndices[slot]] : null;
+        if (this.outputSideIndices[slot] < this.validOutputSidesPerSide[slot].length)
+        {
+            //System.out.printf("getOutputSideForInputSide(): pos: %s, slot: %d, index: %d - valid out: %s\n", this.getPos(), slot, this.outputSideIndices[slot], Joiner.on(", ").join(this.validOutputSidesPerSide[slot]));
+            return this.validOutputSidesPerSide[slot][this.outputSideIndices[slot]];
+        }
+
+        return null;
     }
 
+    @Nullable
     private EnumFacing cycleOutputSideForInputSide(int slot)
     {
-        if (++this.sideIndices[slot] >= this.validSides[slot].length)
+        if (++this.outputSideIndices[slot] >= this.validOutputSidesPerSide[slot].length)
         {
-            this.sideIndices[slot] = 0;
+            this.outputSideIndices[slot] = 0;
         }
 
         return this.getOutputSideForInputSide(slot);
@@ -406,7 +501,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected boolean checkCanOutputOnSide(EnumFacing side)
     {
-        if ((this.disabledSides & (1 << side.getIndex())) == 0)
+        if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
         {
             TileEntity te = this.getWorld().getTileEntity(this.getPos().offset(side));
 
@@ -431,34 +526,28 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private void updateInputInventoryForSide(EnumFacing side)
     {
-        if ((this.disabledSides & (1 << side.getIndex())) == 0)
+        int slot = side.getIndex();
+
+        if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
         {
             TileEntity te = this.getWorld().getTileEntity(this.getPos().offset(side));
-            int slot = side.getIndex();
 
-            if (te instanceof TileEntityPipe)
+            if ((te instanceof TileEntityPipe) ||
+                (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite())))
             {
                 this.createInputInventoryIfNull(slot);
-            }
-            else
-            {
-                if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
-                {
-                    this.createInputInventoryIfNull(slot);
-                }
-                else
-                {
-                    this.sideInventories[slot] = null;
-                }
+                return;
             }
         }
+
+        this.inputInventories[slot] = null;
     }
 
     protected void createInputInventoryIfNull(int slot)
     {
-        if (this.sideInventories[slot] == null)
+        if (this.inputInventories[slot] == null)
         {
-            this.sideInventories[slot] = new InventoryWrapperSides(this.itemHandlerBase, slot, this);
+            this.inputInventories[slot] = new InventoryWrapperSides(this.itemHandlerBase, slot, this);
         }
     }
 
@@ -498,7 +587,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             }
         }
 
-        this.validSides[inputSide.getIndex()] = sides.toArray(new EnumFacing[sides.size()]);
+        this.validOutputSidesPerSide[inputSide.getIndex()] = sides.toArray(new EnumFacing[sides.size()]);
+        System.out.printf("updateAllValidOutputSidesForInputSide(): pos: %s, inputSide: %s - valid out: %s\n", this.getPos(), inputSide, Joiner.on(", ").join(this.validOutputSidesPerSide[inputSide.getIndex()]));
     }
 
     @Override
@@ -507,11 +597,45 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
+    public void markDirty()
+    {
+        World world = this.getWorld();
+
+        if (world != null)
+        {
+            BlockPos pos = this.getPos();
+            world.markChunkDirty(pos, this);
+
+            if (this.disableNeighorNotification == false)
+            {
+                this.updateContainingBlockInfo();
+                Block block = this.getBlockType();
+                this.getBlockMetadata();
+
+                if (block != Blocks.AIR)
+                {
+                    world.updateComparatorOutputLevel(pos, block);
+                }
+            }
+        }
+    }
+
+    protected boolean shouldOperate()
+    {
+        // TODO
+        return this.redstoneState == false;
+    }
+
+    @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
 
-        this.updateConnectedSides(true);
+        if (worldIn.isRemote == false)
+        {
+            this.updateConnectedSides(true);
+            //this.reScheduleStuckItems();
+        }
     }
 
     @Override
@@ -520,10 +644,21 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         // When an adjacent tile changes, schedule a new tile tick.
         // Updates will not be scheduled due to the adjacent inventory changing
         // while we are pushing items to it (this.disableUpdateScheduling == true).
-        if (this.disableUpdateScheduling == false && this.reScheduleStuckItems()) // && this.shouldOperate())
+        if (this.disableUpdateScheduling == false && this.getWorld().isRemote == false) // && this.shouldOperate())
         {
-            //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
-            this.scheduleBlockUpdate(this.delay, false);
+            // When the pipe is clogged, try to push out the clogged items immediately
+            // on neighbor tile change, instead of scheduling an update
+            if (this.cloggedItemsMask != 0)
+            {
+                this.tryPushOutCloggedItems();
+            }
+            else
+            {
+                // TODO this is only needed for the extraction pipe?
+                //this.reScheduleStuckItems();
+                //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
+                //this.scheduleBlockUpdate(this.delay, false);
+            }
         }
     }
 
@@ -537,6 +672,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleSideDisabled(targetSide);
+                this.reScheduleStuckItems();
             }
 
             return true;
@@ -598,10 +734,10 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private void onSlotChange(int slot, boolean force)
     {
-        if (this.delays[slot] <= 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
+        if (this.delaysPerSide[slot] < 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
         {
             //System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - SCHED\n", slot, EnumFacing.getFront(slot));
-            this.delays[slot] = this.delay;
+            this.delaysPerSide[slot] = this.delay;
             this.scheduleBlockUpdate(this.delay, false);
         }
         else
@@ -619,12 +755,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
             if (stacks[0].isEmpty() == false)
             {
-                this.delays[intValues[0]] = intValues[1];
+                this.delaysPerSide[intValues[0]] = intValues[1];
                 this.delaysClient[intValues[0]] = intValues[1];
             }
             else
             {
-                this.delays[intValues[0]] = -2;
+                this.delaysPerSide[intValues[0]] = -2;
                 this.delaysClient[intValues[0]] = -2;
             }
         }
@@ -655,7 +791,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (facing != null &&
             capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY &&
-            this.sideInventories[facing.getIndex()] != null)
+            this.inputInventories[facing.getIndex()] != null)
         {
             return true;
         }
@@ -670,7 +806,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (facing != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
         {
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.sideInventories[facing.getIndex()]);
+            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inputInventories[facing.getIndex()]);
         }
         else
         {
@@ -681,8 +817,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getUpdatePacketTag(nbt);
-        nbt.setByte("sd", (byte) this.connectedSides);
+        nbt.setByte("sd", (byte) this.connectedSidesMask);
 
         return nbt;
     }
@@ -690,9 +825,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.connectedSides = tag.getByte("sd");
-
-        super.handleUpdateTag(tag);
+        this.connectedSidesMask = tag.getByte("sd");
 
         this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }
@@ -702,21 +835,22 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         super.readFromNBTCustom(nbt);
 
-        this.delay = nbt.getByte("Delay");
-        this.disabledSides = nbt.getByte("DisabledSides");
-        this.connectedSides = nbt.getByte("ConnectedSides");
-        this.lastDelayUpdate = nbt.getLong("LastUpdate");
-        this.setMaxStackSize(nbt.getByte("MaxStack"));
+        this.delay = nbt.getByte("Dl");
+        this.disabledSidesMask = nbt.getByte("Dis");
+        this.connectedSidesMask = nbt.getByte("Conn");
+        this.lastDelayUpdate = nbt.getLong("Last");
+        this.cloggedItemsMask = nbt.getByte("Clgg");
+        this.setMaxStackSize(nbt.getByte("Max"));
 
-        NBTUtils.readByteArrayIntoIntArray(this.delays, nbt, "Delays");
-        NBTUtils.readByteArrayIntoIntArray(this.sideIndices, nbt, "SideIndices");
+        NBTUtils.readByteArrayIntoIntArray(this.delaysPerSide, nbt, "Dls");
+        NBTUtils.readByteArray(this.outputSideIndices, nbt, "Ind");
 
-        byte[] validSidesMasks = new byte[this.validSides.length];
-        NBTUtils.readByteArray(validSidesMasks, nbt, "ValidSides");
+        byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
+        NBTUtils.readByteArray(validSidesMasks, nbt, "Vld");
 
         for (int i = 0; i < validSidesMasks.length; i++)
         {
-            this.validSides[i] = this.createFacingArrayFromMask(validSidesMasks[i]);
+            this.validOutputSidesPerSide[i] = this.createFacingArrayFromMask(validSidesMasks[i]);
         }
     }
 
@@ -725,23 +859,24 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         nbt = super.writeToNBTCustom(nbt);
 
-        nbt.setByte("Delay", (byte) this.delay);
-        nbt.setByte("DisabledSides", (byte) this.disabledSides);
-        nbt.setByte("ConnectedSides", (byte) this.connectedSides);
-        nbt.setLong("LastUpdate", this.lastDelayUpdate);
-        nbt.setByte("MaxStack", (byte) this.itemHandlerBase.getSlotLimit(0));
+        nbt.setByte("Dl", (byte) this.delay);
+        nbt.setByte("Dis", (byte) this.disabledSidesMask);
+        nbt.setByte("Conn", (byte) this.connectedSidesMask);
+        nbt.setLong("Last", this.lastDelayUpdate);
+        nbt.setByte("Max", (byte) this.itemHandlerBase.getSlotLimit(0));
+        nbt.setByte("Clgg", (byte) this.cloggedItemsMask);
 
-        NBTUtils.writeIntArrayAsByteArray(this.delays, nbt, "Delays");
-        NBTUtils.writeIntArrayAsByteArray(this.sideIndices, nbt, "SideIndices");
+        NBTUtils.writeIntArrayAsByteArray(this.delaysPerSide, nbt, "Dls");
+        nbt.setByteArray("Ind", this.outputSideIndices);
 
-        byte[] validSidesMasks = new byte[this.validSides.length];
+        byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
 
         for (int i = 0; i < validSidesMasks.length; i++)
         {
-            validSidesMasks[i] = (byte) this.createMaskFromFacingArray(this.validSides[i]);
+            validSidesMasks[i] = (byte) this.createMaskFromFacingArray(this.validOutputSidesPerSide[i]);
         }
 
-        nbt.setByteArray("ValidSides", validSidesMasks);
+        nbt.setByteArray("Vld", validSidesMasks);
 
         return nbt;
     }

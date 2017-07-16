@@ -21,11 +21,10 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         super(ReferenceNames.NAME_TILE_ENTITY_PIPE_EXTRACTION);
     }
 
-    // TODO remove this override?
     @Override
     protected boolean canInputOnSide(EnumFacing side)
     {
-        return super.canInputOnSide(side);
+        return false;
     }
 
     protected boolean canPullFromSide(EnumFacing side)
@@ -77,7 +76,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         {
             return BlockPipe.Connection.EXTRACT;
         }
-        else if ((this.connectedSides & (1 << sideIndex)) != 0)
+        else if ((this.getConnectedSidesMask() & (1 << sideIndex)) != 0)
         {
             return BlockPipe.Connection.BASIC;
         }
@@ -116,76 +115,112 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     protected boolean reScheduleStuckItems()
     {
-        boolean addedDelays = false;
+        /*
+        int nextSheduledTick = -1;
 
         for (int slot = 0; slot < 6; slot++)
         {
-            // Always schedule an update on neighbor tile change, since we may want to push or pull items
-            if (this.delays[slot] <= 0)
+            int delay = this.getDelayForSide(slot);
+
+            System.out.printf("re-schedule stuck items @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
+            if (delay < 0)
             {
-                this.delays[slot] = this.delay;
-                addedDelays = true;
+                delay = this.getDelay();
+                this.setDelayForSide(slot, delay);
+            }
+
+            // Get the soonest next scheduled update's delay
+            if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
+            {
+                nextSheduledTick = delay;
             }
         }
 
-        return addedDelays;
+        if (nextSheduledTick >= 0)
+        {
+            System.out.printf("re-scheduling stuck items @ %s for %d\n", this.getPos(), nextSheduledTick);
+            this.scheduleBlockUpdate(nextSheduledTick, false);
+            return true;
+        }
+
+        return false;
+        */
+        return super.reScheduleStuckItems();
     }
 
-    protected int tryMoveItemsForSide(World world, BlockPos pos, int slot)
+    @Override
+    protected boolean hasWorkOnSide(int slot)
     {
-        // Only operate without a redstone signal
-        if (this.redstoneState == false)
+        return super.hasWorkOnSide(slot) ||
+                (this.shouldOperate() && (this.validInputSides & (1 << slot)) != 0 &&
+                 this.itemHandlerBase.getStackInSlot(slot).isEmpty());
+    }
+
+    @Override
+    protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
+    {
+        if (this.shouldOperate())
         {
-            if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
-            {
-                if (this.sideInventories[slot] != null)
-                {
-                    //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - trying to pull\n", pos, slot);
-                    return this.tryPullInItemsFromSide(world, pos, slot);
-                }
-                else
-                {
-                    //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - NOT VALID INV\n", pos, slot);
-                }
-            }
-            else
+            InvResult result = this.tryPullInItemsFromSide(world, pos, slot);
+
+            if (result == InvResult.NO_WORK)
             {
                 //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - SUPER\n", pos, slot);
                 return super.tryMoveItemsForSide(world, pos, slot);
             }
-        }
-
-        return -1;
-    }
-
-    private int tryPullInItemsFromSide(World world, BlockPos posSelf, int slot)
-    {
-        EnumFacing side = EnumFacing.getFront(slot);
-        TileEntity te = world.getTileEntity(posSelf.offset(side));
-
-        if (te != null &&
-            (te instanceof TileEntityPipe) == false &&
-            te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
-        {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
-
-            if (inv != null)
+            else
             {
-                //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
-                this.disableUpdateScheduling = true;
-                boolean movedSome = InventoryUtils.tryMoveAllItems(inv, this.sideInventories[slot]) != InvResult.MOVED_NOTHING;
-                this.disableUpdateScheduling = false;
-
-                if (movedSome)
-                {
-                    //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
-                    return this.delay;
-                }
+                return result != InvResult.MOVED_NOTHING;
             }
         }
 
-        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
-        return -1;
+        return false;
+    }
+
+    /**
+     * Tries to pull in items from the given side, if the input slot for that side is currently empty.
+     * @param world
+     * @param posSelf
+     * @param slot
+     * @return true if the input slot WAS empty, and thus no need to try to push out items
+     */
+    private InvResult tryPullInItemsFromSide(World world, BlockPos posSelf, int slot)
+    {
+        // Empty input slot, try to pull in items
+        if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
+        {
+            IItemHandler inputInv = this.getInputInventory(slot);
+
+            if (inputInv != null)
+            {
+                EnumFacing side = EnumFacing.getFront(slot);
+                TileEntity te = world.getTileEntity(posSelf.offset(side));
+
+                if (te != null &&
+                    (te instanceof TileEntityPipe) == false &&
+                    te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
+                {
+                    IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+
+                    if (inv != null)
+                    {
+                        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
+                        this.disableUpdateScheduling = true;
+                        InvResult result = InventoryUtils.tryMoveAllItems(inv, inputInv);
+                        this.disableUpdateScheduling = false;
+
+                        if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
+                        return result;
+                    }
+                }
+            }
+            //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
+
+            return InvResult.MOVED_NOTHING;
+        }
+
+        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - NO WORK\n", posSelf, slot);
+        return InvResult.NO_WORK;
     }
 
     @Override
@@ -193,7 +228,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         super.readFromNBTCustom(nbt);
 
-        this.validInputSides = nbt.getByte("InputSides");
+        this.validInputSides = nbt.getByte("Ins");
     }
 
     @Override
@@ -201,7 +236,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         nbt = super.writeToNBTCustom(nbt);
 
-        nbt.setByte("InputSides", (byte) this.validInputSides);
+        nbt.setByte("Ins", (byte) this.validInputSides);
 
         return nbt;
     }
@@ -209,8 +244,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound nbt)
     {
-        nbt = super.getUpdatePacketTag(nbt);
-        nbt.setShort("sd", (short) ((this.validInputSides << 6) | this.connectedSides));
+        nbt.setShort("sd", (short) ((this.validInputSides << 6) | this.getConnectedSidesMask()));
 
         return nbt;
     }
@@ -219,10 +253,8 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int mask = tag.getShort("sd");
-        this.connectedSides = mask & 0x3F;
+        this.setConnectedSidesMask(mask & 0x3F);
         this.validInputSides = mask >>> 6;
-
-        super.handleUpdateTag(tag);
 
         this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
     }
