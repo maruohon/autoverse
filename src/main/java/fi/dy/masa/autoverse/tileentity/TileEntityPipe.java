@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import org.apache.commons.lang3.tuple.Pair;
-import com.google.common.base.Joiner;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -136,10 +135,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.delaysPerSide[side];
     }
 
+    /*
     protected void setDelayForSide(int side, int delay)
     {
         this.delaysPerSide[side] = delay;
     }
+    */
 
     public void setMaxStackSize(int maxSize)
     {
@@ -238,6 +239,90 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             {
                 return te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
             }
+        }
+
+        return false;
+    }
+
+    protected boolean hasWorkOnSide(int slot)
+    {
+        return this.shouldOperate() &&
+               this.validOutputSidesPerSide[slot].length > 0 &&
+               this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
+    }
+
+    protected void scheduleWorkForSide(int side, int delay)
+    {
+        long currentTime = this.getWorld().getTotalWorldTime();
+        // Time elapsed since the last check/update
+        int elapsedTime = (int) (currentTime - this.lastDelayUpdate);
+
+        // The delay needs to compensated/increased by the elapsed time since the last check/update,
+        // otherwise things that get scheduled later than other things, would still be acted on at the
+        // same time as the earlier scheduled things, as they would have the same "remaining delay".
+        this.delaysPerSide[side] = delay + elapsedTime;
+    }
+
+    protected void tryPushOutCloggedItems()
+    {
+        for (int slot = 0; slot < 6; slot++)
+        {
+            if (this.delaysPerSide[slot] < 0 &&
+                this.hasWorkOnSide(slot) &&
+                this.tryPushOutItem(this.getWorld(), this.getPos(), slot))
+            {
+                this.cloggedItemsMask &= ~(1 << slot);
+
+                if (this.hasWorkOnSide(slot))
+                {
+                    this.scheduleWorkForSide(slot, this.delay);
+                    this.scheduleBlockUpdate(this.delay, false);
+                }
+            }
+        }
+    }
+
+    protected boolean scheduleCurrentWork()
+    {
+        long currentTime = this.getWorld().getTotalWorldTime();
+        // Time elapsed since the last check/update
+        int elapsedTime = (int) (currentTime - this.lastDelayUpdate);
+        int nextSheduledTick = -1;
+        System.out.printf("scheduleCurrentWork() @ %s, curr: %d, last: %d, elapsed: %d\n", this.getPos(), currentTime, this.lastDelayUpdate, elapsedTime);
+
+        for (int slot = 0; slot < 6; slot++)
+        {
+            if (this.hasWorkOnSide(slot))
+            {
+                int delay = this.delaysPerSide[slot];
+
+                System.out.printf("scheduleCurrentWork() @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
+                if (delay < 0)
+                {
+                    delay = this.delay + elapsedTime;
+                    this.delaysPerSide[slot] = delay;
+                    System.out.printf("scheduleCurrentWork() @ %s - new delay: %d\n", this.getPos(), delay);
+                }
+                // Existing scheduled update
+                else
+                {
+                    delay -= elapsedTime;
+                    System.out.printf("scheduleCurrentWork() @ %s - existing delay: %d, scheduling for: %d\n", this.getPos(), delay + elapsedTime, delay);
+                }
+
+                // Get the soonest next scheduled update's delay
+                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
+                {
+                    nextSheduledTick = delay;
+                }
+            }
+        }
+
+        if (nextSheduledTick >= 0)
+        {
+            System.out.printf("scheduleCurrentWork() @ %s for %d\n", this.getPos(), nextSheduledTick);
+            this.scheduleBlockUpdate(nextSheduledTick, false);
+            return true;
         }
 
         return false;
@@ -406,67 +491,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return false;
     }
 
-    protected boolean scheduleCurrentWork()
-    {
-        int nextSheduledTick = -1;
-
-        for (int slot = 0; slot < 6; slot++)
-        {
-            if (this.hasWorkOnSide(slot))
-            {
-                int delay = this.delaysPerSide[slot];
-
-                System.out.printf("re-schedule stuck items @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
-                if (delay < 0)
-                {
-                    delay = this.delay;
-                    this.delaysPerSide[slot] = delay;
-                }
-
-                // Get the soonest next scheduled update's delay
-                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
-                {
-                    nextSheduledTick = delay;
-                }
-            }
-        }
-
-        if (nextSheduledTick >= 0)
-        {
-            System.out.printf("re-scheduling stuck items @ %s for %d\n", this.getPos(), nextSheduledTick);
-            this.scheduleBlockUpdate(nextSheduledTick, false);
-            return true;
-        }
-
-        return false;
-    }
-
-    protected void tryPushOutCloggedItems()
-    {
-        for (int slot = 0; slot < 6; slot++)
-        {
-            if (this.delaysPerSide[slot] < 0 &&
-                this.hasWorkOnSide(slot) &&
-                this.tryPushOutItem(this.getWorld(), this.getPos(), slot))
-            {
-                this.cloggedItemsMask &= ~(1 << slot);
-
-                if (this.hasWorkOnSide(slot))
-                {
-                    this.delaysPerSide[slot] = this.delay;
-                    this.scheduleBlockUpdate(this.delay, false);
-                }
-            }
-        }
-    }
-
-    protected boolean hasWorkOnSide(int slot)
-    {
-        return this.shouldOperate() &&
-               this.validOutputSidesPerSide[slot].length > 0 &&
-               this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
-    }
-
     /*
     @Nullable
     private EnumFacing getOutputSideForInputSide(int slot)
@@ -581,7 +605,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         this.validOutputSidesPerSide[inputSide.getIndex()] = sides.toArray(new EnumFacing[sides.size()]);
-        System.out.printf("updateAllValidOutputSidesForInputSide(): pos: %s, inputSide: %s - valid out: %s\n", this.getPos(), inputSide, Joiner.on(", ").join(this.validOutputSidesPerSide[inputSide.getIndex()]));
+        //System.out.printf("updateAllValidOutputSidesForInputSide(): pos: %s, inputSide: %s - valid out: %s\n", this.getPos(), inputSide, Joiner.on(", ").join(this.validOutputSidesPerSide[inputSide.getIndex()]));
     }
 
     @Override
@@ -647,14 +671,15 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             // on neighbor tile change, instead of scheduling an update
             if (this.cloggedItemsMask != 0)
             {
+                System.out.printf("onNeighborTileChange(), pos: %s - CLOGGED\n", this.getPos());
                 this.tryPushOutCloggedItems();
             }
             else
             {
+                System.out.printf("onNeighborTileChange(), pos: %s - NOT clogged\n", this.getPos());
                 this.onNeighborInventoryChange();
                 // TODO this is only needed for the extraction pipe?
                 //this.reScheduleStuckItems();
-                //System.out.printf("onNeighborTileChange(), scheduling(?) for %s\n", this.getPos());
                 //this.scheduleBlockUpdate(this.delay, false);
             }
         }
@@ -664,13 +689,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
-        if (world.isRemote == false)
-        {
-            for (int i = 0; i < this.validOutputSidesPerSide.length; i++)
-            {
-                System.out.printf("pos: %s, i: %d, valid out: %s\n", this.getPos(), i, Joiner.on(", ").join(this.validOutputSidesPerSide[i]));
-            }
-        }
         if (player.isSneaking() && player.getHeldItem(EnumHand.MAIN_HAND).isEmpty())
         {
             if (world.isRemote == false)
@@ -742,7 +760,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (this.delaysPerSide[slot] < 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
         {
             //System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - SCHED\n", slot, EnumFacing.getFront(slot));
-            this.delaysPerSide[slot] = this.delay;
+            this.scheduleWorkForSide(slot, this.delay);
             this.scheduleBlockUpdate(this.delay, false);
         }
         else
