@@ -41,7 +41,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private final IItemHandler[] inputInventories;
     private final EnumFacing[][] validOutputSidesPerSide;
     private final byte outputSideIndices[] = new byte[6];
-    private final int delaysPerSide[] = new int[6];
+    private final int scheduledTimes[] = new int[6];
     private int connectedSidesMask;
     private int disabledSidesMask;
     private int cloggedItemsMask;
@@ -79,7 +79,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             this.validOutputSidesPerSide[i] = new EnumFacing[0];
         }
 
-        Arrays.fill(this.delaysPerSide, -1);
+        Arrays.fill(this.scheduledTimes, -1);
         Arrays.fill(this.delaysClient, -1);
     }
 
@@ -120,6 +120,18 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
+    @Override
+    public void onLoad()
+    {
+        this.setScheduledTimesFromDelays();
+    }
+
+    @Override
+    public void invalidate()
+    {
+        super.invalidate();
+    }
+
     public int getDelay()
     {
         return this.delay;
@@ -132,7 +144,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     public int getDelayForSide(int side)
     {
-        return this.delaysPerSide[side];
+        return this.scheduledTimes[side];
     }
 
     /*
@@ -251,23 +263,35 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
     }
 
-    protected void scheduleWorkForSide(int side, int delay)
+    private void setScheduledTimesFromDelays()
     {
-        long currentTime = this.getWorld().getTotalWorldTime();
-        // Time elapsed since the last check/update
-        int elapsedTime = (int) (currentTime - this.lastDelayUpdate);
+        int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
 
-        // The delay needs to compensated/increased by the elapsed time since the last check/update,
-        // otherwise things that get scheduled later than other things, would still be acted on at the
-        // same time as the earlier scheduled things, as they would have the same "remaining delay".
-        this.delaysPerSide[side] = delay + elapsedTime;
+        // Set the scheduled times on chunk load from the relative delays loaded from NBT
+        for (int i = 0; i < this.scheduledTimes.length; i++)
+        {
+            System.out.printf("setScheduledTimesFromDelays() @ %s, side: %d, sched for: %d\n", this.getPos(), i, this.scheduledTimes[i]);
+            byte delay = (byte) this.scheduledTimes[i];
+
+            if (delay >= 0)
+            {
+                System.out.printf("setScheduledTimesFromDelays() @ %s, side: %d, ADJ sched for: %d\n", this.getPos(), i, currentTime + delay);
+                this.scheduledTimes[i] = currentTime + delay;
+            }
+        }
+    }
+
+    protected void setScheduledTimeForSide(int side, int delay)
+    {
+        int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
+        this.scheduledTimes[side] = delay + currentTime;
     }
 
     protected void tryPushOutCloggedItems()
     {
         for (int slot = 0; slot < 6; slot++)
         {
-            if (this.delaysPerSide[slot] < 0 &&
+            if (this.scheduledTimes[slot] < 0 &&
                 this.hasWorkOnSide(slot) &&
                 this.tryPushOutItem(this.getWorld(), this.getPos(), slot))
             {
@@ -275,7 +299,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
                 if (this.hasWorkOnSide(slot))
                 {
-                    this.scheduleWorkForSide(slot, this.delay);
+                    this.setScheduledTimeForSide(slot, this.delay);
                     this.scheduleBlockUpdate(this.delay, false);
                 }
             }
@@ -284,44 +308,34 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected boolean scheduleCurrentWork()
     {
-        long currentTime = this.getWorld().getTotalWorldTime();
-        // Time elapsed since the last check/update
-        int elapsedTime = (int) (currentTime - this.lastDelayUpdate);
+        int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
         int nextSheduledTick = -1;
-        System.out.printf("scheduleCurrentWork() @ %s, curr: %d, last: %d, elapsed: %d\n", this.getPos(), currentTime, this.lastDelayUpdate, elapsedTime);
+        System.out.printf("scheduleCurrentWork() @ %s, curr: %d\n", this.getPos(), currentTime);
 
         for (int slot = 0; slot < 6; slot++)
         {
             if (this.hasWorkOnSide(slot))
             {
-                int delay = this.delaysPerSide[slot];
-
-                System.out.printf("scheduleCurrentWork() @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
-                if (delay < 0)
+                System.out.printf("scheduleCurrentWork() @ %s, slot: %d, old sched time: %d\n", this.getPos(), slot, this.scheduledTimes[slot]);
+                // No previous scheduled update
+                if (this.scheduledTimes[slot] < 0 || this.scheduledTimes[slot] < currentTime)
                 {
-                    delay = this.delay + elapsedTime;
-                    this.delaysPerSide[slot] = delay;
-                    System.out.printf("scheduleCurrentWork() @ %s - new delay: %d\n", this.getPos(), delay);
-                }
-                // Existing scheduled update
-                else
-                {
-                    delay -= elapsedTime;
-                    System.out.printf("scheduleCurrentWork() @ %s - existing delay: %d, scheduling for: %d\n", this.getPos(), delay + elapsedTime, delay);
+                    this.setScheduledTimeForSide(slot, this.delay);
+                    System.out.printf("scheduleCurrentWork() @ %s - slot: %d, new sched time: %d\n", this.getPos(), slot, this.scheduledTimes[slot]);
                 }
 
-                // Get the soonest next scheduled update's delay
-                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
+                // Get the soonest next scheduled update's time
+                if (this.scheduledTimes[slot] >= 0 && (nextSheduledTick < 0 || this.scheduledTimes[slot] < nextSheduledTick))
                 {
-                    nextSheduledTick = delay;
+                    nextSheduledTick = this.scheduledTimes[slot];
                 }
             }
         }
 
-        if (nextSheduledTick >= 0)
+        if (nextSheduledTick >= currentTime)
         {
-            System.out.printf("scheduleCurrentWork() @ %s for %d\n", this.getPos(), nextSheduledTick);
-            this.scheduleBlockUpdate(nextSheduledTick, false);
+            System.out.printf("scheduleCurrentWork() @ %s, sched for: %d (remaining delay: %d)\n", this.getPos(), nextSheduledTick, nextSheduledTick - currentTime);
+            this.reScheduleUpdateIfSooner(nextSheduledTick - currentTime);
             return true;
         }
 
@@ -330,55 +344,50 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private boolean tryMoveScheduledItems(World world, BlockPos pos)
     {
-        long currentTime = world.getTotalWorldTime();
-        // Time elapsed since last check
-        int elapsedTime = (int) (currentTime - this.lastDelayUpdate);
+        int currentTime = (int) (world.getTotalWorldTime() & 0x3FFFFFFF);
         int nextSheduledTick = -1;
 
         for (int slot = 0; slot < 6; slot++)
         {
-            int delay = this.delaysPerSide[slot];
-
-            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - initial delay: %d\n", pos, slot, this.delaysPerSide[slot]);
-            if (delay >= 0)
+            System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - sched time: %d, current: %d\n", pos, slot, this.scheduledTimes[slot], currentTime);
+            if (this.scheduledTimes[slot] >= 0)
             {
                 // This slot's item is ready to be moved out
-                if (delay <= elapsedTime)
+                if (this.scheduledTimes[slot] <= currentTime)
                 {
-                    delay = this.tryMoveItemsForSide(world, pos, slot) ? this.delay : -1;
-                    this.delaysPerSide[slot] = delay;
-                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW, newDelay: %d\n", pos, slot, delay);
-
-                    if (delay < 0)
+                    if (this.tryMoveItemsForSide(world, pos, slot))
                     {
-                        //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW -> FAIL\n", pos, slot);
-                        //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - final delay: %d\n", pos, slot, this.delaysPerSide[slot]);
+                        this.setScheduledTimeForSide(slot, this.delay);
+                        System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW, new time: %d\n", pos, slot, this.scheduledTimes[slot]);
+                    }
+                    else
+                    {
+                        System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOW -> FAIL\n", pos, slot);
+                        this.scheduledTimes[slot] = -1;
                     }
                 }
                 // Not ready to be moved out yet
                 else
                 {
-                    //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOT YET\n", pos, slot);
+                    System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - NOT YET\n", pos, slot);
                     // Update the time remaining in the delay
-                    this.delaysPerSide[slot] -= elapsedTime;
-                    delay = this.delaysPerSide[slot];
+                    //this.delaysPerSide[slot] -= elapsedTime;
+                    //delay = this.delaysPerSide[slot];
                 }
 
-                // Get the soonest next scheduled update's delay
-                if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
+                // Get the soonest next scheduled update's time
+                if (this.scheduledTimes[slot] >= 0 && (nextSheduledTick < 0 || this.scheduledTimes[slot] < nextSheduledTick))
                 {
-                    nextSheduledTick = delay;
+                    nextSheduledTick = this.scheduledTimes[slot];
                 }
             }
             //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s, slot: %d - final delay: %d\n", pos, slot, this.delaysPerSide[slot]);
         }
 
-        this.lastDelayUpdate = currentTime;
-
-        if (nextSheduledTick > 0)
+        if (nextSheduledTick >= currentTime)
         {
-            //System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - SCHED @ %d\n", pos, nextSheduledTick);
-            this.scheduleBlockUpdate(nextSheduledTick, false);
+            System.out.printf("BASIC tryMoveScheduledItems(): pos: %s - sched for: %d (remaining delay: %d)\n", pos, nextSheduledTick, nextSheduledTick - currentTime);
+            this.reScheduleUpdateIfSooner(nextSheduledTick - currentTime);
             return true;
         }
 
@@ -609,11 +618,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public void onLoad()
-    {
-    }
-
-    @Override
     public void markDirty()
     {
         World world = this.getWorld();
@@ -727,8 +731,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         //System.out.printf("*** BASIC onScheduledBlockUpdate(): pos: %s - START\n", pos);
         if (this.tryMoveScheduledItems(world, pos))
         {
-            //System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - SUCCESS\n", pos);
-            this.scheduleBlockUpdate(this.delay, false);
+            System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - SUCCESS\n", pos);
+            //this.scheduleBlockUpdate(this.delay, false);
         }
         else
         {
@@ -757,10 +761,10 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private void onSlotChange(int slot, boolean force)
     {
-        if (this.delaysPerSide[slot] < 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
+        if (this.scheduledTimes[slot] < 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
         {
             //System.out.printf("BASIC onSlotChange(): slot/side: %d - %s - SCHED\n", slot, EnumFacing.getFront(slot));
-            this.scheduleWorkForSide(slot, this.delay);
+            this.setScheduledTimeForSide(slot, this.delay);
             this.scheduleBlockUpdate(this.delay, false);
         }
         else
@@ -778,12 +782,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
             if (stacks[0].isEmpty() == false)
             {
-                this.delaysPerSide[intValues[0]] = intValues[1];
+                this.scheduledTimes[intValues[0]] = intValues[1];
                 this.delaysClient[intValues[0]] = intValues[1];
             }
             else
             {
-                this.delaysPerSide[intValues[0]] = -2;
+                this.scheduledTimes[intValues[0]] = -2;
                 this.delaysClient[intValues[0]] = -2;
             }
         }
@@ -884,7 +888,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.cloggedItemsMask = nbt.getByte("Clgg");
         this.setMaxStackSize(nbt.getByte("Max"));
 
-        NBTUtils.readByteArrayIntoIntArray(this.delaysPerSide, nbt, "Dls");
+        NBTUtils.readByteArrayIntoIntArray(this.scheduledTimes, nbt, "Sch");
         NBTUtils.readByteArray(this.outputSideIndices, nbt, "Ind");
 
         byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
@@ -908,7 +912,27 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         nbt.setByte("Max", (byte) this.itemHandlerBase.getSlotLimit(0));
         nbt.setByte("Clgg", (byte) this.cloggedItemsMask);
 
-        NBTUtils.writeIntArrayAsByteArray(this.delaysPerSide, nbt, "Dls");
+        if (this.getWorld() != null)
+        {
+            int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
+            byte[] delays = new byte[this.scheduledTimes.length];
+
+            for (int i = 0; i < delays.length; i++)
+            {
+                if (this.scheduledTimes[i] >= 0)
+                {
+                    delays[i] = (byte) (this.scheduledTimes[i] - currentTime);
+                }
+                else
+                {
+                    delays[i] = (byte) -1;
+                }
+            }
+
+            nbt.setByteArray("Sch", delays);
+        }
+
+        //NBTUtils.writeIntArrayAsByteArray(this.delaysPerSide, nbt, "Dls");
         nbt.setByteArray("Ind", this.outputSideIndices);
 
         byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
