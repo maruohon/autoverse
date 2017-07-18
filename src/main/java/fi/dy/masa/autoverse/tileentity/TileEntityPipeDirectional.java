@@ -92,7 +92,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleOutputOnSide(targetSide);
-                this.scheduleCurrentWork();
+                this.scheduleCurrentWork(this.getDelay());
             }
 
             return true;

@@ -62,14 +62,13 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     protected boolean hasWorkOnSide(int slot)
     {
         return super.hasWorkOnSide(slot) ||
-                (this.shouldOperate() && (this.validInputSides & (1 << slot)) != 0 &&
+                (this.shouldOperatePull() && (this.validInputSides & (1 << slot)) != 0 &&
                  this.itemHandlerBase.getStackInSlot(slot).isEmpty());
     }
 
-    @Override
-    protected void onNeighborInventoryChange()
+    private boolean shouldOperatePull()
     {
-        this.scheduleCurrentWork();
+        return this.redstoneState == false;
     }
 
     @Override
@@ -166,22 +165,37 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
-        if (this.shouldOperate())
+        if (this.shouldOperatePull())
         {
             InvResult result = this.tryPullInItemsFromSide(world, pos, slot);
 
             if (result == InvResult.NO_WORK)
             {
-                //System.out.printf("EXTRACTION tryMoveItemsForSide(): pos: %s, slot: %d - SUPER\n", pos, slot);
-                return super.tryMoveItemsForSide(world, pos, slot);
+                //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - NO WORK -> super\n", world.getTotalWorldTime(), pos, slot);
+                boolean ret = super.tryMoveItemsForSide(world, pos, slot);
+
+                /*
+                if (ret || this.itemHandlerBase.getStackInSlot(slot).isEmpty())
+                {
+                    System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - NO WORK -> super -> SCHED\n", world.getTotalWorldTime(), pos, slot);
+                    return true;
+                }
+                */
+
+                return ret || this.itemHandlerBase.getStackInSlot(slot).isEmpty();
             }
             else
             {
+                //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - SCHED\n", world.getTotalWorldTime(), pos);
+                //this.scheduleCurrentWork(this.getDelay());
                 return result != InvResult.MOVED_NOTHING;
             }
         }
-
-        return false;
+        // shouldOperate() is only used for pulling in items, not pushing items out
+        else
+        {
+            return super.tryMoveItemsForSide(world, pos, slot);
+        }
     }
 
     /**
@@ -213,8 +227,12 @@ public class TileEntityPipeExtraction extends TileEntityPipe
                     {
                         //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
                         this.disableUpdateScheduling = true;
+                        this.disableNeighorNotification = true;
+
                         InvResult result = InventoryUtils.tryMoveAllItems(inv, inputInv);
+
                         this.disableUpdateScheduling = false;
+                        this.disableNeighorNotification = false;
 
                         //if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
                         return result;
