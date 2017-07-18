@@ -32,6 +32,7 @@ import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipeDirectional;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipeExtraction;
+import fi.dy.masa.autoverse.tileentity.TileEntityPipeRoundRobin;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockPipe extends BlockAutoverseInventory
@@ -96,7 +97,8 @@ public class BlockPipe extends BlockAutoverseInventory
         return new String[] {
                 this.blockName + "_basic",
                 this.blockName + "_extraction",
-                this.blockName + "_directional"
+                this.blockName + "_directional",
+                this.blockName + "_roundrobin"
         };
     }
 
@@ -134,6 +136,7 @@ public class BlockPipe extends BlockAutoverseInventory
         {
             case EXTRACTION:    return new TileEntityPipeExtraction();
             case DIRECTIONAL:   return new TileEntityPipeDirectional();
+            case ROUNDROBIN:    return new TileEntityPipeRoundRobin();
             default:            return new TileEntityPipe();
         }
     }
@@ -164,19 +167,6 @@ public class BlockPipe extends BlockAutoverseInventory
             {
                 state = state.withProperty(CONNECTIONS.get(i), te.getConnectionType(i));
             }
-
-            /*
-            int mask = te.getConnectedSidesMask();
-
-            for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
-            {
-                if ((mask & bit) != 0)
-                {
-                    // FIXME connection type
-                    state = state.withProperty(CONNECTIONS.get(i), Connection.BASIC);
-                }
-            }
-            */
         }
 
         return state;
@@ -309,7 +299,8 @@ public class BlockPipe extends BlockAutoverseInventory
     {
         BASIC       (0, 0, "basic"),
         EXTRACTION  (1, 1, "extraction"),
-        DIRECTIONAL (2, 2, "directional");
+        DIRECTIONAL (2, 2, "directional"),
+        ROUNDROBIN  (3, 3, "roundrobin");
 
         private final int blockMeta;
         private final int itemMeta;
@@ -351,6 +342,7 @@ public class BlockPipe extends BlockAutoverseInventory
                 case 0: return BASIC;
                 case 1: return EXTRACTION;
                 case 2: return DIRECTIONAL;
+                case 3: return ROUNDROBIN;
             }
 
             return BASIC;
@@ -361,8 +353,7 @@ public class BlockPipe extends BlockAutoverseInventory
     {
         NONE    ("none"),
         BASIC   ("basic"),
-        EXTRACT ("extract"),
-        OUTPUT  ("output");
+        TYPE    ("type");
 
         private final String name;
 

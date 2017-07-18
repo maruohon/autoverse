@@ -16,11 +16,16 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipeDirectional extends TileEntityPipe
 {
-    private int outputSidesMask;
+    protected int outputSidesMask;
 
     public TileEntityPipeDirectional()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_PIPE_DIRECTIONAL);
+    }
+
+    public TileEntityPipeDirectional(String name)
+    {
+        super(name);
     }
 
     @Override
@@ -72,7 +77,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     @Override
     protected boolean checkCanOutputOnSide(EnumFacing side)
     {
-        return (this.outputSidesMask & (1 << side.getIndex())) != 0 && super.checkCanOutputOnSide(side);
+        return (this.outputSidesMask & (1 << side.getIndex())) != 0 && super.checkHasValidOutputOnSide(side);
     }
 
     @Override
@@ -82,7 +87,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         {
             if ((this.outputSidesMask & (1 << sideIndex)) != 0)
             {
-                return BlockPipe.Connection.OUTPUT;
+                return BlockPipe.Connection.TYPE;
             }
             else 
             {

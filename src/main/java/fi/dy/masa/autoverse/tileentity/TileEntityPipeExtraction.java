@@ -58,7 +58,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         //System.out.printf("in: 0x%02X, conn: 0x%02X\n", this.validInputSides, this.connectedSides);
         if ((this.validInputSides & (1 << sideIndex)) != 0)
         {
-            return BlockPipe.Connection.EXTRACT;
+            return BlockPipe.Connection.TYPE;
         }
         else if ((this.getConnectedSidesMask() & (1 << sideIndex)) != 0)
         {

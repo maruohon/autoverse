@@ -26,6 +26,23 @@ public class PositionUtils
         { EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP, null, null } // from east
     };
 
+    public static EnumFacing[] getSidesForAxis(EnumFacing axis)
+    {
+        switch (axis)
+        {
+            case UP:
+            case DOWN:
+                return SIDES_Y;
+
+            case NORTH:
+            case SOUTH:
+                return SIDES_Z;
+
+            default:
+                return SIDES_X;
+        }
+    }
+
     public static EnumFacing getCWRotationAxis(EnumFacing from, EnumFacing to)
     {
         return FROM_TO_CW_ROTATION_AXES[from.getIndex()][to.getIndex()];

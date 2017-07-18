@@ -200,6 +200,7 @@ tile.autoverse.inventory_reader_slots.name=Inventory Reader (Slots)
 tile.autoverse.pipe_basic.name=Pipe
 tile.autoverse.pipe_extraction.name=Extraction Pipe
 tile.autoverse.pipe_directional.name=Directional Pipe
+tile.autoverse.pipe_roundrobin.name=Round-Robin Pipe
 tile.autoverse.placer.name=Block Placer
 tile.autoverse.placer_programmable.name=Programmable Block Placer
 tile.autoverse.redstone_emitter.name=Programmable Redstone Emitter

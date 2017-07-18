@@ -26,6 +26,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
     public static final String NAME_TILE_ENTITY_PIPE_DIRECTIONAL    = "pipe_dir";
     public static final String NAME_TILE_ENTITY_PIPE_EXTRACTION     = "pipe_ex";
+    public static final String NAME_TILE_ENTITY_PIPE_ROUNDROBIN     = "pipe_rr";
     public static final String NAME_TILE_ENTITY_PLACER_PROGRAMMABLE = "placer_programmable";
     public static final String NAME_TILE_ENTITY_TRASH_BIN           = "trash_bin";
     public static final String NAME_TILE_ENTITY_TRASH_BUFFER        = "trash_buffer";

@@ -7,7 +7,8 @@
         "type": {
             "basic":        { "model" : "autoverse:custom/pipe_basic"       },
             "extraction":   { "model" : "autoverse:custom/pipe_extraction"  },
-            "directional":  { "model" : "autoverse:custom/pipe_directional" }
+            "directional":  { "model" : "autoverse:custom/pipe_directional" },
+            "roundrobin":   { "model" : "autoverse:custom/pipe_roundrobin"  }
         }
     }
 }

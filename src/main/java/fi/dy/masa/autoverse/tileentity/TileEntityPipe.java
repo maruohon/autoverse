@@ -42,12 +42,11 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyncableTile
 {
     private final IItemHandler[] inputInventories;
-    private final EnumFacing[][] validOutputSidesPerSide;
-    //private final byte outputSideIndices[] = new byte[6];
+    protected final EnumFacing[][] validOutputSidesPerSide;
     private final int scheduledTimes[] = new int[6];
     private int connectedSidesMask;
     private int disabledSidesMask;
-    private int cloggedItemsMask;
+    protected int cloggedItemsMask;
     private int delay = 8;
     protected boolean disableUpdateScheduling;
     protected boolean disableNeighorNotification;
@@ -141,16 +140,16 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             this.disabledSidesMask  = PositionUtils.rotateFacingMask(this.disabledSidesMask, rotation);
             this.cloggedItemsMask   = PositionUtils.rotateFacingMask(this.cloggedItemsMask, rotation);
 
-            this.rotateValidOutputSides(rotation);
+            this.rotateSidesPerSideArray(this.validOutputSidesPerSide, rotation);
         }
     }
 
-    private void rotateValidOutputSides(Rotation rotation)
+    protected void rotateSidesPerSideArray(EnumFacing[][] sideArr, Rotation rotation)
     {
         if (rotation != Rotation.NONE)
         {
             int[] facingIndexRotations = PositionUtils.getFacingIndexRotations(rotation);
-            EnumFacing[][] oldSides = Arrays.copyOf(this.validOutputSidesPerSide, 6);
+            EnumFacing[][] oldSides = Arrays.copyOf(sideArr, 6);
 
             for (int inputSide = 0; inputSide < 6; inputSide++)
             {
@@ -172,7 +171,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                     }
                 }
 
-                this.validOutputSidesPerSide[facingIndexRotations[inputSide]] = sidesNew.toArray(new EnumFacing[sidesNew.size()]);
+                sideArr[facingIndexRotations[inputSide]] = sidesNew.toArray(new EnumFacing[sidesNew.size()]);
             }
         }
     }
@@ -296,8 +295,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected boolean hasWorkOnSide(int slot)
     {
-        return this.shouldOperatePush() &&
-               this.validOutputSidesPerSide[slot].length > 0 &&
+        return this.validOutputSidesPerSide[slot].length > 0 &&
                this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false;
     }
 
@@ -487,7 +485,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
      * @param slot
      * @return
      */
-    private InvResult tryPushOutItem(World world, BlockPos pos, int slot)
+    protected InvResult tryPushOutItem(World world, BlockPos pos, int slot)
     {
         //System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validOutputSidesPerSide[slot].length);
         for (int i = 0; i < this.validOutputSidesPerSide[slot].length; i++)
@@ -511,7 +509,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return InvResult.MOVED_NOTHING;
     }
 
-    private InvResult tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing side, int slot)
+    protected InvResult tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing side, int slot)
     {
         TileEntity te = world.getTileEntity(posSelf.offset(side));
 
@@ -596,7 +594,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
     */
 
-    protected boolean checkCanOutputOnSide(EnumFacing side)
+    protected boolean checkHasValidOutputOnSide(EnumFacing side)
     {
         if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
         {
@@ -614,6 +612,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         return false;
+    }
+
+    protected boolean checkCanOutputOnSide(EnumFacing side)
+    {
+        return this.checkHasValidOutputOnSide(side);
     }
 
     protected boolean canInputOnSide(EnumFacing side)
@@ -648,33 +651,18 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
-    private void updateAllValidOutputSidesForInputSide(final EnumFacing inputSide)
+    protected void updateAllValidOutputSidesForInputSide(final EnumFacing inputSide)
     {
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
         final EnumFacing oppositeSide = inputSide.getOpposite();
 
+        // Always prefer the "straight through" option, ie. add the opposite side first
         if (this.checkCanOutputOnSide(oppositeSide))
         {
             sides.add(oppositeSide);
         }
 
-        EnumFacing[] possibleSides;
-
-        switch (inputSide)
-        {
-            case UP:
-            case DOWN:
-                possibleSides = PositionUtils.SIDES_Y;
-                break;
-
-            case NORTH:
-            case SOUTH:
-                possibleSides = PositionUtils.SIDES_Z;
-                break;
-
-            default:
-                possibleSides = PositionUtils.SIDES_X;
-        }
+        EnumFacing[] possibleSides = PositionUtils.getSidesForAxis(inputSide);
 
         for (EnumFacing side : possibleSides)
         {
@@ -721,11 +709,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         world.getBlockState(posNeighbor).getBlock().onNeighborChange(world, posNeighbor, posSelf);
     }
     */
-
-    protected boolean shouldOperatePush()
-    {
-        return true;
-    }
 
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
@@ -982,15 +965,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.setMaxStackSize(nbt.getByte("Max"));
 
         NBTUtils.readByteArrayIntoIntArray(this.scheduledTimes, nbt, "Sch");
-        //NBTUtils.readByteArray(this.outputSideIndices, nbt, "Ind");
-
-        byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
-        NBTUtils.readByteArray(validSidesMasks, nbt, "Vld");
-
-        for (int i = 0; i < validSidesMasks.length; i++)
-        {
-            this.validOutputSidesPerSide[i] = this.createFacingArrayFromMask(i, validSidesMasks[i]);
-        }
+        this.readSideArraysFromNBT(this.validOutputSidesPerSide, nbt, "Vld");
     }
 
     @Override
@@ -1024,22 +999,35 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             nbt.setByteArray("Sch", delays);
         }
 
-        //NBTUtils.writeIntArrayAsByteArray(this.delaysPerSide, nbt, "Dls");
-        //nbt.setByteArray("Ind", this.outputSideIndices);
-
-        byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
-
-        for (int i = 0; i < validSidesMasks.length; i++)
-        {
-            validSidesMasks[i] = (byte) this.createMaskFromFacingArray(this.validOutputSidesPerSide[i]);
-        }
-
-        nbt.setByteArray("Vld", validSidesMasks);
+        this.writeSideArraysToNBT(this.validOutputSidesPerSide, nbt, "Vld");
 
         return nbt;
     }
 
-    private EnumFacing[] createFacingArrayFromMask(int side, int mask)
+    protected void readSideArraysFromNBT(EnumFacing[][] sideArr, NBTTagCompound nbt, String tagName)
+    {
+        byte[] sidesMasks = new byte[sideArr.length];
+        NBTUtils.readByteArray(sidesMasks, nbt, tagName);
+
+        for (int i = 0; i < sidesMasks.length; i++)
+        {
+            sideArr[i] = this.createFacingArrayFromMask(i, sidesMasks[i]);
+        }
+    }
+
+    protected void writeSideArraysToNBT(EnumFacing[][] sideArr, NBTTagCompound nbt, String tagName)
+    {
+        byte[] sidesMasks = new byte[sideArr.length];
+
+        for (int i = 0; i < sidesMasks.length; i++)
+        {
+            sidesMasks[i] = (byte) this.createMaskFromFacingArray(sideArr[i]);
+        }
+
+        nbt.setByteArray(tagName, sidesMasks);
+    }
+
+    protected EnumFacing[] createFacingArrayFromMask(int side, int mask)
     {
         EnumFacing opposite = EnumFacing.getFront(side).getOpposite();
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
@@ -1065,7 +1053,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return sides.toArray(new EnumFacing[sides.size()]);
     }
 
-    private int createMaskFromFacingArray(EnumFacing[] sides)
+    protected int createMaskFromFacingArray(EnumFacing[] sides)
     {
         int mask = 0;
 

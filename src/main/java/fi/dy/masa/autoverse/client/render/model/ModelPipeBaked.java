@@ -39,11 +39,16 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class ModelPipeBaked implements IBakedModel
 {
-    private static final String TEX_BASIC         = Reference.MOD_ID + ":blocks/pipe_basic";
-    private static final String TEX_EXTRACTION    = Reference.MOD_ID + ":blocks/pipe_extraction";
-    private static final String TEX_DIRECTIONAL   = Reference.MOD_ID + ":blocks/pipe_directional";
-    private static final String TEX_SIDE_INPUT    = Reference.MOD_ID + ":blocks/pipe_side_input";
-    private static final String TEX_SIDE_OUTPUT   = Reference.MOD_ID + ":blocks/pipe_side_output";
+    private static final String TEX_BASIC_BASE          = Reference.MOD_ID + ":blocks/pipe_basic_base";
+
+    private static final String TEX_EXTRACTION_BASE     = Reference.MOD_ID + ":blocks/pipe_extraction_base";
+    private static final String TEX_EXTRACTION_SIDE     = Reference.MOD_ID + ":blocks/pipe_extraction_side";
+
+    private static final String TEX_DIRECTIONAL_BASE    = Reference.MOD_ID + ":blocks/pipe_directional_base";
+    private static final String TEX_DIRECTIONAL_SIDE    = Reference.MOD_ID + ":blocks/pipe_directional_side";
+
+    private static final String TEX_ROUNDROBIN_BASE     = Reference.MOD_ID + ":blocks/pipe_roundrobin_base";
+    private static final String TEX_ROUNDROBIN_SIDE     = Reference.MOD_ID + ":blocks/pipe_roundrobin_side";
 
     private static final EnumFacing[] MODEL_FACES = new EnumFacing[] {
             EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST, null };
@@ -68,8 +73,8 @@ public class ModelPipeBaked implements IBakedModel
     private static final Map <IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_ITEMS = new HashMap<>();
     private final IModel baseModel;
     private final IModel sideModelBase;
-    private final IModel sideModelInput;
-    private final IModel sideModelOutput;
+    private final IModel sideModelFat;
+    private final IModel sideModelSlim;
     private final IModel[] cornerModels;
     private final IModelState modelState;
     private final VertexFormat format;
@@ -82,8 +87,8 @@ public class ModelPipeBaked implements IBakedModel
             BlockPipe.PipeType type,
             IModel baseModel,
             IModel sideModelBase,
-            IModel sideModelInput,
-            IModel sideModelOutput,
+            IModel sideModelFat,
+            IModel sideModelSlim,
             IModel[] cornerModels,
             ImmutableMap<String, String> textures,
             IModelState modelState,
@@ -91,22 +96,22 @@ public class ModelPipeBaked implements IBakedModel
             Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.type = type;
-        this.baseModel       = baseModel      .retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
-        this.sideModelBase   = sideModelBase  .retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
-        this.sideModelInput  = sideModelInput .retexture(ImmutableMap.of("texture", textures.get("side_input")));
-        this.sideModelOutput = sideModelOutput.retexture(ImmutableMap.of("texture", textures.get("side_output")));
+        this.baseModel       = baseModel      .retexture(ImmutableMap.of("texture", textures.get("base")));
+        this.sideModelBase   = sideModelBase  .retexture(ImmutableMap.of("texture", textures.get("base")));
+        this.sideModelFat    = sideModelFat   .retexture(ImmutableMap.of("texture", textures.get("type")));
+        this.sideModelSlim   = sideModelSlim  .retexture(ImmutableMap.of("texture", textures.get("type")));
         this.cornerModels = new IModel[cornerModels.length];
         this.modelState = modelState;
 
         for (int i = 0; i < this.cornerModels.length; i++)
         {
-            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("pipe_base")));
+            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("base")));
         }
 
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.bakedBaseModel = this.baseModel.bake(modelState, format, bakedTextureGetter);
-        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("pipe_base")));
+        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("base")));
     }
 
     @Override
@@ -343,12 +348,15 @@ public class ModelPipeBaked implements IBakedModel
                     models.add(this.sideModelBase.bake(modelState, this.format, this.bakedTextureGetter));
                     break;
 
-                case EXTRACT:
-                    models.add(this.sideModelInput.bake(modelState, this.format, this.bakedTextureGetter));
-                    break;
-
-                case OUTPUT:
-                    models.add(this.sideModelOutput.bake(modelState, this.format, this.bakedTextureGetter));
+                case TYPE:
+                    if (state.getValue(BlockPipe.TYPE) == BlockPipe.PipeType.EXTRACTION)
+                    {
+                        models.add(this.sideModelFat.bake(modelState, this.format, this.bakedTextureGetter));
+                    }
+                    else
+                    {
+                        models.add(this.sideModelSlim.bake(modelState, this.format, this.bakedTextureGetter));
+                    }
                     break;
 
                 default:
@@ -362,8 +370,8 @@ public class ModelPipeBaked implements IBakedModel
     {
         private static final ResourceLocation BASE_MODEL        = new ResourceLocation(Reference.MOD_ID, "block/pipe_strip_y");
         private static final ResourceLocation SIDE_MODEL_BASE   = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_strips");
-        private static final ResourceLocation SIDE_MODEL_INPUT  = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_input");
-        private static final ResourceLocation SIDE_MODEL_OUTPUT = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_output");
+        private static final ResourceLocation SIDE_MODEL_FAT    = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_fat");
+        private static final ResourceLocation SIDE_MODEL_SLIM   = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_slim");
 
         protected final BlockPipe.PipeType type;
         protected final Map<String, String> textures = new HashMap<String, String>();
@@ -382,7 +390,7 @@ public class ModelPipeBaked implements IBakedModel
         @Override
         public List<ResourceLocation> getDependencies()
         {
-            List<ResourceLocation> models = Lists.newArrayList(BASE_MODEL, SIDE_MODEL_BASE, SIDE_MODEL_INPUT, SIDE_MODEL_OUTPUT);
+            List<ResourceLocation> models = Lists.newArrayList(BASE_MODEL, SIDE_MODEL_BASE, SIDE_MODEL_FAT, SIDE_MODEL_SLIM);
 
             for (int i = 0; i < 8; i++)
             {
@@ -410,16 +418,16 @@ public class ModelPipeBaked implements IBakedModel
         {
             IModel baseModel = null;
             IModel sideModelBase = null;
-            IModel sideModelInput = null;
-            IModel sideModelOutput = null;
+            IModel sideModelFat = null;
+            IModel sideModelSlim = null;
             IModel[] cornerModels = new IModel[8];
 
             try
             {
                 baseModel       = ModelLoaderRegistry.getModel(BASE_MODEL);
                 sideModelBase   = ModelLoaderRegistry.getModel(SIDE_MODEL_BASE);
-                sideModelInput  = ModelLoaderRegistry.getModel(SIDE_MODEL_INPUT);
-                sideModelOutput = ModelLoaderRegistry.getModel(SIDE_MODEL_OUTPUT);
+                sideModelFat    = ModelLoaderRegistry.getModel(SIDE_MODEL_FAT);
+                sideModelSlim   = ModelLoaderRegistry.getModel(SIDE_MODEL_SLIM);
                 List<ResourceLocation> models = this.getDependencies();
 
                 for (int i = 0; i < cornerModels.length; i++)
@@ -432,7 +440,7 @@ public class ModelPipeBaked implements IBakedModel
                 Autoverse.logger.warn("Failed to load a model for the Pipe!", e);
             }
 
-            return new ModelPipeBaked(this.type, baseModel, sideModelBase, sideModelInput, sideModelOutput, cornerModels,
+            return new ModelPipeBaked(this.type, baseModel, sideModelBase, sideModelFat, sideModelSlim, cornerModels,
                     this.getTextureMapping(), state, format, bakedTextureGetter);
         }
 
@@ -447,9 +455,9 @@ public class ModelPipeBaked implements IBakedModel
         private ModelPipeBasic()
         {
             super(BlockPipe.PipeType.BASIC);
-            this.textures.put("pipe_base",   TEX_BASIC);
-            this.textures.put("side_input",  TEX_SIDE_INPUT);
-            this.textures.put("side_output", TEX_SIDE_OUTPUT);
+
+            this.textures.put("base", TEX_BASIC_BASE);
+            this.textures.put("type", TEX_BASIC_BASE); // Dummy, not used, but required
         }
     }
 
@@ -458,9 +466,9 @@ public class ModelPipeBaked implements IBakedModel
         private ModelPipeExtraction()
         {
             super(BlockPipe.PipeType.EXTRACTION);
-            this.textures.put("pipe_base",   TEX_EXTRACTION);
-            this.textures.put("side_input",  TEX_SIDE_INPUT);
-            this.textures.put("side_output", TEX_SIDE_OUTPUT);
+
+            this.textures.put("base", TEX_EXTRACTION_BASE);
+            this.textures.put("type", TEX_EXTRACTION_SIDE);
         }
     }
 
@@ -469,9 +477,20 @@ public class ModelPipeBaked implements IBakedModel
         private ModelPipeDirectional()
         {
             super(BlockPipe.PipeType.DIRECTIONAL);
-            this.textures.put("pipe_base",   TEX_DIRECTIONAL);
-            this.textures.put("side_input",  TEX_SIDE_INPUT);
-            this.textures.put("side_output", TEX_SIDE_OUTPUT);
+
+            this.textures.put("base", TEX_DIRECTIONAL_BASE);
+            this.textures.put("type", TEX_DIRECTIONAL_SIDE);
+        }
+    }
+
+    private static class ModelPipeRoundRobin extends ModelPipe
+    {
+        private ModelPipeRoundRobin()
+        {
+            super(BlockPipe.PipeType.ROUNDROBIN);
+
+            this.textures.put("base", TEX_ROUNDROBIN_BASE);
+            this.textures.put("type", TEX_ROUNDROBIN_SIDE);
         }
     }
 
@@ -480,13 +499,15 @@ public class ModelPipeBaked implements IBakedModel
         private static final ResourceLocation FAKE_LOCATION_BASIC       = new ResourceLocation(Reference.MOD_ID, "models/block/custom/pipe_basic");
         private static final ResourceLocation FAKE_LOCATION_EXTRACTION  = new ResourceLocation(Reference.MOD_ID, "models/block/custom/pipe_extraction");
         private static final ResourceLocation FAKE_LOCATION_DIRECTIONAL = new ResourceLocation(Reference.MOD_ID, "models/block/custom/pipe_directional");
+        private static final ResourceLocation FAKE_LOCATION_ROUNDROBIN  = new ResourceLocation(Reference.MOD_ID, "models/block/custom/pipe_roundrobin");
 
         @Override
         public boolean accepts(ResourceLocation modelLocation)
         {
             return modelLocation.equals(FAKE_LOCATION_BASIC) ||
                    modelLocation.equals(FAKE_LOCATION_EXTRACTION) ||
-                   modelLocation.equals(FAKE_LOCATION_DIRECTIONAL);
+                   modelLocation.equals(FAKE_LOCATION_DIRECTIONAL) ||
+                   modelLocation.equals(FAKE_LOCATION_ROUNDROBIN);
         }
 
         @Override
@@ -499,6 +520,10 @@ public class ModelPipeBaked implements IBakedModel
             else if (modelLocation.equals(FAKE_LOCATION_DIRECTIONAL))
             {
                 return new ModelPipeDirectional();
+            }
+            else if (modelLocation.equals(FAKE_LOCATION_ROUNDROBIN))
+            {
+                return new ModelPipeRoundRobin();
             }
             else
             {
@@ -519,6 +544,7 @@ public class ModelPipeBaked implements IBakedModel
         private static final ModelResourceLocation LOCATION_BASIC       = new ModelResourceLocation(Reference.MOD_ID + ":pipe", "type=basic");
         private static final ModelResourceLocation LOCATION_EXTRACTION  = new ModelResourceLocation(Reference.MOD_ID + ":pipe", "type=extraction");
         private static final ModelResourceLocation LOCATION_DIRECTIONAL = new ModelResourceLocation(Reference.MOD_ID + ":pipe", "type=directional");
+        private static final ModelResourceLocation LOCATION_ROUNDROBIN  = new ModelResourceLocation(Reference.MOD_ID + ":pipe", "type=roundrobin");
 
         @Override
         protected ModelResourceLocation getModelResourceLocation(IBlockState state)
@@ -527,6 +553,7 @@ public class ModelPipeBaked implements IBakedModel
             {
                 case EXTRACTION:    return LOCATION_EXTRACTION;
                 case DIRECTIONAL:   return LOCATION_DIRECTIONAL;
+                case ROUNDROBIN:    return LOCATION_ROUNDROBIN;
                 default:            return LOCATION_BASIC;
             }
         }
