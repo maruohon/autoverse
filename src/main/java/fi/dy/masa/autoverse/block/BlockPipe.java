@@ -147,9 +147,7 @@ public class BlockPipe extends BlockAutoverseInventory
 
         if (te != null)
         {
-            te.updateConnectedSides(true);
-
-            // This will schedule the first update after placing down the Inserter.
+            // This will schedule the first update after placing down the Pipe.
             // Otherwise it would need an external update to start moving items.
             te.onNeighborBlockChange(world, pos, state, state.getBlock());
         }

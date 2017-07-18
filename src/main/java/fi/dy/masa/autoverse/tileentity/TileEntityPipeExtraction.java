@@ -175,6 +175,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
+        //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - start\n", world.getTotalWorldTime(), pos, slot);
         if (this.shouldOperatePull())
         {
             InvResult result = this.tryPullInItemsFromSide(world, pos, slot);

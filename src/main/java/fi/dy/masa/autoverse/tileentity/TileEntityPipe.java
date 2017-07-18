@@ -67,6 +67,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         super(name);
 
         this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 6, 64, false, "Items", this);
+        this.itemHandlerBase.setStackLimit(1);
         this.inputInventories = new IItemHandler[6];
 
         for (int i = 0; i < 6; i++)
@@ -125,7 +126,10 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public void onLoad()
     {
-        this.setScheduledTimesFromDelays();
+        if (this.getWorld().isRemote == false)
+        {
+            this.setScheduledTimesFromDelays();
+        }
     }
 
     @Override
@@ -311,13 +315,17 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         // Set the scheduled times on chunk load from the relative delays loaded from NBT
         for (int i = 0; i < this.scheduledTimes.length; i++)
         {
-            //System.out.printf("setScheduledTimesFromDelays() @ %s, side: %d, sched for: %d\n", this.getPos(), i, this.scheduledTimes[i]);
-            byte delay = (byte) this.scheduledTimes[i];
+            //System.out.printf("%d - setScheduledTimesFromDelays() @ %s, side: %d, sched for: %d\n", currentTime, this.getPos(), i, this.scheduledTimes[i]);
+            //byte delay = (byte) this.scheduledTimes[i];
 
-            if (delay >= 0)
+            //if (delay >= 0)
+            // This check is to ensure that the delays don't get modified multiple times.
+            // Valid delay values are at most 7 bits, thus this check can avoid adding an extra boolean field "initialized".
+            if (this.scheduledTimes[i] >= 0 && this.scheduledTimes[i] <= 127)
             {
-                //System.out.printf("setScheduledTimesFromDelays() @ %s, side: %d, ADJ sched for: %d\n", this.getPos(), i, currentTime + delay);
-                this.scheduledTimes[i] = currentTime + delay;
+                //System.out.printf("%d - setScheduledTimesFromDelays() @ %s, side: %d, ADJ sched for: %d\n", currentTime, this.getPos(), i, currentTime + this.scheduledTimes[i]);
+                //this.scheduledTimes[i] = currentTime + delay;
+                this.scheduledTimes[i] += currentTime;
             }
         }
     }
@@ -397,7 +405,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         int currentTime = (int) (world.getTotalWorldTime() & 0x3FFFFFFF);
         int nextSheduledTick = -1;
-        //if (pos.equals(new BlockPos(1308, 65, 1268))) System.out.printf("%d - tryMoveScheduledItems() @ %s - start\n", currentTime, this.getPos());
+        //if (pos.equals(new BlockPos(1308, 65, 1268)))
+        //System.out.printf("%d - tryMoveScheduledItems() @ %s - start\n", currentTime, this.getPos());
 
         for (int slot = 0; slot < 6; slot++)
         {
@@ -820,7 +829,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        //System.out.printf("*** BASIC onScheduledBlockUpdate(): pos: %s - START\n", pos);
+        //System.out.printf("%d - BASIC onScheduledBlockUpdate(): pos: %s - START\n", world.getTotalWorldTime(), pos);
         if (this.tryMoveScheduledItems(world, pos))
         {
             //System.out.printf("BASIC onScheduledBlockUpdate(): pos: %s - SUCCESS\n", pos);
