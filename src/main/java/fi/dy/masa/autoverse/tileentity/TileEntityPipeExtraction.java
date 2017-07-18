@@ -1,21 +1,27 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipeExtraction extends TileEntityPipe
 {
+    private int disabledInputSides;
     private int validInputSides;
 
     public TileEntityPipeExtraction()
@@ -24,10 +30,25 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
 
     @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        if (propId == 3)
+        {
+            this.setInputMask(value);
+            return true;
+        }
+        else
+        {
+            return super.applyProperty(propId, value);
+        }
+    }
+
+    @Override
     public void rotate(Rotation rotation)
     {
         super.rotate(rotation);
 
+        this.disabledInputSides = PositionUtils.rotateFacingMask(this.disabledInputSides, rotation);
         this.validInputSides = PositionUtils.rotateFacingMask(this.validInputSides, rotation);
     }
 
@@ -55,9 +76,9 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
     */
 
-    protected boolean canPullFromSide(EnumFacing side)
+    private boolean canPullFromSide(EnumFacing side)
     {
-        if (super.canInputOnSide(side))
+        if (this.isAllowedToPullFromSide(side) && super.canInputOnSide(side))
         {
             TileEntity te = this.getWorld().getTileEntity(this.getPos().offset(side));
 
@@ -66,6 +87,11 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         }
 
         return false;
+    }
+
+    private boolean isAllowedToPullFromSide(EnumFacing side)
+    {
+        return (this.disabledInputSides & (1 << side.getIndex())) == 0;
     }
 
     @Override
@@ -109,7 +135,23 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         return dirty;
     }
 
-    /*
+    @Override
+    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player)
+    {
+        if (world.isRemote == false && player.isSneaking())
+        {
+            IBlockState state = world.getBlockState(pos);
+            RayTraceResult trace = EntityUtils.getRayTraceFromEntity(world, player, false);
+
+            if (trace.typeOfHit == RayTraceResult.Type.BLOCK && pos.equals(trace.getBlockPos()))
+            {
+                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, trace.sideHit, player);
+                this.toggleInputOnSide(targetSide);
+                this.scheduleCurrentWork(this.getDelay());
+            }
+        }
+    }
+
     @Override
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
@@ -120,7 +162,8 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         {
             if (world.isRemote == false)
             {
-                this.toggleExtractionOnSide(side);
+                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
+                this.toggleInputOnSide(targetSide);
             }
 
             return true;
@@ -129,13 +172,21 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         return super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ);
     }
 
-    private void toggleExtractionOnSide(EnumFacing side)
+    private void toggleInputOnSide(EnumFacing side)
     {
-        this.disabledExtractionSides ^= (1 << side.getIndex());
+        this.setInputMask(this.disabledInputSides ^ (1 << side.getIndex()));
+        this.scheduleCurrentWork(this.getDelay());
+    }
+
+    private void setInputMask(int mask)
+    {
+        this.disabledInputSides = mask & 0x3F;
+        this.updateConnectedSides(true);
         this.markDirty();
+
+        this.getWorld().notifyNeighborsOfStateChange(this.getPos(), this.getBlockType(), false);
         this.notifyBlockUpdate(this.getPos());
     }
-    */
 
     /*
     @Override
@@ -176,7 +227,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
         //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - start\n", world.getTotalWorldTime(), pos, slot);
-        if (this.shouldOperatePull())
+        if (this.shouldOperatePull() && this.isAllowedToPullFromSide(EnumFacing.getFront(slot)))
         {
             InvResult result = this.tryPullInItemsFromSide(world, pos, slot);
 
@@ -264,6 +315,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         super.readFromNBTCustom(nbt);
 
+        this.disabledInputSides = nbt.getByte("DIn");
         this.validInputSides = nbt.getByte("Ins");
     }
 
@@ -272,6 +324,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         nbt = super.writeToNBTCustom(nbt);
 
+        nbt.setByte("DIn", (byte) this.disabledInputSides);
         nbt.setByte("Ins", (byte) this.validInputSides);
 
         return nbt;

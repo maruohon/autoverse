@@ -227,14 +227,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private void toggleSideDisabled(EnumFacing side)
     {
         this.setDisabledSidesMask(this.disabledSidesMask ^ (1 << side.getIndex()));
-        /*
-        this.disabledSidesMask ^= (1 << side.getIndex());
-        this.updateConnectedSides(true);
-        this.markDirty();
-
-        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
-        this.notifyBlockUpdate(this.getPos());
-        */
+        this.scheduleCurrentWork(this.delay);
     }
 
     private void setDisabledSidesMask(int mask)
@@ -800,7 +793,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             {
                 EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
                 this.toggleSideDisabled(targetSide);
-                this.scheduleCurrentWork(this.delay);
             }
 
             return true;

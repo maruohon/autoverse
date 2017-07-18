@@ -1,11 +1,14 @@
 package fi.dy.masa.autoverse.util;
 
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -44,9 +47,40 @@ public class EntityUtils
         return ItemStack.EMPTY;
     }
 
+    @Nonnull
     public static Vec3d getEyesVec(Entity entity)
     {
         return new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+    }
+
+    @Nonnull
+    public static RayTraceResult getRayTraceFromEntity(World world, Entity entity, boolean useLiquids)
+    {
+        double reach = 5D;
+
+        if (entity instanceof EntityPlayerMP)
+        {
+            reach = ((EntityPlayerMP) entity).interactionManager.getBlockReachDistance();
+        }
+
+        return getRayTraceFromEntity(world, entity, useLiquids, reach);
+    }
+
+    @Nonnull
+    public static RayTraceResult getRayTraceFromEntity(World world, Entity entity, boolean useLiquids, double range)
+    {
+        Vec3d eyesVec = new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
+        Vec3d rangedLookRot = entity.getLook(1f).scale(range);
+        Vec3d lookVec = eyesVec.add(rangedLookRot);
+
+        RayTraceResult result = world.rayTraceBlocks(eyesVec, lookVec, useLiquids, !useLiquids, false);
+
+        if (result == null)
+        {
+            result = new RayTraceResult(RayTraceResult.Type.MISS, Vec3d.ZERO, EnumFacing.UP, BlockPos.ORIGIN);
+        }
+
+        return result;
     }
 
     /**

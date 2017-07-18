@@ -169,7 +169,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         return false;
     }
 
-    public void onLeftClickBlock(EntityPlayer player) { }
+    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player) { }
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {

@@ -115,7 +115,7 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     }
 
     @Override
-    public void onBlockClicked(World world, BlockPos pos, EntityPlayer playerIn)
+    public void onBlockClicked(World world, BlockPos pos, EntityPlayer player)
     {
         if (world.isRemote == false)
         {
@@ -123,7 +123,7 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 
             if (te != null)
             {
-                te.onLeftClickBlock(playerIn);
+                te.onLeftClickBlock(world, pos, player);
             }
         }
     }
