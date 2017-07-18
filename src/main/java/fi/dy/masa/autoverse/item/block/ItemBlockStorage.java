@@ -4,7 +4,6 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.util.NBTUtils;
 
@@ -30,6 +29,7 @@ public class ItemBlockStorage extends ItemBlockAutoverse
     @Override
     public NBTTagCompound getNBTShareTag(ItemStack stack)
     {
+        /*
         NBTTagCompound nbt = stack.getTagCompound();
 
         if (nbt != null && nbt.hasKey("InvCache", Constants.NBT.TAG_COMPOUND))
@@ -40,5 +40,7 @@ public class ItemBlockStorage extends ItemBlockAutoverse
         }
 
         return nbt;
+        */
+        return super.getNBTShareTag(stack);
     }
 }
