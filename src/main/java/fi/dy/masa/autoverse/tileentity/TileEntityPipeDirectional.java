@@ -5,10 +5,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
+import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipeDirectional extends TileEntityPipe
 {
@@ -31,6 +33,14 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         {
             return super.applyProperty(propId, value);
         }
+    }
+
+    @Override
+    public void rotate(Rotation rotation)
+    {
+        super.rotate(rotation);
+
+        this.outputSidesMask = PositionUtils.rotateFacingMask(this.outputSidesMask, rotation);
     }
 
     private void toggleOutputOnSide(EnumFacing side)

@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -42,13 +43,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 {
     private final IItemHandler[] inputInventories;
     private final EnumFacing[][] validOutputSidesPerSide;
-    private final byte outputSideIndices[] = new byte[6];
+    //private final byte outputSideIndices[] = new byte[6];
     private final int scheduledTimes[] = new int[6];
     private int connectedSidesMask;
     private int disabledSidesMask;
     private int cloggedItemsMask;
     private int delay = 8;
-    private long lastDelayUpdate;
     protected boolean disableUpdateScheduling;
     protected boolean disableNeighorNotification;
 
@@ -129,9 +129,48 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public void invalidate()
+    public void rotate(Rotation rotation)
     {
-        super.invalidate();
+        if (rotation != Rotation.NONE)
+        {
+            this.connectedSidesMask = PositionUtils.rotateFacingMask(this.connectedSidesMask, rotation);
+            this.disabledSidesMask  = PositionUtils.rotateFacingMask(this.disabledSidesMask, rotation);
+            this.cloggedItemsMask   = PositionUtils.rotateFacingMask(this.cloggedItemsMask, rotation);
+
+            this.rotateValidOutputSides(rotation);
+        }
+    }
+
+    private void rotateValidOutputSides(Rotation rotation)
+    {
+        if (rotation != Rotation.NONE)
+        {
+            int[] facingIndexRotations = PositionUtils.getFacingIndexRotations(rotation);
+            EnumFacing[][] oldSides = Arrays.copyOf(this.validOutputSidesPerSide, 6);
+
+            for (int inputSide = 0; inputSide < 6; inputSide++)
+            {
+                List<EnumFacing> sidesNew = new ArrayList<EnumFacing>();
+                EnumFacing[] sidesOld = oldSides[inputSide];
+
+                for (int outputSide = 0; outputSide < sidesOld.length; outputSide++)
+                {
+                    EnumFacing side = sidesOld[outputSide];
+
+                    // Maintain the opposite side as the first entry, if it's present
+                    if (side.getIndex() == PositionUtils.FACING_OPPOSITE_INDICES[inputSide])
+                    {
+                        sidesNew.add(0, rotation.rotate(side));
+                    }
+                    else
+                    {
+                        sidesNew.add(rotation.rotate(side));
+                    }
+                }
+
+                this.validOutputSidesPerSide[facingIndexRotations[inputSide]] = sidesNew.toArray(new EnumFacing[sidesNew.size()]);
+            }
+        }
     }
 
     public int getDelay()
@@ -938,12 +977,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.delay = nbt.getByte("Dl");
         this.disabledSidesMask = nbt.getByte("Dis");
         this.connectedSidesMask = nbt.getByte("Conn");
-        this.lastDelayUpdate = nbt.getLong("Last");
         this.cloggedItemsMask = nbt.getByte("Clgg");
         this.setMaxStackSize(nbt.getByte("Max"));
 
         NBTUtils.readByteArrayIntoIntArray(this.scheduledTimes, nbt, "Sch");
-        NBTUtils.readByteArray(this.outputSideIndices, nbt, "Ind");
+        //NBTUtils.readByteArray(this.outputSideIndices, nbt, "Ind");
 
         byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
         NBTUtils.readByteArray(validSidesMasks, nbt, "Vld");
@@ -962,7 +1000,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         nbt.setByte("Dl", (byte) this.delay);
         nbt.setByte("Dis", (byte) this.disabledSidesMask);
         nbt.setByte("Conn", (byte) this.connectedSidesMask);
-        nbt.setLong("Last", this.lastDelayUpdate);
         nbt.setByte("Max", (byte) this.itemHandlerBase.getSlotLimit(0));
         nbt.setByte("Clgg", (byte) this.cloggedItemsMask);
 
@@ -987,7 +1024,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         //NBTUtils.writeIntArrayAsByteArray(this.delaysPerSide, nbt, "Dls");
-        nbt.setByteArray("Ind", this.outputSideIndices);
+        //nbt.setByteArray("Ind", this.outputSideIndices);
 
         byte[] validSidesMasks = new byte[this.validOutputSidesPerSide.length];
 

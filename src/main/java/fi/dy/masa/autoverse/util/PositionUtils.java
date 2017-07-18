@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.util;
 
+import javax.annotation.Nullable;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -11,6 +12,10 @@ public class PositionUtils
     public static final EnumFacing[] SIDES_X = new EnumFacing[] { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.NORTH, EnumFacing.SOUTH };
     public static final EnumFacing[] SIDES_Z = new EnumFacing[] { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.WEST,  EnumFacing.EAST };
     public static final EnumFacing[] SIDES_Y = new EnumFacing[] { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST,  EnumFacing.EAST };
+
+    public static final int[] FACING_OPPOSITE_INDICES = new int[] { 1, 0, 3, 2, 5, 4 };
+    public static final int[] FACING_ROT90_INDICES    = new int[] { 0, 1, 5, 4, 2, 3 };
+    public static final int[] FACING_ROT270_INDICES   = new int[] { 0, 1, 4, 5, 3, 2 };
 
     public static final EnumFacing[][] FROM_TO_CW_ROTATION_AXES = new EnumFacing[][] {
         { null, null, EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH }, // from down
@@ -56,6 +61,50 @@ public class PositionUtils
         }
 
         return facingRotated == facingOriginal.rotateY() ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+    }
+
+    /**
+     * Rotates/transforms all the indices in the given <b>mask</b> (which represents enabled facings),
+     * to match the new Rotation <b>rotation</b>.
+     * @param oldMask
+     * @param rotation
+     * @return
+     */
+    public static int rotateFacingMask(int oldMask, Rotation rotation)
+    {
+        if (rotation != Rotation.NONE)
+        {
+            int[] transformedIndices = getFacingIndexRotations(rotation);
+            int newMask = 0;
+
+            for (int i = 0; i < 6; i++)
+            {
+                if ((oldMask & (1 << i)) != 0)
+                {
+                    newMask |= (1 << transformedIndices[i]);
+                }
+            }
+
+            return newMask;
+        }
+
+        return oldMask;
+    }
+
+    @Nullable
+    public static int[] getFacingIndexRotations(Rotation rotation)
+    {
+        switch (rotation)
+        {
+            case CLOCKWISE_90:
+                return FACING_ROT90_INDICES;
+            case CLOCKWISE_180:
+                return FACING_OPPOSITE_INDICES;
+            case COUNTERCLOCKWISE_90:
+                return FACING_ROT270_INDICES;
+            default:
+                return null;
+        }
     }
 
     /**

@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.tileentity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -11,6 +12,7 @@ import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
+import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipeExtraction extends TileEntityPipe
 {
@@ -19,6 +21,14 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     public TileEntityPipeExtraction()
     {
         super(ReferenceNames.NAME_TILE_ENTITY_PIPE_EXTRACTION);
+    }
+
+    @Override
+    public void rotate(Rotation rotation)
+    {
+        super.rotate(rotation);
+
+        this.validInputSides = PositionUtils.rotateFacingMask(this.validInputSides, rotation);
     }
 
     @Override
