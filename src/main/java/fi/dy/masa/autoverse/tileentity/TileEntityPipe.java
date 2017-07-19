@@ -922,11 +922,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             if (stacks[0].isEmpty() == false)
             {
                 this.isInput[slot] = 1;
-                // When directly inputting items, they only move from the edge of this block to the center,
-                // ie. starting from midway through a normal movement.
-                this.delaysClient[slot] = (byte) (delay / 2);
+                this.delaysClient[slot] = (byte) delay;
                 this.scheduledTimes[slot] = (byte) delay;
-                //System.out.printf("%d - %s, input: %s\n", this.getWorld().getTotalWorldTime(), this.getPos(), stacks[0]);
             }
             else
             {
@@ -959,7 +956,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                         te.scheduledTimes[sideIn] = delayAdj;
                         this.stacksLast.set(slot, ItemStack.EMPTY);
                         this.delaysClient[slot] = -2;
-                        //System.out.printf("%d - %s, to pipe: delay: %d\n", this.getWorld().getTotalWorldTime(), this.getPos(), delayAdj);
                     }
                     break;
 
@@ -974,7 +970,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                     // ie. half the distance of normal pipe-to-pipe movement.
                     this.delaysOut[slot] = (byte) (delay / 2);
                     this.scheduledTimes[slot] = (byte) delay;
-                    //System.out.printf("%d - %s, to output: delay: %d\n", this.getWorld().getTotalWorldTime(), this.getPos(), delay);
                     break;
 
                 // Remove a stack
@@ -982,7 +977,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                     this.stacksLast.set(slot, ItemStack.EMPTY);
                     this.isInput[slot] = 0;
                     this.delaysClient[slot] = -2;
-                    //System.out.printf("%d - %s, remove\n", this.getWorld().getTotalWorldTime(), this.getPos());
                     break;
             }
         }

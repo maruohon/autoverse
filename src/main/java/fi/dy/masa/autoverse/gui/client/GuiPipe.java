@@ -82,8 +82,8 @@ public class GuiPipe extends GuiAutoverse
             amount = -1;
         }
 
-        if (GuiScreen.isShiftKeyDown()) { amount *= 5; }
-        if (GuiScreen.isCtrlKeyDown())  { amount *= 10; }
+        if (GuiScreen.isShiftKeyDown()) { amount *= 8; }
+        if (GuiScreen.isCtrlKeyDown())  { amount *= 4; }
 
         PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.te.getPos(),
             ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, amount));

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -57,7 +58,7 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
                         te.delaysClient[i]--;
                     }
 
-                    //if (te.isInput[i] == 0 || delay < fullDelay / 2)
+                    if (te.isInput[i] == 0 || te.delaysClient[i] < fullDelay / 2)
                     {
                         ItemStack stack = te.stacksLast.get(i);
                         float progress = 0f;
@@ -135,6 +136,11 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
 
     protected void renderStack(ItemStack stack, double posX, double posY, double posZ, float partialTicks)
     {
+        if (stack.isEmpty())
+        {
+            return;
+        }
+
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -145,6 +151,8 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
         int modelCount = this.getModelCount(stack);
         boolean isGui3d = model.isGui3d();
         boolean shouldSpreadItems = true;
+        int seed = Item.getIdFromItem(stack.getItem()) + stack.getMetadata();
+        this.rand.setSeed(seed);
 
         GlStateManager.translate(posX, posY, posZ);
         GlStateManager.rotate(rot, 0.0F, 1.0F, 0.0F);
