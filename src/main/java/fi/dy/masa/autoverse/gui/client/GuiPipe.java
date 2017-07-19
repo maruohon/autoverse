@@ -35,7 +35,7 @@ public class GuiPipe extends GuiAutoverse
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(this.te.getName());
+        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format("autoverse.container.pipe");
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2,  4, 0x404040);
 
         int val = this.te.getDelay();
