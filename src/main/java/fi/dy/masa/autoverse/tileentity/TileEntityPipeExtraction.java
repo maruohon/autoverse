@@ -226,6 +226,8 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
+        boolean ret = super.tryMoveItemsForSide(world, pos, slot);
+
         //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - start\n", world.getTotalWorldTime(), pos, slot);
         if (this.shouldOperatePull() && this.isAllowedToPullFromSide(EnumFacing.getFront(slot)))
         {
@@ -234,7 +236,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
             if (result == InvResult.NO_WORK)
             {
                 //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - NO WORK -> super\n", world.getTotalWorldTime(), pos, slot);
-                boolean ret = super.tryMoveItemsForSide(world, pos, slot);
+                //boolean ret = super.tryMoveItemsForSide(world, pos, slot);
 
                 /*
                 if (ret || this.itemHandlerBase.getStackInSlot(slot).isEmpty())
@@ -250,13 +252,13 @@ public class TileEntityPipeExtraction extends TileEntityPipe
             {
                 //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - SCHED\n", world.getTotalWorldTime(), pos);
                 //this.scheduleCurrentWork(this.getDelay());
-                return result != InvResult.MOVED_NOTHING;
+                return ret || result != InvResult.MOVED_NOTHING;
             }
         }
         // shouldOperate() is only used for pulling in items, not pushing items out
         else
         {
-            return super.tryMoveItemsForSide(world, pos, slot);
+            return ret;
         }
     }
 
@@ -295,6 +297,11 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
                         this.disableUpdateScheduling = false;
                         this.disableNeighorNotification = false;
+
+                        if (result != InvResult.MOVED_NOTHING)
+                        {
+                            this.sendPacketInputItem(slot, this.itemHandlerBase.getStackInSlot(slot));
+                        }
 
                         //if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
                         return result;

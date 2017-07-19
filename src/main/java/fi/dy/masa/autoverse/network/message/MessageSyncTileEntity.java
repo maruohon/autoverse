@@ -77,9 +77,11 @@ public class MessageSyncTileEntity implements IMessage
     {
         buf.writeByte((this.stacks.length & 0xF) << 4 | (this.intValues.length & 0xF));
 
-        buf.writeInt(this.pos.getX());
-        buf.writeByte((byte) (this.pos.getY() & 0xFF));
-        buf.writeInt(this.pos.getZ());
+        // Save 4 bytes per message, by only sending a short for the x and z, and then using the
+        // player's position as the base on the client.
+        buf.writeShort((short) this.pos.getX());
+        buf.writeByte((byte) this.pos.getY());
+        buf.writeShort((short) this.pos.getZ());
 
         for (int i = 0; i < (this.intValues.length & 0xF); i++)
         {
@@ -97,7 +99,7 @@ public class MessageSyncTileEntity implements IMessage
     {
         this.header = buf.readByte();
 
-        this.pos = new BlockPos(buf.readInt(), ((int) buf.readByte()) & 0xFF, buf.readInt());
+        this.pos = new BlockPos(buf.readShort(), ((int) buf.readByte()) & 0xFF, buf.readShort());
 
         try
         {
@@ -157,7 +159,13 @@ public class MessageSyncTileEntity implements IMessage
         protected void processMessage(final MessageSyncTileEntity message, EntityPlayer player)
         {
             World world = player.getEntityWorld();
-            TileEntity te = world.getTileEntity(message.pos);
+            BlockPos pp = player.getPosition();
+            BlockPos pm = message.pos;
+            BlockPos pos = new BlockPos(
+                    (pp.getX() & 0xFFFF0000) | pm.getX(),
+                    pm.getY(),
+                    (pp.getZ() & 0xFFFF0000) | pm.getZ());
+            TileEntity te = world.getTileEntity(pos);
 
             if (te instanceof ISyncableTile)
             {

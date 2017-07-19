@@ -27,6 +27,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.block.BlockPipe.PipePart;
+import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPipe;
@@ -52,8 +53,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     protected boolean disableNeighorNotification;
 
     // Client-side or client sync/rendering related things
-    private final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
-    public int delaysClient[] = new int[6];
+    public final NonNullList<ItemStack> stacksLast = NonNullList.withSize(6, ItemStack.EMPTY);
+    public final NonNullList<ItemStack> stacksOut = NonNullList.withSize(6, ItemStack.EMPTY);
+    public byte delaysClient[] = new byte[6];
+    public byte delaysOut[] = new byte[6];
+    public byte isInput[] = new byte[6];
+    public byte outputDirections[] = new byte[6];
     public float partialTicksLast;
 
     public TileEntityPipe()
@@ -82,7 +87,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         Arrays.fill(this.scheduledTimes, -1);
-        Arrays.fill(this.delaysClient, -1);
+        Arrays.fill(this.delaysClient, (byte) -1);
+        Arrays.fill(this.delaysOut, (byte) -1);
     }
 
     @Override
@@ -513,86 +519,69 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         TileEntity te = world.getTileEntity(posSelf.offset(side));
 
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
+        if (te == null)
         {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+            return InvResult.MOVED_NOTHING;
+        }
 
-            if (inv != null)
+        boolean isPipe = te instanceof TileEntityPipe;
+
+        if (isPipe || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
+        {
+            //System.out.printf("tryPushOutItemsToSide(): pos: %s, slot: %d pushing tp pipe on side: %s\n", posSelf, slot, side);
+            ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, true);
+            int sizeOrig = stack.getCount();
+
+            // This is used to prevent scheduling a new update because of an adjacent inventory changing
+            // while we push out items, and our own inventory changing due to this extract.
+            // The update will be scheduled, if needed, after the push is complete.
+            this.disableUpdateScheduling = true;
+            this.disableNeighorNotification = true;
+
+            if (isPipe)
             {
-                //System.out.printf("tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s\n", posSelf, slot, side);
-                ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, true);
-                int sizeOrig = stack.getCount();
-                boolean movedSome = false;
+                stack = ((TileEntityPipe) te).pushItemIn(PositionUtils.FACING_OPPOSITE_INDICES[side.getIndex()], stack, false);
+            }
+            else
+            {
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
 
-                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
-
-                if (stack.isEmpty() || stack.getCount() != sizeOrig)
+                if (inv != null)
                 {
-                    // This is used to prevent scheduling a new update because of an adjacent inventory changing
-                    // while we push out items, and our own inventory changing due to this extract.
-                    // The update will be scheduled, if needed, after the push is complete.
-                    this.disableUpdateScheduling = true;
-                    this.disableNeighorNotification = true;
-
-                    stack = this.itemHandlerBase.extractItem(slot, 64, false);
-                    sizeOrig = stack.getCount();
                     stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
                 }
-                else
-                {
-                    //System.out.printf("tryPushOutItemsToSide(): pos: %s, slot: %d pushing to side: %s - FAILED SIM\n", posSelf, slot, side);
-                    return InvResult.MOVED_NOTHING;
-                }
-
-                if (stack.isEmpty())
-                {
-                    this.cloggedItemsMask &= ~(1 << slot);
-                    // Moved entire stack, notify neighbors only in this case
-                    //world.updateComparatorOutputLevel(posSelf, this.getBlockType());
-                }
-                // Return the items that couldn't be moved
-                else
-                {
-                    //System.out.printf("tryPushOutItemsToSide(): pos: %s, slot: %d pushed to side: %s SOME\n", posSelf, slot, side);
-                    movedSome = stack.getCount() != sizeOrig;
-                    this.itemHandlerBase.insertItem(slot, stack, false);
-                }
-
-                this.disableUpdateScheduling = false;
-                this.disableNeighorNotification = false;
-                //System.out.printf("tryPushOutItemsToSide(): pos: %s, slot: %d side: %s - isEmpty: %s, movedSome: %s\n", posSelf, slot, side, stack.isEmpty(), movedSome);
-
-                return stack.isEmpty() ? InvResult.MOVED_ALL : (movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING);
             }
+
+            boolean movedAll = stack.isEmpty();
+            boolean movedSome = stack.getCount() != sizeOrig;
+
+            if (movedAll || movedSome)
+            {
+                this.itemHandlerBase.extractItem(slot, sizeOrig - stack.getCount(), false);
+
+                if (isPipe)
+                {
+                    this.sendPacketPushToAdjacentPipe(slot, side.getIndex(), ((TileEntityPipe) te).getDelay());
+                }
+                else
+                {
+                    this.sendPacketMoveItemOut(slot, side.getIndex());
+                }
+            }
+
+            if (movedAll)
+            {
+                this.cloggedItemsMask &= ~(1 << slot);
+            }
+
+            this.disableUpdateScheduling = false;
+            this.disableNeighorNotification = false;
+
+            return movedAll ? InvResult.MOVED_ALL : (movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING);
         }
 
         return InvResult.MOVED_NOTHING;
     }
-
-    /*
-    @Nullable
-    private EnumFacing getOutputSideForInputSide(int slot)
-    {
-        if (this.outputSideIndices[slot] < this.validOutputSidesPerSide[slot].length)
-        {
-            //System.out.printf("getOutputSideForInputSide(): pos: %s, slot: %d, index: %d - valid out: %s\n", this.getPos(), slot, this.outputSideIndices[slot], Joiner.on(", ").join(this.validOutputSidesPerSide[slot]));
-            return this.validOutputSidesPerSide[slot][this.outputSideIndices[slot]];
-        }
-
-        return null;
-    }
-
-    @Nullable
-    private EnumFacing cycleOutputSideForInputSide(int slot)
-    {
-        if (++this.outputSideIndices[slot] >= this.validOutputSidesPerSide[slot].length)
-        {
-            this.outputSideIndices[slot] = 0;
-        }
-
-        return this.getOutputSideForInputSide(slot);
-    }
-    */
 
     protected boolean checkHasValidOutputOnSide(EnumFacing side)
     {
@@ -830,8 +819,18 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (this.stacksLast.get(slot) != stack)
         {
             this.stacksLast.set(slot, stack);
-            this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(),
-                    new int[] { slot, this.delay }, new ItemStack[] { stack }));
+
+            if (this.disableNeighorNotification == false)
+            {
+                if (stack.isEmpty() == false)
+                {
+                    this.sendPacketInputItem(slot, stack);
+                }
+                else
+                {
+                    this.sendPacketRemoveItem(slot);
+                }
+            }
         }
     }
 
@@ -850,22 +849,141 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
+    protected ItemStack pushItemIn(int slot, ItemStack stack, boolean simulate)
+    {
+        if (this.inputInventories[slot] == null)
+        {
+            return stack;
+        }
+
+        if (simulate == false)
+        {
+            this.disableNeighorNotification = true;
+            stack = this.inputInventories[slot].insertItem(slot, stack, simulate);
+            this.disableNeighorNotification = false;
+            return stack;
+        }
+        else
+        {
+            return this.inputInventories[slot].insertItem(slot, stack, simulate);
+        }
+    }
+
+    protected void sendPacketPushToAdjacentPipe(int inputSide, int outputSide, int delayTarget)
+    {
+        int val = (1 << 28);
+        val |= (outputSide << 20);
+        val |= (inputSide << 16);
+        val |= (delayTarget & 0xFF) << 8;
+        val |= (this.delay & 0xFF);
+
+        this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
+    }
+
+    protected void sendPacketMoveItemOut(int inputSide, int outputSide)
+    {
+        int val = (2 << 28);
+        val |= (outputSide << 20);
+        val |= (inputSide << 16);
+        val |= (this.delay & 0xFF);
+
+        this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
+    }
+
+    protected void sendPacketRemoveItem(int inputSide)
+    {
+        int val = (3 << 28);
+        val |= (inputSide << 16);
+
+        this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val ), this.getPos());
+    }
+
+    protected void sendPacketInputItem(int inputSide, ItemStack stack)
+    {
+        int val = 0;
+        val |= (inputSide << 16);
+        val |= (this.delay & 0xFF);
+
+        this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(),
+                new int[] { val }, new ItemStack[] { stack } ), this.getPos());
+    }
+
     @Override
     public void syncTile(int[] intValues, ItemStack[] stacks)
     {
-        if (intValues.length == 2 && stacks.length == 1)
+        // Input item
+        if (intValues.length == 1 && stacks.length == 1)
         {
-            this.stacksLast.set(intValues[0], stacks[0]);
+            int val = intValues[0];
+            int slot =  (val >>> 16) & 0x0F;
+            int delay = (val         & 0xFF);
+            this.stacksLast.set(slot, stacks[0]);
 
             if (stacks[0].isEmpty() == false)
             {
-                this.scheduledTimes[intValues[0]] = intValues[1];
-                this.delaysClient[intValues[0]] = intValues[1];
+                this.isInput[slot] = 1;
+                // When directly inputting items, they only move from the edge of this block to the center,
+                // ie. starting from midway through a normal movement.
+                this.delaysClient[slot] = (byte) (delay / 2);
+                this.scheduledTimes[slot] = (byte) delay;
+                //System.out.printf("%d - %s, input: %s\n", this.getWorld().getTotalWorldTime(), this.getPos(), stacks[0]);
             }
             else
             {
-                this.scheduledTimes[intValues[0]] = -2;
+                this.isInput[slot] = 0;
                 this.delaysClient[intValues[0]] = -2;
+            }
+        }
+        else if (intValues.length == 1 && stacks.length == 0)
+        {
+            int val = intValues[0];
+            int action =    (val >>> 28) & 0x0F;
+            int sideOut =   (val >>> 20) & 0x0F;
+            int slot =      (val >>> 16) & 0x0F;
+            int delayAdj =  (val >>>  8) & 0xFF;
+            int delay =     (val         & 0xFF);
+
+            switch (action)
+            {
+                // Move item to an adjacent pipe
+                case 1:
+                    TileEntityPipe te = BlockAutoverse.getTileEntitySafely(this.getWorld(),
+                            this.getPos().offset(EnumFacing.getFront(sideOut)), TileEntityPipe.class);
+
+                    if (te != null)
+                    {
+                        int sideIn = PositionUtils.FACING_OPPOSITE_INDICES[sideOut];
+                        te.stacksLast.set(sideIn, this.stacksLast.get(slot));
+                        te.isInput[sideIn] = 0;
+                        te.delaysClient[sideIn] = (byte) delayAdj;
+                        te.scheduledTimes[sideIn] = delayAdj;
+                        this.stacksLast.set(slot, ItemStack.EMPTY);
+                        this.delaysClient[slot] = -2;
+                        //System.out.printf("%d - %s, to pipe: delay: %d\n", this.getWorld().getTotalWorldTime(), this.getPos(), delayAdj);
+                    }
+                    break;
+
+                // Move input item to output buffer
+                case 2:
+                    this.stacksOut.set(slot, this.stacksLast.get(slot));
+                    this.stacksLast.set(slot, ItemStack.EMPTY);
+                    this.outputDirections[slot] = (byte) sideOut;
+                    this.isInput[slot] = 0;
+                    this.delaysClient[slot] = -2;
+                    // When directly outputting items, they only move from the center of this block to the edge,
+                    // ie. half the distance of normal pipe-to-pipe movement.
+                    this.delaysOut[slot] = (byte) (delay / 2);
+                    this.scheduledTimes[slot] = (byte) delay;
+                    //System.out.printf("%d - %s, to output: delay: %d\n", this.getWorld().getTotalWorldTime(), this.getPos(), delay);
+                    break;
+
+                // Remove a stack
+                case 3:
+                    this.stacksLast.set(slot, ItemStack.EMPTY);
+                    this.isInput[slot] = 0;
+                    this.delaysClient[slot] = -2;
+                    //System.out.printf("%d - %s, remove\n", this.getWorld().getTotalWorldTime(), this.getPos());
+                    break;
             }
         }
     }

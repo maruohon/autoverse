@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.ForgeHooksClient;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
@@ -36,8 +35,6 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
             y += 0.315;
             z += 0.5;
 
-            NonNullList<ItemStack> stacks = te.getRenderStacks();
-
             boolean fancy = this.mc.gameSettings.fancyGraphics;
             this.renderItem = this.mc.getRenderItem();
             this.mc.gameSettings.fancyGraphics = true;
@@ -48,34 +45,74 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
             // Render the ItemStacks
-            for (int i = 0; i < te.delaysClient.length; i++)
+            for (int i = 0; i < 6; i++)
             {
-                int delay = te.delaysClient[i];
+                float fullDelay = (float) te.getDelayForSide(i);
 
-                if (delay >= 0 && partialTicks < te.partialTicksLast)
+                // Incoming stacks
+                if (te.delaysClient[i] >= -1)
                 {
-                    te.delaysClient[i]--;
-                    delay--;
+                    if (te.delaysClient[i] >= 0 && partialTicks < te.partialTicksLast)
+                    {
+                        te.delaysClient[i]--;
+                    }
+
+                    //if (te.isInput[i] == 0 || delay < fullDelay / 2)
+                    {
+                        ItemStack stack = te.stacksLast.get(i);
+                        float progress = 0f;
+
+                        if (te.delaysClient[i] >= 0)
+                        {
+                            // 1 ... 0
+                            progress = (((float) te.delaysClient[i] + 1f - partialTicks) / fullDelay);
+                        }
+
+                        if (te.isInput[i] != 0)
+                        {
+                            // If this item was input from an inventory (or manually put into a slot),
+                            // then it's rendered only moving from the edge of this pipe to the center.
+                            //progress *= 0.5f;
+                        }
+
+                        // The item is (normally, see above) rendered moving from the center
+                        // of the block on the input side, to the center of this block.
+                        EnumFacing inputSide = EnumFacing.getFront(i);
+                        double posX = x + inputSide.getFrontOffsetX() * progress;
+                        double posY = y + inputSide.getFrontOffsetY() * progress;
+                        double posZ = z + inputSide.getFrontOffsetZ() * progress;
+
+                        this.renderStack(stack, posX, posY, posZ, partialTicks);
+                    }
                 }
 
-                if (delay >= -1)
+                if (te.delaysOut[i] >= -1 && partialTicks < te.partialTicksLast)
                 {
-                    ItemStack stack = stacks.get(i);
-                    float progress = -0.5f;
-
-                    if (delay >= 0)
+                    if (--te.delaysOut[i] < -1)
                     {
-                        progress = -0.5f + (((float) delay + 1f - partialTicks) / (float) te.getDelayForSide(i));
+                        te.stacksOut.set(i, ItemStack.EMPTY);
                     }
-                    else
+                }
+
+                // Outgoing stacks
+                if (te.delaysOut[i] >= -1)
+                {
+                    ItemStack stack = te.stacksOut.get(i);
+                    float progress = 0.5f;
+                    fullDelay /= 2;
+
+                    if (te.delaysOut[i] >= 0)
                     {
-                        //progress = -0.5f;
+                        // 0 ... 0.5
+                        progress = 0.5f * (1f - (((float) te.delaysOut[i] + 1f - partialTicks) / fullDelay));
                     }
 
-                    EnumFacing inputSide = EnumFacing.getFront(i);
-                    double posX = x + inputSide.getFrontOffsetX() * progress;
-                    double posY = y + inputSide.getFrontOffsetY() * progress;
-                    double posZ = z + inputSide.getFrontOffsetZ() * progress;
+                    // The item is rendered moving from the center of this block
+                    // to the edge of this block on the output side.
+                    EnumFacing outputSide = EnumFacing.getFront(te.outputDirections[i]);
+                    double posX = x + outputSide.getFrontOffsetX() * progress;
+                    double posY = y + outputSide.getFrontOffsetY() * progress;
+                    double posZ = z + outputSide.getFrontOffsetZ() * progress;
 
                     this.renderStack(stack, posX, posY, posZ, partialTicks);
                 }

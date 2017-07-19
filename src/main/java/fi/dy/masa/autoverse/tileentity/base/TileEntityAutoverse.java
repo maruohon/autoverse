@@ -335,20 +335,20 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
     }
 
-    protected void sendPacketToWatchers(IMessage message)
+    protected void sendPacketToWatchers(IMessage message, BlockPos pos)
     {
         World world = this.getWorld();
 
         if (world instanceof WorldServer)
         {
             WorldServer worldServer = (WorldServer) world;
-            int chunkX = this.getPos().getX() >> 4;
-            int chunkZ = this.getPos().getZ() >> 4;
+            int chunkX = pos.getX() >> 4;
+            int chunkZ = pos.getZ() >> 4;
             PlayerChunkMap map = worldServer.getPlayerChunkMap();
 
             for (EntityPlayerMP player : worldServer.getPlayers(EntityPlayerMP.class, Predicates.alwaysTrue()))
             {
-                if (map.isPlayerWatchingChunk(player, chunkX, chunkZ))
+                if (/*player.getDistanceSq(pos) <= 900 && */map.isPlayerWatchingChunk(player, chunkX, chunkZ))
                 {
                     PacketHandler.INSTANCE.sendTo(message, player);
                 }
