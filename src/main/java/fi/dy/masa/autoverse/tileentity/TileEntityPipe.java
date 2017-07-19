@@ -552,20 +552,22 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 }
             }
 
+            int sizeNew = stack.getCount();
             boolean movedAll = stack.isEmpty();
-            boolean movedSome = stack.getCount() != sizeOrig;
+            boolean movedSome = sizeOrig != sizeNew;
 
             if (movedAll || movedSome)
             {
-                this.itemHandlerBase.extractItem(slot, sizeOrig - stack.getCount(), false);
+                int count = movedAll ? 0 : sizeOrig - sizeNew;
+                this.itemHandlerBase.extractItem(slot, sizeOrig - sizeNew, false);
 
                 if (isPipe)
                 {
-                    this.sendPacketPushToAdjacentPipe(slot, side.getIndex(), ((TileEntityPipe) te).getDelay());
+                    this.sendPacketPushToAdjacentPipe(slot, side.getIndex(), ((TileEntityPipe) te).getDelay(), count);
                 }
                 else
                 {
-                    this.sendPacketMoveItemOut(slot, side.getIndex());
+                    this.sendPacketMoveItemOut(slot, side.getIndex(), count);
                 }
             }
 
@@ -869,10 +871,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
-    protected void sendPacketPushToAdjacentPipe(int inputSide, int outputSide, int delayTarget)
+    protected void sendPacketPushToAdjacentPipe(int inputSide, int outputSide, int delayTarget, int count)
     {
-        int val = (1 << 28);
-        val |= (outputSide << 20);
+        int val = (1 << 29);
+        val |= (count << 22);
+        val |= (outputSide << 19);
         val |= (inputSide << 16);
         val |= (delayTarget & 0xFF) << 8;
         val |= (this.delay & 0xFF);
@@ -880,10 +883,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
     }
 
-    protected void sendPacketMoveItemOut(int inputSide, int outputSide)
+    protected void sendPacketMoveItemOut(int inputSide, int outputSide, int count)
     {
-        int val = (2 << 28);
-        val |= (outputSide << 20);
+        int val = (2 << 29);
+        val |= (count << 22);
+        val |= (outputSide << 19);
         val |= (inputSide << 16);
         val |= (this.delay & 0xFF);
 
@@ -892,7 +896,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected void sendPacketRemoveItem(int inputSide)
     {
-        int val = (3 << 28);
+        int val = (3 << 29);
         val |= (inputSide << 16);
 
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val ), this.getPos());
@@ -915,7 +919,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (intValues.length == 1 && stacks.length == 1)
         {
             int val = intValues[0];
-            int slot =  (val >>> 16) & 0x0F;
+            int slot =  (val >>> 16) & 0x07;
             int delay = (val         & 0xFF);
             this.stacksLast.set(slot, stacks[0]);
 
@@ -934,11 +938,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         else if (intValues.length == 1 && stacks.length == 0)
         {
             int val = intValues[0];
-            int action =    (val >>> 28) & 0x0F;
-            int sideOut =   (val >>> 20) & 0x0F;
-            int slot =      (val >>> 16) & 0x0F;
-            int delayAdj =  (val >>>  8) & 0xFF;
-            int delay =     (val         & 0xFF);
+            int action    = (val >>> 29) & 0x07;
+            int count     = (val >>> 22) & 0x7F;
+            int sideOut   = (val >>> 19) & 0x07;
+            int slot      = (val >>> 16) & 0x07;
+            int delayAdj  = (val >>>  8) & 0xFF;
+            int delay     = (val         & 0xFF);
 
             switch (action)
             {
@@ -950,19 +955,38 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                     if (te != null)
                     {
                         int sideIn = PositionUtils.FACING_OPPOSITE_INDICES[sideOut];
-                        te.stacksLast.set(sideIn, this.stacksLast.get(slot));
+
+                        // entire stack
+                        if (count == 0)
+                        {
+                            te.stacksLast.set(sideIn, this.stacksLast.get(slot));
+                            this.stacksLast.set(slot, ItemStack.EMPTY);
+                        }
+                        else
+                        {
+                            te.stacksLast.set(sideIn, this.stacksLast.get(slot).splitStack(count));
+                        }
+
                         te.isInput[sideIn] = 0;
                         te.delaysClient[sideIn] = (byte) delayAdj;
                         te.scheduledTimes[sideIn] = delayAdj;
-                        this.stacksLast.set(slot, ItemStack.EMPTY);
                         this.delaysClient[slot] = -2;
                     }
                     break;
 
                 // Move input item to output buffer
                 case 2:
-                    this.stacksOut.set(slot, this.stacksLast.get(slot));
-                    this.stacksLast.set(slot, ItemStack.EMPTY);
+                    // entire stack
+                    if (count == 0)
+                    {
+                        this.stacksOut.set(slot, this.stacksLast.get(slot));
+                        this.stacksLast.set(slot, ItemStack.EMPTY);
+                    }
+                    else
+                    {
+                        this.stacksOut.set(slot, this.stacksLast.get(slot).splitStack(count));
+                    }
+
                     this.outputDirections[slot] = (byte) sideOut;
                     this.isInput[slot] = 0;
                     this.delaysClient[slot] = -2;
