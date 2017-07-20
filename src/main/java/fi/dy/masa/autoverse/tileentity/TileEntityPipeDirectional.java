@@ -66,14 +66,6 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         this.notifyBlockUpdate(this.getPos());
     }
 
-    /*
-    @Override
-    protected boolean canInputOnSide(EnumFacing side)
-    {
-        return super.canInputOnSide(side) && (this.outputSidesMask & (1 << side.getIndex())) == 0;
-    }
-    */
-
     @Override
     protected boolean checkCanOutputOnSide(EnumFacing side)
     {

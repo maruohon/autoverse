@@ -55,7 +55,6 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     public BlockPipe.Connection getConnectionType(int sideIndex)
     {
-        //System.out.printf("in: 0x%02X, conn: 0x%02X\n", this.validInputSides, this.connectedSides);
         if ((this.validInputSides & (1 << sideIndex)) != 0)
         {
             return BlockPipe.Connection.TYPE;
@@ -67,14 +66,6 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
         return BlockPipe.Connection.NONE;
     }
-
-    /*
-    @Override
-    protected boolean canInputOnSide(EnumFacing side)
-    {
-        return false;
-    }
-    */
 
     private boolean canPullFromSide(EnumFacing side)
     {
@@ -188,70 +179,21 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         this.notifyBlockUpdate(this.getPos());
     }
 
-    /*
-    @Override
-    protected boolean reScheduleStuckItems()
-    {
-        int nextSheduledTick = -1;
-
-        for (int slot = 0; slot < 6; slot++)
-        {
-            int delay = this.getDelayForSide(slot);
-
-            System.out.printf("re-schedule stuck items @ %s, slot: %d, delay: %d\n", this.getPos(), slot, delay);
-            if (delay < 0)
-            {
-                delay = this.getDelay();
-                this.setDelayForSide(slot, delay);
-            }
-
-            // Get the soonest next scheduled update's delay
-            if (delay >= 0 && (nextSheduledTick < 0 || delay < nextSheduledTick))
-            {
-                nextSheduledTick = delay;
-            }
-        }
-
-        if (nextSheduledTick >= 0)
-        {
-            System.out.printf("re-scheduling stuck items @ %s for %d\n", this.getPos(), nextSheduledTick);
-            this.scheduleBlockUpdate(nextSheduledTick, false);
-            return true;
-        }
-
-        return false;
-    }
-    */
-
     @Override
     protected boolean tryMoveItemsForSide(World world, BlockPos pos, int slot)
     {
         boolean ret = super.tryMoveItemsForSide(world, pos, slot);
 
-        //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - start\n", world.getTotalWorldTime(), pos, slot);
         if (this.shouldOperatePull() && this.isAllowedToPullFromSide(EnumFacing.getFront(slot)))
         {
             InvResult result = this.tryPullInItemsFromSide(world, pos, slot);
 
             if (result == InvResult.NO_WORK)
             {
-                //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - NO WORK -> super\n", world.getTotalWorldTime(), pos, slot);
-                //boolean ret = super.tryMoveItemsForSide(world, pos, slot);
-
-                /*
-                if (ret || this.itemHandlerBase.getStackInSlot(slot).isEmpty())
-                {
-                    System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - slot: %d - NO WORK -> super -> SCHED\n", world.getTotalWorldTime(), pos, slot);
-                    return true;
-                }
-                */
-
                 return ret || this.itemHandlerBase.getStackInSlot(slot).isEmpty();
             }
             else
             {
-                //System.out.printf("%d - tryMoveItemsForSide() (EXTRACT) @ %s - SCHED\n", world.getTotalWorldTime(), pos);
-                //this.scheduleCurrentWork(this.getDelay());
                 return ret || result != InvResult.MOVED_NOTHING;
             }
         }
@@ -289,7 +231,6 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
                     if (inv != null)
                     {
-                        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d trying to pull...\n", posSelf, slot, side);
                         this.disableUpdateScheduling = true;
                         this.disableNeighorNotification = true;
 
@@ -303,17 +244,14 @@ public class TileEntityPipeExtraction extends TileEntityPipe
                             this.sendPacketInputItem(slot, this.itemHandlerBase.getStackInSlot(slot));
                         }
 
-                        //if (result != InvResult.MOVED_NOTHING) System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d PULLED\n", posSelf, slot, side);
                         return result;
                     }
                 }
             }
-            //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - FAILED PULL\n", posSelf, slot);
 
             return InvResult.MOVED_NOTHING;
         }
 
-        //System.out.printf("EXTRACTION tryPullInItemsFromSide(): pos: %s, slot: %d - NO WORK\n", posSelf, slot);
         return InvResult.NO_WORK;
     }
 

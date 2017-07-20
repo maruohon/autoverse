@@ -79,7 +79,6 @@ public class TileEntityPipeRoundRobin extends TileEntityPipeDirectional
     @Override
     protected InvResult tryPushOutItem(World world, BlockPos pos, int slot)
     {
-        //System.out.printf("BASIC tryPushOutItem(): pos: %s, slot: %d, valid sides: %d\n", pos, slot, this.validOutputSidesPerSide[slot].length);
         for (int i = 0; i < this.roundRobinOutputSidesPerSide[slot].length; i++)
         {
             if (this.outputSideIndices[slot] >= this.roundRobinOutputSidesPerSide[slot].length)
@@ -93,16 +92,9 @@ public class TileEntityPipeRoundRobin extends TileEntityPipeDirectional
 
             if (result != InvResult.MOVED_NOTHING)
             {
-                //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - SUCCESS\n", pos, outputSide);
                 return result;
             }
-            else
-            {
-                //System.out.printf("BASIC tryPushOutItem(): pos: %s, side: %s - FAIL\n", pos, outputSide);
-            }
         }
-
-        //System.out.printf("tryPushOutItem(): CLOGGED @ %s, item: %s\n", pos, this.itemHandlerBase.getStackInSlot(slot));
 
         return super.tryPushOutItem(world, pos, slot);
     }
