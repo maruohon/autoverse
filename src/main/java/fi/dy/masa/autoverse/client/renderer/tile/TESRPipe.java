@@ -69,13 +69,6 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
                             progress = (((float) te.delaysClient[i] + 1f - partialTicks) / fullDelay);
                         }
 
-                        if (te.isInput[i] != 0)
-                        {
-                            // If this item was input from an inventory (or manually put into a slot),
-                            // then it's rendered only moving from the edge of this pipe to the center.
-                            //progress *= 0.5f;
-                        }
-
                         // The item is (normally, see above) rendered moving from the center
                         // of the block on the input side, to the center of this block.
                         EnumFacing inputSide = EnumFacing.getFront(i);

@@ -15,6 +15,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
@@ -182,6 +183,18 @@ public class BlockPipe extends BlockAutoverseInventory
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
+    }
+
+    @Override
+    public boolean isTranslucent(IBlockState state)
+    {
+        return true;
+    }
+
+    @Override
+    public BlockRenderLayer getBlockLayer()
+    {
+        return BlockRenderLayer.TRANSLUCENT;
     }
 
     @Override
