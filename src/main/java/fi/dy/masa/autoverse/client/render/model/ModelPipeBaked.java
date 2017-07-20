@@ -22,8 +22,10 @@ import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -39,15 +41,15 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class ModelPipeBaked implements IBakedModel
 {
-    private static final String TEX_BASIC_BASE          = Reference.MOD_ID + ":blocks/pipe_basic_base";
+    private static final String TEX_BASIC_BASE          = Reference.MOD_ID + ":blocks/pipe_basic_edge";
 
-    private static final String TEX_EXTRACTION_BASE     = Reference.MOD_ID + ":blocks/pipe_extraction_base";
+    private static final String TEX_EXTRACTION_EDGE     = Reference.MOD_ID + ":blocks/pipe_extraction_edge";
     private static final String TEX_EXTRACTION_CONN     = Reference.MOD_ID + ":blocks/pipe_extraction_connection";
 
-    private static final String TEX_DIRECTIONAL_BASE    = Reference.MOD_ID + ":blocks/pipe_directional_base";
+    private static final String TEX_DIRECTIONAL_EDGE    = Reference.MOD_ID + ":blocks/pipe_directional_edge";
     private static final String TEX_DIRECTIONAL_CONN    = Reference.MOD_ID + ":blocks/pipe_directional_connection";
 
-    private static final String TEX_ROUNDROBIN_BASE     = Reference.MOD_ID + ":blocks/pipe_roundrobin_base";
+    private static final String TEX_ROUNDROBIN_EDGE     = Reference.MOD_ID + ":blocks/pipe_roundrobin_edge";
     private static final String TEX_ROUNDROBIN_CONN     = Reference.MOD_ID + ":blocks/pipe_roundrobin_connection";
 
     private static final String TEX_SIDE_WINDOW         = Reference.MOD_ID + ":blocks/pipe_side_window";
@@ -71,11 +73,14 @@ public class ModelPipeBaked implements IBakedModel
             new TRSRTransformation(ModelRotation.X90_Y180), new TRSRTransformation(ModelRotation.X270_Y0),
             new TRSRTransformation(ModelRotation.X270_Y180), new TRSRTransformation(ModelRotation.X90_Y0) };
 
-    private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
-    private static final Map <IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_ITEMS = new HashMap<>();
+    private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_BLOCK_SOLID = new HashMap<>();
+    private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_BLOCK_TRANSLUCENT = new HashMap<>();
+    private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_ITEMS = new HashMap<>();
+
     private final IModel edgeModel;
     private final IModel sideModel;
-    private final IModel connectionModelBase;
+    private final IModel connectionModelEdges;
+    private final IModel connectionModelSides;
     private final IModel connectionModelFat;
     private final IModel connectionModelSlim;
     private final IModel[] cornerModels;
@@ -90,9 +95,10 @@ public class ModelPipeBaked implements IBakedModel
             BlockPipe.PipeType type,
             IModel edgeModel,
             IModel sideModel,
-            IModel sideModelBase,
-            IModel sideModelFat,
-            IModel sideModelSlim,
+            IModel connectionModelEdges,
+            IModel connectionModelSides,
+            IModel connectionModelFat,
+            IModel connectionModelSlim,
             IModel[] cornerModels,
             ImmutableMap<String, String> textures,
             IModelState modelState,
@@ -100,23 +106,24 @@ public class ModelPipeBaked implements IBakedModel
             Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.type = type;
-        this.edgeModel             = edgeModel      .retexture(ImmutableMap.of("edge", textures.get("base")));
-        this.sideModel             = sideModel      .retexture(ImmutableMap.of("side", textures.get("side")));
-        this.connectionModelBase   = sideModelBase  .retexture(ImmutableMap.of("edge", textures.get("base"), "side", textures.get("side")));
-        this.connectionModelFat    = sideModelFat   .retexture(ImmutableMap.of("edge", textures.get("type"), "side", textures.get("side")));
-        this.connectionModelSlim   = sideModelSlim  .retexture(ImmutableMap.of("edge", textures.get("type"), "side", textures.get("side")));
+        this.edgeModel             = edgeModel              .retexture(ImmutableMap.of("edge", textures.get("edge")));
+        this.sideModel             = sideModel              .retexture(ImmutableMap.of("side", textures.get("side")));
+        this.connectionModelEdges  = connectionModelEdges   .retexture(ImmutableMap.of("edge", textures.get("edge")));
+        this.connectionModelSides  = connectionModelSides   .retexture(ImmutableMap.of("side", textures.get("side")));
+        this.connectionModelFat    = connectionModelFat     .retexture(ImmutableMap.of("base", textures.get("type")));
+        this.connectionModelSlim   = connectionModelSlim    .retexture(ImmutableMap.of("base", textures.get("type")));
         this.cornerModels = new IModel[cornerModels.length];
         this.modelState = modelState;
 
         for (int i = 0; i < this.cornerModels.length; i++)
         {
-            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("base")));
+            this.cornerModels[i] = cornerModels[i].retexture(ImmutableMap.of("texture", textures.get("edge")));
         }
 
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
         this.bakedBaseModel = this.edgeModel.bake(modelState, format, bakedTextureGetter);
-        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("base")));
+        this.particle = bakedTextureGetter.apply(new ResourceLocation(textures.get("edge")));
     }
 
     @Override
@@ -160,35 +167,45 @@ public class ModelPipeBaked implements IBakedModel
     synchronized public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
+        boolean isTranslucentLayer = MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT;
 
         // Item model
         if (state == null)
         {
             state = AutoverseBlocks.PIPE.getDefaultState().withProperty(BlockPipe.TYPE, this.type);
 
-            //quads = QUAD_CACHE_ITEMS.get(state);
+            quads = isTranslucentLayer == false ? QUAD_CACHE_ITEMS.get(state) : ImmutableMap.of();
 
-            //if (quads == null)
+            if (quads == null)
             {
                 TRSRTransformation trsca = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(1.5f, 1.5f, 1.5f), null);
                 IModelState modelState = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(trsca));
 
-                quads = this.bakeFullModel(state, side, modelState);
-                //QUAD_CACHE_ITEMS.put(state, quads);
+                quads = this.bakeFullModel(state, side, modelState, isTranslucentLayer);
+
+                QUAD_CACHE_ITEMS.put(state, quads);
             }
 
             return quads.get(Optional.ofNullable(side));
         }
         else
         {
-            //quads = QUAD_CACHE.get(state);
+            quads = isTranslucentLayer ? QUAD_CACHE_BLOCK_TRANSLUCENT.get(state) : QUAD_CACHE_BLOCK_SOLID.get(state);
 
-            //if (quads == null)
+            if (quads == null)
             {
                 TRSRTransformation modelState = new TRSRTransformation(ModelRotation.X0_Y0);
 
-                quads = this.bakeFullModel(state, side, modelState);
-                //QUAD_CACHE.put(state, quads);
+                quads = this.bakeFullModel(state, side, modelState, isTranslucentLayer);
+
+                if (isTranslucentLayer)
+                {
+                    QUAD_CACHE_BLOCK_TRANSLUCENT.put(state, quads);
+                }
+                else
+                {
+                    QUAD_CACHE_BLOCK_SOLID.put(state, quads);
+                }
             }
 
             return quads.get(Optional.ofNullable(side));
@@ -196,11 +213,11 @@ public class ModelPipeBaked implements IBakedModel
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(
-            IBlockState state, @Nullable EnumFacing side, @Nullable IModelState modelState)
+            IBlockState state, @Nullable EnumFacing side, @Nullable IModelState modelState, boolean isTranslucentLayer)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
-        List<IBakedModel> connectionModels = this.getConnectionModels(state, modelState);
-        List<IBakedModel> middleModels = this.getMainModelPieces(state, modelState);
+        List<IBakedModel> connectionModels = this.getConnectionModels(state, modelState, isTranslucentLayer);
+        List<IBakedModel> middleModels = this.getMainModelPieces(state, modelState, isTranslucentLayer);
 
         for (EnumFacing face : MODEL_FACES)
         {
@@ -229,22 +246,27 @@ public class ModelPipeBaked implements IBakedModel
         return builder.build();
     }
 
-    private List<IBakedModel> getMainModelPieces(IBlockState state, @Nullable IModelState modelStateIn)
+    private List<IBakedModel> getMainModelPieces(IBlockState state, @Nullable IModelState modelStateIn, boolean isTranslucentLayer)
     {
         List<IBakedModel> models = new ArrayList<IBakedModel>();
 
-        this.addEdges(state, PositionUtils.SIDES_Y, EnumFacing.UP, models, modelStateIn);
-        this.addEdges(state, PositionUtils.SIDES_X, EnumFacing.EAST, models, modelStateIn);
-        this.addEdges(state, PositionUtils.SIDES_Z, EnumFacing.SOUTH, models, modelStateIn);
+        if (isTranslucentLayer)
+        {
+            this.addSides(state, models, modelStateIn);
+            this.addSides(state, models, modelStateIn);
+        }
+        else
+        {
+            this.addEdges(state, PositionUtils.SIDES_Y, EnumFacing.UP,    models, modelStateIn);
+            this.addEdges(state, PositionUtils.SIDES_X, EnumFacing.EAST,  models, modelStateIn);
+            this.addEdges(state, PositionUtils.SIDES_Z, EnumFacing.SOUTH, models, modelStateIn);
 
-        this.addSides(state, PositionUtils.SIDES_Y, EnumFacing.UP, models, modelStateIn);
-        this.addSides(state, PositionUtils.SIDES_X, EnumFacing.EAST, models, modelStateIn);
+            this.addCorners(state, models, EnumFacing.UP, modelStateIn);
 
-        this.addCorners(state, models, EnumFacing.UP, modelStateIn);
-
-        TRSRTransformation tr = new TRSRTransformation(ModelRotation.X180_Y180);
-        IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
-        this.addCorners(state, models, EnumFacing.DOWN, modelState);
+            TRSRTransformation tr = new TRSRTransformation(ModelRotation.X180_Y180);
+            IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
+            this.addCorners(state, models, EnumFacing.DOWN, modelState);
+        }
 
         return models;
     }
@@ -298,34 +320,31 @@ public class ModelPipeBaked implements IBakedModel
     }
 
     /**
-     * Transforms a single side model piece ("window") to all four sides around the given <b>rotationAxis</b>.
-     * This method is then called for each of the three axes separately.
+     * Transforms a single side model ("window") to all six sides, for sides which don't have a connection.
      * @param state
      * @param sides
-     * @param rotationAxis
      * @param models
+     * @param modelStateIn
      */
-    private void addSides(IBlockState state, EnumFacing[] sides, EnumFacing rotationAxis,
-            List<IBakedModel> models, @Nullable IModelState modelStateIn)
+    private void addSides(IBlockState state, List<IBakedModel> models, @Nullable IModelState modelStateIn)
     {
-        int i = 0;
-
-        for (EnumFacing side : sides)
+        for (int i = 0; i < 4; i++)
         {
-            // No connection on this side, add the side "window" model
-            if (state.getValue(BlockPipe.CONNECTIONS.get(side.getIndex())) == Connection.NONE)
-            {
-                TRSRTransformation tr;
-                if (sides == PositionUtils.SIDES_Y)         { tr = TRANSFORMS_Y[i]; }
-                else if (sides == PositionUtils.SIDES_X)    { tr = TRANSFORMS_X[i]; }
-                else                                        { tr = TRANSFORMS_Z[i]; }
+            EnumFacing side = PositionUtils.SIDES_Y[i];
+            this.addSide(state, side, models, modelStateIn, TRANSFORMS_Y[i]);
+        }
 
-                IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
+        this.addSide(state, EnumFacing.DOWN, models, modelStateIn, TRANSFORMS_X[0]);
+        this.addSide(state, EnumFacing.UP,   models, modelStateIn, TRANSFORMS_X[1]);
+    }
 
-                models.add(this.sideModel.bake(modelState, this.format, this.bakedTextureGetter));
-            }
-
-            i++;
+    private void addSide(IBlockState state, EnumFacing side, List<IBakedModel> models, @Nullable IModelState modelStateIn, TRSRTransformation tr)
+    {
+        // No connection on this side, add the side window model
+        if (state.getValue(BlockPipe.CONNECTIONS.get(side.getIndex())) == Connection.NONE)
+        {
+            IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
+            models.add(this.sideModel.bake(modelState, this.format, this.bakedTextureGetter));
         }
     }
 
@@ -373,7 +392,7 @@ public class ModelPipeBaked implements IBakedModel
         }
     }
 
-    private List<IBakedModel> getConnectionModels(IBlockState state, @Nullable IModelState modelStateIn)
+    private List<IBakedModel> getConnectionModels(IBlockState state, @Nullable IModelState modelStateIn, boolean isTranslucentLayer)
     {
         List<IBakedModel> models = new ArrayList<IBakedModel>();
 
@@ -383,24 +402,31 @@ public class ModelPipeBaked implements IBakedModel
             TRSRTransformation tr = new TRSRTransformation(side);
             IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
 
-            switch (conn)
+            if (isTranslucentLayer == false)
             {
-                case BASIC:
-                    models.add(this.connectionModelBase.bake(modelState, this.format, this.bakedTextureGetter));
-                    break;
+                switch (conn)
+                {
+                    case BASIC:
+                        models.add(this.connectionModelEdges.bake(modelState, this.format, this.bakedTextureGetter));
+                        break;
 
-                case TYPE:
-                    if (state.getValue(BlockPipe.TYPE) == BlockPipe.PipeType.EXTRACTION)
-                    {
-                        models.add(this.connectionModelFat.bake(modelState, this.format, this.bakedTextureGetter));
-                    }
-                    else
-                    {
-                        models.add(this.connectionModelSlim.bake(modelState, this.format, this.bakedTextureGetter));
-                    }
-                    break;
+                    case TYPE:
+                        if (state.getValue(BlockPipe.TYPE) == BlockPipe.PipeType.EXTRACTION)
+                        {
+                            models.add(this.connectionModelFat.bake(modelState, this.format, this.bakedTextureGetter));
+                        }
+                        else
+                        {
+                            models.add(this.connectionModelSlim.bake(modelState, this.format, this.bakedTextureGetter));
+                        }
+                        break;
 
-                default:
+                    default:
+                }
+            }
+            else if (conn == BlockPipe.Connection.BASIC)
+            {
+                models.add(this.connectionModelSides.bake(modelState, this.format, this.bakedTextureGetter));
             }
         }
 
@@ -409,11 +435,12 @@ public class ModelPipeBaked implements IBakedModel
 
     private static abstract class ModelPipe implements IModel
     {
-        private static final ResourceLocation EDGE_MODEL            = new ResourceLocation(Reference.MOD_ID, "block/pipe_edge_y");
-        private static final ResourceLocation SIDE_MODEL            = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_window");
-        private static final ResourceLocation CONNECTION_MODEL_BASE = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_normal");
-        private static final ResourceLocation CONNECTION_MODEL_FAT  = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_fat");
-        private static final ResourceLocation CONNECTION_MODEL_SLIM = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_slim");
+        private static final ResourceLocation EDGE_MODEL             = new ResourceLocation(Reference.MOD_ID, "block/pipe_edge_y");
+        private static final ResourceLocation SIDE_MODEL             = new ResourceLocation(Reference.MOD_ID, "block/pipe_side_window");
+        private static final ResourceLocation CONNECTION_MODEL_EDGES = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_normal_edges");
+        private static final ResourceLocation CONNECTION_MODEL_SIDES = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_normal_sides");
+        private static final ResourceLocation CONNECTION_MODEL_FAT   = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_fat");
+        private static final ResourceLocation CONNECTION_MODEL_SLIM  = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_slim");
 
         protected final BlockPipe.PipeType type;
         protected final Map<String, String> textures = new HashMap<String, String>();
@@ -433,7 +460,7 @@ public class ModelPipeBaked implements IBakedModel
         public List<ResourceLocation> getDependencies()
         {
             List<ResourceLocation> models = Lists.newArrayList(EDGE_MODEL, SIDE_MODEL,
-                    CONNECTION_MODEL_BASE, CONNECTION_MODEL_FAT, CONNECTION_MODEL_SLIM);
+                    CONNECTION_MODEL_EDGES, CONNECTION_MODEL_SIDES, CONNECTION_MODEL_FAT, CONNECTION_MODEL_SLIM);
 
             for (int i = 0; i < 8; i++)
             {
@@ -461,18 +488,20 @@ public class ModelPipeBaked implements IBakedModel
         {
             IModel edgeModel = null;
             IModel sideModel = null;
-            IModel connectionModelBase = null;
+            IModel connectionModelEdges = null;
+            IModel connectionModelSides = null;
             IModel connectionModelFat = null;
             IModel connectionModelSlim = null;
             IModel[] cornerModels = new IModel[8];
 
             try
             {
-                edgeModel           = ModelLoaderRegistry.getModel(EDGE_MODEL);
-                sideModel           = ModelLoaderRegistry.getModel(SIDE_MODEL);
-                connectionModelBase = ModelLoaderRegistry.getModel(CONNECTION_MODEL_BASE);
-                connectionModelFat  = ModelLoaderRegistry.getModel(CONNECTION_MODEL_FAT);
-                connectionModelSlim = ModelLoaderRegistry.getModel(CONNECTION_MODEL_SLIM);
+                edgeModel               = ModelLoaderRegistry.getModel(EDGE_MODEL);
+                sideModel               = ModelLoaderRegistry.getModel(SIDE_MODEL);
+                connectionModelEdges    = ModelLoaderRegistry.getModel(CONNECTION_MODEL_EDGES);
+                connectionModelSides    = ModelLoaderRegistry.getModel(CONNECTION_MODEL_SIDES);
+                connectionModelFat      = ModelLoaderRegistry.getModel(CONNECTION_MODEL_FAT);
+                connectionModelSlim     = ModelLoaderRegistry.getModel(CONNECTION_MODEL_SLIM);
                 List<ResourceLocation> models = this.getDependencies();
 
                 for (int i = 0; i < cornerModels.length; i++)
@@ -485,8 +514,8 @@ public class ModelPipeBaked implements IBakedModel
                 Autoverse.logger.warn("Failed to load a model for the Pipe!", e);
             }
 
-            return new ModelPipeBaked(this.type, edgeModel, sideModel, connectionModelBase, connectionModelFat,
-                    connectionModelSlim, cornerModels, this.getTextureMapping(), state, format, bakedTextureGetter);
+            return new ModelPipeBaked(this.type, edgeModel, sideModel, connectionModelEdges, connectionModelSides,
+                    connectionModelFat, connectionModelSlim, cornerModels, this.getTextureMapping(), state, format, bakedTextureGetter);
         }
 
         protected ImmutableMap<String, String> getTextureMapping()
@@ -501,7 +530,7 @@ public class ModelPipeBaked implements IBakedModel
         {
             super(BlockPipe.PipeType.BASIC);
 
-            this.textures.put("base", TEX_BASIC_BASE);
+            this.textures.put("edge", TEX_BASIC_BASE);
             this.textures.put("type", TEX_BASIC_BASE); // Dummy, not used, but required
             this.textures.put("side", TEX_SIDE_WINDOW);
         }
@@ -513,7 +542,7 @@ public class ModelPipeBaked implements IBakedModel
         {
             super(BlockPipe.PipeType.EXTRACTION);
 
-            this.textures.put("base", TEX_EXTRACTION_BASE);
+            this.textures.put("edge", TEX_EXTRACTION_EDGE);
             this.textures.put("type", TEX_EXTRACTION_CONN);
             this.textures.put("side", TEX_SIDE_WINDOW);
         }
@@ -525,7 +554,7 @@ public class ModelPipeBaked implements IBakedModel
         {
             super(BlockPipe.PipeType.DIRECTIONAL);
 
-            this.textures.put("base", TEX_DIRECTIONAL_BASE);
+            this.textures.put("edge", TEX_DIRECTIONAL_EDGE);
             this.textures.put("type", TEX_DIRECTIONAL_CONN);
             this.textures.put("side", TEX_SIDE_WINDOW);
         }
@@ -537,7 +566,7 @@ public class ModelPipeBaked implements IBakedModel
         {
             super(BlockPipe.PipeType.ROUNDROBIN);
 
-            this.textures.put("base", TEX_ROUNDROBIN_BASE);
+            this.textures.put("edge", TEX_ROUNDROBIN_EDGE);
             this.textures.put("type", TEX_ROUNDROBIN_CONN);
             this.textures.put("side", TEX_SIDE_WINDOW);
         }
@@ -583,7 +612,8 @@ public class ModelPipeBaked implements IBakedModel
         @Override
         public void onResourceManagerReload(IResourceManager resourceManager)
         {
-            QUAD_CACHE.clear();
+            QUAD_CACHE_BLOCK_SOLID.clear();
+            QUAD_CACHE_BLOCK_TRANSLUCENT.clear();
             QUAD_CACHE_ITEMS.clear();
         }
     }

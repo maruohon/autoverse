@@ -186,15 +186,9 @@ public class BlockPipe extends BlockAutoverseInventory
     }
 
     @Override
-    public boolean isTranslucent(IBlockState state)
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
     {
-        return true;
-    }
-
-    @Override
-    public BlockRenderLayer getBlockLayer()
-    {
-        return BlockRenderLayer.TRANSLUCENT;
+        return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.TRANSLUCENT;
     }
 
     @Override
