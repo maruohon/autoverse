@@ -47,8 +47,6 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
-        this.getFacingFromTE = false;
-
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, EmitterType.BASIC)
                 .withProperty(FACING, DEFAULT_FACING)
@@ -130,6 +128,8 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
 
         if (te != null)
         {
+            state = state.withProperty(FACING, te.getFacing());
+
             int poweredMask = te.getPoweredMask();
             int sideMask = te.getSideMask();
 
@@ -147,7 +147,6 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
                     state = state.withProperty(SIDES.get(side.getIndex()), this.getSideStatus(side, sideMask, poweredMask));
                 }
             }
-
         }
 
         return state;

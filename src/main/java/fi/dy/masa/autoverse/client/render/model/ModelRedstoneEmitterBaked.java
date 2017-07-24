@@ -137,11 +137,10 @@ public class ModelRedstoneEmitterBaked implements IBakedModel
     private ImmutableMap<String, String> getTextures(IBlockState state)
     {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        EnumFacing front = state.getValue(BlockAutoverse.FACING);
 
         for (EnumFacing side : EnumFacing.values())
         {
-            if (side == front)
+            if (side == BlockAutoverse.DEFAULT_FACING)
             {
                 builder.put(side.toString().toLowerCase(), this.textures.get("front"));
             }
