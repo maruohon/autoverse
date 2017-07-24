@@ -2,13 +2,13 @@
     "parent": "minecraft:block/block",
     "elements": [ 
         {
-            "from": [ 10,  6, 4 ],
-            "to":   [ 12, 10, 6 ],
+            "from": [ 10.5,  5.5,   4 ],
+            "to":   [   12, 10.5, 5.5 ],
             "faces": {
-                "north": { "uv": [ 0, 0, 3, 4 ], "texture": "#edge" },
-                "south": { "uv": [ 0, 0, 3, 4 ], "texture": "#edge" },
-                "west":  { "uv": [ 0, 0, 3, 4 ], "texture": "#edge" },
-                "east":  { "uv": [ 0, 0, 3, 4 ], "texture": "#edge" }
+                "north": { "uv": [ 0, 0, 3, 10 ], "texture": "#edge" },
+                "south": { "uv": [ 0, 0, 3, 10 ], "texture": "#edge" },
+                "west":  { "uv": [ 0, 0, 3, 10 ], "texture": "#edge" },
+                "east":  { "uv": [ 0, 0, 3, 10 ], "texture": "#edge" }
             }
         }
     ]

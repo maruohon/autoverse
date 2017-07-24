@@ -1,8 +1,8 @@
 {
     "elements": [ 
         {
-            "from": [ 10, 10, 4 ],
-            "to":   [ 12, 12, 6 ],
+            "from": [ 10.5, 10.5,   4 ],
+            "to":   [   12,   12, 5.5 ],
             "faces": {
                 "north": { "uv": [ 6, 5,  9, 8 ], "texture": "#texture" },
                 "east":  { "uv": [ 8, 5, 11, 8 ], "texture": "#texture" }
