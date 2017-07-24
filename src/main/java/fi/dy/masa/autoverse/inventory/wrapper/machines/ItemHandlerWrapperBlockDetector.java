@@ -17,7 +17,9 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
     private final SequenceMatcherVariable sequenceAngle;
     private final SequenceMatcherVariable sequenceDelay;
     private final SequenceMatcherVariable sequenceDetection;
+    private final SequenceMatcherVariable sequenceOthers;
     private final ItemStackHandlerLockable inventoryDetector;
+    private final ItemStackHandlerLockable inventoryOthersBuffer;
     private int subState;
 
     public ItemHandlerWrapperBlockDetector(
@@ -32,25 +34,42 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         this.sequenceDistance   = (new SequenceMatcherVariable(4, "SequenceDistance")).setAllowEmptySequence(true);
         this.sequenceAngle      = (new SequenceMatcherVariable(4, "SequenceAngle")).setAllowEmptySequence(true);
         this.sequenceDelay      = (new SequenceMatcherVariable(8, "SequenceDelay")).setAllowEmptySequence(true);
+
         this.sequenceDetection  = (new SequenceMatcherVariable(MAX_INV_SIZE, "SequenceDetection")).setAllowEmptySequence(true);
         this.sequenceDetection.setCallback(this, 0);
+
+        this.sequenceOthers  = (new SequenceMatcherVariable(1, "SequenceDetectionOthers")).setAllowEmptySequence(true);
+        this.sequenceOthers.setCallback(this, 1);
 
         this.getSequenceManager().add(this.sequenceBitMarker, 1);
         this.getSequenceManager().add(this.sequenceDistance);
         this.getSequenceManager().add(this.sequenceAngle);
         this.getSequenceManager().add(this.sequenceDelay);
         this.getSequenceManager().add(this.sequenceDetection);
+        this.getSequenceManager().add(this.sequenceOthers);
 
         this.inventoryDetector = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsDetector", te);
         this.inventoryDetector.setInventorySize(0);
+
+        this.inventoryOthersBuffer = new ItemStackHandlerLockable(3, 1, 256, false, "ItemsDetectorOthers", te);
+        this.inventoryOthersBuffer.setInventorySize(0);
     }
 
     @Override
     public void onConfigureSequenceSlot(int callbackId, int slot, boolean finished)
     {
-        this.inventoryDetector.setInventorySize(slot + 1);
-        this.inventoryDetector.setTemplateStackInSlot(slot, this.sequenceDetection.getStackInSlot(slot));
-        this.inventoryDetector.setSlotLocked(slot, true);
+        if (callbackId == 0)
+        {
+            this.inventoryDetector.setInventorySize(slot + 1);
+            this.inventoryDetector.setTemplateStackInSlot(slot, this.sequenceDetection.getStackInSlot(slot));
+            this.inventoryDetector.setSlotLocked(slot, true);
+        }
+        else if (callbackId == 1)
+        {
+            this.inventoryOthersBuffer.setInventorySize(slot + 1);
+            this.inventoryOthersBuffer.setTemplateStackInSlot(slot, this.sequenceOthers.getStackInSlot(slot));
+            this.inventoryOthersBuffer.setSlotLocked(slot, true);
+        }
     }
 
     @Override
@@ -86,6 +105,10 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         {
             return true;
         }
+        else if (this.moveInputItemToInventory(this.inventoryOthersBuffer))
+        {
+            return true;
+        }
         else
         {
             return this.moveInputItemToOutput();
@@ -101,15 +124,24 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         }
         else
         {
-            boolean success = InventoryUtils.tryMoveAllItems(this.inventoryDetector, this.getOutputInventory()) != InvResult.MOVED_NOTHING;
+            ItemStackHandlerLockable inv = this.subState == 2 ? this.inventoryOthersBuffer : this.inventoryDetector;
+            boolean success = InventoryUtils.tryMoveAllItems(inv, this.getOutputInventory()) != InvResult.MOVED_NOTHING;
 
-            if (InventoryUtils.isInventoryEmpty(this.inventoryDetector))
+            if (InventoryUtils.isInventoryEmpty(inv))
             {
-                this.inventoryDetector.clearTemplateStacks();
-                this.inventoryDetector.clearLockedStatus();
-                this.inventoryDetector.setInventorySize(0);
-                this.subState = 0;
-                this.setState(State.CONFIGURE);
+                inv.clearTemplateStacks();
+                inv.clearLockedStatus();
+                inv.setInventorySize(0);
+
+                if (this.subState >= 2)
+                {
+                    this.subState = 0;
+                    this.setState(State.CONFIGURE);
+                }
+                else
+                {
+                    this.subState++;
+                }
             }
 
             return success;
@@ -161,9 +193,9 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         return this.inventoryDetector;
     }
 
-    public int getCurrentDetectionSetSize()
+    public ItemStackHandlerLockable getOthersBufferInventory()
     {
-        return this.inventoryDetector.getSlots();
+        return this.inventoryOthersBuffer;
     }
 
     @Override
@@ -173,6 +205,7 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
 
         tag.setByte("SubState", (byte) this.subState);
         tag.merge(this.inventoryDetector.serializeNBT());
+        tag.merge(this.inventoryOthersBuffer.serializeNBT());
 
         return tag;
     }
@@ -184,5 +217,6 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
 
         this.subState = tag.getByte("SubState");
         this.inventoryDetector.deserializeNBT(tag);
+        this.inventoryOthersBuffer.deserializeNBT(tag);
     }
 }

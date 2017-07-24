@@ -16,11 +16,14 @@ public class ContainerBlockDetector extends ContainerTile
     private final TileEntityBlockDetector ted;
     private final ItemHandlerWrapperBlockDetector detector;
     private SlotRange slotRangeDetectionInventory;
-    private int invSize = -1;
+    private SlotRange slotRangeOthersBufferInventory;
+    private int invSizeDetection = -1;
+    private int invSizeOthers = -1;
     private boolean useIndicators;
-    private final BitSet lockedLast = new BitSet(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE);
-    private final NonNullList<ItemStack> templateStacksLast =
-            NonNullList.withSize(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE, ItemStack.EMPTY);
+    private final BitSet lockedLastDetection = new BitSet(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE);
+    private final BitSet lockedLastOthers = new BitSet(1);
+    private final NonNullList<ItemStack> templateStacksLastDetection = NonNullList.withSize(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> templateStacksLastOthers = NonNullList.withSize(1, ItemStack.EMPTY);
 
     public ContainerBlockDetector(EntityPlayer player, TileEntityBlockDetector te)
     {
@@ -28,7 +31,6 @@ public class ContainerBlockDetector extends ContainerTile
 
         this.ted = te;
         this.detector = te.getDetector();
-        this.slotRangeDetectionInventory = new SlotRange(0, 0);
 
         this.reAddSlots();
     }
@@ -71,8 +73,12 @@ public class ContainerBlockDetector extends ContainerTile
         this.slotRangeDetectionInventory = new SlotRange(this.getSpecialSlots().size(), detector.getDetectionInventory().getSlots());
         SlotPlacer.create(8, 114, detector.getDetectionInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
+        // Add the "other blocks detection buffer" slots
+        this.slotRangeOthersBufferInventory = new SlotRange(this.getSpecialSlots().size(), detector.getOthersBufferInventory().getSlots());
+        SlotPlacer.create(8, 151, detector.getOthersBufferInventory(), this).setSlotType(SlotType.SPECIAL).place();
+
         // Add the normal items output buffer slot
-        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 8, 151));
+        this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 116, 151));
 
         // Add the detection items output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutDetection(), 0, 152, 151));
@@ -88,6 +94,7 @@ public class ContainerBlockDetector extends ContainerTile
 
         int invSize = this.detector.getDetectionInventory().getSlots();
         boolean useIndicators = this.ted.getUseIndicators();
+        boolean sizeChanged = false;
 
         if (useIndicators != this.useIndicators)
         {
@@ -95,33 +102,50 @@ public class ContainerBlockDetector extends ContainerTile
             this.useIndicators = useIndicators;
         }
 
-        if (invSize != this.invSize)
+        // Force sync all slots before shrinking the inventory size,
+        // so that the client side inventory doesn't get left out-of-sync
+
+        if (invSize < this.invSizeDetection)
         {
-            // Force sync all slots, because otherwise the client side inventory may be left out of sync.
-            // Whether we sync the contents before or after sending the new inventory size, depends
-            // on whether the inventory grew or shrank.
-
-            if (invSize < this.invSize)
-            {
-                this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
-            }
-
-            this.syncProperty(0, (byte) invSize);
-            this.reAddSlots();
-
-            if (invSize > this.invSize)
-            {
-                this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
-            }
+            this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLastDetection, this.templateStacksLastDetection);
 
             this.forceSyncAll = true;
             super.detectAndSendChanges();
             this.forceSyncAll = false;
-            this.invSize = invSize;
+        }
+
+        if (invSize != this.invSizeDetection)
+        {
+            this.syncProperty(0, (byte) invSize);
+            this.invSizeDetection = invSize;
+            sizeChanged = true;
+        }
+
+        invSize = this.detector.getOthersBufferInventory().getSlots();
+
+        if (invSize != this.invSizeOthers)
+        {
+            this.syncProperty(3, (byte) invSize);
+            this.invSizeOthers = invSize;
+            sizeChanged = true;
+        }
+
+        if (sizeChanged)
+        {
+            this.reAddSlots();
+        }
+
+        this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLastDetection, this.templateStacksLastDetection);
+        this.syncLockableSlots(this.detector.getOthersBufferInventory(), 1, 4, this.lockedLastOthers, this.templateStacksLastOthers);
+
+        if (sizeChanged)
+        {
+            this.forceSyncAll = true;
+            super.detectAndSendChanges();
+            this.forceSyncAll = false;
         }
         else
         {
-            this.syncLockableSlots(this.detector.getDetectionInventory(), 0, 1, this.lockedLast, this.templateStacksLast);
             super.detectAndSendChanges();
         }
     }
@@ -145,6 +169,15 @@ public class ContainerBlockDetector extends ContainerTile
             case 2:
                 this.ted.setUseIndicators(value == 1);
                 break;
+
+            case 3:
+                this.detector.getOthersBufferInventory().setInventorySize(value);
+                this.reAddSlots();
+                break;
+
+            case 4:
+                this.detector.getOthersBufferInventory().setSlotLocked(value & 0xFF, (value & 0x8000) != 0);
+                break;
         }
     }
 
@@ -154,6 +187,10 @@ public class ContainerBlockDetector extends ContainerTile
         if (typeId == 0)
         {
             this.detector.getDetectionInventory().setTemplateStackInSlot(slotNum, stack);
+        }
+        else if (typeId == 1)
+        {
+            this.detector.getOthersBufferInventory().setTemplateStackInSlot(slotNum, stack);
         }
         else
         {
@@ -166,8 +203,18 @@ public class ContainerBlockDetector extends ContainerTile
         return this.detector.getDetectionInventory();
     }
 
+    public ItemStackHandlerLockable getOthersBufferInventory()
+    {
+        return this.detector.getOthersBufferInventory();
+    }
+
     public SlotRange getDetectionInventorySlotRange()
     {
         return this.slotRangeDetectionInventory;
+    }
+
+    public SlotRange getOthersBufferInventorySlotRange()
+    {
+        return this.slotRangeOthersBufferInventory;
     }
 }

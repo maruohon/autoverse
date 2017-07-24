@@ -54,20 +54,17 @@ public class GuiBlockDetector extends GuiAutoverse
         s = I18n.format("autoverse.gui.label.1_bit_marker");
         this.fontRenderer.drawString(s, 45, 42, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.detector.distance_and_angle");
+        s = I18n.format("autoverse.gui.label.block_detector.distance_and_angle");
         this.fontRenderer.drawString(s,  8, 54, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.detector.delay");
+        s = I18n.format("autoverse.gui.label.block_detector.delay");
         this.fontRenderer.drawString(s, 98, 54, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.detector.detection_items");
+        s = I18n.format("autoverse.gui.label.block_detector.detection_items");
         this.fontRenderer.drawString(s,  8, 104, 0x404040);
 
-        s = I18n.format("autoverse.gui.label.out_normal");
-        this.fontRenderer.drawString(s, 28, 150, 0x404040);
-
-        s = I18n.format("autoverse.gui.label.detector.out_detection");
-        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 160, 0x404040);
+        s = I18n.format("autoverse.gui.label.block_detector.other_items");
+        this.fontRenderer.drawString(s, 28, 151, 0x404040);
     }
 
     @Override
@@ -77,8 +74,10 @@ public class GuiBlockDetector extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
-        final ItemStackHandlerLockable inv = this.containerD.getDetectionInventory();
-        final int invSize = inv.getSlots() > 0 ? inv.getSlots() : 18;
+        final ItemStackHandlerLockable invDetection = this.containerD.getDetectionInventory();
+        final ItemStackHandlerLockable invOthersBuffer = this.containerD.getOthersBufferInventory();
+        final int invSizeDetection = invDetection.getSlots() > 0 ? invDetection.getSlots() : 18;
+        final int invSizeOthersBuffer = invOthersBuffer.getSlots() > 0 ? invOthersBuffer.getSlots() : 1;
 
         this.drawSlotBackgrounds( 25,  33, 0, 238, 1, 1); // 1-bit marker
 
@@ -86,16 +85,25 @@ public class GuiBlockDetector extends GuiAutoverse
         this.drawSlotBackgrounds(  7,  64, 0, 238, 4, 4); // Config: Distance
         this.drawSlotBackgrounds(  7,  82, 0, 238, 4, 4); // Config: Angle
         this.drawSlotBackgrounds( 97,  64, 0, 238, 4, 8); // Config: Delay
-        this.drawSlotBackgrounds(  7, 113, 0, 238, 9, invSize); // Detector
+        this.drawSlotBackgrounds(  7, 113, 0, 238, 9, invSizeDetection); // Detector
+        this.drawSlotBackgrounds(  7, 150, 0, 238, 1, invSizeOthersBuffer); // Others buffer
 
-        this.drawSlotBackgrounds(  7, 150, 0, 220, 1, 1); // Out Normal
+        this.drawSlotBackgrounds(115, 150, 0, 220, 1, 1); // Out Normal
         this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Out Detector
 
-        final int first = this.containerD.getDetectionInventorySlotRange().first;
         List<Slot> slotList = this.containerD.getSpecialSlots();
 
-        this.drawLockedSlotBackgrounds(inv, first, slotList);
-        this.drawTemplateStacks(inv, first, slotList);
+        int firstDetection = this.containerD.getDetectionInventorySlotRange().first;
+        int firstOthers = this.containerD.getOthersBufferInventorySlotRange().first;
+
+        // Detection items buffer
+        this.drawLockedSlotBackgrounds(invDetection, firstDetection, slotList);
+
+        // "Other blocks" item buffer
+        this.drawLockedSlotBackgrounds(invOthersBuffer, firstOthers, slotList);
+
+        this.drawTemplateStacks(invDetection, firstDetection, slotList);
+        this.drawTemplateStacks(invOthersBuffer, firstOthers, slotList);
 
         if (this.te.getUseIndicators())
         {

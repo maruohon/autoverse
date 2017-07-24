@@ -259,10 +259,12 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
                     }
                 }
 
+                // Other blocks than ones programmed to the detection inventory
+                IItemHandler inv = this.detector.getOthersBufferInventory();
+                return InventoryUtils.tryMoveStack(inv, 0, this.inventoryOutDetection, 0, 1) != InvResult.MOVED_NOTHING;
+
                 // debugging
                 //BlockUtils.setBlockStateWithPlaceSound(this.getWorld(), pos, Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.ORANGE), 3);
-
-                break;
             }
         }
 
@@ -348,6 +350,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutDetection);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutNormal);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.detector.getDetectionInventory());
+        InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.detector.getOthersBufferInventory());
         this.detector.dropAllItems(this.getWorld(), this.getPos());
     }
 
