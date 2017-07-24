@@ -20,6 +20,7 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.client.render.model.ModelPipeBaked;
+import fi.dy.masa.autoverse.client.render.model.ModelRedstoneEmitterBaked;
 import fi.dy.masa.autoverse.client.renderer.tile.TESRPipe;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.InputEventHandler;
@@ -98,6 +99,9 @@ public class ClientProxy extends CommonProxy
     {
         ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new ModelPipeBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelPipeBaked.ModelLoaderPipe());
+
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.REDSTONE_EMITTER, new ModelRedstoneEmitterBaked.StateMapper());
+        ModelLoaderRegistry.registerLoader(new ModelRedstoneEmitterBaked.ModelLoaderRedstoneEmitter());
     }
 
     private static void registerItemBlockModels()
@@ -122,7 +126,8 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.PIPE, 1, "type=extraction");
         registerItemBlockModel(AutoverseBlocks.PIPE, 2, "type=directional");
         registerItemBlockModel(AutoverseBlocks.PIPE, 3, "type=roundrobin");
-        registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "down=true,east=true,facing=north,north=false,powered=true,south=true,up=true,west=true");
+        registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "type=basic");
+        registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 1, "type=advanced");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,type=programmable");

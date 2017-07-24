@@ -4,16 +4,17 @@ import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.block.BlockRedstoneEmitter;
 import fi.dy.masa.autoverse.gui.client.GuiRedstoneEmitter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerRedstoneEmitter;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperRedstoneEmitter;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSequenceBase;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -23,13 +24,17 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOutput;
     private ItemHandlerWrapperRedstoneEmitter emitter;
+    private int powerMask;
     private int sideMask;
-    private boolean changePending;
-    private boolean powered;
 
     public TileEntityRedstoneEmitter()
     {
         super(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER);
+    }
+
+    protected TileEntityRedstoneEmitter(String name)
+    {
+        super(name);
     }
 
     @Override
@@ -37,9 +42,16 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         this.inventoryInput     = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn", this);
         this.inventoryOutput    = new ItemStackHandlerTileEntity(1, 1, 64, false, "ItemsOut", this);
-        this.emitter            = new ItemHandlerWrapperRedstoneEmitter(this.inventoryInput, this.inventoryOutput, this);
         this.itemHandlerBase    = this.inventoryInput;
-        this.itemHandlerExternal = this.emitter;
+
+        this.createEmitterInventory();
+
+        this.itemHandlerExternal = this.getEmitterHandlerBase();
+    }
+
+    protected void createEmitterInventory()
+    {
+        this.emitter = new ItemHandlerWrapperRedstoneEmitter(this.inventoryInput, this.inventoryOutput, this);
     }
 
     public IItemHandler getInventoryIn()
@@ -52,7 +64,12 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
         return this.inventoryOutput;
     }
 
-    public ItemHandlerWrapperRedstoneEmitter getEmitterHandler()
+    public ItemHandlerWrapperRedstoneEmitter getEmitterHandlerBasic()
+    {
+        return this.emitter;
+    }
+
+    public ItemHandlerWrapperSequenceBase getEmitterHandlerBase()
     {
         return this.emitter;
     }
@@ -82,36 +99,68 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
         return this.sideMask;
     }
 
-    public void setIsPowered(boolean powered)
+    public void setSidePowered(int side, boolean powered)
     {
-        this.powered = powered;
-        this.changePending = true;
-        this.scheduleBlockUpdate(1, true);
+        if (powered)
+        {
+            this.powerMask |= (1 << side);
+        }
+        else
+        {
+            this.powerMask &= ~(1 << side);
+        }
+
+        this.notifyBlockUpdate(this.getPos());
+        this.notifyNeighbor(side);
     }
 
-    @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState)
+    public void setPoweredMask(int mask)
     {
-        return oldState.getBlock() != newState.getBlock();
+        int powerMaskOld = this.powerMask;
+        this.powerMask = mask;
+
+        for (int side = 0, bit = 0x1; side < 6; side++, bit <<= 1)
+        {
+            if ((powerMaskOld & bit) != (mask & bit))
+            {
+                this.notifyNeighbor(side);
+            }
+        }
+
+        this.notifyBlockUpdate(this.getPos());
+    }
+
+    public int getPoweredMask()
+    {
+        return this.powerMask;
+    }
+
+    public boolean isSidePowered(int side)
+    {
+        return (this.powerMask & (1 << side)) != 0;
+    }
+
+    public void setIsPowered(boolean powered)
+    {
+        this.setPoweredMask(powered ? this.sideMask : 0);
+    }
+
+    protected void notifyNeighbor(int sideIndex)
+    {
+        EnumFacing side = EnumFacing.getFront(sideIndex);
+        this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
+        this.getWorld().observedNeighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
     }
 
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
-        boolean movedIn = this.emitter.moveItems();
+        boolean movedIn = this.getEmitterHandlerBase().moveItems();
 
         if (movedIn || movedOut)
         {
             this.scheduleUpdateIfNeeded(movedIn);
-        }
-
-        if (this.changePending)
-        {
-            IBlockState newState = this.getWorld().getBlockState(this.getPos());
-            newState = newState.withProperty(BlockRedstoneEmitter.POWERED, this.powered);
-            this.getWorld().setBlockState(this.getPos(), newState);
-            this.changePending = false;
         }
     }
 
@@ -136,7 +185,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryInput);
         InventoryUtils.dropInventoryContentsInWorld(this.getWorld(), this.getPos(), this.inventoryOutput);
-        this.emitter.dropAllItems(this.getWorld(), this.getPos());
+        this.getEmitterHandlerBase().dropAllItems(this.getWorld(), this.getPos());
     }
 
     @Override
@@ -154,14 +203,12 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(tag);
 
-        int mask = tag.getByte("StateMask");
-        this.sideMask = mask & 0x3F;
-        this.changePending = (mask & 0x40) != 0;
-        this.powered = (mask & 0x80) != 0;
+        this.sideMask = tag.getByte("SideMask");
+        this.powerMask = tag.getByte("PowerMask");
 
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOutput.deserializeNBT(tag);
-        this.emitter.deserializeNBT(tag);
+        this.getEmitterHandlerBase().deserializeNBT(tag);
     }
 
     @Override
@@ -169,13 +216,10 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     {
         super.writeToNBT(nbt);
 
-        int mask = this.sideMask;
-        mask |= (this.changePending ? 0x40 : 0x00);
-        mask |= (this.powered ? 0x80 : 0x00);
+        nbt.setByte("SideMask", (byte) this.sideMask);
+        nbt.setByte("PowerMask", (byte) this.powerMask);
 
-        nbt.setByte("StateMask", (byte) mask);
-
-        nbt.merge(this.emitter.serializeNBT());
+        nbt.merge(this.getEmitterHandlerBase().serializeNBT());
 
         return nbt;
     }
@@ -197,14 +241,16 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
         tag = super.getUpdatePacketTag(tag);
-        tag.setByte("msk", (byte) this.sideMask);
+        tag.setByte("smsk", (byte) this.sideMask);
+        tag.setByte("pmsk", (byte) this.powerMask);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag)
     {
-        this.sideMask = tag.getByte("msk");
+        this.sideMask = tag.getByte("smsk");
+        this.powerMask = tag.getByte("pmsk");
 
         super.handleUpdateTag(tag);
     }

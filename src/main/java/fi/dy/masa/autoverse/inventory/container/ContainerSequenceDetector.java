@@ -74,11 +74,6 @@ public class ContainerSequenceDetector extends ContainerTile
         }
     }
 
-    public ItemHandlerWrapperSequenceDetector getDetector()
-    {
-        return this.detector;
-    }
-
     public int getMatchedLength()
     {
         return this.matchedLength;

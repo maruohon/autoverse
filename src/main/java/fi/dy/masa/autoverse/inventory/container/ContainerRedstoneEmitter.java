@@ -28,7 +28,7 @@ public class ContainerRedstoneEmitter extends ContainerTile
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 30, this.inventory, this.tere.getInventoryIn());
 
-        ItemHandlerWrapperRedstoneEmitter emitter = this.tere.getEmitterHandler();
+        ItemHandlerWrapperRedstoneEmitter emitter = this.tere.getEmitterHandlerBasic();
 
         // Add the end marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(emitter.getEndMarkerInventory(), 0, 26, 30));

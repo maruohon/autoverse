@@ -8,7 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-import fi.dy.masa.autoverse.block.BlockRedstoneEmitter;
+import fi.dy.masa.autoverse.block.BlockSequenceDetector;
 import fi.dy.masa.autoverse.gui.client.GuiSequenceDetector;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequenceDetector;
@@ -78,7 +78,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
         if (this.changePending)
         {
             IBlockState newState = this.getWorld().getBlockState(this.getPos());
-            newState = newState.withProperty(BlockRedstoneEmitter.POWERED, this.powered);
+            newState = newState.withProperty(BlockSequenceDetector.POWERED, this.powered);
             this.getWorld().setBlockState(this.getPos(), newState);
 
             if (this.powered == false)

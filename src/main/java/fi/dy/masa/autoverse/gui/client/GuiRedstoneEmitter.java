@@ -11,10 +11,10 @@ public class GuiRedstoneEmitter extends GuiAutoverse
 
     public GuiRedstoneEmitter(ContainerAutoverse container, TileEntityRedstoneEmitter te)
     {
-        super(container, 176, 256, "gui.container.redstone_emitter");
+        super(container, 176, 256, "gui.container.redstone_emitter_basic");
 
         this.te = te;
-        this.infoArea = new InfoArea(7, 50, 11, 11, "autoverse.gui.infoarea.redstone_emitter");
+        this.infoArea = new InfoArea(7, 50, 11, 11, "autoverse.gui.infoarea.redstone_emitter_basic");
     }
 
     @Override
@@ -22,7 +22,7 @@ public class GuiRedstoneEmitter extends GuiAutoverse
     {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-        String unloc = "autoverse.container.redstone_emitter";
+        String unloc = "autoverse.container.redstone_emitter_basic";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 

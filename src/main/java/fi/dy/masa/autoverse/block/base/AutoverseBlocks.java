@@ -127,6 +127,7 @@ public class AutoverseBlocks
         registerTileEntity(TileEntityPipeExtraction.class,          ReferenceNames.NAME_TILE_ENTITY_PIPE_EXTRACTION);
         registerTileEntity(TileEntityPipeRoundRobin.class,          ReferenceNames.NAME_TILE_ENTITY_PIPE_ROUNDROBIN);
         registerTileEntity(TileEntityRedstoneEmitter.class,         ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER);
+        registerTileEntity(TileEntityRedstoneEmitterAdvanced.class, ReferenceNames.NAME_TILE_ENTITY_REDSTONE_EMITTER_ADVANCED);
         registerTileEntity(TileEntitySequenceDetector.class,        ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR);
         registerTileEntity(TileEntitySequencer.class,               ReferenceNames.NAME_BLOCK_SEQUENCER);
         registerTileEntity(TileEntitySequencerProgrammable.class,   ReferenceNames.NAME_BLOCK_SEQUENCER_PROGRAMMABLE);

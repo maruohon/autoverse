@@ -109,6 +109,6 @@ public class ItemHandlerWrapperRedstoneEmitter extends ItemHandlerWrapperSequenc
     {
         super.readFromNBT(tag);
 
-        this.setIsOn(tag.getBoolean("On"));
+        this.isOn = tag.getBoolean("On");
     }
 }
