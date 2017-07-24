@@ -10,6 +10,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.BlockBreakDropsHandler;
 import fi.dy.masa.autoverse.gui.client.GuiBlockBreaker;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -86,7 +87,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     {
         if (this.redstoneState == false)
         {
-            this.breakAdjacentBlocks(this.isGreedy);
+            this.breakAdjacentBlocks();
 
             if (this.tryPushOutItems())
             {
@@ -117,20 +118,13 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         return false;
     }
 
-    private void breakAdjacentBlocks(boolean allSides)
+    private void breakAdjacentBlocks()
     {
         BlockBreakDropsHandler.setHarvestingInventory(this.itemHandlerBase);
 
-        if (allSides)
+        if (this.isGreedy)
         {
-            // The Greedy variant breaks blocks on all sides except the back side
-            for (EnumFacing facing : EnumFacing.values())
-            {
-                if (facing != this.facingOpposite)
-                {
-                    this.breakBlockOnPosition(this.getPos().offset(facing));
-                }
-            }
+            this.breakBlocksGreedy();
         }
         else
         {
@@ -138,6 +132,49 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         }
 
         BlockBreakDropsHandler.setHarvestingInventory(null);
+    }
+
+    private void breakBlocksGreedy()
+    {
+        switch (Configs.blockBreakerPattern)
+        {
+            case SHAPE_3x3:
+            case SHAPE_5x5:
+                EnumFacing side1 = EnumFacing.getFront((this.facingOpposite.getIndex() + 2) % 6);
+                EnumFacing side2 = EnumFacing.getFront((this.facingOpposite.getIndex() + 4) % 6);
+                int r = Configs.blockBreakerPattern == Configs.BreakerPattern.SHAPE_5x5 ? 2 : 1;
+
+                for (int front = 0; front <= r; front++)
+                {
+                    for (int off1 = -r; off1 <= r; off1++)
+                    {
+                        for (int off2 = -r; off2 <= r; off2++)
+                        {
+                            // Don't break self
+                            if (front != 0 || off1 != 0 || off2 != 0)
+                            {
+                                int xDiff = side1.getFrontOffsetX() * off1 + side2.getFrontOffsetX() * off2 + this.facing.getFrontOffsetX() * front;
+                                int yDiff = side1.getFrontOffsetY() * off1 + side2.getFrontOffsetY() * off2 + this.facing.getFrontOffsetY() * front;
+                                int zDiff = side1.getFrontOffsetZ() * off1 + side2.getFrontOffsetZ() * off2 + this.facing.getFrontOffsetZ() * front;
+                                BlockPos pos = this.getPos().add(xDiff, yDiff, zDiff);
+                                this.breakBlockOnPosition(pos);
+                            }
+                        }
+                    }
+                }
+                break;
+
+            default:
+                // By default the Greedy variant breaks blocks on all sides except the back side
+                for (EnumFacing facing : EnumFacing.values())
+                {
+                    if (facing != this.facingOpposite)
+                    {
+                        this.breakBlockOnPosition(this.getPos().offset(facing));
+                    }
+                }
+                break;
+        }
     }
 
     private void breakBlockOnPosition(BlockPos pos)

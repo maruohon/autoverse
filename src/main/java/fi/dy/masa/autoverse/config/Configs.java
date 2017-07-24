@@ -1,6 +1,7 @@
 package fi.dy.masa.autoverse.config;
 
 import java.io.File;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -27,6 +28,8 @@ public class Configs
     public static boolean disableBlockSequencer;
     public static boolean disableBlockSplitter;
     public static boolean disableBlockTrash;
+
+    public static BreakerPattern blockBreakerPattern = BreakerPattern.ADJACENT;
 
     public static File configurationFile;
     public static Configuration config;
@@ -83,6 +86,14 @@ public class Configs
                         "so that the current extract position is always at the top left of the GUI/slots.");
         fifoBufferOffsetSlots = prop.getBoolean();
 
+        prop = conf.get(CATEGORY_GENERIC, "blockBreakerPattern", 0);
+        prop.setComment("The block break pattern of the Greedy variant of Block Breaker.\n" +
+                        "0 = adjacent blocks only (default)\n" +
+                        "1 = a 3x3 shape around the breaker (not behind itself though)\n" +
+                        "2 = a 5x5 shape around the breaker (not behind itself though)");
+        int value = MathHelper.clamp(prop.getInt(), 0, BreakerPattern.values().length - 1);
+        blockBreakerPattern = BreakerPattern.values()[value];
+
         prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
         prop.setComment("Disable all sounds");
         disableSounds = prop.getBoolean();
@@ -117,5 +128,12 @@ public class Configs
         {
             conf.save();
         }
+    }
+
+    public enum BreakerPattern
+    {
+        ADJACENT,
+        SHAPE_3x3,
+        SHAPE_5x5;
     }
 }
