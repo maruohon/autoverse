@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import fi.dy.masa.autoverse.config.Configs;
@@ -25,6 +26,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 {
     private BlockPos posBack = BlockPos.ORIGIN;
     private boolean isGreedy;
+    private boolean breakScheduled;
     private int delay = 4;
 
     public TileEntityBlockBreaker()
@@ -78,21 +80,39 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 
         if (this.redstoneState == false)
         {
+            this.breakScheduled = true;
             this.scheduleBlockUpdate(this.delay, false);
         }
     }
 
     @Override
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
+        this.scheduleUpdateIfNeeded();
+    }
+
+    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        if (this.redstoneState == false)
+        if (this.breakScheduled && this.redstoneState == false)
         {
             this.breakAdjacentBlocks();
+            this.breakScheduled = false;
+        }
 
-            if (this.tryPushOutItems())
-            {
-                this.scheduleBlockUpdate(this.delay, false);
-            }
+        if (this.tryPushOutItems())
+        {
+            // Schedule a new update when successfully pushed out some items,
+            // to clear the inventory
+            this.scheduleUpdateIfNeeded();
+        }
+    }
+
+    private void scheduleUpdateIfNeeded()
+    {
+        if (InventoryUtils.getFirstNonEmptySlot(this.itemHandlerBase) != -1)
+        {
+            this.scheduleBlockUpdate(1, false);
         }
     }
 
@@ -197,6 +217,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     {
         nbt = super.writeToNBT(nbt);
         nbt.setBoolean("Greedy", this.isGreedy);
+        nbt.setBoolean("Scheduled", this.breakScheduled);
         return nbt;
     }
 
@@ -206,6 +227,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         super.readFromNBTCustom(nbt);
 
         this.setIsGreedy(nbt.getBoolean("Greedy"));
+        this.breakScheduled = nbt.getBoolean("Scheduled");
     }
 
     @Override

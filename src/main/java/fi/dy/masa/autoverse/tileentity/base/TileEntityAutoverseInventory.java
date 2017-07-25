@@ -168,7 +168,7 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
     }
 
     /**
-     * Tries to push items from the given inventory into an adjacent inventory.
+     * Tries to push 1 item from the given inventory and slot into an adjacent inventory.
      * If there is no adjacent inventory on the front facing side and spawnInWorld is true,
      * then it will spawn the item as an EntityItem.
      * @return whether the action succeeded
@@ -179,8 +179,8 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
     }
 
     /**
-     * Tries to push items from the given inventory into an adjacent inventory.
-     *      * If there is no adjacent inventory on the front facing side and spawnInWorld is true,
+     * Tries to push at most <b>maxAmount</b> items from the given inventory into an adjacent inventory.
+     * If there is no adjacent inventory on the front facing side and spawnInWorld is true,
      * then it will spawn the item as an EntityItem.
      * @return whether the action succeeded
      */
@@ -200,21 +200,15 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 
             if (inv != null)
             {
-                // First simulate adding the item, if that succeeds, then actually extract it and insert it into the adjacent inventory
-                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, true);
+                int sizeOrig = stack.getCount();
+                stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
+                int sizeNew = stack.getCount();
 
-                // Simulating item insertion succeeded
-                if (stack.isEmpty())
+                // Successfully inserted at least some items
+                if (stack.isEmpty() || sizeNew != sizeOrig)
                 {
-                    stack = invSrc.extractItem(slot, maxAmount, false);
-                    stack = InventoryUtils.tryInsertItemStackToInventory(inv, stack, false);
-
-                    // Failed, try to return the item
-                    if (stack.isEmpty() == false)
-                    {
-                        invSrc.insertItem(slot, stack, false);
-                        return false;
-                    }
+                    // Actually extract the items, based on how many were successfully inserted
+                    invSrc.extractItem(slot, sizeOrig - sizeNew, false);
 
                     /*if (Configs.disableSounds == false)
                     {
