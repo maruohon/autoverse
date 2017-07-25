@@ -29,7 +29,7 @@ public class CommandLoadConfigs extends CommandBase
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
-        Configs.loadConfigsFromFile();
+        Configs.reLoadAllConfigs(true);
         notifyCommandListener(sender, this, "autoverse.commands.loadconfig.success", new Object[0]);
     }
 }

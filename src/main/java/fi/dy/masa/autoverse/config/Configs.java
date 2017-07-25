@@ -52,14 +52,7 @@ public class Configs
     {
         configurationFile = configFile;
         config = new Configuration(configurationFile, null, true);
-        config.load();
-        reLoadAllConfigs(false);
-    }
-
-    public static Configuration loadConfigsFromFile()
-    {
-        //config.load();
-        return config;
+        reLoadAllConfigs(true);
     }
 
     public static void reLoadAllConfigs(boolean reloadFromFile)
