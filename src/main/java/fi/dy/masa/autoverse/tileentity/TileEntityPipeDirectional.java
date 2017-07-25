@@ -110,9 +110,13 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() &&
-            player.getHeldItemMainhand().isEmpty() &&
-            player.getHeldItemOffhand().isEmpty() == false)
+        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        {
+            return true;
+        }
+        else if (player.isSneaking() &&
+                 player.getHeldItemMainhand().isEmpty() &&
+                 player.getHeldItemOffhand().isEmpty() == false)
         {
             if (world.isRemote == false)
             {
@@ -123,7 +127,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
             return true;
         }
 
-        return super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ);
+        return false;
     }
 
     @Override

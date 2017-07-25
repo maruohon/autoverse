@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,7 +34,6 @@ import fi.dy.masa.autoverse.util.PlacementProperties;
 
 public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
 {
-    private final BlockAutoverse blockEnu;
     protected String[] blockNames;
     protected String[] tooltipNames;
     private final HashMap<Integer, PlacementProperty> placementProperties = new HashMap<Integer, PlacementProperty>();
@@ -107,7 +106,6 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     {
         super(block);
 
-        this.blockEnu = block;
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
 
@@ -226,8 +224,7 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
 
         if (this.hasPlacementProperty(stack))
         {
-            PlacementProperty pp = this.getPlacementProperty(stack);
-            ItemType type = new ItemType(stack, pp.isNBTSensitive());
+            ItemType type = new ItemType(stack, this.getPlacementProperty(stack).isNBTSensitive());
             stack = stack.copy();
 
             EnumActionResult result = super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
@@ -238,16 +235,17 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
 
                 if (tag != null)
                 {
-                    IBlockState state = worldIn.getBlockState(pos);
+                    Block block = worldIn.getBlockState(pos).getBlock();
 
-                    if (state.getBlock().isReplaceable(worldIn, pos) == false)
+                    if (block.isReplaceable(worldIn, pos) == false)
                     {
                         pos = pos.offset(facing);
+                        block = worldIn.getBlockState(pos).getBlock();
                     }
 
-                    if (worldIn.getBlockState(pos).getBlock() instanceof BlockAutoverse)
+                    if (block instanceof BlockAutoverse)
                     {
-                        this.blockEnu.setPlacementProperties(worldIn, pos, stack, tag);
+                        ((BlockAutoverse) block).setPlacementProperties(worldIn, pos, stack, tag);
                     }
                 }
             }

@@ -18,6 +18,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,10 +31,12 @@ import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPipe;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.network.message.ISyncableTile;
 import fi.dy.masa.autoverse.network.message.MessageSyncTileEntity;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 import fi.dy.masa.autoverse.util.NBTUtils;
@@ -661,18 +664,52 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
+    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player)
+    {
+        if (world.isRemote == false && player.isSneaking())
+        {
+            IBlockState state = world.getBlockState(pos);
+            RayTraceResult trace = EntityUtils.getRayTraceFromEntity(world, player, false);
+
+            if (trace.typeOfHit == RayTraceResult.Type.BLOCK && pos.equals(trace.getBlockPos()))
+            {
+                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, trace.sideHit, player);
+                this.toggleSideDisabled(targetSide);
+            }
+        }
+    }
+
+    @Override
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
-        if (player.isSneaking() && player.getHeldItem(EnumHand.MAIN_HAND).isEmpty())
+        if (player.isSneaking() && player.getHeldItemMainhand().isEmpty())
         {
-            if (world.isRemote == false)
-            {
-                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
-                this.toggleSideDisabled(targetSide);
-            }
+            ItemStack stackOffhand = player.getHeldItemOffhand();
 
-            return true;
+            // Sneak + right clicking with an empty main hand, and the same item
+            // in the off-hand - apply the placement properties from that item.
+            if (stackOffhand.isEmpty() == false &&
+                stackOffhand.getItem() instanceof ItemBlockAutoverse &&
+                ((ItemBlockAutoverse) stackOffhand.getItem()).getBlock() == this.getBlockType())
+            {
+                if (world.isRemote == false)
+                {
+                    this.applyPlacementPropertiesFrom(world, pos, player, stackOffhand);
+                }
+
+                return true;
+            }
+            else if (stackOffhand.isEmpty())
+            {
+                if (world.isRemote == false)
+                {
+                    EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
+                    this.toggleSideDisabled(targetSide);
+                }
+
+                return true;
+            }
         }
 
         return false;

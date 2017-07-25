@@ -33,8 +33,11 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.reference.Reference;
+import fi.dy.masa.autoverse.util.ItemType;
+import fi.dy.masa.autoverse.util.PlacementProperties;
 
 public abstract class TileEntityAutoverse extends TileEntity
 {
@@ -134,7 +137,31 @@ public abstract class TileEntityAutoverse extends TileEntity
         return new Vec3d(x, y, z);
     }
 
-    public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag) { }
+    public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
+    {
+    }
+
+    protected boolean applyPlacementPropertiesFrom(World world, BlockPos pos, EntityPlayer player, ItemStack stack)
+    {
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlockAutoverse)
+        {
+            ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
+
+            if (item.getBlock() == this.getBlockType() && item.hasPlacementProperty(stack))
+            {
+                ItemType type = new ItemType(stack, item.getPlacementProperty(stack).isNBTSensitive());
+                NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
+
+                if (tag != null)
+                {
+                    this.setPlacementProperties(world, pos, stack, tag);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public boolean isUsableByPlayer(EntityPlayer player)
     {
