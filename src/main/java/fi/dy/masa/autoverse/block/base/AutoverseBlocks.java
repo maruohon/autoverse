@@ -29,6 +29,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse INVENTORY_READER         = new BlockInventoryReader(ReferenceNames.NAME_BLOCK_INVENTORY_READER,              4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse PIPE                     = new BlockPipe(ReferenceNames.NAME_BLOCK_PIPE,                                     4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,              4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse SENSOR                   = new BlockSensor(ReferenceNames.NAME_BLOCK_SENSOR,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCE_DETECTOR        = new BlockSequenceDetector(ReferenceNames.NAME_BLOCK_SEQUENCE_DETECTOR,            4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SEQUENCER                = new BlockSequencer(ReferenceNames.NAME_BLOCK_SEQUENCER,                           4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse SPLITTER                 = new BlockSplitter(ReferenceNames.NAME_BLOCK_SPLITTER,                             4.0f, 10f, 1, Material.ROCK);
@@ -50,6 +51,7 @@ public class AutoverseBlocks
         registerBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
         registerBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
+        registerBlock(registry, SENSOR,                 Configs.disableBlockSensor);
         registerBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
         registerBlock(registry, SPLITTER,               Configs.disableBlockSplitter);
@@ -74,6 +76,7 @@ public class AutoverseBlocks
         registerItemBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
         registerItemBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerItemBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
+        registerItemBlock(registry, SENSOR,                 Configs.disableBlockSensor);
         registerItemBlock(registry, SEQUENCE_DETECTOR,      Configs.disableBlockSequenceDetector);
         registerItemBlock(registry, SEQUENCER,              Configs.disableBlockSequencer);
         registerItemBlock(registry, SPLITTER,               Configs.disableBlockSplitter);

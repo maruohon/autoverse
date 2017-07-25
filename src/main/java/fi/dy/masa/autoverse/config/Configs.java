@@ -24,6 +24,7 @@ public class Configs
     public static boolean disableBlockInventoryReader;
     public static boolean disableBlockPipe;
     public static boolean disableBlockRedstoneEmitter;
+    public static boolean disableBlockSensor;
     public static boolean disableBlockSequenceDetector;
     public static boolean disableBlockSequencer;
     public static boolean disableBlockSplitter;
@@ -119,6 +120,7 @@ public class Configs
         disableBlockInventoryReader         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockInventoryReader", false).getBoolean();
         disableBlockPipe                    = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockPipe", false).getBoolean();
         disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
+        disableBlockSensor                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSensor", false).getBoolean();
         disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();
         disableBlockSplitter                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSplitter", false).getBoolean();

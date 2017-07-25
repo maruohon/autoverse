@@ -14,6 +14,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_PIPE                      = "pipe";
     public static final String NAME_BLOCK_PLACER                    = "placer";
     public static final String NAME_BLOCK_REDSTONE_EMITTER          = "redstone_emitter";
+    public static final String NAME_BLOCK_SENSOR                    = "sensor";
     public static final String NAME_BLOCK_SEQUENCE_DETECTOR         = "sequence_detector";
     public static final String NAME_BLOCK_SEQUENCER                 = "sequencer";
     public static final String NAME_BLOCK_SEQUENCER_PROGRAMMABLE    = "sequencer_programmable";
@@ -29,6 +30,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_PIPE_ROUNDROBIN     = "pipe_rr";
     public static final String NAME_TILE_ENTITY_PLACER_PROGRAMMABLE = "placer_programmable";
     public static final String NAME_TILE_ENTITY_REDSTONE_EMITTER_ADVANCED = "redstone_emitter_advanced";
+    public static final String NAME_TILE_ENTITY_SENSOR_HEIGHT       = "sensor_height";
     public static final String NAME_TILE_ENTITY_TRASH_BIN           = "trash_bin";
     public static final String NAME_TILE_ENTITY_TRASH_BUFFER        = "trash_buffer";
 

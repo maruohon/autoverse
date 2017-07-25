@@ -1,0 +1,20 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:cube_directional",
+        "transform": "forge:default-block",
+        "textures": {
+            "particle": "autoverse:blocks/sensor_height_side",
+            "down":     "autoverse:blocks/sensor_height_base",
+            "up":       "autoverse:blocks/sensor_height_base",
+            "north":    "autoverse:blocks/sensor_height_side",
+            "south":    "autoverse:blocks/sensor_height_side",
+            "west":     "autoverse:blocks/sensor_height_side",
+            "east":     "autoverse:blocks/sensor_height_side"
+        }
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}]
+    }
+}

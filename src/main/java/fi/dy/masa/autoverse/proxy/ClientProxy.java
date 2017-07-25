@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.proxy;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.Autoverse;
+import fi.dy.masa.autoverse.block.BlockSensor;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
@@ -102,6 +104,8 @@ public class ClientProxy extends CommonProxy
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.REDSTONE_EMITTER, new ModelRedstoneEmitterBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelRedstoneEmitterBaked.ModelLoaderRedstoneEmitter());
+
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.SENSOR, (new StateMap.Builder()).ignore(BlockSensor.POWER).build());
     }
 
     private static void registerItemBlockModels()
@@ -128,6 +132,7 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.PIPE, 3, "type=roundrobin");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "type=basic");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 1, "type=advanced");
+        registerItemBlockModel(AutoverseBlocks.SENSOR, 0, "inventory");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,type=programmable");
