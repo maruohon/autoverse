@@ -19,7 +19,7 @@ public class ContainerCustomSlotClick extends ContainerAutoverse
      * and slot locking features, if applicable.
      */
     @Nullable
-    protected IItemHandlerSize inventoryNonWrapped;
+    protected IItemHandlerSize inventoryNonContainerWrapped;
     protected boolean isDragging;
     protected boolean draggingRightClick;
     protected final Set<Integer> draggedSlots = new HashSet<Integer>();

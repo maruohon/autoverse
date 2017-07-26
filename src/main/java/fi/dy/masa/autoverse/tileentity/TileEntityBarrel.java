@@ -13,15 +13,19 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiBarrel;
+import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBarrel;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperContainer;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperCreative;
+import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperRedstoneLockable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public class TileEntityBarrel extends TileEntityAutoverseInventory
 {
+    private IItemHandlerSize inventoryWrapperCreative;
     private boolean isPulsed;
     private int tier;
     private boolean isCreative;
@@ -34,7 +38,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     public TileEntityBarrel(boolean isPulsed)
     {
-        super(ReferenceNames.NAME_BLOCK_BARREL, true);
+        super(ReferenceNames.NAME_BLOCK_BARREL);
 
         this.isPulsed = isPulsed;
     }
@@ -51,12 +55,21 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         // The Pulsed barrel is not redstone-lockable
         if (this.isPulsed)
         {
-            this.itemHandlerExternal = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+            this.inventoryWrapperCreative = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+            this.itemHandlerExternal = this.inventoryWrapperCreative;
         }
         else
         {
-            this.itemHandlerExternal = new ItemHandlerWrapperBarrel(this.itemHandlerBase, this);
+            this.inventoryWrapperCreative = new ItemHandlerWrapperCreative(this.itemHandlerBase, this);
+            this.itemHandlerExternal = new ItemHandlerWrapperRedstoneLockable(this.inventoryWrapperCreative, this);
         }
+    }
+
+    @Override
+    public IItemHandler getWrappedInventoryForContainer(EntityPlayer player)
+    {
+        return new ItemHandlerWrapperContainer(this.getBaseItemHandler(),
+                this.inventoryWrapperCreative, true);
     }
 
     @Override
@@ -128,7 +141,13 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        if (this.isPulsed && state)
+        if (this.isPulsed == false)
+        {
+            // Notify neighbors of locked status change
+            this.getWorld().notifyNeighborsOfStateChange(this.getPos(), this.getBlockType(), false);
+        }
+        // Pulsed variant, on rising edge
+        else if (state)
         {
             this.scheduleBlockUpdate(1, false);
         }
@@ -223,40 +242,6 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
                 this.markDirty();
                 this.notifyBlockUpdate(this.getPos());
             }
-        }
-    }
-
-    private class ItemHandlerWrapperBarrel extends ItemHandlerWrapperCreative
-    {
-        private final TileEntityBarrel te;
-
-        public ItemHandlerWrapperBarrel(IItemHandler baseHandler, TileEntityBarrel te)
-        {
-            super(baseHandler, te);
-
-            this.te = te;
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-        {
-            if (this.te.getWorld().isBlockPowered(this.te.getPos()))
-            {
-                return stack;
-            }
-
-            return super.insertItem(slot, stack, simulate);
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate)
-        {
-            if (this.te.getWorld().isBlockPowered(this.te.getPos()))
-            {
-                return ItemStack.EMPTY;
-            }
-
-            return super.extractItem(slot, amount, simulate);
         }
     }
 

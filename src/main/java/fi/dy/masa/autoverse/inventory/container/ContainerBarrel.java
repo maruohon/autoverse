@@ -12,7 +12,7 @@ public class ContainerBarrel extends ContainerTileLargeStacks
     {
         super(player, te.getWrappedInventoryForContainer(player), te);
 
-        this.inventoryNonWrapped = te.getBaseItemHandler();
+        this.inventoryNonContainerWrapped = te.getBaseItemHandler();
 
         this.reAddSlots(8, 86);
     }

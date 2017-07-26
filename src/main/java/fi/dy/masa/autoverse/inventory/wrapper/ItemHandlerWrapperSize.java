@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 
-public class ItemHandlerWrapperSize implements IItemHandler, IItemHandlerSize
+public class ItemHandlerWrapperSize implements IItemHandlerSize
 {
     protected final IItemHandler baseHandler;
 

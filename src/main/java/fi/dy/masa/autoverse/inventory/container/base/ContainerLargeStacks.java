@@ -34,9 +34,9 @@ public class ContainerLargeStacks extends ContainerCustomSlotClick
         // Shift + Middle click: Cycle the stack size in creative mode
         if (EnumKey.MIDDLE_CLICK.matches(action, HotKeys.MOD_SHIFT))
         {
-            if (player.capabilities.isCreativeMode && this.inventoryNonWrapped != null)
+            if (player.capabilities.isCreativeMode && this.inventoryNonContainerWrapped != null)
             {
-                this.cycleStackSize(element, this.inventoryNonWrapped);
+                this.cycleStackSize(element, this.inventoryNonContainerWrapped);
             }
         }
         // Alt + Middle click: Swap two stacks
