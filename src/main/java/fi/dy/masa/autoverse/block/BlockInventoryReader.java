@@ -152,6 +152,12 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     }
 
     @Override
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side)
+    {
+        return state.getValue(FACING).getOpposite() == side;
+    }
+
+    @Override
     public int getWeakPower(IBlockState state, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         if (side == state.getValue(FACING).getOpposite())
