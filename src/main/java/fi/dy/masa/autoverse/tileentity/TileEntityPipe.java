@@ -27,6 +27,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.block.BlockPipe.PipePart;
+import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -746,6 +747,8 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             this.onSlotChange(slot, false);
         }
 
+        this.updateComparators();
+
         ItemStack stack = this.itemHandlerBase.getStackInSlot(slot);
 
         // Yes that's right, we compare references here, as it should suffice
@@ -762,6 +765,45 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 else
                 {
                     this.sendPacketRemoveItem(slot);
+                }
+            }
+        }
+    }
+
+    private void updateComparators()
+    {
+        World world = this.getWorld();
+
+        // This is mainly to update Comparators
+        for (EnumFacing side : EnumFacing.VALUES)
+        {
+            // Only bother checking and updating on sides that don't have inventories/connections
+            if ((this.connectedSidesMask & (1 << side.getIndex())) == 0)
+            {
+                BlockPos pos = this.getPos().offset(side);
+
+                if (world.isBlockLoaded(pos))
+                {
+                    IBlockState state = world.getBlockState(pos);
+                    Block block = state.getBlock();
+
+                    if (block != AutoverseBlocks.PIPE)
+                    {
+                        block.onNeighborChange(world, pos, this.getPos());
+
+                        /*
+                        if (block.isNormalCube(state, world, pos))
+                        {
+                            pos = pos.offset(side);
+                            state = world.getBlockState(pos);
+
+                            if (state.getBlock().getWeakChanges(world, pos))
+                            {
+                                state.getBlock().onNeighborChange(world, pos, this.getPos());
+                            }
+                        }
+                        */
+                    }
                 }
             }
         }

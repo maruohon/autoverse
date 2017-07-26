@@ -35,6 +35,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityPipeDirectional;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipeExtraction;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipeRoundRobin;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockPipe extends BlockAutoverseInventory
 {
@@ -171,6 +172,19 @@ public class BlockPipe extends BlockAutoverseInventory
         }
 
         return state;
+    }
+
+    @Override
+    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos)
+    {
+        TileEntityPipe te = getTileEntitySafely(world, pos, TileEntityPipe.class);
+
+        if (te != null)
+        {
+            return InventoryUtils.calcRedstoneFromInventory(te.getBaseItemHandler());
+        }
+
+        return 0;
     }
 
     @Override
