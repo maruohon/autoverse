@@ -1,22 +1,18 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block"
     },
     "variants": {
         "type": {
-            "bin":    {
+            "bin": {
                 "model": "autoverse:trash_bin"
             },
-            "buffer":    {
+            "buffer": {
+                "model": "minecraft:cube_column",
                 "textures": {
-                    "front":    "autoverse:blocks/trash_buffer_side",
-                    "back":     "autoverse:blocks/trash_buffer_side",
-                    "top":      "autoverse:blocks/trash_buffer_top",
-                    "bottom":   "autoverse:blocks/trash_buffer_top",
-                    "left":     "autoverse:blocks/trash_buffer_side",
-                    "right":    "autoverse:blocks/trash_buffer_side"
+                    "end":  "autoverse:blocks/trash_buffer_top",
+                    "side": "autoverse:blocks/trash_buffer_side"
                 }
             }
         }
