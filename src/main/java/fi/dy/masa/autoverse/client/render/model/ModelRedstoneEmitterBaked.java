@@ -126,7 +126,7 @@ public class ModelRedstoneEmitterBaked implements IBakedModel
         if (model == null)
         {
             IModel iModel = this.baseModel.retexture(this.getTextures(state));
-            model = iModel.bake(new TRSRTransformation(state.getValue(BlockAutoverse.FACING)), this.format, this.bakedTextureGetter);
+            model = iModel.bake(new TRSRTransformation(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
 
             MODEL_CACHE.put(state, model);
         }
@@ -137,10 +137,11 @@ public class ModelRedstoneEmitterBaked implements IBakedModel
     private ImmutableMap<String, String> getTextures(IBlockState state)
     {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        EnumFacing front = state.getValue(BlockAutoverse.FACING);
 
         for (EnumFacing side : EnumFacing.values())
         {
-            if (side == BlockAutoverse.DEFAULT_FACING)
+            if (side == front)
             {
                 builder.put(side.toString().toLowerCase(), this.textures.get("front"));
             }

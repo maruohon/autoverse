@@ -43,6 +43,7 @@ public class PositionUtils
         }
     }
 
+    @Nullable
     public static EnumFacing getCWRotationAxis(EnumFacing from, EnumFacing to)
     {
         return FROM_TO_CW_ROTATION_AXES[from.getIndex()][to.getIndex()];
