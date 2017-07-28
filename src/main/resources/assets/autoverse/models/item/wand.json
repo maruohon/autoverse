@@ -1,0 +1,6 @@
+{
+    "parent": "autoverse:item/standard_tool",
+    "textures": {
+        "layer0": "autoverse:items/wand"
+    }
+}

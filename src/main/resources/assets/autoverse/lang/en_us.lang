@@ -33,6 +33,14 @@ autoverse.container.trash_buffer=Trash Buffer
 
 
 ###################################
+# Chat messages:
+###################################
+autoverse.chat.wand.sequence_applied_failed=§cFailed: Only applied %d of %d items§r
+autoverse.chat.wand.sequence_applied_success=§aSuccessfully applied a sequence of %d items§r
+autoverse.chat.wand.sequence_stored=Sequence stored
+
+
+###################################
 # GUI InfoArea texts and tips:
 ###################################
 
@@ -68,6 +76,7 @@ autoverse.gui.label.block_placer_programmable.trigger=Trigger
 autoverse.gui.label.block_reader.block_count=Length (number of blocks)
 autoverse.gui.label.block_reader_nbt.length_num=Length: %d
 autoverse.gui.label.block_reader.take_blocks=Take block states from world
+autoverse.gui.label.current_name=Current name
 autoverse.gui.label.crafting_grid=Crafting grid
 autoverse.gui.label.crafting_pattern=Pattern
 autoverse.gui.label.delay.num=Delay: %d ticks
@@ -101,6 +110,7 @@ autoverse.gui.label.redstone_emitter_advanced.north=N ON/OFF
 autoverse.gui.label.redstone_emitter_advanced.south=S ON/OFF
 autoverse.gui.label.redstone_emitter_advanced.up=U ON/OFF
 autoverse.gui.label.redstone_emitter_advanced.west=W ON/OFF
+autoverse.gui.label.setname=Set name
 autoverse.gui.label.splitter.output=Out %d
 autoverse.gui.label.splitter.switching_sequence=Switch seq.
 autoverse.gui.label.splitter.switching_sequence_num=Switch seq. %d
@@ -124,6 +134,13 @@ autoverse.placement_properties.pipe.max_stack=Max stack size
 autoverse.placement_properties.sequencer.length=Length
 
 autoverse.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties ***§r|lf- (Shift +) Toggle key to change property selection|lf- Shift/Ctrl/Alt + scroll to change the value
+
+
+############################################
+# Tooltips displayed on items:
+############################################
+
+item.autoverse.wand.tooltips=- Can store item sequences and apply them to inventories/machines|lf- Alt + scroll: Change the selected sequence|lf- Toggle key: Name the currently selected sequence|lf- Shift + middle click (pick block): Store a sequence from the pointed block|lf   (this will store either the currently programmed sequence of an|lf   Autoverse machine, or simply the item sequence of any other inventory)|lf- Sneak + right click on a machine or inventory to apply the sequence|lf- Shift + middle click (pick block) when NOT looking at a TileEntity:|lf   Remove the currently selected sequence
 
 
 ############################################
@@ -233,6 +250,12 @@ tile.autoverse.splitter_redstone.name=Redstone Controllable Splitter
 tile.autoverse.splitter_switchable.name=Switchable Splitter
 tile.autoverse.trash_bin.name=Trash Bin
 tile.autoverse.trash_buffer.name=Trash Buffer
+
+
+##############
+# Item names:
+##############
+item.autoverse.wand.name=Wand of the Lazy Sequencer
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
 autoverse.tooltip.item.holdshiftfordescription=Hold §e§oShift§7 for full description

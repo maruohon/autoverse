@@ -1,6 +1,8 @@
 package fi.dy.masa.autoverse.event;
 
 import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -9,7 +11,10 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.gui.client.GuiScreenItemNameField;
+import fi.dy.masa.autoverse.item.base.AutoverseItems;
 import fi.dy.masa.autoverse.item.base.IKeyBound;
+import fi.dy.masa.autoverse.item.base.IStringInput;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.network.PacketHandler;
 import fi.dy.masa.autoverse.network.message.MessageKeyPressed;
@@ -51,6 +56,7 @@ public class InputEventHandler
         EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
         int eventKey = Keyboard.getEventKey();
         boolean keyState = Keyboard.getEventKeyState();
+        Minecraft mc = FMLClientHandler.instance().getClient();
 
         // One of our supported modifier keys was pressed or released
         if (HotKeys.isModifierKey(eventKey))
@@ -77,11 +83,16 @@ public class InputEventHandler
         }
 
         // In-game (no GUI open)
-        if (FMLClientHandler.instance().getClient().inGameHasFocus)
+        if (mc.inGameHasFocus && keyState)
         {
-            if (eventKey == HotKeys.keyToggleMode.getKeyCode() && keyState)
+            if (eventKey == HotKeys.keyToggleMode.getKeyCode() && this.stringInputItemHandling())
             {
-                if (isHoldingKeyboundItem(player))
+                return;
+            }
+
+            if (isHoldingKeyboundItem(player))
+            {
+                if (eventKey == HotKeys.keyToggleMode.getKeyCode())
                 {
                     int keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
                     PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
@@ -93,6 +104,8 @@ public class InputEventHandler
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event)
     {
+        EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
+        Minecraft mc = FMLClientHandler.instance().getClient();
         int dWheel = event.getDwheel();
 
         if (dWheel != 0)
@@ -105,8 +118,6 @@ public class InputEventHandler
             // then we allow for easily scrolling through the changeable stuff using the mouse wheel.
             if (scrollingMask != 0)
             {
-                EntityPlayer player = FMLClientHandler.instance().getClientPlayerEntity();
-
                 if (isHoldingKeyboundItem(player))
                 {
                     int key = HotKeys.KEYCODE_SCROLL | scrollingMask;
@@ -126,6 +137,36 @@ public class InputEventHandler
                 }
             }
         }
+        else
+        {
+            if (event.isButtonstate() && isHoldingKeyboundItem(player))
+            {
+                int eventKey = event.getButton();
+                int keyCode = -1;
+                int middleKey = mc.gameSettings.keyBindPickBlock.getKeyCode();
+                middleKey = middleKey < 0 ? middleKey + 100 : middleKey;
+
+                if (eventKey == HotKeys.keyToggleMode.getKeyCode())
+                {
+                    keyCode = HotKeys.KEYBIND_ID_TOGGLE_MODE | modifierMask;
+                }
+                else if (eventKey == middleKey)
+                {
+                    keyCode = HotKeys.KEYCODE_MIDDLE_CLICK | modifierMask;
+
+                    // FIXME this is a bit of an ugly way to prevent pick-blocking while holding a WotLS
+                    if (event.isCancelable() && EntityUtils.getHeldItemOfType(player, IKeyBound.class).getItem() == AutoverseItems.WAND)
+                    {
+                        event.setCanceled(true);
+                    }
+                }
+
+                if (keyCode != -1)
+                {
+                    PacketHandler.INSTANCE.sendToServer(new MessageKeyPressed(keyCode));
+                }
+            }
+        }
     }
 
     public static boolean isHoldingKeyboundItem(EntityPlayer player)
@@ -134,5 +175,23 @@ public class InputEventHandler
 
         return stack.isEmpty() == false && ((stack.getItem() instanceof ItemBlockAutoverse) == false || 
                 ((ItemBlockAutoverse) stack.getItem()).hasPlacementProperty(stack));
+    }
+
+    private boolean stringInputItemHandling()
+    {
+        if (GuiScreen.isShiftKeyDown() || GuiScreen.isCtrlKeyDown() || GuiScreen.isAltKeyDown())
+        {
+            return false;
+        }
+
+        ItemStack stack = EntityUtils.getHeldItemOfType(Minecraft.getMinecraft().player, IStringInput.class);
+
+        if (stack.isEmpty() == false)
+        {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiScreenItemNameField());
+            return true;
+        }
+
+        return false;
     }
 }

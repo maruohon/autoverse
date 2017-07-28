@@ -189,6 +189,11 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
         this.sequenceManager.dropAllItems(world, pos);
     }
 
+    public NonNullList<ItemStack> getFullProgrammingSequence()
+    {
+        return this.sequenceManager.getFullProgrammingSequence();
+    }
+
     protected boolean moveInputItemToOutput()
     {
         return this.moveInputItemToInventory(this.inventoryOutput);

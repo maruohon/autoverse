@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -40,6 +41,28 @@ public class SequenceManager
     {
         this.sequenceReset = sequence;
         return this.add(sequence);
+    }
+
+    public NonNullList<ItemStack> getFullProgrammingSequence()
+    {
+        NonNullList<ItemStack> items = NonNullList.create();
+
+        for (SequenceMatcher sequence : this.sequences)
+        {
+            final int length = sequence.getCurrentSequenceLength();
+
+            for (int slot = 0; slot < length; slot++)
+            {
+                items.add(sequence.getSequence().get(slot).copy());
+            }
+
+            if ((sequence instanceof SequenceMatcherVariable) && length < sequence.getMaxLength())
+            {
+                items.add(((SequenceMatcherVariable) sequence).getSequenceEndMarker().copy());
+            }
+        }
+
+        return items;
     }
 
     /**

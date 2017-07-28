@@ -6,6 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.network.message.MessageAddEffects;
 import fi.dy.masa.autoverse.network.message.MessageGuiAction;
 import fi.dy.masa.autoverse.network.message.MessageKeyPressed;
+import fi.dy.masa.autoverse.network.message.MessageSendString;
 import fi.dy.masa.autoverse.network.message.MessageSyncContainerProperty;
 import fi.dy.masa.autoverse.network.message.MessageSyncNBTTag;
 import fi.dy.masa.autoverse.network.message.MessageSyncSlot;
@@ -20,6 +21,7 @@ public class PacketHandler
     {
         INSTANCE.registerMessage(MessageGuiAction.Handler.class,                MessageGuiAction.class,                 0, Side.SERVER);
         INSTANCE.registerMessage(MessageKeyPressed.Handler.class,               MessageKeyPressed.class,                1, Side.SERVER);
+        INSTANCE.registerMessage(MessageSendString.Handler.class,               MessageSendString.class,                2, Side.SERVER);
 
         INSTANCE.registerMessage(MessageSyncSlot.Handler.class,                 MessageSyncSlot.class,                 11, Side.CLIENT);
         INSTANCE.registerMessage(MessageSyncContainerProperty.Handler.class,    MessageSyncContainerProperty.class,    12, Side.CLIENT);

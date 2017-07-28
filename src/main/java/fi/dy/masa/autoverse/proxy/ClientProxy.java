@@ -27,6 +27,8 @@ import fi.dy.masa.autoverse.client.renderer.tile.TESRPipe;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.InputEventHandler;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
+import fi.dy.masa.autoverse.item.base.AutoverseItems;
+import fi.dy.masa.autoverse.item.base.ItemAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
@@ -94,6 +96,8 @@ public class ClientProxy extends CommonProxy
     {
         registerBlockModels();
         registerItemBlockModels();
+        registerItemModels();
+
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPipe.class, new TESRPipe());
     }
 
@@ -142,12 +146,26 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.TRASH, 1, "type=buffer");
     }
 
+    private static void registerItemModels()
+    {
+        registerItemModel(AutoverseItems.WAND, 0, "inventory");
+    }
+
     private static void registerItemBlockModel(BlockAutoverse block, int meta, String fullVariant)
     {
         if (block.isEnabled())
         {
             ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), meta,
                 new ModelResourceLocation(block.getRegistryName(), fullVariant));
+        }
+    }
+
+    private static void registerItemModel(ItemAutoverse item, int meta, String fullVariant)
+    {
+        if (item.isEnabled())
+        {
+            ModelLoader.setCustomModelResourceLocation(item, meta,
+                    new ModelResourceLocation(item.getRegistryName(), fullVariant));
         }
     }
 }

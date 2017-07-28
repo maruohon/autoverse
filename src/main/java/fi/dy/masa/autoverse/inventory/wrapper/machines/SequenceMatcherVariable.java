@@ -35,6 +35,11 @@ public class SequenceMatcherVariable extends SequenceMatcher
         this.endMarker = marker.isEmpty() ? ItemStack.EMPTY : marker.copy();
     }
 
+    public ItemStack getSequenceEndMarker()
+    {
+        return this.endMarker;
+    }
+
     /**
      * @return the current total configured length of the sequence
      */

@@ -1,12 +1,16 @@
 package fi.dy.masa.autoverse.event;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
+import fi.dy.masa.autoverse.event.tasks.scheduler.PlayerTaskScheduler;
 import fi.dy.masa.autoverse.util.PlacementProperties;
 
 public class ServerEventHandler
@@ -27,6 +31,12 @@ public class ServerEventHandler
     }
 
     @SubscribeEvent
+    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        PlayerTaskScheduler.getInstance().removeTask(event.player, null);
+    }
+
+    @SubscribeEvent
     public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
     {
         if (event.getEntityPlayer().capabilities.isCreativeMode && event.getEntityPlayer().isSneaking())
@@ -39,5 +49,18 @@ public class ServerEventHandler
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(PlayerTickEvent event)
+    {
+        EntityPlayer player = event.player;
+
+        if (event.side == Side.CLIENT || player.getEntityWorld().isRemote)
+        {
+            return;
+        }
+
+        PlayerTaskScheduler.getInstance().runTasks(player.getEntityWorld(), player);
     }
 }

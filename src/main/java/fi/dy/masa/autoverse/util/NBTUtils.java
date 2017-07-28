@@ -101,6 +101,64 @@ public class NBTUtils
     }
 
     /**
+     * Return the byte value from a tag <b>tagName</b>, or 0 if it doesn't exist.
+     * If <b>containerTagName</b> is not null, then the value is retrieved from inside a compound tag by that name.
+     */
+    public static byte getByte(@Nonnull ItemStack stack, @Nullable String containerTagName, @Nonnull String tagName)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, false);
+        return nbt != null ? nbt.getByte(tagName) : 0;
+    }
+
+    /**
+     * Set a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void setByte(@Nonnull ItemStack stack, @Nullable String containerTagName, @Nonnull String tagName, byte value)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        nbt.setByte(tagName, value);
+    }
+
+    /**
+     * Cycle a byte value in the given NBT. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     */
+    public static void cycleByteValue(@Nonnull NBTTagCompound nbt, @Nonnull String tagName, int minValue, int maxValue, boolean reverse)
+    {
+        byte value = nbt.getByte(tagName);
+
+        if (reverse)
+        {
+            if (--value < minValue)
+            {
+                value = (byte) maxValue;
+            }
+        }
+        else
+        {
+            if (++value > maxValue)
+            {
+                value = (byte) minValue;
+            }
+        }
+
+        nbt.setByte(tagName, value);
+    }
+
+    /**
+     * Cycle a byte value in the given ItemStack's NBT in a tag <b>tagName</b>. If <b>containerTagName</b>
+     * is not null, then the value is stored inside a compound tag by that name.
+     * The low end of the range is 0.
+     */
+    public static void cycleByteValue(@Nonnull ItemStack stack, @Nullable String containerTagName,
+            @Nonnull String tagName, int maxValue, boolean reverse)
+    {
+        NBTTagCompound nbt = getCompoundTag(stack, containerTagName, true);
+        cycleByteValue(nbt, tagName, 0, maxValue, reverse);
+    }
+
+    /**
      * Reads a byte array from NBT into the provided int array.
      * The number of elements read is the minimum of the provided array's length and
      * the read byte array's length.
@@ -244,6 +302,36 @@ public class NBTUtils
                 EnderUtilities.logger.warn("Failed to read items from NBT, invalid slot: " + slotNum + " (max: " + (items.length - 1) + ")");
             }*/
         }
+    }
+
+    /**
+     * Reads the stored items from the provided NBTTagCompound, from a NBTTagList by the name <b>tagName</b>
+     * and writes them to a new empty list of ItemStacks.<br>
+     * @param tag
+     * @param items
+     * @param tagName
+     * @return the list of ItemStack read. Can be an empty list.
+     */
+    @Nonnull
+    public static NonNullList<ItemStack> readStoredItemsFromTag(@Nonnull NBTTagCompound nbt, @Nonnull String tagName)
+    {
+        NonNullList<ItemStack> items = NonNullList.create();
+
+        if (nbt.hasKey(tagName, Constants.NBT.TAG_LIST) == false)
+        {
+            return items;
+        }
+
+        NBTTagList nbtTagList = nbt.getTagList(tagName, Constants.NBT.TAG_COMPOUND);
+        final int size = nbtTagList.tagCount();
+
+        for (int i = 0; i < size; ++i)
+        {
+            NBTTagCompound tag = nbtTagList.getCompoundTagAt(i);
+            items.add(loadItemStackFromTag(tag));
+        }
+
+        return items;
     }
 
     /**

@@ -30,6 +30,9 @@ public class Configs
     public static boolean disableBlockSplitter;
     public static boolean disableBlockTrash;
 
+    public static boolean disableItemWand;
+
+
     public static BreakerPattern blockBreakerPattern = BreakerPattern.ADJACENT;
 
     public static File configurationFile;
@@ -38,6 +41,7 @@ public class Configs
     public static final String CATEGORY_CLIENT = "Client";
     public static final String CATEGORY_GENERIC = "Generic";
     public static final String CATEGORY_BLOCK_DISABLE = "DisableBlocks";
+    public static final String CATEGORY_ITEM_DISABLE = "DisableItems";
 
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
@@ -64,6 +68,7 @@ public class Configs
 
         loadConfigsGeneric(config);
         loadConfigsBlockDisable(config);
+        loadConfigsItemDisable(config);
 
         if (config.hasChanged())
         {
@@ -118,6 +123,18 @@ public class Configs
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();
         disableBlockSplitter                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSplitter", false).getBoolean();
         disableBlockTrash                   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockTrash", false).getBoolean();
+
+        if (conf.hasChanged())
+        {
+            conf.save();
+        }
+    }
+
+    private static void loadConfigsItemDisable(Configuration conf)
+    {
+        conf.getCategory(CATEGORY_ITEM_DISABLE).setRequiresMcRestart(true);
+
+        disableItemWand             = conf.get(CATEGORY_ITEM_DISABLE, "disableItemWand", false).getBoolean();
 
         if (conf.hasChanged())
         {
