@@ -323,13 +323,13 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        return slot == 1 ? ItemStack.EMPTY : this.getInputInventory().insertItem(0, stack, simulate);
+        return this.getInputInventory().insertItem(0, stack, simulate);
     }
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        return slot == 1 ? this.getOutputInventory().extractItem(0, amount, simulate) : ItemStack.EMPTY;
+        return this.getOutputInventory().extractItem(0, amount, simulate);
     }
 
     @Override
