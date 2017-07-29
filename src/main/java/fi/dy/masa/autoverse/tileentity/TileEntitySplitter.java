@@ -41,12 +41,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public TileEntitySplitter()
     {
-        this(ReferenceNames.NAME_BLOCK_SPLITTER);
-    }
-
-    public TileEntitySplitter(String name)
-    {
-        super(name);
+        super(ReferenceNames.NAME_BLOCK_SPLITTER);
     }
 
     @Override
@@ -240,23 +235,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
-        super.readFromNBTCustom(tag);
-
-        // Setting the tier and thus initializing the inventories needs to
-        // happen before reading the inventories!
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
-
         this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("Type")));
         this.delay = ((int) tag.getByte("Delay")) & 0xFF;
 
-        this.inventoryInput.deserializeNBT(tag);
-        this.inventoryOut1.deserializeNBT(tag);
-        this.inventoryOut2.deserializeNBT(tag);
-
-        if (this.splitter != null)
-        {
-            this.splitter.deserializeNBT(tag);
-        }
+        super.readFromNBTCustom(tag);
     }
 
     @Override
@@ -268,28 +251,33 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         nbt.setByte("Type", (byte) this.type.getMeta());
         nbt.setByte("Delay", (byte) this.delay);
 
-        if (this.splitter != null)
-        {
-            nbt.merge(this.splitter.serializeNBT());
-        }
-
         return nbt;
     }
 
     @Override
-    protected void readItemsFromNBT(NBTTagCompound nbt)
+    protected void readItemsFromNBT(NBTTagCompound tag)
     {
-        // Do nothing here, see readFromNBTCustom() above...
+        this.inventoryInput.deserializeNBT(tag);
+        this.inventoryOut1.deserializeNBT(tag);
+        this.inventoryOut2.deserializeNBT(tag);
+
+        if (this.splitter != null)
+        {
+            this.splitter.deserializeNBT(tag);
+        }
     }
 
     @Override
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
-        super.writeItemsToNBT(nbt);
-
         nbt.merge(this.inventoryInput.serializeNBT());
         nbt.merge(this.inventoryOut1.serializeNBT());
         nbt.merge(this.inventoryOut2.serializeNBT());
+
+        if (this.splitter != null)
+        {
+            nbt.merge(this.splitter.serializeNBT());
+        }
     }
 
     @Override

@@ -49,8 +49,6 @@ public class ContainerBlockDetector extends ContainerTile
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 16, this.inventory, this.ted.getInventoryInput());
 
-        ItemHandlerWrapperBlockDetector detector = this.ted.getDetector();
-
         // Add the sequence end marker slot
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getEndMarkerInventory(), 0, 26, 16));
 
@@ -58,24 +56,24 @@ public class ContainerBlockDetector extends ContainerTile
         this.addSpecialSlot(new SlotItemHandlerGeneric(this.detector.getBitMarkerInventory(), 0, 26, 34));
 
         // Add the reset sequence slots
-        this.addSequenceSlots(98, 16, detector.getResetSequence()).place();
+        this.addSequenceSlots(98, 16, this.detector.getResetSequence()).place();
 
         // Add the distance config sequence slots
-        this.addSequenceSlots( 8, 65, detector.getSequenceDistance()).setAddMatchedSlots(false).place();
+        this.addSequenceSlots( 8, 65, this.detector.getSequenceDistance()).setAddMatchedSlots(false).place();
 
         // Add the angle config sequence slots
-        this.addSequenceSlots( 8, 83, detector.getSequenceAngle()).setAddMatchedSlots(false).place();
+        this.addSequenceSlots( 8, 83, this.detector.getSequenceAngle()).setAddMatchedSlots(false).place();
 
         // Add the delay config sequence slots
-        this.addSequenceSlots(98, 65, detector.getSequenceDelay()).setAddMatchedSlots(false).setMaxSlotsPerRow(4).place();
+        this.addSequenceSlots(98, 65, this.detector.getSequenceDelay()).setAddMatchedSlots(false).setMaxSlotsPerRow(4).place();
 
         // Add the detection slots
-        this.slotRangeDetectionInventory = new SlotRange(this.getSpecialSlots().size(), detector.getDetectionInventory().getSlots());
-        SlotPlacer.create(8, 114, detector.getDetectionInventory(), this).setSlotType(SlotType.SPECIAL).place();
+        this.slotRangeDetectionInventory = new SlotRange(this.getSpecialSlots().size(), this.detector.getDetectionInventory().getSlots());
+        SlotPlacer.create(8, 114, this.detector.getDetectionInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
         // Add the "other blocks detection buffer" slots
-        this.slotRangeOthersBufferInventory = new SlotRange(this.getSpecialSlots().size(), detector.getOthersBufferInventory().getSlots());
-        SlotPlacer.create(8, 151, detector.getOthersBufferInventory(), this).setSlotType(SlotType.SPECIAL).place();
+        this.slotRangeOthersBufferInventory = new SlotRange(this.getSpecialSlots().size(), this.detector.getOthersBufferInventory().getSlots());
+        SlotPlacer.create(8, 151, this.detector.getOthersBufferInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
         // Add the normal items output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 116, 151));
