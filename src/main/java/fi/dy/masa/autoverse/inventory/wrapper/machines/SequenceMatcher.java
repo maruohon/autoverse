@@ -143,7 +143,7 @@ public class SequenceMatcher
     public boolean checkInputItem(ItemStack inputStack)
     {
         // The current item matches the sequence
-        if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(this.position)))
+        if (this.inputItemMatchesCurrentPosition(inputStack))
         {
             if (++this.position >= this.getCurrentSequenceLength())
             {
@@ -161,6 +161,11 @@ public class SequenceMatcher
         }
 
         return false;
+    }
+
+    public boolean inputItemMatchesCurrentPosition(ItemStack inputStack)
+    {
+        return InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(this.position));
     }
 
     /**
@@ -188,7 +193,7 @@ public class SequenceMatcher
                     break;
                 }
 
-                // Valid new sequence up to the matched items
+                // Valid new sequence up to the already existing items in the matched sequence
                 if (absIndex >= (this.position - 1))
                 {
                     // If the current input item matches after the shifted sequence
