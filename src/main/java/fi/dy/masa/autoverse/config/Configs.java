@@ -22,6 +22,7 @@ public class Configs
     public static boolean disableBlockCrafter;
     public static boolean disableBlockFilter;
     public static boolean disableBlockInventoryReader;
+    public static boolean disableBlockMuxer;
     public static boolean disableBlockPipe;
     public static boolean disableBlockRedstoneEmitter;
     public static boolean disableBlockSensor;
@@ -116,6 +117,7 @@ public class Configs
         disableBlockCrafter                 = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockCrafter", false).getBoolean();
         disableBlockFilter                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockFilter", false).getBoolean();
         disableBlockInventoryReader         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockInventoryReader", false).getBoolean();
+        disableBlockMuxer                   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockMuxer", false).getBoolean();
         disableBlockPipe                    = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockPipe", false).getBoolean();
         disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
         disableBlockSensor                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSensor", false).getBoolean();
@@ -134,7 +136,7 @@ public class Configs
     {
         conf.getCategory(CATEGORY_ITEM_DISABLE).setRequiresMcRestart(true);
 
-        disableItemWand             = conf.get(CATEGORY_ITEM_DISABLE, "disableItemWand", false).getBoolean();
+        disableItemWand = conf.get(CATEGORY_ITEM_DISABLE, "disableItemWand", false).getBoolean();
 
         if (conf.hasChanged())
         {

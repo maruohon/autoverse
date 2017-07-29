@@ -79,8 +79,6 @@ public class GuiBlockDetector extends GuiAutoverse
         final int invSizeDetection = invDetection.getSlots() > 0 ? invDetection.getSlots() : 18;
         final int invSizeOthersBuffer = invOthersBuffer.getSlots() > 0 ? invOthersBuffer.getSlots() : 1;
 
-        this.drawSlotBackgrounds( 25,  33, 0, 238, 1, 1); // 1-bit marker
-
         this.drawSlotBackgrounds( 97,  15, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
         this.drawSlotBackgrounds(  7,  64, 0, 238, 4, 4); // Config: Distance
         this.drawSlotBackgrounds(  7,  82, 0, 238, 4, 4); // Config: Angle
@@ -89,7 +87,6 @@ public class GuiBlockDetector extends GuiAutoverse
         this.drawSlotBackgrounds(  7, 150, 0, 238, 1, invSizeOthersBuffer); // Others buffer
 
         this.drawSlotBackgrounds(115, 150, 0, 220, 1, 1); // Out Normal
-        this.drawSlotBackgrounds(151, 150, 0, 220, 1, 1); // Out Detector
 
         List<Slot> slotList = this.containerD.getSpecialSlots();
 
@@ -105,13 +102,18 @@ public class GuiBlockDetector extends GuiAutoverse
         this.drawTemplateStacks(invDetection, firstDetection, slotList);
         this.drawTemplateStacks(invOthersBuffer, firstOthers, slotList);
 
+        this.bindTexture(this.guiTextureWidgets);
+        RenderHelper.enableGUIStandardItemLighting();
+
         if (this.te.getUseIndicators())
         {
-            RenderHelper.enableGUIStandardItemLighting();
-            this.bindTexture(this.guiTextureWidgets);
-
             // Draw the colored ring around the button
             this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, 0, 10, 10);
+        }
+        else
+        {
+            // Draw the black ring around the button
+            this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, 20, 10, 10);
         }
     }
 

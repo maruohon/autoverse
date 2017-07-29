@@ -1,0 +1,56 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "autoverse:orientable_directional_individual",
+        "transform": "forge:default-block",
+        "textures": {
+            "front":    "#out",
+            "top":      "#side",
+            "bottom":   "#side",
+            "left":     "#side",
+            "right":    "#side",
+            "back":     "autoverse:blocks/muxer_back"
+        }
+    },
+    "variants": {
+        "type": {
+            "redstone": {
+                "textures": {
+                    "out":  "autoverse:blocks/muxer_out_redstone",
+                    "in2":  "autoverse:blocks/muxer_in_redstone",
+                    "side": "autoverse:blocks/muxer_side_redstone"
+                }
+            },
+            "priority": {
+                "textures": {
+                    "out":  "autoverse:blocks/muxer_out_priority",
+                    "in2":  "autoverse:blocks/muxer_in_priority",
+                    "side": "autoverse:blocks/muxer_side_priority"
+                }
+            },
+            "programmable": {
+                "textures": {
+                    "out":  "autoverse:blocks/muxer_out_programmable",
+                    "in2":  "autoverse:blocks/muxer_in_programmable",
+                    "side": "autoverse:blocks/muxer_side_programmable"
+                }
+            }
+        },
+        "facing_in2": {
+            "north": { },
+            "south": { "textures": { "back":   "#in2" } },
+            "west":  { "textures": { "right":  "#in2" } },
+            "east":  { "textures": { "left":   "#in2" } },
+            "up":    { "textures": { "top":    "#in2" } },
+            "down":  { "textures": { "bottom": "#in2" } }
+        },
+        "facing": {
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
+            "south": { "y": 180 },
+            "west":  { "y": 270 },
+            "east":  { "y":  90 }
+        }
+    }
+}
