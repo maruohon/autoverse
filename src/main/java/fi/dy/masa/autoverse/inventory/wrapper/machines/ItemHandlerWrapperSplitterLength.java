@@ -4,25 +4,25 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
 
-public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
+public class ItemHandlerWrapperSplitterLength extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcher sequenceBitMarker;
     private final SequenceMatcherVariable sequenceLength1;
     private final SequenceMatcherVariable sequenceLength2;
-    private final IItemHandler inventoryInput2;
+    private final IItemHandler inventoryOutput2;
     private int length1;
     private int length2;
     private int counter;
-    private boolean inputIsSecondary;
+    private boolean outputIsSecondary;
 
-    public ItemHandlerWrapperMuxer(
-            IItemHandler inventoryInput1,
-            IItemHandler inventoryInput2,
-            IItemHandler inventoryOutput)
+    public ItemHandlerWrapperSplitterLength(
+            IItemHandler inventoryInput,
+            IItemHandler inventoryOutput1,
+            IItemHandler inventoryOutput2)
     {
-        super(4, inventoryInput1, inventoryOutput);
+        super(4, inventoryInput, inventoryOutput1);
 
-        this.inventoryInput2 = inventoryInput2;
+        this.inventoryOutput2 = inventoryOutput2;
 
         this.sequenceBitMarker = new SequenceMatcher(1, "SequenceBitMarker");
         this.sequenceLength1   = new SequenceMatcherVariable(16, "SequenceLength1");
@@ -55,10 +55,9 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     @Override
     protected void onResetFlushStart()
     {
-        // Only reset the input side after the reset sequence's last item has been moved,
-        // otherwise, if the reset command came (or more precisely, completed)
-        // from side 2, it would get left in the slot.
-        this.inputIsSecondary = false;
+        // Only reset the output side after the reset sequence's last item has been moved,
+        // otherwise, the item might get moved to the other output.
+        this.outputIsSecondary = false;
     }
 
     @Override
@@ -66,12 +65,12 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     {
         if (this.moveInputItemToOutput())
         {
-            int max = this.inputIsSecondary ? this.length2 : this.length1;
+            int max = this.outputIsSecondary ? this.length2 : this.length1;
 
             if (++this.counter >= max)
             {
                 this.counter = 0;
-                this.inputIsSecondary = ! this.inputIsSecondary;
+                this.outputIsSecondary = ! this.outputIsSecondary;
             }
 
             return true;
@@ -81,33 +80,15 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     }
 
     @Override
-    public IItemHandler getInputInventory()
+    protected boolean moveInputItemToOutput()
     {
-        return this.inputIsSecondary ? this.inventoryInput2 : super.getInputInventory();
+        IItemHandler inv = this.outputIsSecondary ? this.inventoryOutput2 : this.getOutputInventory();
+        return this.moveInputItemToInventory(inv);
     }
 
-    @Override
-    public int getSlots()
+    public boolean secondaryOutputActive()
     {
-        return 2;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        // The first "virtual slot" is for insertion, the second "virtual slot" is for extraction
-        return slot == 1 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return slot == 1 ? this.getOutputInventory().extractItem(0, amount, simulate) : ItemStack.EMPTY;
-    }
-
-    public boolean secondaryInputActive()
-    {
-        return this.inputIsSecondary;
+        return this.outputIsSecondary;
     }
 
     public SequenceMatcherVariable getSequenceLength1()
@@ -130,7 +111,7 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     {
         tag = super.writeToNBT(tag);
 
-        tag.setBoolean("Secondary", this.inputIsSecondary);
+        tag.setBoolean("Secondary", this.outputIsSecondary);
         tag.setShort("Length1", (short) this.length1);
         tag.setShort("Length2", (short) this.length2);
         tag.setShort("Counter", (short) this.counter);
@@ -143,7 +124,7 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     {
         super.readFromNBT(tag);
 
-        this.inputIsSecondary = tag.getBoolean("Secondary");
+        this.outputIsSecondary = tag.getBoolean("Secondary");
         this.length1 = tag.getShort("Length1");
         this.length2 = tag.getShort("Length2");
         this.counter = tag.getShort("Counter");

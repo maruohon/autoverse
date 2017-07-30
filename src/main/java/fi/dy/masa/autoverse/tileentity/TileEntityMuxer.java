@@ -75,8 +75,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
                 this.muxer = new ItemHandlerWrapperMuxer(
                         this.inventoryInput1,
                         this.inventoryInput2,
-                        this.inventoryOutput,
-                        this);
+                        this.inventoryOutput);
 
                 this.itemHandlerExternal = this.muxer;
                 break;

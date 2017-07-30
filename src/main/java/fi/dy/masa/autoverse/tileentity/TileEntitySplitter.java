@@ -13,14 +13,18 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockSplitter;
-import fi.dy.masa.autoverse.gui.client.GuiSplitter;
+import fi.dy.masa.autoverse.gui.client.GuiSplitterLength;
 import fi.dy.masa.autoverse.gui.client.GuiSplitterRedstone;
+import fi.dy.masa.autoverse.gui.client.GuiSplitterSwitchable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
+import fi.dy.masa.autoverse.inventory.container.ContainerSplitterLength;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitterRedstone;
+import fi.dy.masa.autoverse.inventory.container.ContainerSplitterSwitchable;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperInsertOnly;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSequenceBase;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterLength;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSwitchable;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
@@ -32,7 +36,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryInput;
     private ItemStackHandlerTileEntity inventoryOut1;
     private ItemStackHandlerTileEntity inventoryOut2;
-    private ItemHandlerWrapperSplitter splitter;
+    private ItemHandlerWrapperSequenceBase splitter;
 
     private BlockSplitter.SplitterType type = BlockSplitter.SplitterType.REDSTONE;
     private EnumFacing facing2 = EnumFacing.WEST;
@@ -58,12 +62,17 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         switch (type)
         {
             case SWITCHABLE:
-                this.splitter = new ItemHandlerWrapperSplitter(this.inventoryInput, this.inventoryOut1, this.inventoryOut2, this);
+                this.splitter = new ItemHandlerWrapperSplitterSwitchable(this.inventoryInput, this.inventoryOut1, this.inventoryOut2, this);
                 this.itemHandlerExternal = this.splitter;
                 break;
 
             case REDSTONE:
                 this.itemHandlerExternal = new ItemHandlerWrapperInsertOnly(this.inventoryInput);
+                break;
+
+            case LENGTH:
+                this.splitter = new ItemHandlerWrapperSplitterLength(this.inventoryInput, this.inventoryOut1, this.inventoryOut2);
+                this.itemHandlerExternal = this.splitter;
                 break;
         }
     }
@@ -83,9 +92,14 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         return this.inventoryOut2;
     }
 
-    public ItemHandlerWrapperSplitter getSplitter()
+    public ItemHandlerWrapperSplitterSwitchable getSplitterSwitchable()
     {
-        return this.splitter;
+        return (ItemHandlerWrapperSplitterSwitchable) this.splitter;
+    }
+
+    public ItemHandlerWrapperSplitterLength getSplitterLength()
+    {
+        return (ItemHandlerWrapperSplitterLength) this.splitter;
     }
 
     @Override
@@ -114,13 +128,17 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public boolean outputIsSecondary()
     {
-        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        switch (this.type)
         {
-            return this.redstoneState;
-        }
-        else
-        {
-            return this.splitter.secondaryOutputActive();
+            case SWITCHABLE:
+                return ((ItemHandlerWrapperSplitterSwitchable) this.splitter).secondaryOutputActive();
+
+            case LENGTH:
+                return ((ItemHandlerWrapperSplitterLength) this.splitter).secondaryOutputActive();
+
+            case REDSTONE:
+            default:
+                return this.redstoneState;
         }
     }
 
@@ -176,14 +194,14 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
         boolean movedIn = false;
 
-        if (this.type == BlockSplitter.SplitterType.SWITCHABLE)
-        {
-            movedIn = this.splitter.moveItems();
-        }
-        else
+        if (this.type == BlockSplitter.SplitterType.REDSTONE)
         {
             IItemHandler inv = this.redstoneState ? this.inventoryOut2 : this.inventoryOut1;
             movedIn = InventoryUtils.tryMoveStack(this.inventoryInput, 0, inv, 0) != InvResult.MOVED_NOTHING;
+        }
+        else
+        {
+            movedIn = this.splitter.moveItems();
         }
 
         if (movedIn || movedOut)
@@ -225,11 +243,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Input inventory
-        if (inventoryId == 0)
-        {
-            this.scheduleBlockUpdate(this.delay, true);
-        }
+        this.scheduleBlockUpdate(this.delay, true);
     }
 
     @Override
@@ -302,26 +316,34 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public ContainerAutoverse getContainer(EntityPlayer player)
     {
-        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        switch (this.type)
         {
-            return new ContainerSplitterRedstone(player, this);
-        }
-        else
-        {
-            return new ContainerSplitter(player, this);
+            case SWITCHABLE:
+                return new ContainerSplitterSwitchable(player, this);
+
+            case LENGTH:
+                return new ContainerSplitterLength(player, this);
+
+            case REDSTONE:
+            default:
+                return new ContainerSplitterRedstone(player, this);
         }
     }
 
     @Override
     public Object getGui(EntityPlayer player)
     {
-        if (this.type == BlockSplitter.SplitterType.REDSTONE)
+        switch (this.type)
         {
-            return new GuiSplitterRedstone(new ContainerSplitterRedstone(player, this), this);
-        }
-        else
-        {
-            return new GuiSplitter(new ContainerSplitter(player, this), this);
+            case SWITCHABLE:
+                return new GuiSplitterSwitchable(new ContainerSplitterSwitchable(player, this), this);
+
+            case LENGTH:
+                return new GuiSplitterLength(new ContainerSplitterLength(player, this), this);
+
+            case REDSTONE:
+            default:
+                return new GuiSplitterRedstone(new ContainerSplitterRedstone(player, this), this);
         }
     }
 }

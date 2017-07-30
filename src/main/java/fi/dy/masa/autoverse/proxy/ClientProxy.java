@@ -145,6 +145,7 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,type=programmable");
         registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=switchable");
         registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,type=redstone");
+        registerItemBlockModel(AutoverseBlocks.SPLITTER, 2, "facing=north,facing_out2=east,type=length");
         registerItemBlockModel(AutoverseBlocks.TRASH, 0, "type=bin");
         registerItemBlockModel(AutoverseBlocks.TRASH, 1, "type=buffer");
     }

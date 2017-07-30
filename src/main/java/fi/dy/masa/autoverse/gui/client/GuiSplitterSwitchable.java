@@ -3,15 +3,15 @@ package fi.dy.masa.autoverse.gui.client;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
-import fi.dy.masa.autoverse.inventory.container.ContainerSplitter;
+import fi.dy.masa.autoverse.inventory.container.ContainerSplitterSwitchable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class GuiSplitter extends GuiAutoverse
+public class GuiSplitterSwitchable extends GuiAutoverse
 {
-    private final ContainerSplitter containerSP;
+    private final ContainerSplitterSwitchable containerSP;
     private final TileEntitySplitter te;
 
-    public GuiSplitter(ContainerSplitter container, TileEntitySplitter te)
+    public GuiSplitterSwitchable(ContainerSplitterSwitchable container, TileEntitySplitter te)
     {
         super(container, 176, 238, "gui.container.splitter_switchable");
 

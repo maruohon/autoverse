@@ -3,15 +3,15 @@ package fi.dy.masa.autoverse.inventory.container;
 import net.minecraft.entity.player.EntityPlayer;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.slot.SlotItemHandlerGeneric;
-import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitter;
+import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperSplitterSwitchable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class ContainerSplitter extends ContainerTile
+public class ContainerSplitterSwitchable extends ContainerTile
 {
     private final TileEntitySplitter tesp;
     public boolean secondaryOutput;
 
-    public ContainerSplitter(EntityPlayer player, TileEntitySplitter te)
+    public ContainerSplitterSwitchable(EntityPlayer player, TileEntitySplitter te)
     {
         super(player, te);
 
@@ -25,7 +25,7 @@ public class ContainerSplitter extends ContainerTile
         // Add the input slot as a merge slot range, but no other slots
         this.addMergeSlotRangePlayerToExt(this.inventorySlots.size(), 1, false);
 
-        ItemHandlerWrapperSplitter splitter = this.tesp.getSplitter();
+        ItemHandlerWrapperSplitterSwitchable splitter = this.tesp.getSplitterSwitchable();
 
         // Add the input slot. On the client use the basic underlying inventory, not the wrapper handler.
         this.addSideDependentSlot(0, 8, 30, this.inventory, this.tesp.getInventoryIn());

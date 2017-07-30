@@ -39,7 +39,8 @@ public class BlockSplitter extends BlockAutoverseInventory
     {
         return new String[] {
                 this.blockName + "_switchable",
-                this.blockName + "_redstone"
+                this.blockName + "_redstone",
+                this.blockName + "_length"
         };
     }
 
@@ -119,7 +120,8 @@ public class BlockSplitter extends BlockAutoverseInventory
     public enum SplitterType implements IStringSerializable
     {
         SWITCHABLE      (0, "switchable"),
-        REDSTONE        (1, "redstone");
+        REDSTONE        (1, "redstone"),
+        LENGTH          (2, "length");
 
         private final int meta;
         private final String name;

@@ -10,7 +10,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 
-public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
+public class ItemHandlerWrapperSplitterSwitchable extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcherVariable sequenceSwitch1;
     private final SequenceMatcherVariable sequenceSwitch2;
@@ -20,7 +20,7 @@ public class ItemHandlerWrapperSplitter extends ItemHandlerWrapperSequenceBase
     private int position;
     private int subState;
 
-    public ItemHandlerWrapperSplitter(
+    public ItemHandlerWrapperSplitterSwitchable(
             IItemHandler inventoryInput,
             IItemHandler inventoryOutput1,
             IItemHandler inventoryOutput2,
