@@ -258,7 +258,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             }
 
             this.updateAllValidOutputSidesForInputSide(side);
-            this.updateInputInventoryForSide(side);
         }
 
         if (mask != this.connectedSidesMask)
@@ -565,33 +564,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.isSideDisabled(side) == false;
     }
 
-    private void updateInputInventoryForSide(EnumFacing side)
-    {
-        int slot = side.getIndex();
-
-        if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
-        {
-            TileEntity te = this.getWorld().getTileEntity(this.getPos().offset(side));
-
-            if ((te instanceof TileEntityPipe) ||
-                (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite())))
-            {
-                this.createInputInventoryIfNull(slot);
-                return;
-            }
-        }
-
-        this.inputInventories[slot] = null;
-    }
-
-    protected void createInputInventoryIfNull(int slot)
-    {
-        if (this.inputInventories[slot] == null)
-        {
-            this.inputInventories[slot] = new InventoryWrapperSides(this.itemHandlerBase, slot, this);
-        }
-    }
-
     protected void updateAllValidOutputSidesForInputSide(final EnumFacing inputSide)
     {
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
@@ -819,11 +791,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     protected ItemStack pushItemIn(int slot, ItemStack stack, boolean simulate)
     {
-        if (this.inputInventories[slot] == null)
-        {
-            return stack;
-        }
-
         if (simulate == false)
         {
             this.disableNeighorNotification = true;
@@ -995,9 +962,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing)
     {
-        if (facing != null &&
-            capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY &&
-            this.inputInventories[facing.getIndex()] != null)
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
         {
             return true;
         }
