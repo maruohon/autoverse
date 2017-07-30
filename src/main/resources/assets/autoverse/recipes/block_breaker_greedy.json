@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:breaker"
+        }
+    ],
+    "group" : "autoverse:breaker",
+    "result" :
+    {
+        "item" : "autoverse:breaker",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "CCC",
+        "PHP",
+        "CCC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "H" : { "item" : "#ORE_CHEST_WOOD" },
+        "P" : { "item" : "minecraft:diamond_pickaxe" }
+    }
+}

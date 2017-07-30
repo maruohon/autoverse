@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:inventory_reader"
+        }
+    ],
+    "group" : "autoverse:inventory_reader",
+    "result" :
+    {
+        "item" : "autoverse:inventory_reader",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "CSC",
+        "SOS",
+        "CSC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "S" : { "item" : "#ORE_SLIMEBALL" },
+        "O" : { "item" : "#COMPARATOR" }
+    }
+}

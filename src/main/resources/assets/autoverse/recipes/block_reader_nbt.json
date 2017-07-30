@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:block_reader"
+        }
+    ],
+    "group" : "autoverse:block_reader",
+    "result" :
+    {
+        "item" : "autoverse:block_reader",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "GGG",
+        "GCE",
+        "GGG"
+    ],
+    "key":
+    {
+        "G" : { "item" : "#ORE_INGOT_GOLD" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
+        "E" : { "item" : "minecraft:ender_eye" }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:redstone_emitter"
+        }
+    ],
+    "group" : "autoverse:redstone_emitter",
+    "result" :
+    {
+        "item" : "autoverse:redstone_emitter",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "ITI",
+        "TCT",
+        "ITI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "T" : { "item" : "#REDSTONE_TORCH" },
+        "C" : { "item" : "#COMPARATOR" }
+    }
+}

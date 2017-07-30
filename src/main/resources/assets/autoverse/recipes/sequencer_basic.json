@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:sequencer"
+        }
+    ],
+    "group" : "autoverse:sequencer",
+    "result" :
+    {
+        "item" : "autoverse:sequencer",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "CCC",
+        "RHR",
+        "CCC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "R" : { "item" : "#REPEATER" },
+        "H" : { "item" : "#ORE_CHEST_WOOD" }
+    }
+}

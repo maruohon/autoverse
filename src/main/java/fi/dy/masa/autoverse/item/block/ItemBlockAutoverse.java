@@ -350,8 +350,14 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     {
         ItemAutoverse.addTranslatedTooltip(this.getTooltipName(stack) + ".tooltips", list, verbose);
 
-        ItemAutoverse.addTranslatedTooltip("autoverse.tooltip.config_props_title", list, verbose);
-        ItemAutoverse.addTranslatedTooltip(this.getTooltipName(stack) + ".config_props", list, verbose);
+        List<String> tmp = new ArrayList<String>();
+
+        // Translation found
+        if (ItemAutoverse.addTranslatedTooltip(this.getTooltipName(stack) + ".config_props", tmp, verbose))
+        {
+            ItemAutoverse.addTranslatedTooltip("autoverse.tooltip.config_props_title", list, verbose);
+            list.addAll(tmp);
+        }
 
         if (this.hasPlacementProperty(stack))
         {

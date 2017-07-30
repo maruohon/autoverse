@@ -1,0 +1,29 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:placer"
+        }
+    ],
+    "group" : "autoverse:placer",
+    "result" :
+    {
+        "item" : "autoverse:placer",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "IRI",
+        "ICD",
+        "IOI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "R" : { "item" : "#REPEATER" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
+        "D" : { "item" : "minecraft:dispenser" },
+        "O" : { "item" : "#COMPARATOR" }
+    }
+}

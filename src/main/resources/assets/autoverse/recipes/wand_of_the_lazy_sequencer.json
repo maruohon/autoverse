@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:wand"
+        }
+    ],
+    "group" : "autoverse:wand",
+    "result" :
+    {
+        "item" : "autoverse:wand",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "  B",
+        " S ",
+        "S  "
+    ],
+    "key":
+    {
+        "S" : { "item" : "#ORE_STICK_WOOD" },
+        "B" : { "item" : "autoverse:buffer", "data" : 0 }
+    }
+}

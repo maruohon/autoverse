@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:machine_frame"
+        }
+    ],
+    "group" : "autoverse:machine_frame",
+    "result" :
+    {
+        "item" : "autoverse:machine_frame",
+        "data" : 0,
+        "count" : 4
+    },
+    "pattern":
+    [
+        "CIC",
+        "I I",
+        "CIC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "I" : { "item" : "#ORE_INGOT_IRON" }
+    }
+}

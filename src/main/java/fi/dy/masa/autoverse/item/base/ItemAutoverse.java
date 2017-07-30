@@ -126,7 +126,11 @@ public class ItemAutoverse extends Item
         }
     }
 
-    public static void addTranslatedTooltip(String key, List<String> list, boolean verbose, Object... args)
+    /**
+     * Adds a translated tooltip.
+     * @return true, if there was a translation found for the given key
+     */
+    public static boolean addTranslatedTooltip(String key, List<String> list, boolean verbose, Object... args)
     {
         String translated = I18n.format(key, args);
 
@@ -147,7 +151,11 @@ public class ItemAutoverse extends Item
             {
                 list.add(translated);
             }
+
+            return true;
         }
+
+        return false;
     }
 
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)

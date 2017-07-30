@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:muxer"
+        }
+    ],
+    "group" : "autoverse:muxer",
+    "result" :
+    {
+        "item" : "autoverse:muxer",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "ITI",
+        "GGG",
+        "IGI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "T" : { "item" : "#REDSTONE_TORCH" }
+    }
+}

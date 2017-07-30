@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:trash"
+        }
+    ],
+    "group" : "autoverse:trash",
+    "result" :
+    {
+        "item" : "autoverse:trash",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "C C",
+        "CLC",
+        "CCC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "L" : { "item" : "minecraft:lava_bucket" }
+    }
+}

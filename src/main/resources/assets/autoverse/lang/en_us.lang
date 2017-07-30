@@ -222,15 +222,12 @@ tile.autoverse.placer.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facin
 tile.autoverse.placer_programmable.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facing|lf- Prop 3: Placement offset (0..15)
 tile.autoverse.redstone_emitter_advanced.config_props=- Prop 1: Facing
 tile.autoverse.redstone_emitter_basic.config_props=- Prop 1: Facing
-tile.autoverse.sensor_height.config_props=- None
 tile.autoverse.sequence_detector.config_props=- Prop 1: Facing
 tile.autoverse.sequencer_basic.config_props=- Prop 1: Facing|lf- Prop 2: Inventory Size
 tile.autoverse.sequencer_programmable.config_props=- Prop 1: Facing
 tile.autoverse.splitter_length.config_props=- Prop 1: Facing|lf- Prop 2: Secondary output side|lf- Prop 3: Delay (in ticks)
 tile.autoverse.splitter_redstone.config_props=- Prop 1: Facing|lf- Prop 2: Secondary output side|lf- Prop 3: Delay (in ticks)
 tile.autoverse.splitter_switchable.config_props=- Prop 1: Facing|lf- Prop 2: Secondary output side|lf- Prop 3: Delay (in ticks)
-tile.autoverse.trash_bin.config_props=- None
-tile.autoverse.trash_buffer.config_props=- None
 
 
 ##############
@@ -251,6 +248,7 @@ tile.autoverse.filter_basic.name=Programmable Filter (Basic)
 tile.autoverse.filter_sequential.name=Programmable Filter (Sequential)
 tile.autoverse.inventory_reader_items.name=Inventory Reader (Items)
 tile.autoverse.inventory_reader_slots.name=Inventory Reader (Slots)
+tile.autoverse.machine_frame.name=Machine Frame
 tile.autoverse.muxer_priority.name=Priority Muxer
 tile.autoverse.muxer_programmable.name=Programmable Muxer
 tile.autoverse.muxer_redstone.name=Redstone-controlled Muxer

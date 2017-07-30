@@ -1,0 +1,29 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:detector"
+        }
+    ],
+    "group" : "autoverse:detector",
+    "result" :
+    {
+        "item" : "autoverse:detector",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "III",
+        "CWE",
+        "IHI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "C" : { "item" : "#COMPARATOR" },
+        "W" : { "item" : "#ORE_CHEST_WOOD" },
+        "E" : { "item" : "minecraft:ender_eye" },
+        "H" : { "item" : "#HOPPER" }
+    }
+}

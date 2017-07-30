@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:sensor"
+        }
+    ],
+    "group" : "autoverse:sensor",
+    "result" :
+    {
+        "item" : "autoverse:sensor",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "CGC",
+        "CGC",
+        "CTC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "T" : { "item" : "#REDSTONE_TORCH" }
+    }
+}

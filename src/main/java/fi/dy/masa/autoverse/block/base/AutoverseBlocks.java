@@ -27,6 +27,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                               4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FILTER                   = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse INVENTORY_READER         = new BlockInventoryReader(ReferenceNames.NAME_BLOCK_INVENTORY_READER,              4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse MACHINE_FRAME            = new BlockMachineFrame(ReferenceNames.NAME_BLOCK_MACHINE_FRAME,                    4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse MUXER                    = new BlockMuxer(ReferenceNames.NAME_BLOCK_MUXER,                                   4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse PIPE                     = new BlockPipe(ReferenceNames.NAME_BLOCK_PIPE,                                     4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse REDSTONE_EMITTER         = new BlockRedstoneEmitter(ReferenceNames.NAME_BLOCK_REDSTONE_EMITTER,              4.0f, 10f, 1, Material.ROCK);
@@ -50,6 +51,7 @@ public class AutoverseBlocks
         registerBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerBlock(registry, MACHINE_FRAME,          Configs.disableBlockMachineFrame);
         registerBlock(registry, MUXER,                  Configs.disableBlockMuxer);
         registerBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);
@@ -76,6 +78,7 @@ public class AutoverseBlocks
         registerItemBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerItemBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerItemBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
+        registerItemBlock(registry, MACHINE_FRAME,          Configs.disableBlockMachineFrame);
         registerItemBlock(registry, MUXER,                  Configs.disableBlockMuxer);
         registerItemBlock(registry, PIPE,                   Configs.disableBlockPipe);
         registerItemBlock(registry, REDSTONE_EMITTER,       Configs.disableBlockRedstoneEmitter);

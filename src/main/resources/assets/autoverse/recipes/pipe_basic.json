@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:pipe"
+        }
+    ],
+    "group" : "autoverse:pipe",
+    "result" :
+    {
+        "item" : "autoverse:pipe",
+        "data" : 0,
+        "count" : 4
+    },
+    "pattern":
+    [
+        "ICI",
+        "GGG",
+        "ICI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "C" : { "item" : "#COBBLESTONE" },
+        "G" : { "item" : "#ORE_GLASS" }
+    }
+}

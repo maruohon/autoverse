@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:crafter"
+        }
+    ],
+    "group" : "autoverse:crafter",
+    "result" :
+    {
+        "item" : "autoverse:crafter",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "IHI",
+        "CWC",
+        "IHI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "H" : { "item" : "#HOPPER" },
+        "C" : { "item" : "#COMPARATOR" },
+        "W" : { "item" : "#ORE_WORKBENCH" }
+    }
+}

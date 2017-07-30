@@ -1,0 +1,14 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "minecraft:cube_all",
+        "transform": "forge:default-block",
+        "textures": {
+            "all": "autoverse:blocks/part_machine_frame"
+        }
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}]
+    }
+}

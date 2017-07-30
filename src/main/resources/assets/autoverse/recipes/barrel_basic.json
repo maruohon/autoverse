@@ -1,0 +1,26 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:barrel"
+        }
+    ],
+    "group" : "autoverse:barrel",
+    "result" :
+    {
+        "item" : "autoverse:barrel",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "PNP",
+        "P P",
+        "PNP"
+    ],
+    "key":
+    {
+        "P" : { "item" : "#ORE_PLANK_WOOD" },
+        "N" : { "item" : "#ORE_NUGGET_IRON" }
+    }
+}

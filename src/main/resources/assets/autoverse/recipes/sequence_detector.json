@@ -1,0 +1,28 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:sequence_detector"
+        }
+    ],
+    "group" : "autoverse:sequence_detector",
+    "result" :
+    {
+        "item" : "autoverse:sequence_detector",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "IHI",
+        "TCT",
+        "III"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "H" : { "item" : "#HOPPER" },
+        "C" : { "item" : "#COMPARATOR" },
+        "T" : { "item" : "#REDSTONE_TORCH" }
+    }
+}

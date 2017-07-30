@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:splitter"
+        }
+    ],
+    "group" : "autoverse:splitter",
+    "result" :
+    {
+        "item" : "autoverse:splitter",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "IGI",
+        "GGG",
+        "ITI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "G" : { "item" : "#ORE_GLASS" },
+        "T" : { "item" : "#REDSTONE_TORCH" }
+    }
+}

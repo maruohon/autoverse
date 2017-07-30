@@ -9,7 +9,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
-import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class BlockSensor extends BlockAutoverse
 {
@@ -26,7 +25,7 @@ public class BlockSensor extends BlockAutoverse
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {
-                ReferenceNames.NAME_BLOCK_SENSOR + "_height"
+                this.blockName + "_height"
         };
     }
 

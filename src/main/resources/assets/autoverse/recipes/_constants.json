@@ -1,0 +1,38 @@
+[
+    { "name" : "CHEST",                 "ingredient": { "item" : "minecraft:chest"                  } },
+    { "name" : "COBBLESTONE",           "ingredient": { "item" : "minecraft:cobblestone"            } },
+    { "name" : "COMPARATOR",            "ingredient": { "item" : "minecraft:comparator"             } },
+    { "name" : "CRAFTING_TABLE",        "ingredient": { "item" : "minecraft:crafting_table"         } },
+    { "name" : "FURNACE",               "ingredient": { "item" : "minecraft:furnace"                } },
+    { "name" : "HOPPER",                "ingredient": { "item" : "minecraft:hopper"                 } },
+    { "name" : "PISTON",                "ingredient": { "item" : "minecraft:piston"                 } },
+    { "name" : "REDSTONE_DUST",         "ingredient": { "item" : "minecraft:redstone"               } },
+    { "name" : "REDSTONE_TORCH",        "ingredient": { "item" : "minecraft:redstone_torch"         } },
+    { "name" : "REPEATER",              "ingredient": { "item" : "minecraft:repeater"               } },
+    { "name" : "STICKY_PISTON",         "ingredient": { "item" : "minecraft:sticky_piston"          } },
+    { "name" : "WOOL_ANY",              "ingredient": { "item" : "minecraft:wool", "data" : 32767   } },
+
+
+
+    { "name" : "ORE_CHEST_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "chestWood"          } },
+    { "name" : "ORE_GLASS",             "ingredient": { "type" : "forge:ore_dict", "ore" : "blockGlass"         } },
+    { "name" : "ORE_INGOT_GOLD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "ingotGold"          } },
+    { "name" : "ORE_INGOT_IRON",        "ingredient": { "type" : "forge:ore_dict", "ore" : "ingotIron"          } },
+    { "name" : "ORE_LOG_WOOD",          "ingredient": { "type" : "forge:ore_dict", "ore" : "logWood"            } },
+    { "name" : "ORE_NUGGET_GOLD",       "ingredient": { "type" : "forge:ore_dict", "ore" : "nuggetGold"         } },
+    { "name" : "ORE_NUGGET_IRON",       "ingredient": { "type" : "forge:ore_dict", "ore" : "nuggetIron"         } },
+    { "name" : "ORE_OBSIDIAN",          "ingredient": { "type" : "forge:ore_dict", "ore" : "obsidian"           } },
+    { "name" : "ORE_PLANKS",            "ingredient": { "type" : "forge:ore_dict", "ore" : "planks"             } },
+    { "name" : "ORE_PLANK_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "plankWood"          } },
+    { "name" : "ORE_REDSTONE_BLOCK",    "ingredient": { "type" : "forge:ore_dict", "ore" : "blockRedstone"      } },
+    { "name" : "ORE_SLAB_WOOD",         "ingredient": { "type" : "forge:ore_dict", "ore" : "slabWood"           } },
+    { "name" : "ORE_SLIMEBALL",         "ingredient": { "type" : "forge:ore_dict", "ore" : "slimeball"          } },
+    { "name" : "ORE_SLIME_BLOCK",       "ingredient": { "type" : "forge:ore_dict", "ore" : "blockSlime"         } },
+    { "name" : "ORE_STAIR_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stairWood"          } },
+    { "name" : "ORE_STICK_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stickWood"          } },
+    { "name" : "ORE_WORKBENCH",         "ingredient": { "type" : "forge:ore_dict", "ore" : "workbench"          } },
+
+
+
+    { "name" : "MACHINE_FRAME",         "ingredient": { "item" : "autoverse:machine_frame",         "data" :  0 } }
+]

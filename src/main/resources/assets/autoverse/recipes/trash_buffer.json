@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:trash"
+        }
+    ],
+    "group" : "autoverse:trash",
+    "result" :
+    {
+        "item" : "autoverse:trash",
+        "data" : 1
+    },
+    "pattern":
+    [
+        "ICI",
+        "ILI",
+        "III"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
+        "L" : { "item" : "minecraft:lava_bucket" }
+    }
+}
