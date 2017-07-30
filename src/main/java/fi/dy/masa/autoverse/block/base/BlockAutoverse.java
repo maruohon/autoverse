@@ -45,6 +45,7 @@ public class BlockAutoverse extends Block
     protected String[] unlocalizedNames;
     protected String[] tooltipNames;
     protected boolean enabled = true;
+    protected boolean hasFacing;
 
     public BlockAutoverse(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -134,14 +135,6 @@ public class BlockAutoverse extends Block
         }
     }
 
-    @Override
-    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
-    {
-        IBlockState state = world.getBlockState(pos).withRotation(Rotation.CLOCKWISE_90);
-        world.setBlockState(pos, state, 3);
-        return true;
-    }
-
     public <T> Map<T, AxisAlignedBB> getHilightBoxMap()
     {
         return Collections.emptyMap();
@@ -163,7 +156,7 @@ public class BlockAutoverse extends Block
     }
 
     @Nullable
-    protected static RayTraceResult collisionRayTraceToBoxes(IBlockState state, BlockAutoverseTileEntity block,
+    protected static RayTraceResult collisionRayTraceToBoxes(IBlockState state, BlockAutoverse block,
             World world, BlockPos pos, Vec3d start, Vec3d end)
     {
         if (block.hasFacing)
@@ -239,14 +232,27 @@ public class BlockAutoverse extends Block
     }
 
     @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
     {
-        return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+        if (this.hasFacing)
+        {
+            IBlockState state = world.getBlockState(pos).withRotation(Rotation.CLOCKWISE_90);
+            world.setBlockState(pos, state, 3);
+            return true;
+        }
+
+        return false;
     }
 
     @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withRotation(IBlockState state, Rotation rotation)
     {
-        return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+        return this.hasFacing ? state.withProperty(FACING, rotation.rotate(state.getValue(FACING))) : state;
+    }
+
+    @Override
+    public IBlockState withMirror(IBlockState state, Mirror mirror)
+    {
+        return this.hasFacing ? state.withRotation(mirror.toRotation(state.getValue(FACING))) : state;
     }
 }

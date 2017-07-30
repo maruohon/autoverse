@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -23,7 +22,6 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
 public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 {
-    protected boolean hasFacing;
     protected boolean getFacingFromTE;
 
     public BlockAutoverseTileEntity(String name, float hardness, float resistance, int harvestLevel, Material material)
@@ -170,18 +168,6 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
         }
 
         return state;
-    }
-
-    @Override
-    public IBlockState withRotation(IBlockState state, Rotation rotation)
-    {
-        return this.hasFacing ? state.withProperty(FACING, rotation.rotate(state.getValue(FACING))) : state;
-    }
-
-    @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirror)
-    {
-        return this.hasFacing ? state.withRotation(mirror.toRotation(state.getValue(FACING))) : state;
     }
 
     @Override
