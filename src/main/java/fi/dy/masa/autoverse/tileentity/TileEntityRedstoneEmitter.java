@@ -191,11 +191,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Input inventory
-        if (inventoryId == 0)
-        {
-            this.scheduleBlockUpdate(1, false);
-        }
+        this.scheduleUpdateIfNeeded(false);
     }
 
     @Override

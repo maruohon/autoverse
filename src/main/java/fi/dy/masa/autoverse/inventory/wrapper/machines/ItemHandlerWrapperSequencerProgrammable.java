@@ -96,16 +96,10 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     }
 
     @Override
-    public int getSlots()
-    {
-        return 2;
-    }
-
-    @Override
     public ItemStack getStackInSlot(int slot)
     {
-        // The first "virtual slot" is for extraction, the second is for insertion (and thus always empty)
-        if (slot == 0 && this.getState() == State.NORMAL)
+        // The first "virtual slot" is for insertion (and thus always empty), the second is for extraction
+        if (slot == 1 && this.getState() == State.NORMAL)
         {
             return this.inventorySequence.getStackInSlot(this.position);
         }
@@ -116,7 +110,7 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        if (slot == 0 && this.getState() == State.NORMAL)
+        if (slot == 1 && this.getState() == State.NORMAL)
         {
             ItemStack stack = this.inventorySequence.extractItem(this.position, amount, simulate);
 

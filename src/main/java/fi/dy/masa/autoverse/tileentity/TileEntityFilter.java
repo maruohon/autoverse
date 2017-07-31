@@ -262,11 +262,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Input inventory
-        if (inventoryId == 0)
-        {
-            this.scheduleBlockUpdate(this.delay, true);
-        }
+        this.scheduleUpdateIfNeeded(true);
     }
 
     @Override

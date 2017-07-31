@@ -309,30 +309,6 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     }
 
     @Override
-    public int getSlots()
-    {
-        return 2;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        return slot == 1 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-    {
-        return this.getInputInventory().insertItem(0, stack, simulate);
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return this.getOutputInventory().extractItem(0, amount, simulate);
-    }
-
-    @Override
     protected void readFromNBT(NBTTagCompound tag)
     {
         super.readFromNBT(tag);

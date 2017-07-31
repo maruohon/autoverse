@@ -124,33 +124,9 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     }
 
     @Override
-    public int getSlots()
-    {
-        return 2;
-    }
-
-    @Override
     public int getSlotLimit(int slot)
     {
         return slot == 1 ? this.getOutputInventory().getSlotLimit(0) : this.getInputInventory().getSlotLimit(0);
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        return slot == 1 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-    {
-        return super.insertItem(0, stack, simulate);
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return this.getOutputInventory().extractItem(0, amount, simulate);
     }
 
     @Override

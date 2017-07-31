@@ -243,7 +243,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        this.scheduleBlockUpdate(this.delay, true);
+        this.scheduleUpdateIfNeeded(true);
     }
 
     @Override

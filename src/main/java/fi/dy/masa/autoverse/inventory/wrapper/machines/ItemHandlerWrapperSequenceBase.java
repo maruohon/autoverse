@@ -40,12 +40,6 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     }
 
     @Override
-    public int getSlots()
-    {
-        return 1;
-    }
-
-    @Override
     public int getSlotLimit(int slot)
     {
         return 1;
@@ -54,31 +48,39 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
     @Override
     public int getInventoryStackLimit()
     {
-        return 1;
+        return this.getSlotLimit(0);
     }
 
     @Override
     public int getItemStackLimit(int slot, ItemStack stack)
     {
-        return 1;
+        return this.getSlotLimit(slot);
+    }
+
+    @Override
+    public int getSlots()
+    {
+        return 2;
     }
 
     @Override
     public ItemStack getStackInSlot(int slot)
     {
-        return this.inventoryInput.getStackInSlot(0);
+        // The first "virtual slot" is for insertion (and thus always empty).
+        // The second "virtual slot" is for extraction from the "generic output slot".
+        return slot == 0 ? this.inventoryInput.getStackInSlot(0) : this.inventoryOutput.getStackInSlot(0);
     }
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate)
     {
-        return ItemStack.EMPTY;
+        return slot == 0 ? ItemStack.EMPTY : this.inventoryOutput.extractItem(0, amount, simulate);
     }
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
     {
-        return this.inventoryInput.insertItem(0, stack, simulate);
+        return slot == 0 ? this.inventoryInput.insertItem(0, stack, simulate) : stack;
     }
 
     public boolean moveItems()

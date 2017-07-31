@@ -148,26 +148,6 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         }
     }
 
-    @Override
-    public int getSlots()
-    {
-        return 2;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        // The first "virtual slot" is for extraction from the "generic output slot",
-        // the second "virtual slot" is for insertion (and thus always empty)
-        return slot == 0 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return slot == 0 ? this.getOutputInventory().extractItem(0, amount, simulate) : ItemStack.EMPTY;
-    }
-
     public IItemHandler getBitMarkerInventory()
     {
         return this.sequenceBitMarker.getSequenceInventory(false);

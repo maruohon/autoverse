@@ -124,8 +124,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Input inventory
-        this.scheduleBlockUpdate(1, false);
+        this.scheduleUpdateIfNeeded(false);
     }
 
     @Override

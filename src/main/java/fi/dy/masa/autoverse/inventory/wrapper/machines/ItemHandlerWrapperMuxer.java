@@ -86,25 +86,6 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
         return this.inputIsSecondary ? this.inventoryInput2 : super.getInputInventory();
     }
 
-    @Override
-    public int getSlots()
-    {
-        return 2;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot)
-    {
-        // The first "virtual slot" is for insertion, the second "virtual slot" is for extraction
-        return slot == 1 ? this.getOutputInventory().getStackInSlot(0) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate)
-    {
-        return slot == 1 ? this.getOutputInventory().extractItem(0, amount, simulate) : ItemStack.EMPTY;
-    }
-
     public boolean secondaryInputActive()
     {
         return this.inputIsSecondary;

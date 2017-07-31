@@ -92,7 +92,6 @@ public class TileEntitySequencerProgrammable extends TileEntityAutoverseInventor
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        // Input inventory
         this.scheduleUpdateIfNeeded(false);
     }
 
