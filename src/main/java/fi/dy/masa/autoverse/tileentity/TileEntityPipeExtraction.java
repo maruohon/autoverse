@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.tileentity;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -220,36 +221,38 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         // Empty input slot, try to pull in items
         if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
         {
-            IItemHandler inputInv = this.getInputInventory(slot);
+            EnumFacing side = EnumFacing.getFront(slot);
+            TileEntity te = world.getTileEntity(posSelf.offset(side));
 
-            if (inputInv != null)
+            if (te != null &&
+                (te instanceof TileEntityPipe) == false &&
+                te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
             {
-                EnumFacing side = EnumFacing.getFront(slot);
-                TileEntity te = world.getTileEntity(posSelf.offset(side));
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
 
-                if (te != null &&
-                    (te instanceof TileEntityPipe) == false &&
-                    te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
+                if (inv != null)
                 {
-                    IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+                    this.disableUpdateScheduling = true;
+                    this.disableNeighorNotification = true;
 
-                    if (inv != null)
+                    ItemStack stack = InventoryUtils.getItemsFromFirstNonEmptySlot(inv, this.itemHandlerBase.getInventoryStackLimit(), false);
+                    InvResult result = InvResult.MOVED_NOTHING;
+
+                    if (stack.isEmpty() == false)
                     {
-                        this.disableUpdateScheduling = true;
-                        this.disableNeighorNotification = true;
-
-                        InvResult result = InventoryUtils.tryMoveAllItems(inv, inputInv);
-
-                        this.disableUpdateScheduling = false;
-                        this.disableNeighorNotification = false;
-
-                        if (result != InvResult.MOVED_NOTHING)
-                        {
-                            this.sendPacketInputItem(slot, this.itemHandlerBase.getStackInSlot(slot));
-                        }
-
-                        return result;
+                        this.itemHandlerBase.insertItem(slot, stack, false);
+                        result = InvResult.MOVED_SOME;
                     }
+
+                    this.disableUpdateScheduling = false;
+                    this.disableNeighorNotification = false;
+
+                    if (result != InvResult.MOVED_NOTHING)
+                    {
+                        this.sendPacketInputItem(slot, this.itemHandlerBase.getStackInSlot(slot));
+                    }
+
+                    return result;
                 }
             }
 

@@ -780,6 +780,26 @@ public class InventoryUtils
         return -1;
     }
 
+    /**
+     * Returns an ItemStack of up to maxAmount items from the first slot possible to extract from.
+     */
+    public static ItemStack getItemsFromFirstNonEmptySlot(IItemHandler inv, int maxAmount, boolean simulate)
+    {
+        ItemStack stack;
+
+        for (int i = 0; i < inv.getSlots(); i++)
+        {
+            stack = inv.extractItem(i, maxAmount, simulate);
+
+            if (stack.isEmpty() == false)
+            {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     public static boolean tryShiftSlots(IItemHandlerModifiable inv, int startSlot, boolean backwards)
     {
         if (startSlot < 0 || startSlot >= inv.getSlots())
