@@ -59,7 +59,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     {
         this.inventoryInput1        = new ItemStackHandlerTileEntity(0, 1,  1, false, "ItemsIn1", this);
         this.inventoryInput2        = new ItemStackHandlerTileEntity(1, 1,  1, false, "ItemsIn2", this);
-        this.inventoryOutput        = new ItemStackHandlerTileEntity(2, 1, 64, false, "ItemsOut", this);
+        this.inventoryOutput        = new ItemStackHandlerTileEntity(2, 1,  1, false, "ItemsOut", this);
 
         this.itemHandlerBase        = this.inventoryInput1;
 
@@ -82,8 +82,6 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
 
             case PRIORITY:
             case REDSTONE:
-                this.inventoryInput1.setStackLimit(64);
-                this.inventoryInput2.setStackLimit(64);
                 this.itemHandlerExternal = new ItemHandlerWrapperMuxerSimple(this.inventoryInput1, this.inventoryOutput);
                 break;
         }
@@ -426,13 +424,13 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
         {
-            return slot == 0 ? this.inventoryIn.insertItem(0, stack, simulate) : ItemStack.EMPTY;
+            return slot == 0 ? this.inventoryIn.insertItem(0, stack, simulate) : stack;
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate)
         {
-            return slot == 1 ? this.inventoryOut.extractItem(0, amount, simulate) : ItemStack.EMPTY;
+            return slot == 0 ? ItemStack.EMPTY : this.inventoryOut.extractItem(0, amount, simulate);
         }
     }
 
