@@ -25,7 +25,7 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
     private Random rand = new Random();
 
     @Override
-    public void render(TileEntityPipe te, double x, double y, double z, float partialTicks, int destroyStage, float partial)
+    public void render(TileEntityPipe te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
         this.mc = Minecraft.getMinecraft();
         BlockPos pos = te.getPos();

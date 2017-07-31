@@ -2,6 +2,9 @@ language.name=English
 language.region=US
 language.code=en_US
 
+category.autoverse=Autoverse
+autoverse.key.togglemode=Toggle/action
+
 autoverse.commands.loadconfig.success=Autoverse: Loaded configuration
 
 ############################
