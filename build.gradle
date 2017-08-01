@@ -114,3 +114,15 @@ jar {
         attributes 'FMLAT': config.mod_id + '_at.cfg'
     }
 }
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+
+    keyStore = config.keyStore
+    alias = config.alias
+    storePass = config.storePass
+    keyPass = config.keyPass
+}
+
+build.dependsOn signJar
