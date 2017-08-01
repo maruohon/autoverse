@@ -157,32 +157,21 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
     private boolean moveInputItem(ItemStack inputStack)
     {
-        List<Integer> slots = this.getMatchingSlots(inputStack);
+        List<Integer> matchingSlots = this.getMatchingSlots(inputStack);
         boolean success = false;
 
-        if (slots != null)
+        if (matchingSlots != null)
         {
-            for (int slot : slots)
+            boolean matchedBefore = InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence());
+            success = InventoryUtils.tryMoveStackToSmallestStackInOtherInventory(
+                    this.getInputInventory(), this.inventoryCraftingGrid, 0, matchingSlots) != InvResult.MOVED_NOTHING;
+
+            if (matchedBefore == false && success)
             {
-                // Only move one item at a time to each grid slot
-                if (this.inventoryCraftingGrid.getStackInSlot(slot).isEmpty() &&
-                    InventoryUtils.areItemStacksEqual(this.sequenceRecipe.getStackInSlot(slot), inputStack))
+                // Full recipe moved to the grid
+                if (InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
                 {
-                    InventoryUtils.tryMoveStack(this.getInputInventory(), 0, this.inventoryCraftingGrid, slot, 1);
-                    inputStack = this.getInputInventory().getStackInSlot(0);
-
-                    if (inputStack.isEmpty())
-                    {
-                        success = true;
-
-                        // Full recipe moved to the grid
-                        if (InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
-                        {
-                            this.updateCraftingOutput();
-                        }
-
-                        break;
-                    }
+                    this.updateCraftingOutput();
                 }
             }
 
