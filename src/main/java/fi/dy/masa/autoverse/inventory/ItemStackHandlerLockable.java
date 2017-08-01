@@ -93,8 +93,11 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound nbt = super.serializeNBT();
-        nbt = NBTUtils.writeItemsToTag(nbt, this.templateStacks, "TemplateItems", false);
-        nbt.setByteArray("LockedSlots", this.locked.toByteArray());
+
+        NBTTagCompound tag = nbt.getCompoundTag(this.getItemStorageTagName());
+        tag = NBTUtils.writeItemsToTag(tag, this.templateStacks, "TemplateItems", false);
+        tag.setByteArray("LockedSlots", this.locked.toByteArray());
+
         return nbt;
     }
 
@@ -102,8 +105,10 @@ public class ItemStackHandlerLockable extends ItemStackHandlerTileEntity
     public void deserializeNBT(NBTTagCompound nbt)
     {
         super.deserializeNBT(nbt);
-        NBTUtils.readStoredItemsFromTag(nbt, this.templateStacks, "TemplateItems");
+
+        NBTTagCompound tag = nbt.getCompoundTag(this.getItemStorageTagName());
+        NBTUtils.readStoredItemsFromTag(tag, this.templateStacks, "TemplateItems");
         this.locked.clear();
-        this.locked.or(BitSet.valueOf(nbt.getByteArray("LockedSlots")));
+        this.locked.or(BitSet.valueOf(tag.getByteArray("LockedSlots")));
     }
 }
