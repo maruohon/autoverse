@@ -4,13 +4,13 @@
         "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":            "autoverse:blocks/detector_front",
-            "top":              "autoverse:blocks/detector_side",
-            "bottom":           "autoverse:blocks/detector_side",
-            "left":             "autoverse:blocks/detector_side",
-            "right":            "autoverse:blocks/detector_side",
-            "back":             "autoverse:blocks/detector_back",
-            "detection_out":    "autoverse:blocks/detector_detection_out"
+            "front":            "autoverse:blocks/block_detector_front",
+            "top":              "autoverse:blocks/block_detector_side",
+            "bottom":           "autoverse:blocks/block_detector_side",
+            "left":             "autoverse:blocks/block_detector_side",
+            "right":            "autoverse:blocks/block_detector_side",
+            "back":             "autoverse:blocks/block_detector_back",
+            "detection_out":    "autoverse:blocks/block_detector_detection_out"
         }
     },
     "variants": {
