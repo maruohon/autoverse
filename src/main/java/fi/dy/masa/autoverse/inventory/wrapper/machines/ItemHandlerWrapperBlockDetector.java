@@ -51,8 +51,7 @@ public class ItemHandlerWrapperBlockDetector extends ItemHandlerWrapperSequenceB
         this.inventoryDetector = new ItemStackHandlerLockable(2, MAX_INV_SIZE, 64, false, "ItemsDetector", te);
         this.inventoryDetector.setInventorySize(0);
 
-        this.inventoryOthersBuffer = new ItemStackHandlerLockable(3, 1, 256, false, "ItemsDetectorOthers", te);
-        this.inventoryOthersBuffer.setInventorySize(0);
+        this.inventoryOthersBuffer = new ItemStackHandlerLockable(3, 1, 256, true, "ItemsDetectorOthers", te);
     }
 
     @Override
