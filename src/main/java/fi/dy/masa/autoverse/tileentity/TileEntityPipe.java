@@ -463,9 +463,9 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return InvResult.MOVED_NOTHING;
     }
 
-    protected InvResult tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing side, int slot)
+    protected InvResult tryPushOutItemsToSide(World world, BlockPos posSelf, EnumFacing outputSide, int inputSlot)
     {
-        TileEntity te = world.getTileEntity(posSelf.offset(side));
+        TileEntity te = world.getTileEntity(posSelf.offset(outputSide));
 
         if (te == null)
         {
@@ -474,9 +474,9 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
         boolean isPipe = te instanceof TileEntityPipe;
 
-        if (isPipe || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()))
+        if (isPipe || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, outputSide.getOpposite()))
         {
-            ItemStack stack = this.itemHandlerBase.extractItem(slot, 64, true);
+            ItemStack stack = this.itemHandlerBase.extractItem(inputSlot, 64, true);
             int sizeOrig = stack.getCount();
 
             // This is used to prevent scheduling a new update because of an adjacent inventory changing
@@ -487,11 +487,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
             if (isPipe)
             {
-                stack = ((TileEntityPipe) te).pushItemIn(PositionUtils.FACING_OPPOSITE_INDICES[side.getIndex()], stack, false);
+                stack = ((TileEntityPipe) te).pushItemIn(PositionUtils.FACING_OPPOSITE_INDICES[outputSide.getIndex()], stack, false);
             }
             else
             {
-                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+                IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, outputSide.getOpposite());
 
                 if (inv != null)
                 {
@@ -506,15 +506,15 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             if (movedAll || movedSome)
             {
                 int count = movedAll ? 0 : sizeOrig - sizeNew;
-                this.itemHandlerBase.extractItem(slot, sizeOrig - sizeNew, false);
+                this.itemHandlerBase.extractItem(inputSlot, sizeOrig - sizeNew, false);
 
                 if (isPipe)
                 {
-                    this.sendPacketPushToAdjacentPipe(slot, side.getIndex(), ((TileEntityPipe) te).getDelay(), count);
+                    this.sendPacketPushToAdjacentPipe(inputSlot, outputSide.getIndex(), ((TileEntityPipe) te).getDelay(), count);
                 }
                 else
                 {
-                    this.sendPacketMoveItemOut(slot, side.getIndex(), count);
+                    this.sendPacketMoveItemOut(inputSlot, outputSide.getIndex(), count);
                 }
             }
 
