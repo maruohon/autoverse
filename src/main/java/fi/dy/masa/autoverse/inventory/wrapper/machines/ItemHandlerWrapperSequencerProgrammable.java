@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
@@ -40,6 +41,12 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     }
 
     @Override
+    protected void onFullyConfigured()
+    {
+        this.createMatchingSlotsMap(this.sequenceGeneration.getSequence());
+    }
+
+    @Override
     protected void onReset()
     {
         super.onReset();
@@ -56,7 +63,11 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
     @Override
     protected boolean moveInputItemNormal(ItemStack stack)
     {
-        if (this.moveInputItemToInventory(this.inventorySequence))
+        List<Integer> matchingSlots = this.getMatchingSlots(stack);
+
+        if (matchingSlots != null &&
+            InventoryUtils.tryMoveStackToSmallestStackInOtherInventory(
+                this.getInputInventory(), this.inventorySequence, 0, matchingSlots) != InvResult.MOVED_NOTHING)
         {
             return true;
         }
@@ -161,5 +172,6 @@ public class ItemHandlerWrapperSequencerProgrammable extends ItemHandlerWrapperS
 
         this.position = tag.getByte("Position");
         this.inventorySequence.deserializeNBT(tag);
+        this.createMatchingSlotsMap(this.sequenceGeneration.getSequence());
     }
 }

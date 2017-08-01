@@ -565,7 +565,7 @@ public class InventoryUtils
             int sizeOrig = stack.getCount();
             stack = tryInsertItemStackToInventory(invDst, stack, simulate);
 
-            // Can't insert anymore items
+            // Can't insert any more items
             if (stack.isEmpty() == false)
             {
                 if (stack.getCount() != sizeOrig)
@@ -584,6 +584,59 @@ public class InventoryUtils
         }
 
         return result;
+    }
+
+    /**
+     * Tries to move the stack from invSrc, slotSrc into the slot with the smallest
+     * existing stack size in invDst, that is in the list of slots targetSlots.
+     * @param invSrc
+     * @param invDst
+     * @param slotSrc
+     * @param targetSlots
+     * @return
+     */
+    public static InvResult tryMoveStackToSmallestStackInOtherInventory(
+            IItemHandler invSrc, IItemHandler invDst, int slotSrc, List<Integer> targetSlots)
+    {
+        int slotSmallest = -1;
+        int countSmallest = -1;
+
+        for (int slot : targetSlots)
+        {
+            int count = invDst.getStackInSlot(slot).getCount();
+
+            if (countSmallest < 0 || count < countSmallest)
+            {
+                countSmallest = count;
+                slotSmallest = slot;
+            }
+        }
+
+        if (slotSmallest != -1)
+        {
+            ItemStack stack = invSrc.extractItem(slotSrc, 64, true);
+            int sizeOrig = stack.getCount();
+
+            if (stack.isEmpty())
+            {
+                return InvResult.MOVED_NOTHING;
+            }
+
+            stack = invDst.insertItem(slotSmallest, stack, false);
+
+            if (stack.isEmpty())
+            {
+                invSrc.extractItem(slotSrc, sizeOrig, false);
+                return InvResult.MOVED_ALL;
+            }
+            else if (stack.getCount() < sizeOrig)
+            {
+                invSrc.extractItem(slotSrc, sizeOrig - stack.getCount(), false);
+                return InvResult.MOVED_SOME;
+            }
+        }
+
+        return InvResult.MOVED_NOTHING;
     }
 
     /**

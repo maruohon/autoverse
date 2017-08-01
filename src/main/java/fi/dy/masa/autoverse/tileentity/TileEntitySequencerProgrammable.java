@@ -98,7 +98,6 @@ public class TileEntitySequencerProgrammable extends TileEntityAutoverseInventor
     @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
-        // Do nothing here, see readFromNBTCustom() above...
         this.inventoryInput.deserializeNBT(nbt);
         this.inventoryOutput.deserializeNBT(nbt);
         this.sequencer.deserializeNBT(nbt);
