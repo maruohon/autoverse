@@ -273,14 +273,29 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide))
         {
             IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide);
+            int output;
 
             if (state.getValue(TYPE) == ReaderType.ITEMS)
             {
-                return inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : 0;
+                output = inv != null ? InventoryUtils.calcRedstoneFromInventory(inv) : -1;
             }
             else
             {
-                return inv != null ? this.calculateStrengthFromSlots(inv) : 0;
+                output = inv != null ? this.calculateStrengthFromSlots(inv) : -1;
+            }
+
+            if (output > 0)
+            {
+                return output;
+            }
+            else if (state.getValue(TYPE) == ReaderType.ITEMS && blockAccess instanceof World)
+            {
+                IBlockState stateTarget = blockAccess.getBlockState(posTarget);
+
+                if (stateTarget.hasComparatorInputOverride())
+                {
+                    return stateTarget.getComparatorInputOverride((World) blockAccess, posTarget);
+                }
             }
         }
 
