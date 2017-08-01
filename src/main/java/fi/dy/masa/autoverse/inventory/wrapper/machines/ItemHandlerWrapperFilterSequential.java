@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -74,14 +75,11 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
 
     private boolean sortItem(ItemStack stack)
     {
-        if (this.matchingSlots == null)
-        {
-            this.matchingSlots = this.getMatchingSlots(stack);
-        }
+        List<Integer> matchingSlots = this.getMatchingSlots(stack);
 
-        if (this.matchingSlots != null)
+        if (matchingSlots != null)
         {
-            for (int slot : this.matchingSlots)
+            for (int slot : matchingSlots)
             {
                 if (InventoryUtils.tryMoveEntireStackOnly(this.getInputInventory(), 0, this.inventoryFilteredBuffer, slot) == InvResult.MOVED_ALL)
                 {
@@ -91,12 +89,9 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
                         this.subState = 1;
                     }
 
-                    this.matchingSlots = null;
                     return true;
                 }
             }
-
-            this.matchingSlots = null;
         }
 
         // If the item didn't fit or belong to the filtered buffer, move it to the normal output

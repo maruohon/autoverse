@@ -1,7 +1,5 @@
 package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
@@ -11,8 +9,6 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcherVariable sequenceFilter;
     protected final IItemHandler inventoryFilteredOut;
-    @Nullable
-    protected List<Integer> matchingSlots;
 
     public ItemHandlerWrapperFilter(
             ItemStackHandlerTileEntity inventoryInput,
@@ -37,16 +33,10 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
     @Override
     protected boolean moveInputItemNormal(ItemStack stack)
     {
-        if (this.matchingSlots == null)
-        {
-            this.matchingSlots = this.getMatchingSlots(stack);
-        }
-
-        if (this.matchingSlots != null)
+        if (this.getMatchingSlots(stack) != null)
         {
             if (this.moveInputItemToInventory(this.inventoryFilteredOut))
             {
-                this.matchingSlots = null;
                 return true;
             }
         }
