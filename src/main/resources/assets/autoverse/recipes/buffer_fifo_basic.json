@@ -16,12 +16,13 @@
     "pattern":
     [
         "CCC",
-        "HHH",
+        "HEH",
         "CCC"
     ],
     "key":
     {
         "C" : { "item" : "#COBBLESTONE" },
+        "E" : { "item" : "#ORE_CHEST_WOOD" },
         "H" : { "item" : "#HOPPER" }
     }
 }

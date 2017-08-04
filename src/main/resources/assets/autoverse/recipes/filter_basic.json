@@ -14,15 +14,15 @@
     },
     "pattern":
     [
-        "IHI",
-        "ICI",
-        "IRI"
+        "CHC",
+        "COC",
+        "CRC"
     ],
     "key":
     {
-        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "C" : { "item" : "#COBBLESTONE" },
         "H" : { "item" : "#HOPPER" },
-        "C" : { "item" : "#COMPARATOR" },
+        "O" : { "item" : "#COMPARATOR" },
         "R" : { "item" : "#REPEATER" }
     }
 }

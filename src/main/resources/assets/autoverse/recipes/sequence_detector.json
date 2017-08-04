@@ -14,14 +14,13 @@
     },
     "pattern":
     [
-        "IHI",
+        "III",
         "TCT",
         "III"
     ],
     "key":
     {
         "I" : { "item" : "#ORE_INGOT_IRON" },
-        "H" : { "item" : "#HOPPER" },
         "C" : { "item" : "#COMPARATOR" },
         "T" : { "item" : "#REDSTONE_TORCH" }
     }

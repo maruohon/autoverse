@@ -10,7 +10,8 @@
     "result" :
     {
         "item" : "autoverse:inventory_reader",
-        "data" : 1
+        "data" : 1,
+        "count" : 2
     },
     "pattern":
     [

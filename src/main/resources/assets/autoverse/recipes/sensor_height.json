@@ -16,12 +16,12 @@
     [
         "CGC",
         "CGC",
-        "CTC"
+        "COC"
     ],
     "key":
     {
         "C" : { "item" : "#COBBLESTONE" },
         "G" : { "item" : "#ORE_GLASS" },
-        "T" : { "item" : "#REDSTONE_TORCH" }
+        "O" : { "item" : "#COMPARATOR" }
     }
 }
