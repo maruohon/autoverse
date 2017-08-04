@@ -28,7 +28,7 @@ public class GuiSplitterRedstone extends GuiAutoverse
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"), 8,  19, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 1),  62, 20, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.splitter.output", 2), 116, 20, 0x404040);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 52, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 53, 0x404040);
     }
 
     @Override

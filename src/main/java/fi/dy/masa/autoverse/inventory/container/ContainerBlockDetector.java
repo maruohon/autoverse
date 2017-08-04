@@ -24,6 +24,8 @@ public class ContainerBlockDetector extends ContainerTile
     private final BitSet lockedLastOthers = new BitSet(1);
     private final NonNullList<ItemStack> templateStacksLastDetection = NonNullList.withSize(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE, ItemStack.EMPTY);
     private final NonNullList<ItemStack> templateStacksLastOthers = NonNullList.withSize(1, ItemStack.EMPTY);
+    public int slotDetectionOut;
+    public int slotNormalOut;
 
     public ContainerBlockDetector(EntityPlayer player, TileEntityBlockDetector te)
     {
@@ -76,9 +78,11 @@ public class ContainerBlockDetector extends ContainerTile
         SlotPlacer.create(8, 151, this.detector.getOthersBufferInventory(), this).setSlotType(SlotType.SPECIAL).place();
 
         // Add the normal items output buffer slot
+        this.slotNormalOut = this.inventorySlots.size();
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutNormal(), 0, 116, 151));
 
         // Add the detection items output buffer slot
+        this.slotDetectionOut = this.inventorySlots.size();
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.ted.getInventoryOutDetection(), 0, 152, 151));
     }
 

@@ -28,8 +28,8 @@ public class GuiSplitterSwitchable extends GuiAutoverse
         String unloc = "autoverse.container.splitter_switchable";
         String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),            26,  32, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),              26,  50, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input"),            27,  38, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),              27,  57, 0x404040);
 
         s = I18n.format("autoverse.gui.label.reset_sequence");
         this.fontRenderer.drawString(s, this.xSize - this.fontRenderer.getStringWidth(s) - 7,  20, 0x404040);

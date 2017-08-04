@@ -21,8 +21,10 @@ public class GuiSequencer extends GuiAutoverse
     public GuiSequencer(ContainerSequencer container, TileEntitySequencer te)
     {
         super(container, 176, 168, "gui.container.sequencer_basic");
+
         this.containrSeq = container;
         this.teseq = te;
+        this.infoArea = new InfoArea(160, 5, 11, 11, "autoverse.gui.infoarea.sequencer_basic");
     }
 
     @Override
@@ -39,7 +41,7 @@ public class GuiSequencer extends GuiAutoverse
 
         String s = this.teseq.hasCustomName() ? this.teseq.getName() : I18n.format("autoverse.container.sequencer_basic");
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 0x404040);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 72, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 75, 0x404040);
     }
 
     @Override

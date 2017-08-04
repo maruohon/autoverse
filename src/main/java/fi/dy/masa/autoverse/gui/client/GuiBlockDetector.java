@@ -1,6 +1,7 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
@@ -114,6 +115,30 @@ public class GuiBlockDetector extends GuiAutoverse
         {
             // Draw the black ring around the button
             this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, 20, 10, 10);
+        }
+    }
+
+    @Override
+    protected void drawTooltips(int mouseX, int mouseY)
+    {
+        Slot slot = this.getSlotUnderMouse();
+
+        // Hovering over an empty normal output slot
+        if (slot != null && slot.slotNumber == this.containerD.slotNormalOut && slot.getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("autoverse.gui.label.out_normal"));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
+        }
+        else if (slot != null && slot.slotNumber == this.containerD.slotDetectionOut && slot.getHasStack() == false)
+        {
+            List<String> list = new ArrayList<String>();
+            list.add(I18n.format("autoverse.gui.label.block_detector.out_detection"));
+            this.drawHoveringText(list, mouseX, mouseY, this.fontRenderer);
+        }
+        else
+        {
+            super.drawTooltips(mouseX, mouseY);
         }
     }
 

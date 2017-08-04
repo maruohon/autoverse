@@ -44,7 +44,7 @@ public class GuiMuxerSimple extends GuiAutoverse
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.input.num", 2),    62, 20, 0x404040);
         this.fontRenderer.drawString(I18n.format("autoverse.gui.label.out"),            116, 20, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 52, 0x404040);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 53, 0x404040);
     }
 
     @Override
