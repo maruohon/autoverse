@@ -39,7 +39,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     private ItemHandlerWrapperSequenceBase splitter;
 
     private BlockSplitter.SplitterType type = BlockSplitter.SplitterType.REDSTONE;
-    private EnumFacing facing2 = EnumFacing.WEST;
+    private EnumFacing facing2 = EnumFacing.EAST;
     private BlockPos posOut2;
     private int delay = 2;
 
@@ -152,8 +152,9 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         if (force || side != this.facing)
         {
             this.facing2 = side;
-            this.posOut2 = this.getPos().offset(side);
         }
+
+        this.posOut2 = this.getPos().offset(this.facing2);
     }
 
     public EnumFacing getSecondOutputRelativeFacing()
@@ -249,11 +250,12 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
-        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
         this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("Type")));
-        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
 
         super.readFromNBTCustom(tag);
+
+        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
+        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
     }
 
     @Override
