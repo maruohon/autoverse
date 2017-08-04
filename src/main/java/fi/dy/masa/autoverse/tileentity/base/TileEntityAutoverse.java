@@ -200,13 +200,7 @@ public abstract class TileEntityAutoverse extends TileEntity
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
-        boolean redstone = this.getWorld().isBlockPowered(this.getPos());
-
-        if (redstone != this.redstoneState)
-        {
-            this.redstoneState = redstone;
-            this.onRedstoneChange(redstone);
-        }
+        this.updateRedstoneState(true);
     }
 
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
@@ -224,6 +218,21 @@ public abstract class TileEntityAutoverse extends TileEntity
         if (world != null)// && (force || world.isUpdateScheduled(this.getPos(), this.getBlockType()) == false))
         {
             world.scheduleUpdate(this.getPos(), this.getBlockType(), delay);
+        }
+    }
+
+    public void updateRedstoneState(boolean callHook)
+    {
+        boolean redstone = this.getWorld().isBlockPowered(this.getPos());
+
+        if (redstone != this.redstoneState)
+        {
+            this.redstoneState = redstone;
+
+            if (callHook)
+            {
+                this.onRedstoneChange(redstone);
+            }
         }
     }
 

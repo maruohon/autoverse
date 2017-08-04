@@ -57,6 +57,17 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     }
 
     @Override
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
+    {
+        TileEntityAutoverse te = getTileEntitySafely(world, pos, TileEntityAutoverse.class);
+
+        if (te != null)
+        {
+            te.updateRedstoneState(false);
+        }
+    }
+
+    @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         TileEntityAutoverse te = getTileEntitySafely(world, pos, TileEntityAutoverse.class);
