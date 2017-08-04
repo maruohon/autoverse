@@ -187,8 +187,6 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        super.onRedstoneChange(state);
-
         // If delay is set to 0, then the detection runs on the rising edge of a redstone pulse
         if (state && this.delay == 0)
         {

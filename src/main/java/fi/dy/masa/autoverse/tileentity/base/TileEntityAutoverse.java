@@ -236,6 +236,10 @@ public abstract class TileEntityAutoverse extends TileEntity
         }
     }
 
+    protected void onRedstoneChange(boolean state)
+    {
+    }
+
     protected void reScheduleUpdateIfSooner(int delay)
     {
         BlockPos pos = this.getPos();
@@ -268,15 +272,6 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
         IBlockState state = this.getWorld().getBlockState(pos);
         this.getWorld().notifyBlockUpdate(pos, state, state, 3);
-    }
-
-    protected void onRedstoneChange(boolean state)
-    {
-        if (state)
-        {
-            World world = this.getWorld();
-            this.scheduleBlockUpdate(world.getBlockState(this.getPos()).getBlock().tickRate(world), false);
-        }
     }
 
     public void readFromNBTCustom(NBTTagCompound nbt)

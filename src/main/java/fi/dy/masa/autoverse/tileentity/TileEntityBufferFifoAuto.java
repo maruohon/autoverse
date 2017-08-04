@@ -34,12 +34,6 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
     }
 
     @Override
-    protected void onRedstoneChange(boolean state)
-    {
-        // NO-OP
-    }
-
-    @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
