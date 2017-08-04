@@ -246,7 +246,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         World world = this.getWorld();
         long targetTime = world.getTotalWorldTime() + delay;
 
-        StructureBoundingBox bb = new StructureBoundingBox(pos.getX(), pos.getZ(), pos.getX() + 1, pos.getZ() + 1);
+        StructureBoundingBox bb = new StructureBoundingBox(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
         List<NextTickListEntry> list = world.getPendingBlockUpdates(bb, false);
 
         // If there is an existing scheduled update, then remove the old one and schedule a new one
