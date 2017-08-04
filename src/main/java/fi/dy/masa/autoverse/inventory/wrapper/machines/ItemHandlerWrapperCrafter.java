@@ -14,7 +14,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 {
     private final SequenceMatcher sequenceEmpty;
-    private final SequenceMatcher sequenceRecipeConfig;
+    private final SequenceMatcherVariable sequenceRecipeConfig;
     private final SequenceMatcher sequenceRecipe;
     private final SequenceInventory inventoryRecipePattern;
     private final IItemHandlerModifiable inventoryCraftingGrid;
@@ -40,7 +40,7 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         this.sequenceEmpty  = new SequenceMatcher(1, "SequenceEmpty");
 
         // This is the configured recipe sequence, including the items that represent empty slots
-        this.sequenceRecipeConfig = new SequenceMatcher(9, "SequenceRecipe");
+        this.sequenceRecipeConfig = new SequenceMatcherVariable(9, "SequenceRecipe");
 
         // This is the final recipe sequence, and is not saved or added to the manager, but used internally
         this.sequenceRecipe = new SequenceMatcher(9, "SequenceRecipeMasked");
@@ -118,7 +118,18 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
     @Override
     protected boolean onScheduledTick()
     {
-        return this.subState == 1 ? this.moveItemsFromGrid() : false;
+        if (this.subState == 1)
+        {
+            return this.moveItemsFromGrid();
+        }
+        else if (this.canCraft())
+        {
+            return this.tryCraftItems();
+        }
+        else
+        {
+            return false;
+        }
     }
 
     @Override
@@ -162,46 +173,39 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
 
         if (matchingSlots != null)
         {
-            boolean matchedBefore = InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence());
+            boolean matchedBefore = this.gridMatchedRecipe();
+
             success = InventoryUtils.tryMoveStackToSmallestStackInOtherInventory(
                     this.getInputInventory(), this.inventoryCraftingGrid, 0, matchingSlots) != InvResult.MOVED_NOTHING;
 
             if (matchedBefore == false && success)
             {
                 // Full recipe moved to the grid
-                if (InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
+                if (this.gridMatchedRecipe())
                 {
                     this.updateCraftingOutput();
                 }
             }
 
+            // Couldn't move the item to the grid, probably because the grid was full, move to the output instead
             if (success == false)
             {
-                // Couldn't move the item to the grid, probably because the grid was full, move to the output instead
                 success |= this.moveInputItemToOutput();
             }
         }
 
         // Items in the crafting output, that match the current recipe
-        if (this.resultStackTemplate.isEmpty() == false &&
-            InventoryUtils.areItemStacksEqual(this.inventoryCraftingOutput.getStackInSlot(0), this.resultStackTemplate))
+        if (this.canCraft())
         {
-            // Successfully crafted something
-            if (InventoryUtils.tryMoveEntireStackOnly(this.inventoryCraftingOutput, 0, this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING)
-            {
-                success = true;
-
-                if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
-                {
-                    this.subState = 1;
-                }
-            }
+            success |= this.tryCraftItems();
         }
-        else if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()))
+        // Non-matching items on the grid
+        else if (this.nonMatchingItemsOnGrid())
         {
             this.subState = 1;
             success |= this.moveNonMatchingItemsFromGrid() != GridMoveResult.MOVED_NOTHING;
         }
+        // Items in the input slot
         else if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
         {
             success |= this.moveInputItemToOutput();
@@ -210,11 +214,47 @@ public class ItemHandlerWrapperCrafter extends ItemHandlerWrapperSequenceBase
         return success;
     }
 
+    private boolean gridMatchedRecipe()
+    {
+        return InventoryUtils.doesInventoryMatchTemplate(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence());
+    }
+
+    private boolean nonMatchingItemsOnGrid()
+    {
+        return InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence());
+    }
+
+    private boolean canCraft()
+    {
+        ItemStack stackOutput = this.getOutputInventory().getStackInSlot(0);
+
+        return this.resultStackTemplate.isEmpty() == false &&
+               InventoryUtils.areItemStacksEqual(this.inventoryCraftingOutput.getStackInSlot(0), this.resultStackTemplate) &&
+               (stackOutput.isEmpty() || InventoryUtils.areItemStacksEqual(stackOutput, this.resultStackTemplate));
+    }
+
+    private boolean tryCraftItems()
+    {
+        // Successfully crafted something
+        if (InventoryUtils.tryMoveEntireStackOnly(this.inventoryCraftingOutput, 0, this.getOutputInventory(), 0) != InvResult.MOVED_NOTHING)
+        {
+            // The crafting recipe left behind "container items", move to the sub state to clear those out
+            if (this.nonMatchingItemsOnGrid())
+            {
+                this.subState = 1;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean moveItemsFromGrid()
     {
         GridMoveResult result = this.moveNonMatchingItemsFromGrid();
 
-        if (InventoryUtils.doesInventoryHaveNonMatchingItems(this.inventoryCraftingGrid, this.sequenceRecipe.getSequence()) == false)
+        if (this.nonMatchingItemsOnGrid() == false)
         {
             this.subState = 0;
             return true;
