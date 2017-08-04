@@ -73,13 +73,18 @@ public class ItemStackHandlerBasic implements IItemHandlerModifiable, INBTSerial
         }
 
         ItemStack existingStack = this.items.get(slot);
-        int existingStackSize = existingStack.getCount();
         boolean hasStack = existingStack.isEmpty() == false;
+        int existingStackSize = hasStack ? existingStack.getCount() : 0;
         int max = this.getItemStackLimit(slot, stack);
 
         if (this.allowCustomStackSizes == false)
         {
             max = Math.min(max, stack.getMaxStackSize());
+        }
+        // Don't allow stacking non-stacking items
+        else if (stack.getMaxStackSize() == 1)
+        {
+            max = 1;
         }
 
         // Existing items in the target slot
