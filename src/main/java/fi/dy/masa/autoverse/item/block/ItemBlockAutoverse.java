@@ -196,12 +196,14 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
                 int minValue = range != null ? range.getLeft() : 0;
                 int maxValue = range != null ? range.getRight() : 1;
 
-                if (pair != null && EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode())
+                if (pair != null && EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode() && EnumKey.keypressContainsShift(key) == false)
                 {
                     int change = EnumKey.keypressActionIsReversed(key) ? -1 : 1;
 
-                    if (EnumKey.keypressContainsControl(key)) { change *= 10;  }
-                    if (EnumKey.keypressContainsAlt(key))     { change *= 100; }
+                    if (EnumKey.keypressContainsControl(key))
+                    {
+                        change *= EnumKey.keypressContainsAlt(key) ? 100 : 10;
+                    }
 
                     int value = PlacementProperties.getInstance().getPropertyValue(player.getUniqueID(), type, pair.getLeft(), pair.getRight());
                     value += change;
