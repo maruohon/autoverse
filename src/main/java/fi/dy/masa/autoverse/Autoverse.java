@@ -20,7 +20,7 @@ import fi.dy.masa.autoverse.util.PlacementProperties;
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, certificateFingerprint = Reference.FINGERPRINT,
     guiFactory = "fi.dy.masa.autoverse.config.AutoverseGuiFactory",
     updateJSON = "https://raw.githubusercontent.com/maruohon/autoverse/master/update.json",
-    acceptedMinecraftVersions = "[1.12]")
+    acceptedMinecraftVersions = "[1.12,1.12.1]")
 public class Autoverse
 {
     @Mod.Instance(Reference.MOD_ID)

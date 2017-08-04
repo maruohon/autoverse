@@ -1,12 +1,18 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/autoverse",
     "promos": {
-        "1.12-latest"       : "1.0.0",
-        "1.12-recommended"  : "1.0.0",
-        "1.9-latest"        : "0.0.0",
-        "1.9-recommended"   : "0.0.0"
+        "1.12.1-latest"       : "1.0.1",
+        "1.12.1-recommended"  : "1.0.1",
+        "1.12-latest"         : "1.0.1",
+        "1.12-recommended"    : "1.0.1",
+        "1.9-latest"          : "0.0.0",
+        "1.9-recommended"     : "0.0.0"
+    },
+    "1.12.1": {
+        "1.0.1": "Fixed the Crafter getting partially stuck, if the output is full\nFixed a recipe conflict, and adjusted several other recipes\nFixed the Splitter's secondary output not getting loaded from NBT (= when loading from disk, or moving with frames) if it's pointing North, which also leads to a crash\nFixed the redstone state of machines not getting set initially, if they are placed next to a power source\nFixed the Pipes' Placement Property for the delay having the wrong value range\nPrevent changing Placement Property values while holding shift (it gets annoying in Creative mode)\nDon't allow stacking non-stackable items in the Barrels or Trash Buffer\nImproved some tooltips and GUI InfoAreas",
     },
     "1.12": {
+        "1.0.1": "Fixed the Crafter getting partially stuck, if the output is full\nFixed a recipe conflict, and adjusted several other recipes\nFixed the Splitter's secondary output not getting loaded from NBT (= when loading from disk, or moving with frames) if it's pointing North, which also leads to a crash\nFixed the redstone state of machines not getting set initially, if they are placed next to a power source\nFixed the Pipes' Placement Property for the delay having the wrong value range\nPrevent changing Placement Property values while holding shift (it gets annoying in Creative mode)\nDon't allow stacking non-stackable items in the Barrels or Trash Buffer\nImproved some tooltips and GUI InfoAreas",
         "1.0.0": "First official release"
     },
     "1.9": {
