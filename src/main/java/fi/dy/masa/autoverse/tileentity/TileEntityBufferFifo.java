@@ -21,6 +21,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public static final int MAX_LENGTH = 117;
     protected ItemHandlerWrapperFifo itemHandlerFifo;
     protected boolean spawnItemsInWorld;
+    protected int delay = 1;
 
     public TileEntityBufferFifo()
     {
@@ -56,6 +57,10 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
                 this.setFifoLength(value);
                 return true;
 
+            case 2:
+                this.setDelay(value);
+                return true;
+
             default:
                 return super.applyProperty(propId, value);
         }
@@ -67,8 +72,23 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         if (tag.hasKey("buffer.size", Constants.NBT.TAG_BYTE))
         {
             this.setFifoLength(tag.getByte("buffer.size"));
-            this.markDirty();
         }
+
+        if (tag.hasKey("buffer.delay", Constants.NBT.TAG_BYTE))
+        {
+            this.setDelay(tag.getByte("buffer.delay"));
+        }
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay, 1, 255);
+        this.markDirty();
+    }
+
+    public int getDelay()
+    {
+        return this.delay;
     }
 
     public void setFifoLength(int length)
@@ -80,6 +100,15 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public int getFifoLength()
     {
         return this.itemHandlerBase.getSlots();
+    }
+
+    @Override
+    protected void onRedstoneChange(boolean state)
+    {
+        if (state)
+        {
+            this.scheduleBlockUpdate(this.delay, false);
+        }
     }
 
     @Override
@@ -98,6 +127,22 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public void writeItemsToNBT(NBTTagCompound nbt)
     {
         nbt.merge(this.getFifoInventory().serializeNBT());
+    }
+
+    @Override
+    public void readFromNBTCustom(NBTTagCompound nbt)
+    {
+        super.readFromNBTCustom(nbt);
+
+        this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
+    }
+
+    @Override
+    protected NBTTagCompound writeToNBTCustom(NBTTagCompound nbt)
+    {
+        nbt.setByte("Delay", (byte) this.delay);
+
+        return super.writeToNBTCustom(nbt);
     }
 
     @Override
@@ -156,6 +201,10 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         if (action == 0)
         {
             this.changeInventorySize(element);
+        }
+        else if (action == 1)
+        {
+            this.setDelay(this.delay + element);
         }
     }
 

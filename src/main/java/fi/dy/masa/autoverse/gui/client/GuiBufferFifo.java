@@ -45,6 +45,7 @@ public class GuiBufferFifo extends GuiAutoverse
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 4, 0x404040);
 
         this.fontRenderer.drawString(String.valueOf(this.te.getFifoLength()), 225, 177, 0x404040);
+        this.fontRenderer.drawString(String.valueOf(this.te.getDelay()),      225, 189, 0x404040);
     }
 
     @Override
@@ -105,6 +106,9 @@ public class GuiBufferFifo extends GuiAutoverse
 
         this.buttonList.add(new GuiButtonHoverText(0, x + 214, y + 177, 8, 8, 0, 0,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.inventory_size"));
+
+        this.buttonList.add(new GuiButtonHoverText(1, x + 214, y + 189, 8, 8, 0, 0,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.buffer.push_delay"));
     }
 
     @Override
@@ -126,9 +130,14 @@ public class GuiBufferFifo extends GuiAutoverse
         {
             if (GuiScreen.isShiftKeyDown()) { amount *= 13; }
             if (GuiScreen.isCtrlKeyDown())  { amount *= 5; }
-
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.te.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, amount));
         }
+        else
+        {
+            if (GuiScreen.isShiftKeyDown()) { amount *= 10; }
+            if (GuiScreen.isCtrlKeyDown())  { amount *= 5; }
+        }
+
+        PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.te.getPos(),
+            ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, amount));
     }
 }

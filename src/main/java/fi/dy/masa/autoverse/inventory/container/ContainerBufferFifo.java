@@ -25,6 +25,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
     private int insertPos = -1;
     private int extractPos = -1;
     private int invSize = -1;
+    private int delay = -1;
 
     public ContainerBufferFifo(EntityPlayer player, TileEntityBufferFifo te)
     {
@@ -74,6 +75,7 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
             int insert = this.inventoryFifo.getInsertSlot();
             int extract = this.inventoryFifo.getExtractSlot();
             int invSize = this.tefifo.getFifoLength();
+            int delay = this.tefifo.getDelay();
 
             if (insert != this.insertPos)
             {
@@ -92,6 +94,12 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
                 this.syncProperty(2, invSize);
                 this.invSize = invSize;
                 this.reAddSlots();
+            }
+
+            if (delay != this.delay)
+            {
+                this.syncProperty(3, delay);
+                this.delay = delay;
             }
         }
 
@@ -116,6 +124,10 @@ public class ContainerBufferFifo extends ContainerTile implements ISlotOffset
             case 2:
                 this.tefifo.setFifoLength(value);
                 this.reAddSlots();
+                break;
+
+            case 3:
+                this.tefifo.setDelay(value);
                 break;
 
             default:

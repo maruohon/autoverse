@@ -71,6 +71,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     {
         ItemBlockAutoverse item = new ItemBlockAutoverse(this);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "buffer.size", Constants.NBT.TAG_BYTE, 1, TileEntityBufferFifo.MAX_LENGTH);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "buffer.delay", Constants.NBT.TAG_BYTE, 1, 255);
         return item;
     }
 
