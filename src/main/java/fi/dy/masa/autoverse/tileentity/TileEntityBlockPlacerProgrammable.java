@@ -348,7 +348,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     @Override
     public void inventoryChanged(int inventoryId, int slot)
     {
-        this.scheduleUpdateIfNeeded(false);
+        this.scheduleUpdateIfNeeded(true);
     }
 
     private void scheduleUpdateIfNeeded(boolean force)
