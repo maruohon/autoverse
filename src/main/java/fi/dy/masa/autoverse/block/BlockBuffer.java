@@ -10,6 +10,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
@@ -20,6 +21,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoAuto;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
+import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockBuffer extends BlockAutoverseInventory
 {
@@ -85,6 +87,19 @@ public class BlockBuffer extends BlockAutoverseInventory
     public int getMetaFromState(IBlockState state)
     {
         return state.getValue(TYPE).getMeta();
+    }
+
+    @Override
+    public int getComparatorInputOverride(IBlockState state, World world, BlockPos pos)
+    {
+        TileEntityBufferFifo te = getTileEntitySafely(world, pos, TileEntityBufferFifo.class);
+
+        if (te != null)
+        {
+            return InventoryUtils.calcRedstoneFromInventory(te.getBaseItemHandler());
+        }
+
+        return 0;
     }
 
     @Override

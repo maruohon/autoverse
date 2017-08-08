@@ -35,6 +35,7 @@ import fi.dy.masa.autoverse.event.RenderEventHandler;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityInventoryReader;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class BlockInventoryReader extends BlockAutoverseTileEntity
@@ -262,6 +263,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         }
 
         TileEntity te = blockAccess.getTileEntity(posTarget);
+        IItemHandler inv = null;
 
         // If there is no inventory adjacent to this block, then offset the position one more
         if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide) == false)
@@ -270,9 +272,17 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
             te = blockAccess.getTileEntity(posTarget);
         }
 
-        if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide))
+        if (te instanceof TileEntityAutoverseInventory)
         {
-            IItemHandler inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide);
+            inv = ((TileEntityAutoverseInventory) te).getInventoryForInventoryReader(targetSide);
+        }
+        else if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide))
+        {
+            inv = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide);
+        }
+
+        if (inv != null)
+        {
             int output;
 
             if (state.getValue(TYPE) == ReaderType.ITEMS)

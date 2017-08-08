@@ -67,6 +67,16 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
     }
 
     /**
+     * Returns the inventory that the Inventory Readers should use to calculate their output signal
+     * @param side
+     * @return
+     */
+    public IItemHandler getInventoryForInventoryReader(EnumFacing side)
+    {
+        return this.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+    }
+
+    /**
      * Returns an inventory wrapper for use in Containers/Slots.<br>
      * <b>NOTE:</b> Override this for any TileEntity that doesn't have a valid
      * IItemHandler in the itemHandlerExternal field!!

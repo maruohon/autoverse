@@ -5,10 +5,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiBufferFifo;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBufferFifo;
@@ -46,6 +48,12 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public ItemHandlerWrapperFifo getFifoInventory()
     {
         return this.itemHandlerFifo;
+    }
+
+    @Override
+    public IItemHandler getInventoryForInventoryReader(EnumFacing side)
+    {
+        return this.itemHandlerBase;
     }
 
     @Override

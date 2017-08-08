@@ -215,6 +215,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.connectedSidesMask = mask;
     }
 
+    @Override
+    public IItemHandler getInventoryForInventoryReader(EnumFacing side)
+    {
+        return this.itemHandlerBase;
+    }
+
     protected IItemHandler getInputInventory(int side)
     {
         return this.inputInventories[side];
