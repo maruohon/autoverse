@@ -194,6 +194,11 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
 
         if (stack.isEmpty() && player.isSneaking())
         {
+            if (side == this.facingInput)
+            {
+                side = side.getOpposite();
+            }
+
             this.setInputSide(side, false);
             this.notifyBlockUpdate(this.getPos());
             this.markDirty();

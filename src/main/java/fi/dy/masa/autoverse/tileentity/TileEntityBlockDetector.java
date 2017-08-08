@@ -175,6 +175,11 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
         if (stack.isEmpty() && player.isSneaking())
         {
+            if (side == this.facingDetectionOut)
+            {
+                side = side.getOpposite();
+            }
+
             this.setDetectionOutputSide(side, false);
             this.markDirty();
             this.notifyBlockUpdate(this.getPos());

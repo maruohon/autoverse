@@ -128,6 +128,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
         if (stack.isEmpty() && player.isSneaking())
         {
+            if (side == this.facingFilteredOut)
+            {
+                side = side.getOpposite();
+            }
+
             this.setFilterOutputSide(side);
             this.notifyBlockUpdate(this.getPos());
             this.markDirty();

@@ -178,6 +178,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         if (stack.isEmpty() && player.isSneaking())
         {
+            if (side == this.facing2)
+            {
+                side = side.getOpposite();
+            }
+
             this.setSecondOutputSide(side, false);
             this.markDirty();
             this.notifyBlockUpdate(this.getPos());
