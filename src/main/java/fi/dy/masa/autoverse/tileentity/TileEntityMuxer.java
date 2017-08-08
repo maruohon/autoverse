@@ -291,7 +291,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.setInputSide(EnumFacing.getFront(nbt.getByte("InFacing")), false);
+        this.setInputSide(EnumFacing.getFront(nbt.getByte("InFacing")), true);
         this.setMuxerType(BlockMuxer.MuxerType.fromBlockMeta(nbt.getByte("Type")));
         this.delay = nbt.getByte("Delay");
 
