@@ -18,7 +18,6 @@ public class SequenceManager
     private SequenceMatcher sequenceReset;
     private final boolean firstIsEndMarker;
     private int position;
-    private int state;
 
     public SequenceManager(boolean firstSequenceIsEndMarker)
     {
@@ -104,10 +103,17 @@ public class SequenceManager
         if (result)
         {
             this.position = 0;
-            this.state = 0;
         }
 
         return result;
+    }
+
+    public void onResetFlushStart()
+    {
+        for (SequenceMatcher sequence : this.sequences)
+        {
+            sequence.flushStart();
+        }
     }
 
     /**
@@ -118,16 +124,6 @@ public class SequenceManager
      */
     public InvResult flushSequencesAndReset(IItemHandler inventoryOut)
     {
-        if (this.state == 0)
-        {
-            for (SequenceMatcher sequence : this.sequences)
-            {
-                sequence.flushStart();
-            }
-
-            this.state = 1;
-        }
-
         SequenceMatcher sequence = this.sequences.get(this.position);
         InvResult result = sequence.flushItemsAndReset(inventoryOut);
 
@@ -136,7 +132,6 @@ public class SequenceManager
             if (++this.position >= this.sequences.size())
             {
                 this.position = 0;
-                this.state = 0;
             }
             else
             {
@@ -159,7 +154,6 @@ public class SequenceManager
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
         tag.setByte("Position", (byte) this.position);
-        tag.setByte("State", (byte) this.state);
 
         for (SequenceMatcher sequence : this.sequences)
         {
@@ -172,7 +166,6 @@ public class SequenceManager
     public void readFromNBT(NBTTagCompound tag)
     {
         this.position = tag.getByte("Position");
-        this.state = tag.getByte("State");
 
         for (SequenceMatcher sequence : this.sequences)
         {

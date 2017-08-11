@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialStrict;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockFilter extends BlockAutoverseInventory
@@ -40,7 +41,8 @@ public class BlockFilter extends BlockAutoverseInventory
     {
         return new String[] {
                 this.blockName + "_basic",
-                this.blockName + "_sequential"
+                this.blockName + "_sequential",
+                this.blockName + "_sequential_strict"
         };
     }
 
@@ -67,8 +69,14 @@ public class BlockFilter extends BlockAutoverseInventory
     {
         switch (state.getValue(TYPE))
         {
-            case SEQUENTIAL: return new TileEntityFilterSequential();
-            default: return new TileEntityFilter();
+            case SEQUENTIAL:
+                return new TileEntityFilterSequential();
+
+            case SEQUENTIAL_STRICT:
+                return new TileEntityFilterSequentialStrict();
+
+            default:
+                return new TileEntityFilter();
         }
     }
 
@@ -128,8 +136,9 @@ public class BlockFilter extends BlockAutoverseInventory
 
     public static enum FilterType implements IStringSerializable
     {
-        BASIC       (0, 0, "basic"),
-        SEQUENTIAL  (1, 1, "sequential");
+        BASIC               (0, 0, "basic"),
+        SEQUENTIAL          (1, 1, "sequential"),
+        SEQUENTIAL_STRICT   (2, 2, "sequential_strict");
 
         private final int blockMeta;
         private final int itemMeta;
@@ -166,7 +175,12 @@ public class BlockFilter extends BlockAutoverseInventory
 
         public static FilterType fromBlockMeta(int meta)
         {
-            return meta == SEQUENTIAL.blockMeta ? SEQUENTIAL : BASIC;
+            switch (meta)
+            {
+                case 2: return SEQUENTIAL_STRICT;
+                case 1: return SEQUENTIAL;
+                default: return BASIC;
+            }
         }
     }
 }

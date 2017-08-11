@@ -29,15 +29,23 @@
                     "side":         "autoverse:blocks/filter_sequential_side",
                     "back":         "autoverse:blocks/filter_sequential_base"
                 }
+            },
+            "sequential_strict": {
+                "textures": {
+                    "nonmatch_out": "autoverse:blocks/filter_sequential_strict_normal_out",
+                    "filter_out":   "autoverse:blocks/filter_sequential_strict_filter_out",
+                    "side":         "autoverse:blocks/filter_sequential_strict_side",
+                    "back":         "autoverse:blocks/filter_sequential_strict_base"
+                }
             }
         },
         "facing_filter": {
-            "north":  { },
+            "down":  { "textures": { "bottom": "#filter_out" } },
+            "up":    { "textures": { "top":    "#filter_out" } },
+            "north": {                                         },
             "south": { "textures": { "back":   "#filter_out" } },
             "west":  { "textures": { "right":  "#filter_out" } },
-            "east":  { "textures": { "left":   "#filter_out" } },
-            "up":    { "textures": { "top":    "#filter_out" } },
-            "down":  { "textures": { "bottom": "#filter_out" } }
+            "east":  { "textures": { "left":   "#filter_out" } }
         },
         "facing": {
             "down":  { "x":  90 },

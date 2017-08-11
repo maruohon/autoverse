@@ -8,6 +8,7 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityFilterSequential extends TileEntityFilter
 {
+    private static final int MAX_FILTER_LENGTH = 18;
     protected ItemStackHandlerTileEntity inventoryFilteredBuffer;
 
     public TileEntityFilterSequential()
@@ -23,13 +24,14 @@ public class TileEntityFilterSequential extends TileEntityFilter
     @Override
     protected void initFilterInventory()
     {
-        this.inventoryFilteredBuffer = new ItemStackHandlerTileEntity(3, 18, 1, false, "ItemsFilteredBuffer", this);
+        this.inventoryFilteredBuffer = new ItemStackHandlerTileEntity(3, MAX_FILTER_LENGTH, 1, false, "ItemsFilteredBuffer", this);
 
         this.filter = new ItemHandlerWrapperFilterSequential(
-                                    this.inventoryInput,
-                                    this.inventoryOutFiltered,
-                                    this.inventoryOutNormal,
-                                    this.inventoryFilteredBuffer);
+                MAX_FILTER_LENGTH,
+                this.inventoryInput,
+                this.inventoryOutFiltered,
+                this.inventoryOutNormal,
+                this.inventoryFilteredBuffer);
     }
 
     public ItemStackHandlerTileEntity getInventoryFilteredBuffer()

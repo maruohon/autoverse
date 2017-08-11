@@ -128,6 +128,7 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north");
         registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,type=basic");
         registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,type=sequential");
+        registerItemBlockModel(AutoverseBlocks.FILTER, 2, "facing=north,facing_filter=east,type=sequential_strict");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
         registerItemBlockModel(AutoverseBlocks.MACHINE_FRAME, 0, "inventory");

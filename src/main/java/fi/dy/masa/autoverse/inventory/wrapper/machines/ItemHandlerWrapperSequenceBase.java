@@ -130,6 +130,11 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
                 if (this.moveInputItemToOutput())
                 {
                     this.onResetFlushStart();
+
+                    // This is after the onResetFlushStart() above on purpose,
+                    // so that the machines have a chance to react before the sequences are prepared for reset!
+                    this.sequenceManager.onResetFlushStart();
+
                     this.setState(State.RESET_FLUSH);
                     return true;
                 }

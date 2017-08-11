@@ -130,6 +130,7 @@ public class AutoverseBlocks
         registerTileEntity(TileEntityCrafter.class,                 ReferenceNames.NAME_BLOCK_CRAFTER);
         registerTileEntity(TileEntityFilter.class,                  ReferenceNames.NAME_BLOCK_FILTER);
         registerTileEntity(TileEntityFilterSequential.class,        ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
+        registerTileEntity(TileEntityFilterSequentialStrict.class,  ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL_STRICT);
         registerTileEntity(TileEntityInventoryReader.class,         ReferenceNames.NAME_BLOCK_INVENTORY_READER);
         registerTileEntity(TileEntityMuxer.class,                   ReferenceNames.NAME_BLOCK_MUXER);
         registerTileEntity(TileEntityPipe.class,                    ReferenceNames.NAME_BLOCK_PIPE);

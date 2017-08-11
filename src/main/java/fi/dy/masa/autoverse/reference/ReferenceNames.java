@@ -10,6 +10,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_DETECTOR                  = "detector";
     public static final String NAME_BLOCK_FILTER                    = "filter";
     public static final String NAME_BLOCK_FILTER_SEQUENTIAL         = "filter_sequential";
+    public static final String NAME_BLOCK_FILTER_SEQUENTIAL_STRICT  = "filter_sequential_strict";
     public static final String NAME_BLOCK_INVENTORY_READER          = "inventory_reader";
     public static final String NAME_BLOCK_MACHINE_FRAME             = "machine_frame";
     public static final String NAME_BLOCK_MUXER                     = "muxer";

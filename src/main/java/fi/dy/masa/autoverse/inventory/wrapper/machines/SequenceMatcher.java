@@ -182,26 +182,40 @@ public class SequenceMatcher
 
     private void shiftSequence(ItemStack inputStack)
     {
-        for (int start = 1; start < this.position; ++start)
+        this.position = shiftSequence(inputStack, this.sequence, this.position);
+    }
+
+    /**
+     * "Shifts" the given <b>sequence</b> by adjusting the given index variable <b>position</b>,
+     * so that the remaining sequence (if any) as indicated by the returned new <b>position</b>,
+     * is the next possible match for the sequence, taking into account the current <b>inputStack</b>.
+     * @param inputStack
+     * @param sequence
+     * @param position
+     * @return the new value for the <b>position</b> variable
+     */
+    public static int shiftSequence(ItemStack inputStack, NonNullList<ItemStack> sequence, int position)
+    {
+        for (int start = 1; start < position; ++start)
         {
             for (int relIndex = 0; ; ++relIndex)
             {
                 int absIndex = relIndex + start;
 
-                if (InventoryUtils.areItemStacksEqual(this.sequence.get(relIndex), this.sequence.get(absIndex)) == false)
+                if (InventoryUtils.areItemStacksEqual(sequence.get(relIndex), sequence.get(absIndex)) == false)
                 {
                     break;
                 }
 
                 // Valid new sequence up to the already existing items in the matched sequence
-                if (absIndex >= (this.position - 1))
+                if (absIndex >= (position - 1))
                 {
                     // If the current input item matches after the shifted sequence
                     // then the actual position can be set to reflect the shifted sequence.
-                    if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(relIndex + 1)))
+                    if (InventoryUtils.areItemStacksEqual(inputStack, sequence.get(relIndex + 1)))
                     {
-                        this.position -= (start - 1);
-                        return;
+                        position -= (start - 1);
+                        return position;
                     }
 
                     break;
@@ -210,13 +224,15 @@ public class SequenceMatcher
         }
 
         // No new sequence matches above, reset the position
-        this.position = 0;
+        position = 0;
 
         // And then still check the current input item against the sequence start
-        if (InventoryUtils.areItemStacksEqual(inputStack, this.sequence.get(0)))
+        if (InventoryUtils.areItemStacksEqual(inputStack, sequence.get(0)))
         {
-            this.position++;
+            position++;
         }
+
+        return position;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)

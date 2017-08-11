@@ -14,6 +14,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.gui.client.GuiFilter;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerFilter;
+import fi.dy.masa.autoverse.inventory.container.base.ContainerTile;
 import fi.dy.masa.autoverse.inventory.wrapper.machines.ItemHandlerWrapperFilter;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
@@ -22,6 +23,7 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityFilter extends TileEntityAutoverseInventory
 {
+    private static final int MAX_FILTER_LENGTH = 18;
     protected ItemStackHandlerTileEntity inventoryInput;
     protected ItemStackHandlerTileEntity inventoryOutFiltered;
     protected ItemStackHandlerTileEntity inventoryOutNormal;
@@ -57,9 +59,10 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected void initFilterInventory()
     {
         this.filter = new ItemHandlerWrapperFilter(
-                                    this.inventoryInput,
-                                    this.inventoryOutFiltered,
-                                    this.inventoryOutNormal);
+                MAX_FILTER_LENGTH,
+                this.inventoryInput,
+                this.inventoryOutFiltered,
+                this.inventoryOutNormal);
     }
 
     @Override
@@ -271,7 +274,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public ContainerFilter getContainer(EntityPlayer player)
+    public ContainerTile getContainer(EntityPlayer player)
     {
         return new ContainerFilter(player, this);
     }
@@ -279,6 +282,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public Object getGui(EntityPlayer player)
     {
-        return new GuiFilter(this.getContainer(player), this);
+        return new GuiFilter(new ContainerFilter(player, this), this);
     }
 }

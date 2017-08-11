@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
@@ -15,12 +16,13 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     private int subState = 0;
 
     public ItemHandlerWrapperFilterSequential(
+            int maxFilterLength,
             ItemStackHandlerTileEntity inventoryInput,
             ItemStackHandlerTileEntity inventoryOutFiltered,
             ItemStackHandlerTileEntity inventoryOutNormal,
             ItemStackHandlerTileEntity inventoryFilteredBuffer)
     {
-        super(inventoryInput, inventoryOutFiltered, inventoryOutNormal);
+        super(maxFilterLength, inventoryInput, inventoryOutFiltered, inventoryOutNormal);
 
         this.inventoryFilteredBuffer = inventoryFilteredBuffer;
     }
@@ -69,7 +71,15 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
         }
         else
         {
-            return this.flushFilterBufferItems();
+            InvResult result = this.moveFilterBufferItems(this.getOutputInventory());
+
+            if (result == InvResult.MOVED_ALL)
+            {
+                this.subState = 0;
+                this.setState(State.CONFIGURE);
+            }
+
+            return result != InvResult.MOVED_NOTHING;
         }
     }
 
@@ -99,26 +109,20 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
     }
 
     /**
-     * Move items from a buffer to the appropriate outputs, if any, before
+     * Move items from the filter buffer to the filtered items output, before
      * returning to the sort mode and continuing to handle more input items.
      * @return
      */
     private boolean outputItems()
     {
-        if (this.inventoryFilteredBuffer.getStackInSlot(this.outputPosition).isEmpty() ||
-            InventoryUtils.tryMoveEntireStackOnly(this.inventoryFilteredBuffer, this.outputPosition, this.inventoryFilteredOut, 0) == InvResult.MOVED_ALL)
-        {
-            // All items moved, return back to the sorting mode
-            if (++this.outputPosition >= this.filterLength)
-            {
-                this.outputPosition = 0;
-                this.subState = 0;
-            }
+        InvResult result = this.moveFilterBufferItems(this.inventoryFilteredOut);
 
-            return true;
+        if (result == InvResult.MOVED_ALL)
+        {
+            this.subState = 0;
         }
 
-        return false;
+        return result != InvResult.MOVED_NOTHING;
     }
 
     /**
@@ -126,9 +130,9 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
      * to the programming phase for the next operation cycle.
      * @return
      */
-    private boolean flushFilterBufferItems()
+    private InvResult moveFilterBufferItems(IItemHandler inv)
     {
-        boolean success = false;
+        InvResult result = InvResult.MOVED_NOTHING;
 
         while (this.outputPosition < this.filterLength)
         {
@@ -136,28 +140,29 @@ public class ItemHandlerWrapperFilterSequential extends ItemHandlerWrapperFilter
             {
                 this.outputPosition++;
             }
-            else if (InventoryUtils.tryMoveEntireStackOnly(this.inventoryFilteredBuffer, this.outputPosition, this.getOutputInventory(), 0) == InvResult.MOVED_ALL)
-            {
-                this.outputPosition++;
-                success = true;
-                break;
-            }
             else
             {
+                result = InventoryUtils.tryMoveEntireStackOnly(this.inventoryFilteredBuffer, this.outputPosition, inv, 0);
+
+                if (result == InvResult.MOVED_ALL)
+                {
+                    this.outputPosition++;
+                }
+
                 break;
             }
+
         }
 
         // All items moved, return back to the programming phase
         if (this.outputPosition >= this.filterLength)
         {
             this.outputPosition = 0;
-            this.subState = 0;
-            this.setState(State.CONFIGURE);
-            return true;
+            return InvResult.MOVED_ALL;
         }
 
-        return success;
+        // Only return MOVED_ALL after all items have been moved, not when a single slot was emptied
+        return result == InvResult.MOVED_ALL ? InvResult.MOVED_SOME : result;
     }
 
     @Override

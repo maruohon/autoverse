@@ -11,13 +11,14 @@ public class ItemHandlerWrapperFilter extends ItemHandlerWrapperSequenceBase
     protected final IItemHandler inventoryFilteredOut;
 
     public ItemHandlerWrapperFilter(
+            int maxFilterLength,
             ItemStackHandlerTileEntity inventoryInput,
             ItemStackHandlerTileEntity inventoryOutFiltered,
             ItemStackHandlerTileEntity inventoryOutNormal)
     {
         super(4, inventoryInput, inventoryOutNormal);
 
-        this.sequenceFilter = new SequenceMatcherVariable(18, "SequenceFilter");
+        this.sequenceFilter = new SequenceMatcherVariable(maxFilterLength, "SequenceFilter");
 
         this.getSequenceManager().add(this.sequenceFilter);
 
