@@ -9,8 +9,9 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 
 public class TileEntityFilterSequentialStrict extends TileEntityFilter
 {
+    public static final int MAX_FILTER_LENGTH = 45;
+
     private ItemHandlerWrapperFilterSequentialStrict filterStrict;
-    private static final int MAX_FILTER_LENGTH = 45;
 
     public TileEntityFilterSequentialStrict()
     {
@@ -29,7 +30,8 @@ public class TileEntityFilterSequentialStrict extends TileEntityFilter
                 MAX_FILTER_LENGTH,
                 this.inventoryInput,
                 this.inventoryOutFiltered,
-                this.inventoryOutNormal);
+                this.inventoryOutNormal,
+                this);
 
         this.filter = this.filterStrict;
     }

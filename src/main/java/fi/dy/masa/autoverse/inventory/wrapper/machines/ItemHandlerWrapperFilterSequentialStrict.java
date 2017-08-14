@@ -2,39 +2,38 @@ package fi.dy.masa.autoverse.inventory.wrapper.machines;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
-import fi.dy.masa.autoverse.util.EntityUtils;
+import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialStrict;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
-import fi.dy.masa.autoverse.util.NBTUtils;
 
 public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapperFilter
 {
-    private final NonNullList<ItemStack> buffer = NonNullList.create();
+    private final ItemStackHandlerTileEntity inventoryFilteredBuffer;
     private int filterLength;
     private int position;
-    private int flushPosition;
-    private int amountToFlush;
-    private int subState = 0;
+    private int subState;
 
     public ItemHandlerWrapperFilterSequentialStrict(
             int maxFilterLength,
             ItemStackHandlerTileEntity inventoryInput,
             ItemStackHandlerTileEntity inventoryOutFiltered,
-            ItemStackHandlerTileEntity inventoryOutNormal)
+            ItemStackHandlerTileEntity inventoryOutNormal,
+            TileEntityFilterSequentialStrict te)
     {
         super(maxFilterLength, inventoryInput, inventoryOutFiltered, inventoryOutNormal);
+
+        this.inventoryFilteredBuffer = new ItemStackHandlerTileEntity(3, maxFilterLength, 1, false, "ItemsFilteredBuffer", te);
     }
 
     @Override
     protected void onFullyConfigured()
     {
         this.filterLength = this.getFilterSequence().getCurrentSequenceLength();
+        this.inventoryFilteredBuffer.setInventorySize(this.filterLength);
     }
 
     @Override
@@ -42,176 +41,186 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
     {
         super.onReset();
 
-        // Store the filter sequence first, because we need to flush any buffered items AFTER
-        // the sequences have been flushed and cleared already.
-        NonNullList<ItemStack> sequence = this.getFilterSequence().getSequence();
+        // Move to the reset flush state directly, because we need to make sure
+        // that the item that caused the reset gets handled in the correct order,
+        // depending on what we currently have buffered in the filter buffer
+        this.setState(State.RESET_FLUSH);
 
-        for (int slot = 0; slot < this.position; slot++)
-        {
-            this.buffer.add(sequence.get(slot).copy());
-        }
+        // Prepare the sequences for reset.
+        // This is normally called in the RESET state by the ItemHandlerWrapperSequenceBase class.
+        this.onResetFlushStart();
 
+        // Move in the reset command's last item, so it gets handled in the proper order
+        this.inventoryFilteredBuffer.setStackInSlot(this.position, this.getInputInventory().extractItem(0, 1, false));
         this.position = 0;
-        this.flushPosition = 0;
-        this.subState = 0;
-
-        // First flush the filter sequence
-        this.amountToFlush = this.filterLength;
+        this.subState = 3; // Filter-specific reset state
     }
 
     @Override
-    protected void onResetFlushComplete()
+    protected boolean resetFlushItems()
     {
-        // Change to flush the filtered items buffer
-        this.subState = 1;
-        this.amountToFlush = this.buffer.size();
+        if (this.subState == 0)
+        {
+            return super.resetFlushItems();
+        }
+        else
+        {
+            return this.flushMatchBuffer(this.getOutputInventory());
+        }
     }
 
     @Override
     protected boolean moveInputItemNormal(ItemStack stack)
     {
-        switch (this.subState)
+        // Matching arriving items against the filter sequence
+        if (this.subState == 0)
         {
-            case 0: // Sorting
-                return this.sortItem(stack);
-
-            default:
-                return this.onScheduledTick();
+            if (this.checkInputItem(stack))
+            {
+                return true;
+            }
         }
+
+        return this.moveBufferedItems();
     }
 
     @Override
     protected boolean onScheduledTick()
     {
+        return this.moveBufferedItems();
+    }
+
+    private boolean checkInputItem(ItemStack stack)
+    {
+        boolean matchesCurrent = this.getFilterSequence().inputItemMatchesCurrentPosition(stack);
+        boolean fullMatch = this.getFilterSequence().checkInputItem(stack);
+
+        if (matchesCurrent || this.position > 0)
+        {
+            // Move the input item to the buffer, because that item has already been examined and handled
+            // by the main sequence, so we must also handle it (match or shift out)
+            this.inventoryFilteredBuffer.setStackInSlot(this.position, this.getInputInventory().extractItem(0, 1, false));
+            this.position++;
+        }
+
+        // Input item matches the current item in the switch sequence
+        if (matchesCurrent)
+        {
+            if (fullMatch)
+            {
+                this.subState = 1;
+                this.position = 0;
+            }
+
+            return true;
+        }
+        // Input item does not match the current filter sequence, and there were currently matched/buffered items,
+        // move to the subState to shift the buffered items out until it matches again, or becomes empty.
+        else if (this.position > 0)
+        {
+            this.subState = 2;
+        }
+        // Input item does not match the current filter sequence, and there were no previously matched/buffered items
+        else
+        {
+            return this.moveInputItemToOutput();
+        }
+
+        return false;
+    }
+
+    private boolean moveBufferedItems()
+    {
         switch (this.subState)
         {
-            case 1: // Outputting a full sequence to the filter-out side
-                return this.outputFilteredItems();
+            // Flush the entire match buffer after a successful full sequence match
+            case 1:
+                return this.flushMatchBuffer(this.inventoryFilteredOut);
 
-            case 2: // Outputting a partial sequence after a mismatch, to the normal output side
-                return this.flushFilterBufferItems();
+            // Shift the match buffer after a sequence mismatch
+            case 2:
+                return this.shiftMatchBuffer();
+
+            // Filter-specific reset state
+            case 3:
+                boolean ret = this.flushMatchBuffer(this.getOutputInventory());
+
+                // Flushing the match buffer is now complete
+                if (this.subState == 0)
+                {
+                    this.setState(State.RESET);
+                }
+
+                return ret;
 
             default:
                 return false;
         }
     }
 
-    @Override
-    protected boolean resetFlushItems()
+    private boolean flushMatchBuffer(IItemHandler inv)
     {
-        switch (this.subState)
+        int slotSrc = this.position;
+
+        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, slotSrc, false) == InvResult.MOVED_ALL)
         {
-            case 0:
-                return super.resetFlushItems();
-
-            case 1:
+            // Moved all items
+            if (++this.position >= this.inventoryFilteredBuffer.getSlots() ||
+                this.inventoryFilteredBuffer.getStackInSlot(this.position).isEmpty())
             {
-                InvResult result = this.flushItemsFromSequence(this.buffer, this.getOutputInventory());
-
-                if (result == InvResult.MOVED_ALL)
-                {
-                    this.buffer.clear();
-                    this.setState(State.CONFIGURE);
-                }
-
-                return result != InvResult.MOVED_NOTHING;
+                this.position = 0;
+                this.subState = 0;
             }
+
+            return true;
         }
 
         return false;
     }
 
-    private boolean outputFilteredItems()
+    private boolean shiftMatchBuffer()
     {
-        return this.flushBufferedItems(this.inventoryFilteredOut) != InvResult.MOVED_NOTHING;
-    }
+        IItemHandler inv = this.getOutputInventory();
 
-    private boolean flushFilterBufferItems()
-    {
-        return this.flushBufferedItems(this.getOutputInventory()) != InvResult.MOVED_NOTHING;
-    }
-
-    private boolean sortItem(ItemStack stack)
-    {
-        // Match the items against the current filter position.
-        // Note: The item not actually stored anywhere separately, they are tracked using the position variable alone!
-        if (InventoryUtils.areItemStacksEqual(stack, this.getFilterSequence().getStackInSlot(this.position)))
+        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, 0, false) == InvResult.MOVED_ALL)
         {
-            this.getInputInventory().extractItem(0, 1, false);
-
-            if (++this.position >= this.filterLength)
+            for (int i = 1; i < this.position; i++)
             {
-                this.position = 0;
-                this.flushPosition = 0;
-                this.amountToFlush = this.filterLength;
-                this.subState = 1;
+                if (this.inventoryFilteredBuffer.getStackInSlot(i).isEmpty())
+                {
+                    break;
+                }
+
+                this.inventoryFilteredBuffer.setStackInSlot(i - 1, this.inventoryFilteredBuffer.getStackInSlot(i));
             }
 
-            return true;
-        }
-        else if (this.position > 0)
-        {
-            int newPos = SequenceMatcher.shiftSequence(stack, this.getFilterSequence().getSequence(), this.position);
+            this.inventoryFilteredBuffer.setStackInSlot(this.position - 1, ItemStack.EMPTY);
 
-            if (newPos > 0)
+            // This tracks the remaining sequence length in this case
+            if (--this.position <= 0)
             {
-                // There will always be at least one item to flush out!
-                // If the position didn't change at all, it was because the input item matches
-                // the first item in the sequence, and the matched sequence was only one item long previously.
-                this.amountToFlush = this.position - newPos + 1;
-
-                // Valid new sequence partial match, consume (or "virtually store") the current input item
-                this.getInputInventory().extractItem(0, 1, false);
-            }
-            else
-            {
-                this.amountToFlush = this.position;
-            }
-
-            this.position = newPos;
-            this.subState = 2;
-            this.flushPosition = 0;
-
-            return true;
-        }
-        else
-        {
-            // If the item didn't fit or belong to the filtered buffer, move it to the normal output
-            return this.moveInputItemToOutput();
-        }
-    }
-
-    private InvResult flushBufferedItems(IItemHandler outputInv)
-    {
-        return this.flushItemsFromSequence(this.getFilterSequence().getSequence(), outputInv);
-    }
-
-    private InvResult flushItemsFromSequence(NonNullList<ItemStack> sequence, IItemHandler outputInv)
-    {
-        if (this.flushPosition >= this.amountToFlush || this.flushPosition >= sequence.size())
-        {
-            this.amountToFlush = 0;
-            this.flushPosition = 0;
-            this.subState = 0;
-            return InvResult.MOVED_ALL;
-        }
-
-        ItemStack stack = sequence.get(this.flushPosition).copy();
-
-        if (InventoryUtils.tryInsertItemStackToInventory(outputInv, stack, false).isEmpty())
-        {
-            if (++this.flushPosition >= this.amountToFlush)
-            {
-                this.amountToFlush = 0;
-                this.flushPosition = 0;
                 this.subState = 0;
-                return InvResult.MOVED_ALL;
+                return true;
             }
 
-            return InvResult.MOVED_SOME;
+            // Check if there is a new sequence match after the shift
+            for (int i = 0; i < this.position; i++)
+            {
+                ItemStack stack = this.inventoryFilteredBuffer.getStackInSlot(i);
+
+                // Mismatch, skip the subState reset below and continue shifting the sequence on the next scheduled tick
+                if (InventoryUtils.areItemStacksEqual(stack, this.getFilterSequence().getStackInSlot(i)) == false)
+                {
+                    return true;
+                }
+            }
+
+            this.subState = 0;
+
+            return true;
         }
 
-        return InvResult.MOVED_NOTHING;
+        return false;
     }
 
     @Override
@@ -219,26 +228,7 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
     {
         super.dropAllItems(world, pos);
 
-        switch (this.getState())
-        {
-            case NORMAL:
-                for (int slot = this.flushPosition; slot < this.position; slot++)
-                {
-                    EntityUtils.dropItemStacksInWorld(world, pos, this.getFilterSequence().getStackInSlot(slot), -1, true);
-                }
-                break;
-
-            case RESET:
-            case RESET_FLUSH:
-                for (int slot = this.flushPosition; slot < this.buffer.size(); slot++)
-                {
-                    EntityUtils.dropItemStacksInWorld(world, pos, this.buffer.get(slot), -1, true);
-                }
-                break;
-
-            default:
-                break;
-        }
+        InventoryUtils.dropInventoryContentsInWorld(world, pos, this.inventoryFilteredBuffer);
     }
 
     public int getMatchedLength()
@@ -252,16 +242,10 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
         super.readFromNBT(tag);
 
         this.subState = tag.getByte("SubState");
-        this.position = tag.getByte("OutPos");
+        this.position = tag.getByte("Position");
         this.filterLength = tag.getByte("FilterLength");
-        this.amountToFlush = tag.getByte("FlushAmount");
-        this.flushPosition = tag.getByte("FlushPos");
 
-        if (tag.hasKey("FilterBuffer", Constants.NBT.TAG_LIST))
-        {
-            this.buffer.clear();
-            this.buffer.addAll(NBTUtils.readStoredItemsFromTag(tag, "FilterBuffer"));
-        }
+        this.inventoryFilteredBuffer.deserializeNBT(tag);
     }
 
     @Override
@@ -270,15 +254,10 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
         tag = super.writeToNBT(tag);
 
         tag.setByte("SubState", (byte) this.subState);
-        tag.setByte("OutPos", (byte) this.position);
+        tag.setByte("Position", (byte) this.position);
         tag.setByte("FilterLength", (byte) this.filterLength);
-        tag.setByte("FlushAmount", (byte) this.amountToFlush);
-        tag.setByte("FlushPos", (byte) this.flushPosition);
 
-        if (this.buffer.size() > 0)
-        {
-            NBTUtils.writeItemsToTag(tag, this.buffer, "FilterBuffer", false);
-        }
+        tag.merge(this.inventoryFilteredBuffer.serializeNBT());
 
         return tag;
     }

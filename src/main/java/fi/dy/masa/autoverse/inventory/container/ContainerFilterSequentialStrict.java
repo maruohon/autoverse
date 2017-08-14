@@ -43,7 +43,7 @@ public class ContainerFilterSequentialStrict extends ContainerTile
         this.addSequenceSlots(98, 16, this.filter.getResetSequence()).place();
 
         // Add the filter sequence slots
-        this.addSequenceSlots(8, 63, this.filter.getFilterSequence()).place();
+        this.addSequenceSlots(8, 63, this.filter.getFilterSequence()).setAddMatchedSlots(false).place();
 
         // Add the normal output buffer slot
         this.addSlotToContainer(new SlotItemHandlerGeneric(this.tef.getInventoryOutNormal(), 0, 8, 154));

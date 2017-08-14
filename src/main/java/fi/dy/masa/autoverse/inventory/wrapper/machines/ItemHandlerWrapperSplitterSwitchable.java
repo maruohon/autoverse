@@ -48,6 +48,10 @@ public class ItemHandlerWrapperSplitterSwitchable extends ItemHandlerWrapperSequ
         // depending on what we currently have buffered in the switch sequence buffer
         this.setState(State.RESET_FLUSH);
 
+        // Prepare the sequences for reset.
+        // This is normally called in the RESET state by the ItemHandlerWrapperSequenceBase class.
+        this.onResetFlushStart();
+
         // Move in the reset command's last item, so it gets handled in the proper order
         this.inventoryMatchBuffer.setStackInSlot(this.position, this.getInputInventory().extractItem(0, 1, false));
         this.position = 0;
