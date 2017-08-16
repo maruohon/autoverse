@@ -55,6 +55,8 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
     @Override
     protected void onResetFlushStart()
     {
+        super.onResetFlushStart();
+
         // Only reset the input side after the reset sequence's last item has been moved,
         // otherwise, if the reset command came (or more precisely, completed)
         // from side 2, it would get left in the slot.

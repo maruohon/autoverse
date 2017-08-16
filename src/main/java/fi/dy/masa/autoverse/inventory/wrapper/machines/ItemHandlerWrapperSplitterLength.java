@@ -55,6 +55,8 @@ public class ItemHandlerWrapperSplitterLength extends ItemHandlerWrapperSequence
     @Override
     protected void onResetFlushStart()
     {
+        super.onResetFlushStart();
+
         // Only reset the output side after the reset sequence's last item has been moved,
         // otherwise, the item might get moved to the other output.
         this.outputIsSecondary = false;
