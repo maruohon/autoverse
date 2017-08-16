@@ -1,40 +1,28 @@
 package fi.dy.masa.autoverse.gui.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverseTile;
 import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
-import fi.dy.masa.autoverse.network.PacketHandler;
-import fi.dy.masa.autoverse.network.message.MessageGuiAction;
-import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockDetector;
 
-public class GuiBlockDetector extends GuiAutoverse
+public class GuiBlockDetector extends GuiAutoverseTile
 {
     private final ContainerBlockDetector containerD;
     private final TileEntityBlockDetector te;
 
     public GuiBlockDetector(ContainerBlockDetector container, TileEntityBlockDetector te)
     {
-        super(container, 176, 256, "gui.container.block_detector");
+        super(container, 176, 256, "gui.container.block_detector", te);
 
         this.containerD = container;
         this.te = te;
         this.infoArea = new InfoArea(7, 36, 11, 11, "autoverse.gui.infoarea.block_detector");
-    }
-
-    @Override
-    public void initGui()
-    {
-        super.initGui();
-        this.createButtons();
     }
 
     @Override
@@ -142,26 +130,10 @@ public class GuiBlockDetector extends GuiAutoverse
         }
     }
 
+    @Override
     protected void createButtons()
     {
-        this.buttonList.clear();
-
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
-        this.buttonList.add(new GuiButtonHoverText(0, x + 160, y + 5, 8, 8, 0, 16,
+        this.addButton(new GuiButtonHoverText(0, this.guiLeft + 160, this.guiTop + 5, 8, 8, 0, 16,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.block_detector.use_indicators"));
-    }
-
-    @Override
-    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
-    {
-        if (button.id == 0)
-        {
-            int dim = this.te.getWorld().provider.getDimension();
-
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.te.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, 0));
-        }
     }
 }

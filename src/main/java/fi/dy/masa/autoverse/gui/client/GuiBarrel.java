@@ -1,34 +1,21 @@
 package fi.dy.masa.autoverse.gui.client;
 
-import java.io.IOException;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverseTile;
 import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.container.base.ContainerAutoverse;
-import fi.dy.masa.autoverse.network.PacketHandler;
-import fi.dy.masa.autoverse.network.message.MessageGuiAction;
-import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
 
-public class GuiBarrel extends GuiAutoverse
+public class GuiBarrel extends GuiAutoverseTile
 {
     protected final TileEntityBarrel te;
 
     public GuiBarrel(ContainerAutoverse container, TileEntityBarrel te)
     {
-        super(container, 176, 168, "gui.container.barrel");
+        super(container, 176, 168, "gui.container.barrel", te);
 
         this.te = te;
         this.infoArea = new InfoArea(158, 21, 11, 11, "autoverse.gui.infoarea.barrel");
-    }
-
-    @Override
-    public void initGui()
-    {
-        super.initGui();
-        this.createButtons();
     }
 
     @Override
@@ -57,42 +44,13 @@ public class GuiBarrel extends GuiAutoverse
         }
     }
 
+    @Override
     protected void createButtons()
     {
-        this.buttonList.clear();
-
-        int x = (this.width - this.xSize) / 2;
-        int y = (this.height - this.ySize) / 2;
-
-        this.buttonList.add(new GuiButtonHoverText(0, x + 8, y + 54, 8, 8, 0, 0,
+        this.addButton(new GuiButtonHoverText(0, this.guiLeft +   8, this.guiTop + 54, 8, 8, 0, 0,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.barrel.change_tier"));
 
-        this.buttonList.add(new GuiButtonHoverText(1, x + 160, y + 8, 8, 8, 0, 8,
+        this.addButton(new GuiButtonHoverText(1, this.guiLeft + 160, this.guiTop +  8, 8, 8, 0, 8,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.toggle_creative"));
-    }
-
-    @Override
-    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException
-    {
-        int dim = this.te.getWorld().provider.getDimension();
-        int amount = 0;
-
-        if (mouseButton == 0 || mouseButton == 11)
-        {
-            amount = 1;
-        }
-        else if (mouseButton == 1 || mouseButton == 9)
-        {
-            amount = -1;
-        }
-
-        if (button.id == 0 || button.id == 1)
-        {
-            if (GuiScreen.isShiftKeyDown()) { amount *= 2; }
-            if (GuiScreen.isCtrlKeyDown())  { amount *= 4; }
-
-            PacketHandler.INSTANCE.sendToServer(new MessageGuiAction(dim, this.te.getPos(),
-                ReferenceGuiIds.GUI_ID_TILE_ENTITY_GENERIC, button.id, amount));
-        }
     }
 }

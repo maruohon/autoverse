@@ -69,6 +69,14 @@ public class GuiAutoverse extends GuiContainer
     }
 
     @Override
+    public void initGui()
+    {
+        super.initGui();
+
+        this.createButtons();
+    }
+
+    @Override
     protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY)
     {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -275,13 +283,17 @@ public class GuiAutoverse extends GuiContainer
         }
     }
 
+    protected void createButtons()
+    {
+    }
+
     /**
      * Called when a mouse action is performed. Wheel actions have a value (dWheel / 120) + 10.
      * @param guiButton
      * @param mouseButton
      * @throws IOException
      */
-    protected void actionPerformedWithButton(GuiButton guiButton, int mouseButton) throws IOException { }
+    protected void actionPerformedWithButton(GuiButton button, int mouseButton) throws IOException { }
 
     protected void bindTexture(ResourceLocation rl)
     {

@@ -2,8 +2,8 @@ package fi.dy.masa.autoverse.gui.client.button;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import fi.dy.masa.autoverse.item.base.ItemAutoverse;
 
 public class GuiButtonHoverText extends GuiButtonIcon
 {
@@ -17,7 +17,7 @@ public class GuiButtonHoverText extends GuiButtonIcon
 
         for (String text : hoverStrings)
         {
-            this.hoverStrings.add(I18n.format(text));
+            ItemAutoverse.addTranslatedTooltip(text, this.hoverStrings, false);
         }
     }
 
