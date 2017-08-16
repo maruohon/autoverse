@@ -69,8 +69,7 @@ public class ItemHandlerWrapperSplitterLength extends ItemHandlerWrapperSequence
 
             if (++this.counter >= max)
             {
-                this.counter = 0;
-                this.outputIsSecondary = ! this.outputIsSecondary;
+                this.switchOutputAndResetPosition();
             }
 
             return true;
@@ -84,6 +83,12 @@ public class ItemHandlerWrapperSplitterLength extends ItemHandlerWrapperSequence
     {
         IItemHandler inv = this.outputIsSecondary ? this.inventoryOutput2 : this.getOutputInventory();
         return this.moveInputItemToInventory(inv);
+    }
+
+    public void switchOutputAndResetPosition()
+    {
+        this.outputIsSecondary = ! this.outputIsSecondary;
+        this.counter = 0;
     }
 
     public boolean secondaryOutputActive()

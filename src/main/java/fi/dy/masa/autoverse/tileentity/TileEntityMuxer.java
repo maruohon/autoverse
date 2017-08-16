@@ -380,6 +380,15 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0 && this.type == BlockMuxer.MuxerType.PROGRAMMABLE)
+        {
+            this.muxer.switchInputAndResetPosition();
+        }
+    }
+
+    @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing)
     {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)

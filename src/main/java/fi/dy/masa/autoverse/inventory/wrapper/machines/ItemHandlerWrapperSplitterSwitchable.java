@@ -127,9 +127,7 @@ public class ItemHandlerWrapperSplitterSwitchable extends ItemHandlerWrapperSequ
         {
             if (fullMatch)
             {
-                this.setSecondaryOutputActive(this.secondaryOutputActive() == false);
-                this.subState = 1;
-                this.position = 0;
+                this.switchOutputAndResetPosition(false);
             }
 
             return true;
@@ -147,6 +145,18 @@ public class ItemHandlerWrapperSplitterSwitchable extends ItemHandlerWrapperSequ
         }
 
         return false;
+    }
+
+    public void switchOutputAndResetPosition(boolean resetSequencePosition)
+    {
+        if (resetSequencePosition)
+        {
+            this.getActiveSequence().resetPosition();
+        }
+
+        this.setSecondaryOutputActive(this.secondaryOutputActive() == false);
+        this.subState = 1;
+        this.position = 0;
     }
 
     private boolean moveBufferedItems()

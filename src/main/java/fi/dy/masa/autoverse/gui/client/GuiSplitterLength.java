@@ -1,11 +1,12 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverseTile;
+import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitterLength;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class GuiSplitterLength extends GuiAutoverse
+public class GuiSplitterLength extends GuiAutoverseTile
 {
     private final ContainerSplitterLength containerS;
     private final TileEntitySplitter te;
@@ -13,7 +14,7 @@ public class GuiSplitterLength extends GuiAutoverse
     public GuiSplitterLength(ContainerSplitterLength container, TileEntitySplitter te)
     {
         // The same gui background as the Block Detector
-        super(container, 176, 256, "gui.container.block_detector");
+        super(container, 176, 256, "gui.container.block_detector", te);
 
         this.containerS = container;
         this.te = te;
@@ -67,5 +68,15 @@ public class GuiSplitterLength extends GuiAutoverse
         // Draw the colored background for the active output
         int x = this.containerS.secondary ? 151 : 7;
         this.drawTexturedModalRect(this.guiLeft + x, this.guiTop + 150, 238, 36, 18, 18);
+
+        // Draw the button outline
+        this.drawTexturedModalRect(this.guiLeft + 158, this.guiTop + 64, 210, 20, 10, 10);
+    }
+
+    @Override
+    protected void createButtons()
+    {
+        this.addButton(new GuiButtonHoverText(0, this.guiLeft + 159, this.guiTop + 65, 8, 8, 0, 24,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.splitter_length.toggle"));
     }
 }

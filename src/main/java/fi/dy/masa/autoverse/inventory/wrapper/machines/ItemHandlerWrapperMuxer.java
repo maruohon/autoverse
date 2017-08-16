@@ -70,14 +70,19 @@ public class ItemHandlerWrapperMuxer extends ItemHandlerWrapperSequenceBase
 
             if (++this.counter >= max)
             {
-                this.counter = 0;
-                this.inputIsSecondary = ! this.inputIsSecondary;
+                this.switchInputAndResetPosition();
             }
 
             return true;
         }
 
         return false;
+    }
+
+    public void switchInputAndResetPosition()
+    {
+        this.inputIsSecondary = ! this.inputIsSecondary;
+        this.counter = 0;
     }
 
     @Override

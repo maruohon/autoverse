@@ -321,6 +321,27 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0)
+        {
+            switch (this.type)
+            {
+                case SWITCHABLE:
+                    ((ItemHandlerWrapperSplitterSwitchable) this.splitter).switchOutputAndResetPosition(true);
+                    break;
+
+                case LENGTH:
+                    ((ItemHandlerWrapperSplitterLength) this.splitter).switchOutputAndResetPosition();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    @Override
     public ContainerAutoverse getContainer(EntityPlayer player)
     {
         switch (this.type)

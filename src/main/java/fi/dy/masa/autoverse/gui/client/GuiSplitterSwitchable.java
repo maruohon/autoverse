@@ -2,18 +2,19 @@ package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Slot;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverseTile;
+import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.container.ContainerSplitterSwitchable;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 
-public class GuiSplitterSwitchable extends GuiAutoverse
+public class GuiSplitterSwitchable extends GuiAutoverseTile
 {
     private final ContainerSplitterSwitchable containerSP;
     private final TileEntitySplitter te;
 
     public GuiSplitterSwitchable(ContainerSplitterSwitchable container, TileEntitySplitter te)
     {
-        super(container, 176, 238, "gui.container.splitter_switchable");
+        super(container, 176, 238, "gui.container.splitter_switchable", te);
 
         this.containerSP = container;
         this.te = te;
@@ -59,5 +60,15 @@ public class GuiSplitterSwitchable extends GuiAutoverse
         // Draw the colored background for the active output
         Slot slot = this.containerSP.getSlot(this.containerSP.secondaryOutput ? 2 : 1);
         this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 238, 36, 18, 18);
+
+        // Draw the button outline
+        this.drawTexturedModalRect(this.guiLeft + 82, this.guiTop + 82, 210, 20, 10, 10);
+    }
+
+    @Override
+    protected void createButtons()
+    {
+        this.addButton(new GuiButtonHoverText(0, this.guiLeft + 83, this.guiTop + 83, 8, 8, 0, 24,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.splitter_switchable.toggle"));
     }
 }

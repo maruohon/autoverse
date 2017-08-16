@@ -61,6 +61,11 @@ public class SequenceMatcher
         this.configured = false;
     }
 
+    public void resetPosition()
+    {
+        this.position = 0;
+    }
+
     /**
      * Flushes all sequence items to the provided <b>inventoryOut</b>, and
      * after all of them have been moved, resets the matcher.
