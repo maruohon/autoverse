@@ -28,6 +28,7 @@ import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -46,7 +47,8 @@ public abstract class TileEntityAutoverse extends TileEntity
     protected EnumFacing facingOpposite = EnumFacing.DOWN;
     protected BlockPos posFront = BlockPos.ORIGIN;
     protected boolean redstoneState;
-    protected FakePlayer fakePlayer;
+    private boolean slimModel;
+    private FakePlayer fakePlayer;
 
     public TileEntityAutoverse(String name)
     {
@@ -65,6 +67,16 @@ public abstract class TileEntityAutoverse extends TileEntity
         super.setPos(posIn);
 
         this.posFront = this.getPos().offset(this.getFacing());
+    }
+
+    public boolean isSlimModel()
+    {
+        return this.slimModel;
+    }
+
+    public void setIsSlimModel(boolean isSlim)
+    {
+        this.slimModel = isSlim;
     }
 
     public void setFacing(EnumFacing facing)
@@ -113,6 +125,10 @@ public abstract class TileEntityAutoverse extends TileEntity
             case 0:
                 this.setFacing(EnumFacing.getFront(value));
                 return true;
+
+            case 3:
+                this.setIsSlimModel(value == 1);
+                return true;
         }
 
         return false;
@@ -139,6 +155,10 @@ public abstract class TileEntityAutoverse extends TileEntity
 
     public void setPlacementProperties(World world, BlockPos pos, @Nonnull ItemStack stack, @Nonnull NBTTagCompound tag)
     {
+        if (tag.hasKey("machine.slim_model", Constants.NBT.TAG_BYTE))
+        {
+            this.setIsSlimModel(tag.getByte("machine.slim_model") == 1);
+        }
     }
 
     protected boolean applyPlacementPropertiesFrom(World world, BlockPos pos, EntityPlayer player, ItemStack stack)
@@ -147,7 +167,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         {
             ItemBlockAutoverse item = (ItemBlockAutoverse) stack.getItem();
 
-            if (item.getBlock() == this.getBlockType() && item.hasPlacementProperty(stack))
+            if (item.hasPlacementProperty(stack)) // && item.getBlock() == this.getBlockType()
             {
                 ItemType type = new ItemType(stack, item.getPlacementProperty(stack).isNBTSensitive());
                 NBTTagCompound tag = PlacementProperties.getInstance().getPropertyTag(player.getUniqueID(), type);
@@ -155,6 +175,8 @@ public abstract class TileEntityAutoverse extends TileEntity
                 if (tag != null)
                 {
                     this.setPlacementProperties(world, pos, stack, tag);
+                    this.markDirty();
+                    this.notifyBlockUpdate(this.getPos());
                     return true;
                 }
             }
@@ -193,6 +215,23 @@ public abstract class TileEntityAutoverse extends TileEntity
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
+        if (player.isSneaking() && player.getHeldItemMainhand().isEmpty())
+        {
+            ItemStack stackOffhand = player.getHeldItemOffhand();
+
+            // Sneak + right clicking with an empty main hand, and an Autoverse ItemBlock in the offhand,
+            // (re-)apply the placement properties from that item.
+            if (stackOffhand.isEmpty() == false && stackOffhand.getItem() instanceof ItemBlockAutoverse)
+            {
+                if (world.isRemote == false)
+                {
+                    this.applyPlacementPropertiesFrom(world, pos, player, stackOffhand);
+                }
+
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -277,6 +316,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
         this.redstoneState = nbt.getBoolean("Redstone");
+        this.slimModel = nbt.getBoolean("Slim");
 
         // Update the opposite and the front and back BlockPos
         this.setFacing(EnumFacing.getFront(nbt.getByte("Facing")));
@@ -294,6 +334,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         nbt.setString("Version", Reference.MOD_VERSION);
         nbt.setByte("Facing", (byte)this.facing.getIndex());
         nbt.setBoolean("Redstone", this.redstoneState);
+        nbt.setBoolean("Slim", this.slimModel);
 
         return nbt;
     }
@@ -315,7 +356,8 @@ public abstract class TileEntityAutoverse extends TileEntity
      */
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        tag.setByte("f", (byte)(this.getFacing().getIndex() & 0x07));
+        int mask = (this.slimModel ? 0x08 : 0) | (this.getFacing().getIndex() & 0x07);
+        tag.setByte("f", (byte) mask);
         return tag;
     }
 
@@ -350,7 +392,9 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
         if (tag.hasKey("f"))
         {
-            this.setFacing(EnumFacing.getFront((byte)(tag.getByte("f") & 0x07)));
+            int value = tag.getByte("f");
+            this.setFacing(EnumFacing.getFront(value & 0x07));
+            this.slimModel = (value & 0x08) == 0x08;
         }
 
         this.notifyBlockUpdate(this.getPos());

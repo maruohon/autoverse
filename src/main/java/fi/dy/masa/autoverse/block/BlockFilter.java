@@ -15,13 +15,13 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilter;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequential;
 import fi.dy.masa.autoverse.tileentity.TileEntityFilterSequentialStrict;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockFilter extends BlockAutoverseInventory
+public class BlockFilter extends BlockMachineSlimBase
 {
     public static final PropertyEnum<FilterType> TYPE = PropertyEnum.<FilterType>create("type", FilterType.class);
     public static final PropertyDirection FACING_FILTER = PropertyDirection.create("facing_filter");
@@ -30,7 +30,11 @@ public class BlockFilter extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
+        this.numModelSideFacings = 1;
+        this.propSideFacing0 = FACING_FILTER;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, FilterType.BASIC)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING_FILTER, EnumFacing.EAST));
@@ -49,7 +53,7 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_FILTER, SLIM, TYPE });
     }
 
     @Override
@@ -83,6 +87,8 @@ public class BlockFilter extends BlockAutoverseInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        state = super.getActualState(state, world, pos);
+
         TileEntityFilter te = getTileEntitySafely(world, pos, TileEntityFilter.class);
 
         if (te != null)
@@ -114,7 +120,7 @@ public class BlockFilter extends BlockAutoverseInventory
                 filterFacing = filterFacing.rotateYCCW();
             }
 
-            te.setFilterOutputSide(filterFacing);
+            te.setFilterOutputSide(filterFacing, false);
         }
     }
 

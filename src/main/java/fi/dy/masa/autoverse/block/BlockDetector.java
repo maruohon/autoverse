@@ -11,18 +11,24 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockDetector;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockDetector extends BlockAutoverseInventory
+public class BlockDetector extends BlockMachineSlimBase
 {
     protected static final PropertyDirection FACING_OUT = PropertyDirection.create("facing_out");
 
     public BlockDetector(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
+
+        this.hasMainOutput = false;
+        this.numModelSideFacings = 1;
+        this.propSideFacing0 = FACING_OUT;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING_OUT, EnumFacing.EAST));
     }
@@ -30,7 +36,7 @@ public class BlockDetector extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_OUT });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_OUT, SLIM });
     }
 
     @Override
@@ -48,6 +54,8 @@ public class BlockDetector extends BlockAutoverseInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        state = super.getActualState(state, world, pos);
+
         TileEntityBlockDetector te = getTileEntitySafely(world, pos, TileEntityBlockDetector.class);
 
         if (te != null)

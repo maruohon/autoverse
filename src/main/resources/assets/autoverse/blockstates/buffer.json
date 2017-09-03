@@ -1,45 +1,54 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block"
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "type": {
-            "fifo_normal":    {
+            "fifo_normal": {
                 "textures": {
-                    "front":    "autoverse:blocks/buffer_fifo_normal_front",
-                    "back":     "autoverse:blocks/buffer_fifo_normal_back",
-                    "top":      "autoverse:blocks/buffer_fifo_normal_side",
-                    "bottom":   "autoverse:blocks/buffer_fifo_normal_side",
-                    "left":     "autoverse:blocks/buffer_fifo_normal_side",
-                    "right":    "autoverse:blocks/buffer_fifo_normal_side"
+                    "front":            "autoverse:blocks/buffer_fifo_normal_front",
+                    "back":             "autoverse:blocks/buffer_fifo_normal_back",
+                    "top":              "autoverse:blocks/buffer_fifo_normal_side",
+                    "bottom":           "autoverse:blocks/buffer_fifo_normal_side",
+                    "left":             "autoverse:blocks/buffer_fifo_normal_side",
+                    "right":            "autoverse:blocks/buffer_fifo_normal_side",
+                    "slim_side_end":    "autoverse:blocks/buffer_fifo_normal_slim_out_10",
+                    "slim_side_side":   "autoverse:blocks/buffer_fifo_normal_slim_side_10"
                 }
             },
-            "fifo_auto":    {
+            "fifo_auto": {
                 "textures": {
-                    "front":    "autoverse:blocks/buffer_fifo_auto_front",
-                    "back":     "autoverse:blocks/buffer_fifo_normal_back",
-                    "top":      "autoverse:blocks/buffer_fifo_auto_side",
-                    "bottom":   "autoverse:blocks/buffer_fifo_auto_side",
-                    "left":     "autoverse:blocks/buffer_fifo_auto_side",
-                    "right":    "autoverse:blocks/buffer_fifo_auto_side"
+                    "front":            "autoverse:blocks/buffer_fifo_auto_front",
+                    "back":             "autoverse:blocks/buffer_fifo_normal_back",
+                    "top":              "autoverse:blocks/buffer_fifo_auto_side",
+                    "bottom":           "autoverse:blocks/buffer_fifo_auto_side",
+                    "left":             "autoverse:blocks/buffer_fifo_auto_side",
+                    "right":            "autoverse:blocks/buffer_fifo_auto_side",
+                    "slim_side_end":    "autoverse:blocks/buffer_fifo_auto_slim_out_10",
+                    "slim_side_side":   "autoverse:blocks/buffer_fifo_auto_slim_side_10"
                 }
             },
-            "fifo_pulsed":    {
+            "fifo_pulsed": {
                 "textures": {
-                    "front":    "autoverse:blocks/buffer_fifo_pulsed_front",
-                    "back":     "autoverse:blocks/buffer_fifo_pulsed_back",
-                    "top":      "autoverse:blocks/buffer_fifo_pulsed_side",
-                    "bottom":   "autoverse:blocks/buffer_fifo_pulsed_side",
-                    "left":     "autoverse:blocks/buffer_fifo_pulsed_side",
-                    "right":    "autoverse:blocks/buffer_fifo_pulsed_side"
+                    "front":            "autoverse:blocks/buffer_fifo_pulsed_front",
+                    "back":             "autoverse:blocks/buffer_fifo_pulsed_back",
+                    "top":              "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "bottom":           "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "left":             "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "right":            "autoverse:blocks/buffer_fifo_pulsed_side",
+                    "slim_side_end":    "autoverse:blocks/buffer_fifo_pulsed_slim_out_10",
+                    "slim_side_side":   "autoverse:blocks/buffer_fifo_pulsed_slim_side_10"
                 }
             }
         },
         "facing": {
-            "up":    { "x": 270 },
             "down":  { "x":  90 },
+            "up":    { "x": 270 },
             "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },

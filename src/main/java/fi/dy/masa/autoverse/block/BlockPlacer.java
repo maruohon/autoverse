@@ -13,13 +13,13 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacer;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 
-public class BlockPlacer extends BlockAutoverseInventory
+public class BlockPlacer extends BlockMachineSlimBase
 {
     public static final PropertyEnum<PlacerType> TYPE = PropertyEnum.<PlacerType>create("type", PlacerType.class);
 
@@ -27,7 +27,10 @@ public class BlockPlacer extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
+        this.hasMainOutput = false;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(TYPE, PlacerType.NBT));
     }
@@ -35,7 +38,7 @@ public class BlockPlacer extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, SLIM, TYPE });
     }
 
     @Override

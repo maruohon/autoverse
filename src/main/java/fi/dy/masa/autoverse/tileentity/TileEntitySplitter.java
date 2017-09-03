@@ -174,6 +174,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
+        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        {
+            return true;
+        }
+
         ItemStack stack = player.getHeldItem(hand);
 
         if (stack.isEmpty() && player.isSneaking())
@@ -304,7 +309,8 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | this.getFacing().getIndex()));
+        tag = super.getUpdatePacketTag(tag);
+        tag.setByte("f", (byte) ((this.facing2.getIndex() << 4) | tag.getByte("f")));
         tag.setByte("typ", (byte) this.type.getMeta());
         return tag;
     }
@@ -313,11 +319,10 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setFacing(EnumFacing.getFront(facings & 0x7));
-        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), false);
+        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), true);
         this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("typ")));
 
-        this.notifyBlockUpdate(this.getPos());
+        super.handleUpdateTag(tag);
     }
 
     @Override

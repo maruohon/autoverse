@@ -65,6 +65,11 @@ public class BlockAutoverse extends Block
         return this.blockName;
     }
 
+    public boolean getHasFacing()
+    {
+        return this.hasFacing;
+    }
+
     @Override
     public int damageDropped(IBlockState state)
     {
@@ -147,11 +152,11 @@ public class BlockAutoverse extends Block
     @Nullable
     public static <T> T getPointedElementId(World world, BlockPos pos, BlockAutoverse block, @Nullable EnumFacing facing, @Nonnull Entity entity)
     {
-        block.updateBlockHilightBoxes(world, pos, facing);
+        block.updateBlockHilightBoxes(world.getBlockState(pos).getActualState(world, pos), world, pos, facing);
         return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, block.getHilightBoxMap());
     }
 
-    public void updateBlockHilightBoxes(World world, BlockPos pos, @Nullable EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, @Nullable EnumFacing facing)
     {
     }
 
@@ -159,13 +164,15 @@ public class BlockAutoverse extends Block
     protected static RayTraceResult collisionRayTraceToBoxes(IBlockState state, BlockAutoverse block,
             World world, BlockPos pos, Vec3d start, Vec3d end)
     {
+        state = state.getActualState(world, pos);
+
         if (block.hasFacing)
         {
-            block.updateBlockHilightBoxes(world, pos, state.getActualState(world, pos).getValue(FACING));
+            block.updateBlockHilightBoxes(state, world, pos, state.getValue(FACING));
         }
         else
         {
-            block.updateBlockHilightBoxes(world, pos, null);
+            block.updateBlockHilightBoxes(state, world, pos, null);
         }
 
         List<RayTraceResult> list = new ArrayList<RayTraceResult>();

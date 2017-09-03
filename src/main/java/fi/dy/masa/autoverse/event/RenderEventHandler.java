@@ -26,6 +26,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse.PlacementProperty;
 import fi.dy.masa.autoverse.reference.Reference;
@@ -80,7 +81,7 @@ public class RenderEventHandler
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
 
-            if (block == AutoverseBlocks.INVENTORY_READER)
+            if (block == AutoverseBlocks.INVENTORY_READER || block instanceof BlockMachineSlimBase)
             {
                 state = state.getActualState(world, pos);
                 this.updatePointedBlockHilight(world, trace.getBlockPos(), state, (BlockAutoverse) block, event.getPartialTicks());
@@ -225,13 +226,13 @@ public class RenderEventHandler
         return PositionUtils.ZERO_BB;
     }
 
-    protected void updatePointedBlockHilight(World world, BlockPos pos, IBlockState state, BlockAutoverse block, float partialTicks)
+    protected void updatePointedBlockHilight(World world, BlockPos pos, IBlockState actualState, BlockAutoverse block, float partialTicks)
     {
-        EnumFacing facing = state.getValue(BlockAutoverse.FACING);
+        EnumFacing facing = block.getHasFacing() ? actualState.getValue(BlockAutoverse.FACING) : null;
 
         if (pos.equals(this.pointedPosLast) == false || facing != this.pointedBlockFacingLast)
         {
-            block.updateBlockHilightBoxes(world, pos, facing);
+            block.updateBlockHilightBoxes(actualState, world, pos, facing);
             this.pointedPosLast = pos;
             this.pointedBlockFacingLast = facing;
         }

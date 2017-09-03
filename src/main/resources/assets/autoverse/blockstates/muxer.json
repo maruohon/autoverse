@@ -1,7 +1,6 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
             "front":    "#out",
@@ -13,36 +12,52 @@
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "type": {
             "redstone": {
                 "textures": {
-                    "out":  "autoverse:blocks/muxer_out_redstone",
-                    "in2":  "autoverse:blocks/muxer_in_redstone",
-                    "side": "autoverse:blocks/muxer_side_redstone"
+                    "out":              "autoverse:blocks/muxer_redstone_out",
+                    "in_2":             "autoverse:blocks/muxer_redstone_in",
+                    "side":             "autoverse:blocks/muxer_redstone_side",
+                    "slim_side_end":    "autoverse:blocks/muxer_redstone_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/muxer_redstone_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/muxer_redstone_in_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/muxer_redstone_in_slim_side_10"
                 }
             },
             "priority": {
                 "textures": {
-                    "out":  "autoverse:blocks/muxer_out_priority",
-                    "in2":  "autoverse:blocks/muxer_in_priority",
-                    "side": "autoverse:blocks/muxer_side_priority"
+                    "out":              "autoverse:blocks/muxer_priority_out",
+                    "in_2":             "autoverse:blocks/muxer_priority_in",
+                    "side":             "autoverse:blocks/muxer_priority_side",
+                    "slim_side_end":    "autoverse:blocks/muxer_priority_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/muxer_priority_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/muxer_priority_in_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/muxer_priority_in_slim_side_10"
                 }
             },
             "programmable": {
                 "textures": {
-                    "out":  "autoverse:blocks/muxer_out_programmable",
-                    "in2":  "autoverse:blocks/muxer_in_programmable",
-                    "side": "autoverse:blocks/muxer_side_programmable"
+                    "out":              "autoverse:blocks/muxer_programmable_out",
+                    "in_2":             "autoverse:blocks/muxer_programmable_in",
+                    "side":             "autoverse:blocks/muxer_programmable_side",
+                    "slim_side_end":    "autoverse:blocks/muxer_programmable_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/muxer_programmable_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/muxer_programmable_in_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/muxer_programmable_in_slim_side_10"
                 }
             }
         },
         "facing_in2": {
             "north": { },
-            "south": { "textures": { "back":   "#in2" } },
-            "west":  { "textures": { "right":  "#in2" } },
-            "east":  { "textures": { "left":   "#in2" } },
-            "up":    { "textures": { "top":    "#in2" } },
-            "down":  { "textures": { "bottom": "#in2" } }
+            "south": { "textures": { "back":   "#in_2" } },
+            "west":  { "textures": { "right":  "#in_2" } },
+            "east":  { "textures": { "left":   "#in_2" } },
+            "up":    { "textures": { "top":    "#in_2" } },
+            "down":  { "textures": { "bottom": "#in_2" } }
         },
         "facing": {
             "down":  { "x":  90 },

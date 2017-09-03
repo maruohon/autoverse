@@ -6,19 +6,18 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencer;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequencerProgrammable;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockSequencer extends BlockAutoverseInventory
+public class BlockSequencer extends BlockMachineSlimBase
 {
     public static final PropertyEnum<SequencerType> TYPE = PropertyEnum.<SequencerType>create("type", SequencerType.class);
 
@@ -27,6 +26,7 @@ public class BlockSequencer extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(TYPE, SequencerType.BASIC));
     }
@@ -34,7 +34,7 @@ public class BlockSequencer extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, SLIM, TYPE });
     }
 
     @Override
@@ -63,10 +63,16 @@ public class BlockSequencer extends BlockAutoverseInventory
     }
 
     @Override
-    public ItemBlock createItemBlock()
+    public ItemBlockAutoverse createItemBlock()
     {
-        ItemBlockAutoverse item = new ItemBlockAutoverse(this);
+        ItemBlockAutoverse item = super.createItemBlock();
         item.addPlacementProperty(0, "sequencer.length", Constants.NBT.TAG_BYTE, 1, TileEntitySequencer.MAX_LENGTH);
+
+        // These need to be added again for meta 0, because of the property above
+        // (the existence of a specific meta overrides/hides the wild card meta property - this is a design flaw in the pp system currently)
+        item.addPlacementProperty(0, "machine.slim_model", Constants.NBT.TAG_BYTE, 0, 1);
+        item.addPlacementPropertyValueNames(0, "machine.slim_model", new String[] { "false", "true" });
+
         return item;
     }
 

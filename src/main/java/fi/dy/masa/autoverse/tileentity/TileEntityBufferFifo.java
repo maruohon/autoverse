@@ -77,6 +77,8 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
+        super.setPlacementProperties(world, pos, stack, tag);
+
         if (tag.hasKey("buffer.size", Constants.NBT.TAG_BYTE))
         {
             this.setFifoLength(tag.getByte("buffer.size"));

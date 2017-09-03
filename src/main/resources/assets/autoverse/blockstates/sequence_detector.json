@@ -1,7 +1,6 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
             "front":            "#detector_front",
@@ -12,10 +11,16 @@
             "right":            "#detector_side",
             "detector_front":   "autoverse:blocks/sequence_detector_unpowered_front",
             "detector_back":    "autoverse:blocks/sequence_detector_unpowered_back",
-            "detector_side":    "autoverse:blocks/sequence_detector_unpowered_side"
+            "detector_side":    "autoverse:blocks/sequence_detector_unpowered_side",
+            "slim_side_end":    "autoverse:blocks/sequence_detector_slim_out_10",
+            "slim_side_side":   "autoverse:blocks/sequence_detector_slim_side_10"
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "powered": {
             "false": { },
             "true": {
@@ -29,7 +34,7 @@
         "facing": {
             "down":  { "x":  90 },
             "up":    { "x": 270 },
-            "north": { },
+            "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },
             "east":  { "y":  90 }

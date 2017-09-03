@@ -419,7 +419,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     }
 
     @Override
-    public void updateBlockHilightBoxes(World world, BlockPos pos, EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, EnumFacing facing)
     {
         Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
         boxMap.clear();

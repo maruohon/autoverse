@@ -7,18 +7,22 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockReaderNBT;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockReader extends BlockAutoverseInventory
+public class BlockReader extends BlockMachineSlimBase
 {
     public static final PropertyEnum<ReaderType> TYPE = PropertyEnum.<ReaderType>create("type", ReaderType.class);
 
     public BlockReader(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
+
+        this.hasMainOutput = false;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, ReaderType.NBT)
                 .withProperty(FACING, DEFAULT_FACING));
     }
@@ -34,7 +38,7 @@ public class BlockReader extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, SLIM, TYPE });
     }
 
     @Override
@@ -54,17 +58,6 @@ public class BlockReader extends BlockAutoverseInventory
     {
         return state.getValue(TYPE).getMeta();
     }
-
-    /*
-    @Override
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> list)
-    {
-        for (int meta = 0; meta < ReaderType.values().length; meta++)
-        {
-            list.add(new ItemStack(item, 1, meta));
-        }
-    }
-    */
 
     public enum ReaderType implements IStringSerializable
     {

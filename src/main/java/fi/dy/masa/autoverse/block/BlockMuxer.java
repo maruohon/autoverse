@@ -15,11 +15,11 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityMuxer;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockMuxer extends BlockAutoverseInventory
+public class BlockMuxer extends BlockMachineSlimBase
 {
     public static final PropertyEnum<MuxerType> TYPE = PropertyEnum.<MuxerType>create("type", MuxerType.class);
     public static final PropertyDirection FACING_IN2 = PropertyDirection.create("facing_in2");
@@ -28,7 +28,11 @@ public class BlockMuxer extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
+        this.numModelSideFacings = 1;
+        this.propSideFacing0 = FACING_IN2;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, MuxerType.REDSTONE)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING_IN2, EnumFacing.EAST));
@@ -47,7 +51,7 @@ public class BlockMuxer extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_IN2, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING_IN2, SLIM, TYPE });
     }
 
     @Override
@@ -73,6 +77,8 @@ public class BlockMuxer extends BlockAutoverseInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        state = super.getActualState(state, world, pos);
+
         TileEntityMuxer te = getTileEntitySafely(world, pos, TileEntityMuxer.class);
 
         if (te != null)

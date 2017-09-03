@@ -1,41 +1,56 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":            "#nonmatch_out",
-            "top":              "#side",
-            "bottom":           "#side",
-            "left":             "#side",
-            "right":            "#side",
-            "back":             "#back"
+            "front":    "#nonmatch_out",
+            "top":      "#side",
+            "bottom":   "#side",
+            "left":     "#side",
+            "right":    "#side",
+            "back":     "#back"
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "type": {
             "basic": {
                 "textures": {
-                    "nonmatch_out": "autoverse:blocks/filter_basic_normal_out",
-                    "filter_out":   "autoverse:blocks/filter_basic_filter_out",
-                    "side":         "autoverse:blocks/filter_basic_side",
-                    "back":         "autoverse:blocks/filter_basic_base"
+                    "nonmatch_out":     "autoverse:blocks/filter_basic_normal_out",
+                    "filter_out":       "autoverse:blocks/filter_basic_filter_out",
+                    "side":             "autoverse:blocks/filter_basic_side",
+                    "back":             "autoverse:blocks/filter_basic_base",
+                    "slim_side_end":    "autoverse:blocks/filter_basic_normal_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/filter_basic_normal_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/filter_basic_filter_out_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/filter_basic_filter_out_slim_side_10"
                 }
             },
             "sequential": {
                 "textures": {
-                    "nonmatch_out": "autoverse:blocks/filter_sequential_normal_out",
-                    "filter_out":   "autoverse:blocks/filter_sequential_filter_out",
-                    "side":         "autoverse:blocks/filter_sequential_side",
-                    "back":         "autoverse:blocks/filter_sequential_base"
+                    "nonmatch_out":     "autoverse:blocks/filter_sequential_normal_out",
+                    "filter_out":       "autoverse:blocks/filter_sequential_filter_out",
+                    "side":             "autoverse:blocks/filter_sequential_side",
+                    "back":             "autoverse:blocks/filter_sequential_base",
+                    "slim_side_end":    "autoverse:blocks/filter_sequential_normal_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/filter_sequential_normal_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/filter_sequential_filter_out_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/filter_sequential_filter_out_slim_side_10"
                 }
             },
             "sequential_strict": {
                 "textures": {
-                    "nonmatch_out": "autoverse:blocks/filter_sequential_strict_normal_out",
-                    "filter_out":   "autoverse:blocks/filter_sequential_strict_filter_out",
-                    "side":         "autoverse:blocks/filter_sequential_strict_side",
-                    "back":         "autoverse:blocks/filter_sequential_strict_base"
+                    "nonmatch_out":     "autoverse:blocks/filter_sequential_strict_normal_out",
+                    "filter_out":       "autoverse:blocks/filter_sequential_strict_filter_out",
+                    "side":             "autoverse:blocks/filter_sequential_strict_side",
+                    "back":             "autoverse:blocks/filter_sequential_strict_base",
+                    "slim_side_end":    "autoverse:blocks/filter_sequential_strict_normal_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/filter_sequential_strict_normal_out_slim_side_10",
+                    "slim_side_end_2":  "autoverse:blocks/filter_sequential_strict_filter_out_slim_end_10",
+                    "slim_side_side_2": "autoverse:blocks/filter_sequential_strict_filter_out_slim_side_10"
                 }
             }
         },

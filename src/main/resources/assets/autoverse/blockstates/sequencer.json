@@ -1,29 +1,36 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "top":              "#side",
-            "bottom":           "#side",
-            "left":             "#side",
-            "right":            "#side"
+            "top":      "#side",
+            "bottom":   "#side",
+            "left":     "#side",
+            "right":    "#side"
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "type": {
             "basic": {
                 "textures": {
-                    "front":    "autoverse:blocks/sequencer_basic_out",
-                    "back":     "autoverse:blocks/sequencer_basic_base",
-                    "side":     "autoverse:blocks/sequencer_basic_side"
+                    "front":            "autoverse:blocks/sequencer_basic_out",
+                    "back":             "autoverse:blocks/sequencer_basic_base",
+                    "side":             "autoverse:blocks/sequencer_basic_side",
+                    "slim_side_end":    "autoverse:blocks/sequencer_basic_slim_out_10",
+                    "slim_side_side":   "autoverse:blocks/sequencer_basic_slim_side_10"
                 }
             },
             "programmable": {
                 "textures": {
-                    "front":    "autoverse:blocks/sequencer_programmable_out",
-                    "back":     "autoverse:blocks/sequencer_programmable_base",
-                    "side":     "autoverse:blocks/sequencer_programmable_side"
+                    "front":            "autoverse:blocks/sequencer_programmable_out",
+                    "back":             "autoverse:blocks/sequencer_programmable_base",
+                    "side":             "autoverse:blocks/sequencer_programmable_side",
+                    "slim_side_end":    "autoverse:blocks/sequencer_programmable_slim_out_10",
+                    "slim_side_side":   "autoverse:blocks/sequencer_programmable_slim_side_10"
                 }
             }
         },

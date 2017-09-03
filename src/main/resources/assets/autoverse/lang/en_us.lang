@@ -148,6 +148,7 @@ autoverse.placement_properties.title=Placement Properties
 autoverse.placement_properties.barrel.tier=Barrel tier
 autoverse.placement_properties.buffer.delay=Push delay
 autoverse.placement_properties.buffer.size=Buffer size
+autoverse.placement_properties.machine.slim_model=Slim model
 autoverse.placement_properties.pipe.delay=Delay
 autoverse.placement_properties.pipe.max_stack=Max stack size
 autoverse.placement_properties.sequencer.length=Length

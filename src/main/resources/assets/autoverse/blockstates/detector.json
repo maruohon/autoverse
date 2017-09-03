@@ -1,7 +1,6 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
             "front":            "autoverse:blocks/block_detector_front",
@@ -10,10 +9,16 @@
             "left":             "autoverse:blocks/block_detector_side",
             "right":            "autoverse:blocks/block_detector_side",
             "back":             "autoverse:blocks/block_detector_back",
-            "detection_out":    "autoverse:blocks/block_detector_detection_out"
+            "detection_out":    "autoverse:blocks/block_detector_detection_out",
+            "slim_side_end_2":  "autoverse:blocks/block_detector_slim_out_10",
+            "slim_side_side_2": "autoverse:blocks/block_detector_slim_side_10"
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "facing_out": {
             "north": { },
             "south": { "textures": { "back":   "#detection_out" } },

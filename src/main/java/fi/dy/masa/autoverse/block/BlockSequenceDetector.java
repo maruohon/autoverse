@@ -9,11 +9,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequenceDetector;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockSequenceDetector extends BlockAutoverseInventory
+public class BlockSequenceDetector extends BlockMachineSlimBase
 {
     public static final PropertyBool POWERED = PropertyBool.create("powered");
 
@@ -22,6 +22,7 @@ public class BlockSequenceDetector extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(POWERED, false));
     }
@@ -29,7 +30,7 @@ public class BlockSequenceDetector extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, POWERED });
+        return new BlockStateContainer(this, new IProperty[] { FACING, POWERED, SLIM });
     }
 
     @Override

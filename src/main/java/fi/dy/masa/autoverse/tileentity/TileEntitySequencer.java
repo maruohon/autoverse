@@ -58,6 +58,8 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
+        super.setPlacementProperties(world, pos, stack, tag);
+
         if (tag.hasKey("sequencer.length", Constants.NBT.TAG_BYTE))
         {
             this.setInventorySize(tag.getByte("sequencer.length"));

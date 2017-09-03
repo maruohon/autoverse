@@ -1,38 +1,53 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":            "#out_1",
-            "top":              "#side",
-            "bottom":           "#side",
-            "left":             "#side",
-            "right":            "#side",
-            "back":             "autoverse:blocks/splitter_base"
+            "front":    "#out_1",
+            "top":      "#side",
+            "bottom":   "#side",
+            "left":     "#side",
+            "right":    "#side",
+            "back":     "autoverse:blocks/splitter_base"
         }
     },
     "variants": {
-        "type" :{
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
+        "type": {
             "switchable": {
                 "textures": {
-                    "out_1":    "autoverse:blocks/splitter_switchable_out_1",
-                    "out_2":    "autoverse:blocks/splitter_switchable_out_2",
-                    "side":     "autoverse:blocks/splitter_switchable_side"
+                    "out_1":            "autoverse:blocks/splitter_switchable_out_1",
+                    "out_2":            "autoverse:blocks/splitter_switchable_out_2",
+                    "side":             "autoverse:blocks/splitter_switchable_side",
+                    "slim_side_end":    "autoverse:blocks/splitter_switchable_slim_out_10_1",
+                    "slim_side_side":   "autoverse:blocks/splitter_switchable_slim_side_10_1",
+                    "slim_side_end_2":  "autoverse:blocks/splitter_switchable_slim_out_10_2",
+                    "slim_side_side_2": "autoverse:blocks/splitter_switchable_slim_side_10_2"
                 }
             },
             "redstone": {
                 "textures": {
-                    "out_1":    "autoverse:blocks/splitter_redstone_out_1",
-                    "out_2":    "autoverse:blocks/splitter_redstone_out_2",
-                    "side":     "autoverse:blocks/splitter_redstone_side"
+                    "out_1":            "autoverse:blocks/splitter_redstone_out_1",
+                    "out_2":            "autoverse:blocks/splitter_redstone_out_2",
+                    "side":             "autoverse:blocks/splitter_redstone_side",
+                    "slim_side_end":    "autoverse:blocks/splitter_redstone_slim_out_10_1",
+                    "slim_side_side":   "autoverse:blocks/splitter_redstone_slim_side_10_1",
+                    "slim_side_end_2":  "autoverse:blocks/splitter_redstone_slim_out_10_2",
+                    "slim_side_side_2": "autoverse:blocks/splitter_redstone_slim_side_10_2"
                 }
             },
             "length": {
                 "textures": {
-                    "out_1":    "autoverse:blocks/splitter_length_out_1",
-                    "out_2":    "autoverse:blocks/splitter_length_out_2",
-                    "side":     "autoverse:blocks/splitter_length_side"
+                    "out_1":            "autoverse:blocks/splitter_length_out_1",
+                    "out_2":            "autoverse:blocks/splitter_length_out_2",
+                    "side":             "autoverse:blocks/splitter_length_side",
+                    "slim_side_end":    "autoverse:blocks/splitter_length_slim_out_10_1",
+                    "slim_side_side":   "autoverse:blocks/splitter_length_slim_side_10_1",
+                    "slim_side_end_2":  "autoverse:blocks/splitter_length_slim_out_10_2",
+                    "slim_side_side_2": "autoverse:blocks/splitter_length_slim_side_10_2"
                 }
             }
         },

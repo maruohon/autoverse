@@ -285,7 +285,7 @@ public class BlockPipe extends BlockAutoverseInventory
     }
 
     @Override
-    public void updateBlockHilightBoxes(World world, BlockPos pos, @Nullable EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, @Nullable EnumFacing facing)
     {
         TileEntityPipe te = getTileEntitySafely(world, pos, TileEntityPipe.class);
         Map<Pair<PipePart, EnumFacing>, AxisAlignedBB> boxMap = this.getHilightBoxMap();

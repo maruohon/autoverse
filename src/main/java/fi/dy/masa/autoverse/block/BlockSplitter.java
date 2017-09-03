@@ -15,11 +15,11 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntitySplitter;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockSplitter extends BlockAutoverseInventory
+public class BlockSplitter extends BlockMachineSlimBase
 {
     public static final PropertyEnum<SplitterType> TYPE = PropertyEnum.<SplitterType>create("type", SplitterType.class);
     public static final PropertyDirection FACING2 = PropertyDirection.create("facing_out2");
@@ -28,7 +28,11 @@ public class BlockSplitter extends BlockAutoverseInventory
     {
         super(name, hardness, resistance, harvestLevel, material);
 
+        this.numModelSideFacings = 1;
+        this.propSideFacing0 = FACING2;
+
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, SplitterType.SWITCHABLE)
                 .withProperty(FACING, DEFAULT_FACING)
                 .withProperty(FACING2, EnumFacing.DOWN));
@@ -47,7 +51,7 @@ public class BlockSplitter extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, FACING2, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, FACING2, SLIM, TYPE });
     }
 
     @Override
@@ -73,6 +77,8 @@ public class BlockSplitter extends BlockAutoverseInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        state = super.getActualState(state, world, pos);
+
         TileEntitySplitter te = getTileEntitySafely(world, pos, TileEntitySplitter.class);
 
         if (te != null)

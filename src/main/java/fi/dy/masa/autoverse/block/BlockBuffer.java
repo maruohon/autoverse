@@ -6,7 +6,6 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
@@ -14,7 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifo;
@@ -23,7 +22,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBufferFifoPulsed;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
-public class BlockBuffer extends BlockAutoverseInventory
+public class BlockBuffer extends BlockMachineSlimBase
 {
     public static final PropertyEnum<BufferType> TYPE = PropertyEnum.<BufferType>create("type", BufferType.class);
 
@@ -32,6 +31,7 @@ public class BlockBuffer extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, BufferType.FIFO)
                 .withProperty(FACING, DEFAULT_FACING));
     }
@@ -39,7 +39,7 @@ public class BlockBuffer extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING });
+        return new BlockStateContainer(this, new IProperty[] { FACING, SLIM, TYPE });
     }
 
     @Override
@@ -69,9 +69,9 @@ public class BlockBuffer extends BlockAutoverseInventory
     }
 
     @Override
-    public ItemBlock createItemBlock()
+    public ItemBlockAutoverse createItemBlock()
     {
-        ItemBlockAutoverse item = new ItemBlockAutoverse(this);
+        ItemBlockAutoverse item = super.createItemBlock();
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "buffer.size", Constants.NBT.TAG_BYTE, 1, TileEntityBufferFifo.MAX_LENGTH);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "buffer.delay", Constants.NBT.TAG_BYTE, 1, 255);
         return item;

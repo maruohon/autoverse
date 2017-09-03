@@ -1,25 +1,30 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "autoverse:orientable_directional_individual",
         "transform": "forge:default-block",
         "textures": {
-            "front":    "autoverse:blocks/crafter_out",
-            "back":     "autoverse:blocks/crafter_side",
-            "top":      "autoverse:blocks/crafter_top",
-            "bottom":   "autoverse:blocks/crafter_top",
-            "left":     "autoverse:blocks/crafter_top",
-            "right":    "autoverse:blocks/crafter_top"
+            "front":            "autoverse:blocks/crafter_out",
+            "back":             "autoverse:blocks/crafter_side",
+            "top":              "autoverse:blocks/crafter_top",
+            "bottom":           "autoverse:blocks/crafter_top",
+            "left":             "autoverse:blocks/crafter_top",
+            "right":            "autoverse:blocks/crafter_top",
+            "slim_side_end":    "autoverse:blocks/crafter_slim_out_10",
+            "slim_side_side":   "autoverse:blocks/crafter_slim_side_10"
         }
     },
     "variants": {
+        "slim": {
+            "false": { "model": "autoverse:orientable_directional_individual" },
+            "true":  { "model": "autoverse:custom/machine_slim" }
+        },
         "facing": {
-            "north": {},
+            "down":  { "x":  90 },
+            "up":    { "x": 270 },
+            "north": {          },
             "south": { "y": 180 },
             "west":  { "y": 270 },
-            "east":  { "y":  90 },
-            "up":    { "x": 270 },
-            "down":  { "x":  90 }
+            "east":  { "y":  90 }
         }
     }
 }

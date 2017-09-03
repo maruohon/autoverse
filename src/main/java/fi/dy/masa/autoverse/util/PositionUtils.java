@@ -28,6 +28,21 @@ public class PositionUtils
         { EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP, null, null } // from east
     };
 
+    /** Maps the relative facing to the absolute resulting facing, for each value of the main facing.
+     *  The first index is the current main facing. The second index is the current relative facing.
+     *  The default value for the main facing is north, ie. that's what the relative facing is relative to.
+     *  Note that for vertical facings, these use the same rotations down = +90,
+     *  up = -90 around the x-axis, that the blockstate jsons use for models.
+     */
+    public static final EnumFacing[][] ABSOLUTE_FACING_FROM_RELATIVE_FACING_NORTH = new EnumFacing[][] {
+        { EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.WEST,  EnumFacing.EAST  }, // main is down
+        { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP,    EnumFacing.DOWN,  EnumFacing.WEST,  EnumFacing.EAST  }, // main is up
+        { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST,  EnumFacing.EAST  }, // main is north
+        { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.EAST,  EnumFacing.WEST  }, // main is south
+        { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.WEST,  EnumFacing.EAST,  EnumFacing.SOUTH, EnumFacing.NORTH }, // main is west
+        { EnumFacing.DOWN,  EnumFacing.UP,    EnumFacing.EAST,  EnumFacing.WEST,  EnumFacing.NORTH, EnumFacing.SOUTH }  // main is east
+    };
+
     public static EnumFacing[] getSidesForAxis(EnumFacing axis)
     {
         switch (axis)
@@ -163,5 +178,14 @@ public class PositionUtils
 
                 return facing;
         }
+    }
+
+    /**
+     * This returns the given <b>relativeFacing</b> as an absolute facing, when the <b>mainFacing</b>
+     * has been rotated from the default value of NORTH (which is the default rotation for the model) to the given value.
+     */
+    public static EnumFacing getAbsoluteFacingFromNorth(EnumFacing mainFacing, EnumFacing relativeFacing)
+    {
+        return ABSOLUTE_FACING_FROM_RELATIVE_FACING_NORTH[mainFacing.getIndex()][relativeFacing.getIndex()];
     }
 }

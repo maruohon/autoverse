@@ -71,7 +71,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setFilterOutputSide(EnumFacing.getFront(value));
+                this.setFilterOutputSide(EnumFacing.getFront(value), false);
                 return true;
 
             case 2:
@@ -103,9 +103,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         return this.filter;
     }
 
-    public void setFilterOutputSide(EnumFacing side)
+    public void setFilterOutputSide(EnumFacing side, boolean force)
     {
-        if (side != this.facing)
+        if (side != this.facing || force)
         {
             this.facingFilteredOut = side;
             this.posFilteredOut = this.getPos().offset(side);
@@ -127,6 +127,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
             EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
     {
+        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        {
+            return true;
+        }
+
         ItemStack stack = player.getHeldItem(hand);
 
         if (stack.isEmpty() && player.isSneaking())
@@ -136,7 +141,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                 side = side.getOpposite();
             }
 
-            this.setFilterOutputSide(side);
+            this.setFilterOutputSide(side, false);
             this.notifyBlockUpdate(this.getPos());
             this.markDirty();
             return true;
@@ -203,7 +208,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(nbt);
 
-        this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")));
+        this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")), false);
         this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
 
         this.inventoryInput.deserializeNBT(nbt);
@@ -244,7 +249,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     @Override
     public NBTTagCompound getUpdatePacketTag(NBTTagCompound tag)
     {
-        tag.setByte("f", (byte)((this.facingFilteredOut.getIndex() << 4) | this.facing.getIndex()));
+        tag = super.getUpdatePacketTag(tag);
+        tag.setByte("f", (byte) ((this.facingFilteredOut.getIndex() << 4) | tag.getByte("f")));
         return tag;
     }
 
@@ -252,8 +258,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setFacing(EnumFacing.getFront(facings & 0x7));
-        this.setFilterOutputSide(EnumFacing.getFront(facings >> 4));
+        this.setFilterOutputSide(EnumFacing.getFront(facings >> 4), true);
 
         super.handleUpdateTag(tag);
     }

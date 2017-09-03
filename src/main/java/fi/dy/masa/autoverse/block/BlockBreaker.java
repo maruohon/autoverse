@@ -10,12 +10,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBlockBreaker;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
-public class BlockBreaker extends BlockAutoverseInventory
+public class BlockBreaker extends BlockMachineSlimBase
 {
     public static final PropertyEnum<BreakerType> TYPE = PropertyEnum.<BreakerType>create("type", BreakerType.class);
 
@@ -24,6 +24,7 @@ public class BlockBreaker extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, BreakerType.NORMAL)
                 .withProperty(FACING, DEFAULT_FACING));
     }
@@ -38,9 +39,15 @@ public class BlockBreaker extends BlockAutoverseInventory
     }
 
     @Override
+    public boolean isMainOutputOppositeToFacing()
+    {
+        return true;
+    }
+
+    @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { FACING, TYPE });
+        return new BlockStateContainer(this, new IProperty[] { FACING, SLIM, TYPE });
     }
 
     @Override

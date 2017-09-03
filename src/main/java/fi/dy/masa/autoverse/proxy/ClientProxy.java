@@ -21,6 +21,7 @@ import fi.dy.masa.autoverse.block.BlockSensor;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.client.render.model.BakedModelMachineSlim;
 import fi.dy.masa.autoverse.client.render.model.ModelPipeBaked;
 import fi.dy.masa.autoverse.client.render.model.ModelRedstoneEmitterBaked;
 import fi.dy.masa.autoverse.client.renderer.tile.TESRPipe;
@@ -103,6 +104,8 @@ public class ClientProxy extends CommonProxy
 
     private static void registerBlockModels()
     {
+        ModelLoaderRegistry.registerLoader(new BakedModelMachineSlim.ModelLoaderMachineSlim());
+
         ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new ModelPipeBaked.StateMapper());
         ModelLoaderRegistry.registerLoader(new ModelPipeBaked.ModelLoaderPipe());
 
@@ -116,25 +119,25 @@ public class ClientProxy extends CommonProxy
     {
         registerItemBlockModel(AutoverseBlocks.BARREL, 0, "pulsed=false,tier=0");
         registerItemBlockModel(AutoverseBlocks.BARREL, 1, "pulsed=true,tier=0");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_BREAKER, 0, "facing=north,type=normal");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_BREAKER, 1, "facing=north,type=greedy");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_DETECTOR, 0, "facing=north,facing_out=east");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_PLACER, 0, "facing=north,type=nbt");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_PLACER, 1, "facing=north,type=programmable");
-        registerItemBlockModel(AutoverseBlocks.BLOCK_READER, 0, "facing=north,type=nbt");
-        registerItemBlockModel(AutoverseBlocks.BUFFER, 0, "facing=north,type=fifo_normal");
-        registerItemBlockModel(AutoverseBlocks.BUFFER, 1, "facing=north,type=fifo_pulsed");
-        registerItemBlockModel(AutoverseBlocks.BUFFER, 2, "facing=north,type=fifo_auto");
-        registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north");
-        registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,type=basic");
-        registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,type=sequential");
-        registerItemBlockModel(AutoverseBlocks.FILTER, 2, "facing=north,facing_filter=east,type=sequential_strict");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_BREAKER, 0, "facing=north,slim=false,type=normal");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_BREAKER, 1, "facing=north,slim=false,type=greedy");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_DETECTOR, 0, "facing=north,facing_out=east,slim=false");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_PLACER, 0, "facing=north,slim=false,type=nbt");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_PLACER, 1, "facing=north,slim=false,type=programmable");
+        registerItemBlockModel(AutoverseBlocks.BLOCK_READER, 0, "facing=north,slim=false,type=nbt");
+        registerItemBlockModel(AutoverseBlocks.BUFFER, 0, "facing=north,slim=false,type=fifo_normal");
+        registerItemBlockModel(AutoverseBlocks.BUFFER, 1, "facing=north,slim=false,type=fifo_pulsed");
+        registerItemBlockModel(AutoverseBlocks.BUFFER, 2, "facing=north,slim=false,type=fifo_auto");
+        registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north,slim=false");
+        registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,slim=false,type=basic");
+        registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,slim=false,type=sequential");
+        registerItemBlockModel(AutoverseBlocks.FILTER, 2, "facing=north,facing_filter=east,slim=false,type=sequential_strict");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
         registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
         registerItemBlockModel(AutoverseBlocks.MACHINE_FRAME, 0, "inventory");
-        registerItemBlockModel(AutoverseBlocks.MUXER, 0, "facing=north,facing_in2=east,type=redstone");
-        registerItemBlockModel(AutoverseBlocks.MUXER, 1, "facing=north,facing_in2=east,type=priority");
-        registerItemBlockModel(AutoverseBlocks.MUXER, 2, "facing=north,facing_in2=east,type=programmable");
+        registerItemBlockModel(AutoverseBlocks.MUXER, 0, "facing=north,facing_in2=east,slim=false,type=redstone");
+        registerItemBlockModel(AutoverseBlocks.MUXER, 1, "facing=north,facing_in2=east,slim=false,type=priority");
+        registerItemBlockModel(AutoverseBlocks.MUXER, 2, "facing=north,facing_in2=east,slim=false,type=programmable");
         registerItemBlockModel(AutoverseBlocks.PIPE, 0, "type=basic");
         registerItemBlockModel(AutoverseBlocks.PIPE, 1, "type=extraction");
         registerItemBlockModel(AutoverseBlocks.PIPE, 2, "type=directional");
@@ -142,12 +145,12 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "type=basic");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 1, "type=advanced");
         registerItemBlockModel(AutoverseBlocks.SENSOR, 0, "inventory");
-        registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false");
-        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,type=basic");
-        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,type=programmable");
-        registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,type=switchable");
-        registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,type=redstone");
-        registerItemBlockModel(AutoverseBlocks.SPLITTER, 2, "facing=north,facing_out2=east,type=length");
+        registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false,slim=false");
+        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,slim=false,type=basic");
+        registerItemBlockModel(AutoverseBlocks.SEQUENCER, 1, "facing=north,slim=false,type=programmable");
+        registerItemBlockModel(AutoverseBlocks.SPLITTER, 0, "facing=north,facing_out2=east,slim=false,type=switchable");
+        registerItemBlockModel(AutoverseBlocks.SPLITTER, 1, "facing=north,facing_out2=east,slim=false,type=redstone");
+        registerItemBlockModel(AutoverseBlocks.SPLITTER, 2, "facing=north,facing_out2=east,slim=false,type=length");
         registerItemBlockModel(AutoverseBlocks.TRASH, 0, "type=bin");
         registerItemBlockModel(AutoverseBlocks.TRASH, 1, "type=buffer");
     }
