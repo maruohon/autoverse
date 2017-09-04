@@ -5,8 +5,33 @@
     },
     "variants": {
         "type": {
-            "basic":    { "model" : "autoverse:custom/redstone_emitter_basic"       },
-            "advanced": { "model" : "autoverse:custom/redstone_emitter_advanced"    }
+            "basic": {
+                "model": "autoverse:custom/redstone_emitter_basic",
+                "textures": {
+                    "front":            "autoverse:blocks/redstone_emitter_basic_front",
+                    "disabled":         "autoverse:blocks/redstone_emitter_basic_side_disabled",
+                    "unpowered":        "autoverse:blocks/redstone_emitter_basic_side_unpowered",
+                    "powered":          "autoverse:blocks/redstone_emitter_basic_side_powered",
+                    "slim_side_end":    "autoverse:blocks/redstone_emitter_basic_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/redstone_emitter_basic_out_slim_side_10",
+                    "rs_off_slim_end":  "autoverse:blocks/redstone_emitter_basic_rs_unpowered_slim_end_06",
+                    "rs_on_slim_end":   "autoverse:blocks/redstone_emitter_basic_rs_powered_slim_end_06",
+                    "rs_slim_side":     "autoverse:blocks/redstone_emitter_basic_rs_slim_side_06"
+                }
+            },
+            "advanced": {
+                "model": "autoverse:custom/redstone_emitter_advanced",
+                "textures": {
+                    "front":            "autoverse:blocks/redstone_emitter_advanced_front",
+                    "unpowered":        "autoverse:blocks/redstone_emitter_advanced_side_unpowered",
+                    "powered":          "autoverse:blocks/redstone_emitter_advanced_side_powered",
+                    "slim_side_end":    "autoverse:blocks/redstone_emitter_advanced_out_slim_end_10",
+                    "slim_side_side":   "autoverse:blocks/redstone_emitter_advanced_out_slim_side_10",
+                    "rs_off_slim_end":  "autoverse:blocks/redstone_emitter_advanced_rs_unpowered_slim_end_06",
+                    "rs_on_slim_end":   "autoverse:blocks/redstone_emitter_advanced_rs_powered_slim_end_06",
+                    "rs_slim_side":     "autoverse:blocks/redstone_emitter_advanced_rs_slim_side_06"
+                }
+            }
         }
     }
 }

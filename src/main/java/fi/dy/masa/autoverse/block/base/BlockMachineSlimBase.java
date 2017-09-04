@@ -28,12 +28,12 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
     //private static final AxisAlignedBB BOUNDS_SLIM_BASE_10 = new AxisAlignedBB(0.1875, 0.1875, 0.1875, 0.8125, 0.8125, 0.8125);
     private static final AxisAlignedBB BOUNDS_SLIM_BASE_12 = new AxisAlignedBB(0.125, 0.125, 0.125, 0.875, 0.875, 0.875);
 
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_D = new AxisAlignedBB(0.25,  0.0,   0.25,  0.75,  0.125, 0.75 );
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_U = new AxisAlignedBB(0.25,  0.875, 0.25,  0.75,  1.0,   0.75 );
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_N = new AxisAlignedBB(0.25,  0.25,  0.0,   0.75,  0.75,  0.125);
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_S = new AxisAlignedBB(0.25,  0.25,  0.875, 0.75,  0.75,  1.0  );
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_W = new AxisAlignedBB(0.0,   0.25,  0.25,  0.125, 0.75,  0.75 );
-    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08_E = new AxisAlignedBB(0.875, 0.25,  0.25,  1.0,   0.75,  0.75 );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_D = new AxisAlignedBB(0.25,  0.0,   0.25,  0.75,  0.125, 0.75 );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_U = new AxisAlignedBB(0.25,  0.875, 0.25,  0.75,  1.0,   0.75 );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_N = new AxisAlignedBB(0.25,  0.25,  0.0,   0.75,  0.75,  0.125);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_S = new AxisAlignedBB(0.25,  0.25,  0.875, 0.75,  0.75,  1.0  );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_W = new AxisAlignedBB(0.0,   0.25,  0.25,  0.125, 0.75,  0.75 );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x02_E = new AxisAlignedBB(0.875, 0.25,  0.25,  1.0,   0.75,  0.75 );
 
     /*
     private static final AxisAlignedBB BOUNDS_SLIM_SIDE_10_D = new AxisAlignedBB(0.1875, 0.0,    0.1875, 0.8125, 0.1875, 0.8125);
@@ -126,13 +126,15 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
     {
         addCollisionBoxToList(pos, entityBox, collidingBoxes, state.getCollisionBoundingBox(world, pos));
 
+        state = state.getActualState(world, pos);
+
         if (state.getValue(SLIM))
         {
-            this.addAllSideBoxes(state.getActualState(world, pos), pos, entityBox, collidingBoxes);
+            this.addAllSideCollisionBoxes(state, pos, entityBox, collidingBoxes);
         }
     }
 
-    protected void addAllSideBoxes(IBlockState actualState, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes)
+    protected void addAllSideCollisionBoxes(IBlockState actualState, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes)
     {
         EnumFacing facing = actualState.getValue(FACING);
 
@@ -192,7 +194,7 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
 
             if (this.hasMainOutput())
             {
-                EnumFacing side = actualState.getValue(FACING);
+                EnumFacing side = facing;
 
                 if (this.isMainOutputOppositeToFacing())
                 {
@@ -214,16 +216,16 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
         }
     }
 
-    protected AxisAlignedBB getBoundsForSide(EnumFacing side)
+    private AxisAlignedBB getBoundsForSide(EnumFacing side)
     {
         switch (side)
         {
-            case DOWN:  return BOUNDS_SLIM_SIDE_08_D;
-            case UP:    return BOUNDS_SLIM_SIDE_08_U;
-            case NORTH: return BOUNDS_SLIM_SIDE_08_N;
-            case SOUTH: return BOUNDS_SLIM_SIDE_08_S;
-            case WEST:  return BOUNDS_SLIM_SIDE_08_W;
-            case EAST:  return BOUNDS_SLIM_SIDE_08_E;
+            case DOWN:  return BOUNDS_SLIM_SIDE_08x02_D;
+            case UP:    return BOUNDS_SLIM_SIDE_08x02_U;
+            case NORTH: return BOUNDS_SLIM_SIDE_08x02_N;
+            case SOUTH: return BOUNDS_SLIM_SIDE_08x02_S;
+            case WEST:  return BOUNDS_SLIM_SIDE_08x02_W;
+            case EAST:  return BOUNDS_SLIM_SIDE_08x02_E;
         }
 
         return PositionUtils.ZERO_BB;

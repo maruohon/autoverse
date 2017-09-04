@@ -2,6 +2,7 @@ package fi.dy.masa.autoverse.block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -12,16 +13,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.tileentity.TileEntityRedstoneEmitter;
 import fi.dy.masa.autoverse.tileentity.TileEntityRedstoneEmitterAdvanced;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
+import fi.dy.masa.autoverse.util.PositionUtils;
 
-public class BlockRedstoneEmitter extends BlockAutoverseInventory
+public class BlockRedstoneEmitter extends BlockMachineSlimBase
 {
+    private static final AxisAlignedBB BOUNDS_SLIM_BASE_10 = new AxisAlignedBB(0.1875, 0.1875, 0.1875, 0.8125, 0.8125, 0.8125);
+
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_D = new AxisAlignedBB(0.3125, 0.0,    0.3125, 0.6875, 0.1875, 0.6875);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_U = new AxisAlignedBB(0.3125, 0.8125, 0.3125, 0.6875, 1.0,    0.6875);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_N = new AxisAlignedBB(0.3125, 0.3125, 0.0,    0.6875, 0.6875, 0.1875);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_S = new AxisAlignedBB(0.3125, 0.3125, 0.8125, 0.6875, 0.6875, 1.0   );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_W = new AxisAlignedBB(0.0,    0.3125, 0.3125, 0.1875, 0.6875, 0.6875);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_06x03_E = new AxisAlignedBB(0.8125, 0.3125, 0.3125, 1.0,    0.6875, 0.6875);
+
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_D = new AxisAlignedBB(0.25,   0.0,    0.25,   0.75,   0.1875, 0.75  );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_U = new AxisAlignedBB(0.25,   0.8125, 0.25,   0.75,   1.0,    0.75  );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_N = new AxisAlignedBB(0.25,   0.25,   0.0,    0.75,   0.75,   0.1875);
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_S = new AxisAlignedBB(0.25,   0.25,   0.8125, 0.75,   0.75,   1.0   );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_W = new AxisAlignedBB(0.0,    0.25,   0.25,   0.1875, 0.75,   0.75  );
+    private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_E = new AxisAlignedBB(0.8125, 0.25,   0.25,   1.0,    0.75,   0.75  );
+
     public static final PropertyEnum<EmitterType> TYPE = PropertyEnum.<EmitterType>create("type", EmitterType.class);
 
     public static final PropertyEnum<SideStatus> DOWN  = PropertyEnum.<SideStatus>create("down",  SideStatus.class);
@@ -48,14 +67,15 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
         super(name, hardness, resistance, harvestLevel, material);
 
         this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(SLIM, false)
                 .withProperty(TYPE, EmitterType.BASIC)
                 .withProperty(FACING, DEFAULT_FACING)
-                .withProperty(DOWN,  SideStatus.DISABLED)
-                .withProperty(UP,    SideStatus.DISABLED)
-                .withProperty(NORTH, SideStatus.DISABLED)
-                .withProperty(SOUTH, SideStatus.DISABLED)
-                .withProperty(WEST,  SideStatus.DISABLED)
-                .withProperty(EAST,  SideStatus.DISABLED));
+                .withProperty(DOWN,  SideStatus.UNPOWERED)
+                .withProperty(UP,    SideStatus.UNPOWERED)
+                .withProperty(NORTH, SideStatus.UNPOWERED)
+                .withProperty(SOUTH, SideStatus.UNPOWERED)
+                .withProperty(WEST,  SideStatus.UNPOWERED)
+                .withProperty(EAST,  SideStatus.UNPOWERED));
     }
 
     @Override
@@ -70,7 +90,7 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] { TYPE, FACING, DOWN, UP, NORTH, SOUTH, WEST, EAST });
+        return new BlockStateContainer(this, new IProperty[] { SLIM, TYPE, FACING, DOWN, UP, NORTH, SOUTH, WEST, EAST });
     }
 
     @Override
@@ -124,6 +144,8 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+        state = super.getActualState(state, world, pos);
+
         TileEntityRedstoneEmitter te = getTileEntitySafely(world, pos, TileEntityRedstoneEmitter.class);
 
         if (te != null)
@@ -162,6 +184,93 @@ public class BlockRedstoneEmitter extends BlockAutoverseInventory
         {
             return SideStatus.DISABLED;
         }
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+    {
+        return state.getActualState(blockAccess, pos).getValue(SLIM) ? BOUNDS_SLIM_BASE_10 : FULL_BLOCK_AABB;
+    }
+
+    @Override
+    protected void addAllSideCollisionBoxes(IBlockState actualState, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes)
+    {
+        EnumFacing facing = actualState.getValue(FACING);
+        boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
+
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, this.getBoundsForSide8(facing));
+
+        for (EnumFacing side : EnumFacing.VALUES)
+        {
+            if (side != facing && (advanced || actualState.getValue(SIDES.get(side.getIndex())) != SideStatus.DISABLED))
+            {
+                addCollisionBoxToList(pos, entityBox, collidingBoxes, this.getBoundsForSide6(side));
+            }
+        }
+    }
+
+    @Override
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, final EnumFacing facing)
+    {
+        Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
+        boxMap.clear();
+
+        if (actualState.getValue(SLIM))
+        {
+            // Base/main model/box
+            boxMap.put(6, BOUNDS_SLIM_BASE_10.offset(pos));
+
+            // Output side model
+            boxMap.put(facing.getIndex(), this.getBoundsForSide8(facing).offset(pos));
+
+            boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
+
+            // Redstone output side models
+            for (int sideIndex = 0; sideIndex < 6; sideIndex++)
+            {
+                // This side should have its "connection"
+                if (advanced || actualState.getValue(SIDES.get(sideIndex)) != SideStatus.DISABLED)
+                {
+                    EnumFacing side = EnumFacing.getFront(sideIndex);
+                    // FIXME the index??
+                    boxMap.put(7 + sideIndex * 6 + sideIndex, this.getBoundsForSide6(side).offset(pos));
+                }
+            }
+        }
+        else
+        {
+            boxMap.put(6, FULL_BLOCK_AABB.offset(pos));
+        }
+    }
+
+    private AxisAlignedBB getBoundsForSide8(EnumFacing side)
+    {
+        switch (side)
+        {
+            case DOWN:  return BOUNDS_SLIM_SIDE_08x03_D;
+            case UP:    return BOUNDS_SLIM_SIDE_08x03_U;
+            case NORTH: return BOUNDS_SLIM_SIDE_08x03_N;
+            case SOUTH: return BOUNDS_SLIM_SIDE_08x03_S;
+            case WEST:  return BOUNDS_SLIM_SIDE_08x03_W;
+            case EAST:  return BOUNDS_SLIM_SIDE_08x03_E;
+        }
+
+        return PositionUtils.ZERO_BB;
+    }
+
+    private AxisAlignedBB getBoundsForSide6(EnumFacing side)
+    {
+        switch (side)
+        {
+            case DOWN:  return BOUNDS_SLIM_SIDE_06x03_D;
+            case UP:    return BOUNDS_SLIM_SIDE_06x03_U;
+            case NORTH: return BOUNDS_SLIM_SIDE_06x03_N;
+            case SOUTH: return BOUNDS_SLIM_SIDE_06x03_S;
+            case WEST:  return BOUNDS_SLIM_SIDE_06x03_W;
+            case EAST:  return BOUNDS_SLIM_SIDE_06x03_E;
+        }
+
+        return PositionUtils.ZERO_BB;
     }
 
     @Override

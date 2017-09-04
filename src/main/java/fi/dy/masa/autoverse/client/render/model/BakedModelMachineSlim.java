@@ -34,21 +34,21 @@ import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class BakedModelMachineSlim implements IBakedModel
 {
-    public static final ResourceLocation BASE_MODEL_12  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_main_12");
-    public static final ResourceLocation SIDE_MODEL_08  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_08_tex_10");
+    protected static final ResourceLocation BASE_MODEL_12    = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_main_12_tex_16");
+    protected static final ResourceLocation SIDE_MODEL_08x02 = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_08x02_tex_10x03");
 
     private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
 
-    private final IModel baseModel;
-    private final IModel outModel;
-    private final IModel sideModel;
-    private final ImmutableMap<String, String> textures;
-    private final VertexFormat format;
-    private final IBakedModel bakedBaseModel;
-    private final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
-    private final TextureAtlasSprite particle;
+    protected final IModel baseModel;
+    protected final IModel outModel;
+    protected final IModel sideModel;
+    protected final IBakedModel bakedBaseModel;
+    protected final ImmutableMap<String, String> textures;
+    protected final VertexFormat format;
+    protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
+    protected final TextureAtlasSprite particle;
 
-    private BakedModelMachineSlim(
+    protected BakedModelMachineSlim(
             IModel baseModel, IModel outModel, IModel sideModel,
             ImmutableMap<String, String> textures, IModelState modelState, VertexFormat format,
             Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
@@ -128,11 +128,11 @@ public class BakedModelMachineSlim implements IBakedModel
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(IBlockState state, EnumFacing mainFacing)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
-        IBakedModel bakedBaseModel = this.baseModel.bake(new TRSRTransformation(mainFacing), this.format, this.bakedTextureGetter);
+        IBakedModel bakedBaseModel = this.getBaseModel(state, mainFacing);
         IBakedModel bakedOutModel = this.getOutputModel(state, mainFacing);
         List<IBakedModel> sideModels = this.getSideModels(state, mainFacing);
 
-        for (EnumFacing face : ModelPipeBaked.MODEL_FACES)
+        for (EnumFacing face : BakedModelPipe.MODEL_FACES)
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 
@@ -162,6 +162,11 @@ public class BakedModelMachineSlim implements IBakedModel
         return builder.build();
     }
 
+    protected IBakedModel getBaseModel(IBlockState state, EnumFacing mainFacing)
+    {
+        return this.baseModel.bake(new TRSRTransformation(mainFacing), this.format, this.bakedTextureGetter);
+    }
+
     @Nullable
     private IBakedModel getOutputModel(IBlockState state, EnumFacing mainFacing)
     {
@@ -181,7 +186,7 @@ public class BakedModelMachineSlim implements IBakedModel
         return this.outModel.bake(new TRSRTransformation(mainFacing), this.format, this.bakedTextureGetter);
     }
 
-    private List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
+    protected List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
     {
         BlockMachineSlimBase block = (BlockMachineSlimBase) state.getBlock();
         List<IBakedModel> models = new ArrayList<IBakedModel>();
@@ -214,14 +219,14 @@ public class BakedModelMachineSlim implements IBakedModel
         return builder.build();
     }
 
-    private static class ModelMachine implements IModel
+    protected static class ModelMachineSlim implements IModel
     {
-        private final IModel baseModel;
-        private final IModel outModel;
-        private final IModel sideModel;
-        private final ImmutableMap<String, String> textures;
+        protected final IModel baseModel;
+        protected final IModel outModel;
+        protected final IModel sideModel;
+        protected final ImmutableMap<String, String> textures;
 
-        protected ModelMachine(IModel baseModel, IModel outModel, IModel sideModel, ImmutableMap<String, String> textures)
+        protected ModelMachineSlim(IModel baseModel, IModel outModel, IModel sideModel, ImmutableMap<String, String> textures)
         {
             this.baseModel = baseModel;
             this.outModel = outModel;
@@ -238,7 +243,7 @@ public class BakedModelMachineSlim implements IBakedModel
         @Override
         public List<ResourceLocation> getDependencies()
         {
-            return ImmutableList.of(BASE_MODEL_12, SIDE_MODEL_08);
+            return ImmutableList.of(BASE_MODEL_12, SIDE_MODEL_08x02);
         }
 
         @Override
@@ -256,7 +261,7 @@ public class BakedModelMachineSlim implements IBakedModel
             IModel outModel = this.outModel.retexture(textures);
             IModel sideModel = this.sideModel.retexture(textures);
 
-            return new ModelMachine(baseModel, outModel, sideModel, textures);
+            return new ModelMachineSlim(baseModel, outModel, sideModel, textures);
         }
 
         @Override
@@ -286,15 +291,15 @@ public class BakedModelMachineSlim implements IBakedModel
             try
             {
                 baseModel  = ModelLoaderRegistry.getModel(BASE_MODEL_12);
-                outModel   = ModelLoaderRegistry.getModel(SIDE_MODEL_08);
-                sideModel  = ModelLoaderRegistry.getModel(SIDE_MODEL_08);
+                outModel   = ModelLoaderRegistry.getModel(SIDE_MODEL_08x02);
+                sideModel  = ModelLoaderRegistry.getModel(SIDE_MODEL_08x02);
             }
             catch (Exception e)
             {
                 Autoverse.logger.warn("Failed to load a model for a machine!", e);
             }
 
-            return new ModelMachine(baseModel, outModel, sideModel, ImmutableMap.of());
+            return new ModelMachineSlim(baseModel, outModel, sideModel, ImmutableMap.of());
         }
 
         @Override

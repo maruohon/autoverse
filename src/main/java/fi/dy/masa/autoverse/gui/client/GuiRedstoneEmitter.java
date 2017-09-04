@@ -63,6 +63,12 @@ public class GuiRedstoneEmitter extends GuiAutoverse
 
         this.bindTexture(this.guiTextureWidgets);
 
+        // Draw a rectangle around the ON slots, if the block is currently powered
+        if (this.te.getPoweredMask() != 0)
+        {
+            this.drawTexturedModalRect(this.guiLeft + 96, this.guiTop + 76, 0, 182, 74, 38);
+        }
+
         this.drawSlotBackgrounds(97,  29, 0, 238, this.container.getSequenceLength(0), this.container.getSequenceLength(0) * 2); // Reset
         this.drawSlotBackgrounds(97,  77, 0, 238, this.container.getSequenceLength(1), this.container.getSequenceLength(1) * 2); // Sequence ON
         this.drawSlotBackgrounds(97, 125, 0, 238, this.container.getSequenceLength(2), this.container.getSequenceLength(2) * 2); // Sequence OFF

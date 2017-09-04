@@ -39,7 +39,7 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
-public class ModelPipeBaked implements IBakedModel
+public class BakedModelPipe implements IBakedModel
 {
     private static final String TEX_BASIC_BASE          = Reference.MOD_ID + ":blocks/pipe_basic_edge";
 
@@ -91,7 +91,7 @@ public class ModelPipeBaked implements IBakedModel
     private final TextureAtlasSprite particle;
     private final BlockPipe.PipeType type;
 
-    private ModelPipeBaked(
+    private BakedModelPipe(
             BlockPipe.PipeType type,
             IModel edgeModel,
             IModel sideModel,
@@ -514,7 +514,7 @@ public class ModelPipeBaked implements IBakedModel
                 Autoverse.logger.warn("Failed to load a model for the Pipe!", e);
             }
 
-            return new ModelPipeBaked(this.type, edgeModel, sideModel, connectionModelEdges, connectionModelSides,
+            return new BakedModelPipe(this.type, edgeModel, sideModel, connectionModelEdges, connectionModelSides,
                     connectionModelFat, connectionModelSlim, cornerModels, this.getTextureMapping(), state, format, bakedTextureGetter);
         }
 
