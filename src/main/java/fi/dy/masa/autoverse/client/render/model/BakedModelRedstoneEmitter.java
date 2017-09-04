@@ -82,7 +82,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         else
         {
             IBakedModel bakedModel = null;
-            //bakedModel = MODEL_CACHE.get(state);
+            bakedModel = MODEL_CACHE.get(state);
 
             if (bakedModel == null)
             {
