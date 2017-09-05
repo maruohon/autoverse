@@ -213,10 +213,10 @@ public class RenderEventHandler
         return lines;
     }
 
-    public <T> AxisAlignedBB getPointedHilightBox(BlockAutoverse block)
+    public AxisAlignedBB getPointedHilightBox(BlockAutoverse block)
     {
-        Map<T, AxisAlignedBB> boxMap = block.getHilightBoxMap();
-        T key = EntityUtils.getPointedBox(this.mc.getRenderViewEntity(), 6d, boxMap, this.partialTicks);
+        Map<Integer, AxisAlignedBB> boxMap = block.getHilightBoxMap();
+        Integer key = EntityUtils.getPointedBox(this.mc.getRenderViewEntity(), 6d, boxMap, this.partialTicks);
 
         if (key != null)
         {
@@ -232,7 +232,7 @@ public class RenderEventHandler
 
         if (pos.equals(this.pointedPosLast) == false || facing != this.pointedBlockFacingLast)
         {
-            block.updateBlockHilightBoxes(actualState, world, pos, facing);
+            block.updateBlockHilightBoxes(actualState, world, pos);
             this.pointedPosLast = pos;
             this.pointedBlockFacingLast = facing;
         }

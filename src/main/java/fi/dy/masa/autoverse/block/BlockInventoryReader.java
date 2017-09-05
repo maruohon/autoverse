@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.block;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -54,13 +53,12 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     public static final PropertyEnum<ReaderType> TYPE = PropertyEnum.<ReaderType>create("type", ReaderType.class);
     public static final PropertyBool POWERED = PropertyBool.create("powered");
 
-    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
-
     public BlockInventoryReader(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
         this.getFacingFromTE = false;
+        this.createHilightBoxMap();
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(FACING, DEFAULT_FACING)
@@ -411,47 +409,48 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         return collisionRayTraceToBoxes(state, this, world, pos, start, end);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Map<Integer, AxisAlignedBB> getHilightBoxMap()
-    {
-        return this.hilightBoxMap;
-    }
-
-    @Override
-    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
     {
         Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
         boxMap.clear();
+
+        AxisAlignedBB bbMain;
+        AxisAlignedBB bbRod;
+        final EnumFacing facing = actualState.getValue(FACING);
 
         // Note: The base plate is on the back end!
         switch (facing)
         {
             case DOWN:
-                boxMap.put(0, BOUNDS_BASE_UP.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_DU.offset(pos));
+                bbMain = BOUNDS_BASE_UP.offset(pos);
+                bbRod = BOUNDS_ROD_DU.offset(pos);
                 break;
             case UP:
-                boxMap.put(0, BOUNDS_BASE_DOWN.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_DU.offset(pos));
+                bbMain = BOUNDS_BASE_DOWN.offset(pos);
+                bbRod = BOUNDS_ROD_DU.offset(pos);
                 break;
             case NORTH:
-                boxMap.put(0, BOUNDS_BASE_SOUTH.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_NS.offset(pos));
+                bbMain = BOUNDS_BASE_SOUTH.offset(pos);
+                bbRod = BOUNDS_ROD_NS.offset(pos);
                 break;
             case SOUTH:
-                boxMap.put(0, BOUNDS_BASE_NORTH.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_NS.offset(pos));
+                bbMain = BOUNDS_BASE_NORTH.offset(pos);
+                bbRod = BOUNDS_ROD_NS.offset(pos);
                 break;
             case WEST:
-                boxMap.put(0, BOUNDS_BASE_EAST.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_WE.offset(pos));
+                bbMain = BOUNDS_BASE_EAST.offset(pos);
+                bbRod = BOUNDS_ROD_WE.offset(pos);
                 break;
             case EAST:
-                boxMap.put(0, BOUNDS_BASE_WEST.offset(pos));
-                boxMap.put(1, BOUNDS_ROD_WE.offset(pos));
+            default:
+                bbMain = BOUNDS_BASE_WEST.offset(pos);
+                bbRod = BOUNDS_ROD_WE.offset(pos);
                 break;
         }
+
+        boxMap.put(BOX_ID_MAIN, bbMain);
+        boxMap.put(facing.getIndex(), bbRod);
     }
 
     @Override

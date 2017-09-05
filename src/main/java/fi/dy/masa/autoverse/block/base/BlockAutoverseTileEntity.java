@@ -12,6 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -19,6 +20,7 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.reference.ReferenceGuiIds;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
+import fi.dy.masa.autoverse.util.EntityUtils;
 
 public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 {
@@ -105,6 +107,8 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 
         if (te != null && this.isTileEntityValid(te))
         {
+            side = this.getTargetedSide(world, pos, state, side, player);
+
             if (te.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
             {
                 return true;
@@ -132,7 +136,13 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
 
             if (te != null)
             {
-                te.onLeftClickBlock(world, pos, player);
+                RayTraceResult trace = EntityUtils.getRayTraceFromEntity(world, player, false);
+
+                if (trace != null && trace.typeOfHit == RayTraceResult.Type.BLOCK && trace.getBlockPos().equals(pos))
+                {
+                    EnumFacing side = this.getTargetedSide(world, pos, world.getBlockState(pos), trace.sideHit, player);
+                    te.onLeftClickBlock(world, pos, side, player);
+                }
             }
         }
     }

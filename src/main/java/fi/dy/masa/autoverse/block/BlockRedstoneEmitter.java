@@ -195,8 +195,8 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
     @Override
     protected void addAllSideCollisionBoxes(IBlockState actualState, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes)
     {
-        EnumFacing facing = actualState.getValue(FACING);
-        boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
+        final EnumFacing facing = actualState.getValue(FACING);
+        final boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
 
         addCollisionBoxToList(pos, entityBox, collidingBoxes, this.getBoundsForSide8(facing));
 
@@ -210,36 +210,37 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
     }
 
     @Override
-    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, final EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
     {
         Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
         boxMap.clear();
 
         if (actualState.getValue(SLIM))
         {
+            final EnumFacing mainFacing = actualState.getValue(FACING);
+            final boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
+
             // Base/main model/box
-            boxMap.put(6, BOUNDS_SLIM_BASE_10.offset(pos));
+            boxMap.put(BOX_ID_MAIN, BOUNDS_SLIM_BASE_10.offset(pos));
 
             // Output side model
-            boxMap.put(facing.getIndex(), this.getBoundsForSide8(facing).offset(pos));
-
-            boolean advanced = actualState.getValue(TYPE) == EmitterType.ADVANCED;
+            boxMap.put(mainFacing.getIndex(), this.getBoundsForSide8(mainFacing).offset(pos));
 
             // Redstone output side models
             for (int sideIndex = 0; sideIndex < 6; sideIndex++)
             {
+                final EnumFacing side = EnumFacing.getFront(sideIndex);
+
                 // This side should have its "connection"
-                if (advanced || actualState.getValue(SIDES.get(sideIndex)) != SideStatus.DISABLED)
+                if (side != mainFacing && (advanced || actualState.getValue(SIDES.get(sideIndex)) != SideStatus.DISABLED))
                 {
-                    EnumFacing side = EnumFacing.getFront(sideIndex);
-                    // FIXME the index??
-                    boxMap.put(7 + sideIndex * 6 + sideIndex, this.getBoundsForSide6(side).offset(pos));
+                    boxMap.put(sideIndex, this.getBoundsForSide6(side).offset(pos));
                 }
             }
         }
         else
         {
-            boxMap.put(6, FULL_BLOCK_AABB.offset(pos));
+            boxMap.put(BOX_ID_MAIN, FULL_BLOCK_AABB.offset(pos));
         }
     }
 

@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.block.base;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -49,13 +48,13 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
     protected PropertyDirection propSideFacing0;
     protected int numModelSideFacings;
     protected boolean hasMainOutput;
-    private final Map<Integer, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
 
     public BlockMachineSlimBase(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);
 
         this.hasMainOutput = true;
+        this.createHilightBoxMap();
     }
 
     public boolean hasMainOutput()
@@ -175,26 +174,20 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
         return collisionRayTraceToBoxes(state, this, world, pos, start, end);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Map<Integer, AxisAlignedBB> getHilightBoxMap()
-    {
-        return this.hilightBoxMap;
-    }
-
-    @Override
-    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, final EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
     {
         Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
         boxMap.clear();
 
         if (actualState.getValue(SLIM))
         {
-            boxMap.put(6, BOUNDS_SLIM_BASE_12.offset(pos));
+            final EnumFacing mainFacing = actualState.getValue(FACING);
+            boxMap.put(BOX_ID_MAIN, BOUNDS_SLIM_BASE_12.offset(pos));
 
             if (this.hasMainOutput())
             {
-                EnumFacing side = facing;
+                EnumFacing side = mainFacing;
 
                 if (this.isMainOutputOppositeToFacing())
                 {
@@ -206,13 +199,13 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
 
             for (int sideIndex = 0; sideIndex < this.getNumModelSideFacings(); sideIndex++)
             {
-                EnumFacing side = PositionUtils.getAbsoluteFacingFromNorth(facing, actualState.getValue(this.getPropertyFacing(sideIndex)));
-                boxMap.put(7 + sideIndex * 6 + side.getIndex(), this.getBoundsForSide(side).offset(pos));
+                EnumFacing side = PositionUtils.getAbsoluteFacingFromNorth(mainFacing, actualState.getValue(this.getPropertyFacing(sideIndex)));
+                boxMap.put(side.getIndex(), this.getBoundsForSide(side).offset(pos));
             }
         }
         else
         {
-            boxMap.put(6, FULL_BLOCK_AABB.offset(pos));
+            boxMap.put(BOX_ID_MAIN, FULL_BLOCK_AABB.offset(pos));
         }
     }
 

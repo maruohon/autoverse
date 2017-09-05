@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,7 +17,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -26,7 +24,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockPipe;
-import fi.dy.masa.autoverse.block.BlockPipe.PipePart;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
@@ -37,7 +34,6 @@ import fi.dy.masa.autoverse.network.message.ISyncableTile;
 import fi.dy.masa.autoverse.network.message.MessageSyncTileEntity;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
-import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils.InvResult;
 import fi.dy.masa.autoverse.util.NBTUtils;
@@ -643,18 +639,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player)
+    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
         if (world.isRemote == false && player.isSneaking())
         {
-            IBlockState state = world.getBlockState(pos);
-            RayTraceResult trace = EntityUtils.getRayTraceFromEntity(world, player, false);
-
-            if (trace.typeOfHit == RayTraceResult.Type.BLOCK && pos.equals(trace.getBlockPos()))
-            {
-                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, trace.sideHit, player);
-                this.toggleSideDisabled(targetSide);
-            }
+            this.toggleSideDisabled(side);
         }
     }
 
@@ -683,8 +672,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             {
                 if (world.isRemote == false)
                 {
-                    EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
-                    this.toggleSideDisabled(targetSide);
+                    this.toggleSideDisabled(side);
                 }
 
                 return true;
@@ -692,23 +680,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
 
         return false;
-    }
-
-    protected EnumFacing getActionTargetSide(World world, BlockPos pos, IBlockState state, EnumFacing side, EntityPlayer player)
-    {
-        if (state.getBlock() instanceof BlockPipe)
-        {
-            Pair<PipePart, EnumFacing> key = BlockPipe.getPointedElementId(world, pos, (BlockPipe) state.getBlock(), null, player);
-
-            // Targeting one of the side connections
-            if (key != null && key.getLeft() == PipePart.SIDE)
-            {
-                side = key.getRight();
-            }
-            //else: Targeting the middle part
-        }
-
-        return side;
     }
 
     @Override

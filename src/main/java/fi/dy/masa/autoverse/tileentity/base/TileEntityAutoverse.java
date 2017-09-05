@@ -235,7 +235,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         return false;
     }
 
-    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player) { }
+    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player) { }
 
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {

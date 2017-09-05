@@ -1,9 +1,9 @@
 package fi.dy.masa.autoverse.block.base;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
@@ -15,6 +15,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,6 +38,7 @@ import fi.dy.masa.autoverse.util.EntityUtils;
 
 public class BlockAutoverse extends Block
 {
+    public static final int BOX_ID_MAIN = 123456;
     public static final EnumFacing DEFAULT_FACING = EnumFacing.NORTH;
     public static final PropertyDirection FACING = BlockDirectional.FACING;
     public static final PropertyDirection FACING_H = BlockHorizontal.FACING;
@@ -46,6 +48,7 @@ public class BlockAutoverse extends Block
     protected String[] tooltipNames;
     protected boolean enabled = true;
     protected boolean hasFacing;
+    private Map<Integer, AxisAlignedBB> hilightBoxMap;
 
     public BlockAutoverse(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
@@ -140,9 +143,9 @@ public class BlockAutoverse extends Block
         }
     }
 
-    public <T> Map<T, AxisAlignedBB> getHilightBoxMap()
+    public Map<Integer, AxisAlignedBB> getHilightBoxMap()
     {
-        return Collections.emptyMap();
+        return this.hilightBoxMap;
     }
 
     /**
@@ -150,13 +153,36 @@ public class BlockAutoverse extends Block
      * Invalid hits (ie. misses) return null.
      */
     @Nullable
-    public static <T> T getPointedElementId(World world, BlockPos pos, BlockAutoverse block, @Nullable EnumFacing facing, @Nonnull Entity entity)
+    private Integer getPointedElementId(World world, BlockPos pos, BlockAutoverse block, @Nonnull Entity entity)
     {
-        block.updateBlockHilightBoxes(world.getBlockState(pos).getActualState(world, pos), world, pos, facing);
+        block.updateBlockHilightBoxes(world.getBlockState(pos).getActualState(world, pos), world, pos);
         return EntityUtils.getPointedBox(EntityUtils.getEyesVec(entity), entity.getLookVec(), 6d, block.getHilightBoxMap());
     }
 
-    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, @Nullable EnumFacing facing)
+    protected EnumFacing getTargetedSide(World world, BlockPos pos, IBlockState state, @Nonnull EnumFacing side, @Nonnull EntityPlayer player)
+    {
+        if (this.getHilightBoxMap() != null)
+        {
+            Integer key = this.getPointedElementId(world, pos, (BlockAutoverse) state.getBlock(), player);
+            return key != null ? this.getSideFromBoxId(key, side) : side;
+        }
+        else
+        {
+            return side;
+        }
+    }
+
+    protected EnumFacing getSideFromBoxId(Integer id, EnumFacing sideIn)
+    {
+        return id == BOX_ID_MAIN ? sideIn : EnumFacing.getFront(id);
+    }
+
+    protected void createHilightBoxMap()
+    {
+        this.hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
+    }
+
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
     {
     }
 
@@ -164,16 +190,7 @@ public class BlockAutoverse extends Block
     protected static RayTraceResult collisionRayTraceToBoxes(IBlockState state, BlockAutoverse block,
             World world, BlockPos pos, Vec3d start, Vec3d end)
     {
-        state = state.getActualState(world, pos);
-
-        if (block.hasFacing)
-        {
-            block.updateBlockHilightBoxes(state, world, pos, state.getValue(FACING));
-        }
-        else
-        {
-            block.updateBlockHilightBoxes(state, world, pos, null);
-        }
+        block.updateBlockHilightBoxes(state.getActualState(world, pos), world, pos);
 
         List<RayTraceResult> list = new ArrayList<RayTraceResult>();
 

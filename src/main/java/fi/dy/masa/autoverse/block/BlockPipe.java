@@ -3,9 +3,6 @@ package fi.dy.masa.autoverse.block;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -64,8 +61,6 @@ public class BlockPipe extends BlockAutoverseInventory
 
     public static final List<PropertyEnum<Connection>> CONNECTIONS = new ArrayList<PropertyEnum<Connection>>();
 
-    private final Map<Pair<PipePart, EnumFacing>, AxisAlignedBB> hilightBoxMap = new ConcurrentHashMap<Pair<PipePart, EnumFacing>, AxisAlignedBB>();
-
     static
     {
         CONNECTIONS.add(CONN_DOWN);
@@ -82,6 +77,7 @@ public class BlockPipe extends BlockAutoverseInventory
 
         this.hasFacing = false;
         this.getFacingFromTE = false;
+        this.createHilightBoxMap();
 
         this.setDefaultState(this.blockState.getBaseState()
                 .withProperty(TYPE, PipeType.BASIC)
@@ -277,18 +273,11 @@ public class BlockPipe extends BlockAutoverseInventory
         return state.getBoundingBox(world, pos).offset(pos);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Map<Pair<PipePart, EnumFacing>, AxisAlignedBB> getHilightBoxMap()
-    {
-        return this.hilightBoxMap;
-    }
-
-    @Override
-    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos, @Nullable EnumFacing facing)
+    public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
     {
         TileEntityPipe te = getTileEntitySafely(world, pos, TileEntityPipe.class);
-        Map<Pair<PipePart, EnumFacing>, AxisAlignedBB> boxMap = this.getHilightBoxMap();
+        Map<Integer, AxisAlignedBB> boxMap = this.getHilightBoxMap();
         boxMap.clear();
 
         if (te != null)
@@ -299,12 +288,12 @@ public class BlockPipe extends BlockAutoverseInventory
             {
                 if ((mask & bit) != 0)
                 {
-                    boxMap.put(Pair.of(PipePart.SIDE, EnumFacing.getFront(i)), SIDE_BOUNDS_BY_FACING[i].offset(pos));
+                    boxMap.put(Integer.valueOf(i), SIDE_BOUNDS_BY_FACING[i].offset(pos));
                 }
             }
         }
 
-        boxMap.put(Pair.of(PipePart.MAIN, EnumFacing.DOWN), BOUNDS_MIDDLE.offset(pos));
+        boxMap.put(Integer.valueOf(BOX_ID_MAIN), BOUNDS_MIDDLE.offset(pos));
     }
 
     @Override

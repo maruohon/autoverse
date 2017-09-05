@@ -7,11 +7,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
-import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class TileEntityPipeDirectional extends TileEntityPipe
@@ -91,18 +89,11 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     }
 
     @Override
-    public void onLeftClickBlock(World world, BlockPos pos, EntityPlayer player)
+    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
         if (world.isRemote == false && player.isSneaking())
         {
-            IBlockState state = world.getBlockState(pos);
-            RayTraceResult trace = EntityUtils.getRayTraceFromEntity(world, player, false);
-
-            if (trace.typeOfHit == RayTraceResult.Type.BLOCK && pos.equals(trace.getBlockPos()))
-            {
-                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, trace.sideHit, player);
-                this.toggleOutputOnSide(targetSide);
-            }
+            this.toggleOutputOnSide(side);
         }
     }
 
@@ -120,8 +111,7 @@ public class TileEntityPipeDirectional extends TileEntityPipe
         {
             if (world.isRemote == false)
             {
-                EnumFacing targetSide = this.getActionTargetSide(world, pos, state, side, player);
-                this.toggleOutputOnSide(targetSide);
+                this.toggleOutputOnSide(side);
             }
 
             return true;
