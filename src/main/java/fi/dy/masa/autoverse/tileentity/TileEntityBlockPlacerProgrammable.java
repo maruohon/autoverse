@@ -323,6 +323,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
         player.setHeldItem(EnumHand.MAIN_HAND, stack);
         EnumActionResult result = stack.onItemUse(player, world, pos.down(), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 1.0f, 0.5f);
+        player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
 
         if (result == EnumActionResult.SUCCESS)
         {
