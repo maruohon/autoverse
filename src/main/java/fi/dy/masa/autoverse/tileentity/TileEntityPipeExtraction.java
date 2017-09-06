@@ -43,6 +43,16 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
 
     @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[3] = this.disabledInputSides;
+
+        return values;
+    }
+
+    @Override
     public void rotate(Rotation rotation)
     {
         super.rotate(rotation);

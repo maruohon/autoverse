@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.tileentity;
 
+import java.util.Arrays;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,6 +83,17 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         }
 
         return false;
+    }
+
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = new int[4];
+        Arrays.fill(values, -1);
+
+        values[0] = this.tier;
+
+        return values;
     }
 
     @Override

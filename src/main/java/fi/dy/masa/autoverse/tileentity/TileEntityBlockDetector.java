@@ -101,6 +101,16 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facingDetectionOut.getIndex();
+
+        return values;
+    }
+
     public boolean getUseIndicators()
     {
         return this.useIndicators;

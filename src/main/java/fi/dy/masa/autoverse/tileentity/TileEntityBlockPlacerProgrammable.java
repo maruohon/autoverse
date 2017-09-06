@@ -91,6 +91,17 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facingHorizontal.getIndex();
+        values[2] = this.placementOffset;
+
+        return values;
+    }
+
     public void setHorizontalFacing(EnumFacing facing)
     {
         if (facing.getAxis().isHorizontal())
@@ -172,17 +183,14 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Comparable<T>> IBlockState getFinalPlacementState(IBlockState state)
+    public static List<String> getConfigurableBlockPropertiesSorted(IBlockState state)
     {
-        //System.out.printf("Original state: %s\n", state);
-        final int propCount = this.placer.getPropertyCount();
         List<String> propNamesFacing = new ArrayList<String>();
         List<String> propNamesInteger = new ArrayList<String>();
 
         for (Entry <IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet())
         {
-            IProperty<T> property = (IProperty<T>) entry.getKey();
+            IProperty<?> property = entry.getKey();
 
             if (property instanceof PropertyDirection)
             {
@@ -202,6 +210,15 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         propNames.addAll(propNamesFacing);
         propNames.addAll(propNamesInteger);
 
+        return propNames;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Comparable<T>> IBlockState getFinalPlacementState(IBlockState state)
+    {
+        final int propCount = this.placer.getPropertyCount();
+        List<String> propNames = getConfigurableBlockPropertiesSorted(state);
+
         for (int i = 0; i < propCount && i < propNames.size(); i++)
         {
             int value = this.placer.getPropertyValue(i);
@@ -216,28 +233,32 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
 
                     if (propName.equals(property.getName()))
                     {
-                        EnumFacing facing = EnumFacing.getFront(value);
-                        Integer intValue = Integer.valueOf(value);
-
-                        if ((property instanceof PropertyDirection) && property.getAllowedValues().contains(facing))
+                        if (property instanceof PropertyDirection)
                         {
-                            //System.out.printf("Setting property %s to %s\n", propName, facing);
-                            state = state.withProperty(property, (T) facing);
-                            break;
+                            EnumFacing facing = EnumFacing.getFront(value);
+
+                            if (property.getAllowedValues().contains(facing))
+                            {
+                                state = state.withProperty(property, (T) facing);
+                                break;
+                            }
                         }
                         // TODO: Add some kind of property white listing system, since this may allow exploits!
-                        else if ((property instanceof PropertyInteger) && property.getAllowedValues().contains(intValue))
+                        else if (property instanceof PropertyInteger)
                         {
-                            //System.out.printf("Setting property %s to %d\n", propName, intValue);
-                            state = state.withProperty(property, (T) intValue);
-                            break;
+                            Integer intValue = Integer.valueOf(value);
+
+                            if (property.getAllowedValues().contains(intValue))
+                            {
+                                state = state.withProperty(property, (T) intValue);
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
 
-        //System.out.printf("Final state: %s\n", state);
         return state;
     }
 

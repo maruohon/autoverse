@@ -83,6 +83,17 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facingFilteredOut.getIndex();
+        values[2] = this.delay;
+
+        return values;
+    }
+
     public IItemHandler getInventoryInput()
     {
         return this.inventoryInput;

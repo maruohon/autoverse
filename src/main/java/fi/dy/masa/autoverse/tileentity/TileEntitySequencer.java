@@ -56,6 +56,16 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     }
 
     @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.itemHandlerBase.getSlots();
+
+        return values;
+    }
+
+    @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
         super.setPlacementProperties(world, pos, stack, tag);

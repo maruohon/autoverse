@@ -120,6 +120,17 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facing2.getIndex();
+        values[2] = this.delay;
+
+        return values;
+    }
+
     public void setSplitterType(BlockSplitter.SplitterType type)
     {
         this.type = type;

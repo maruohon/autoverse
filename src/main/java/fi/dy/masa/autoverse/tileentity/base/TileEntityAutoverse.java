@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.tileentity.base;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -132,6 +133,21 @@ public abstract class TileEntityAutoverse extends TileEntity
         }
 
         return false;
+    }
+
+    /**
+     * Returns an array of the custom properties, to be used in the Block Placer Configurator
+     * @return
+     */
+    public int[] getProperties()
+    {
+        int[] values = new int[4];
+        Arrays.fill(values, -1);
+
+        values[0] = this.getFacing().getIndex();
+        values[3] = this.slimModel ? 1 : 0;
+
+        return values;
     }
 
     protected Vec3d getSpawnedItemPosition()

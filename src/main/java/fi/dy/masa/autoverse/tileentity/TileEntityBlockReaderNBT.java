@@ -59,6 +59,16 @@ public class TileEntityBlockReaderNBT extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.maxLength;
+
+        return values;
+    }
+
     public int getMaxLength()
     {
         return this.maxLength;

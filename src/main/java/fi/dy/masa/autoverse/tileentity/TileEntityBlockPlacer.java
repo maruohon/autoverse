@@ -83,6 +83,17 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facingHorizontal.getIndex();
+        values[2] = this.delay;
+
+        return values;
+    }
+
     @SuppressWarnings("deprecation")
     @Nullable
     private IBlockState getPlacementStateForPosition(int position, World world, BlockPos pos, FakePlayer player)

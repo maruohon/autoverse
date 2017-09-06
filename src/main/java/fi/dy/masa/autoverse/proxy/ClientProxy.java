@@ -157,6 +157,7 @@ public class ClientProxy extends CommonProxy
 
     private static void registerItemModels()
     {
+        registerItemModel(AutoverseItems.CONFIGURATOR, 0, "inventory");
         registerItemModel(AutoverseItems.WAND, 0, "inventory");
     }
 

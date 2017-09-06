@@ -51,6 +51,16 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         }
     }
 
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.delay;
+
+        return values;
+    }
+
     public void setIsGreedy(boolean isGreedy)
     {
         this.isGreedy = isGreedy;

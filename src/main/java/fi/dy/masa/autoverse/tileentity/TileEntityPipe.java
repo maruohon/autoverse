@@ -112,6 +112,19 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
+    public int[] getProperties()
+    {
+        int[] values = new int[4];
+        Arrays.fill(values, -1);
+
+        values[0] = this.delay;
+        values[1] = this.itemHandlerBase.getInventoryStackLimit();
+        values[2] = this.disabledSidesMask;
+
+        return values;
+    }
+
+    @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
         if (tag.hasKey("pipe.delay", Constants.NBT.TAG_INT))

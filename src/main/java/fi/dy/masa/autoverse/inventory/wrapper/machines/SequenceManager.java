@@ -64,6 +64,11 @@ public class SequenceManager
         return items;
     }
 
+    public int getCurrentSequenceIndex()
+    {
+        return this.position;
+    }
+
     /**
      * Configures all sequences in the order the sequences were added to the manager.
      * If firstIsEndMarker is true, then after the first sequence has been configured,

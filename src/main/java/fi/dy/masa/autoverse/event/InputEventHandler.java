@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.gui.client.GuiScreenItemNameField;
-import fi.dy.masa.autoverse.item.base.AutoverseItems;
 import fi.dy.masa.autoverse.item.base.IKeyBound;
 import fi.dy.masa.autoverse.item.base.IStringInput;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
@@ -154,8 +153,8 @@ public class InputEventHandler
                 {
                     keyCode = HotKeys.KEYCODE_MIDDLE_CLICK | modifierMask;
 
-                    // FIXME this is a bit of an ugly way to prevent pick-blocking while holding a WotLS
-                    if (event.isCancelable() && EntityUtils.getHeldItemOfType(player, IKeyBound.class).getItem() == AutoverseItems.WAND)
+                    // FIXME this is a bit of an ugly way to prevent pick-blocking while holding a WotLS or a BPPC
+                    if (event.isCancelable() && EntityUtils.getHeldItemOfType(player, IKeyBound.class).isEmpty() == false)
                     {
                         event.setCanceled(true);
                     }

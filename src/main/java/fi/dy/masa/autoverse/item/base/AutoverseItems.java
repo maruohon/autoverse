@@ -6,12 +6,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.item.ItemBlockPlacerConfigurator;
 import fi.dy.masa.autoverse.item.ItemWand;
 import fi.dy.masa.autoverse.reference.Reference;
 
 @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public class AutoverseItems
 {
+    public static final ItemAutoverse CONFIGURATOR = new ItemBlockPlacerConfigurator();
     public static final ItemAutoverse WAND = new ItemWand();
 
     @SubscribeEvent
@@ -19,6 +21,7 @@ public class AutoverseItems
     {
         IForgeRegistry<Item> registry = event.getRegistry();
 
+        registerItem(registry, CONFIGURATOR,    Configs.disableItemBlockPlacerConfigurator);
         registerItem(registry, WAND,            Configs.disableItemWand);
     }
 

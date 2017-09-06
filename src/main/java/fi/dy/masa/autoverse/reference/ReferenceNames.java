@@ -37,6 +37,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_TRASH_BIN           = "trash_bin";
     public static final String NAME_TILE_ENTITY_TRASH_BUFFER        = "trash_buffer";
 
+    public static final String NAME_ITEM_BLOCK_PLACER_CONFIGURATOR  = "configurator";
     public static final String NAME_ITEM_WAND                       = "wand";
 
     public static String getPrefixedName(String name)

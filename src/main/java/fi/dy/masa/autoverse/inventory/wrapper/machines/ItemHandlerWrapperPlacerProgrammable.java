@@ -8,6 +8,7 @@ import fi.dy.masa.autoverse.tileentity.TileEntityBlockPlacerProgrammable;
 
 public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequenceBase
 {
+    public static final int NUM_PROPERTIES = 4;
     private final TileEntityBlockPlacerProgrammable te;
     private final SequenceMatcher sequenceMarkerHighBit;
     private final SequenceMatcherVariable sequenceTrigger;
@@ -27,7 +28,7 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
         this.sequenceMarkerHighBit  = new SequenceMatcher(1, "SequenceBitMarker");
         this.sequenceTrigger = (new SequenceMatcherVariable(4, "SequenceTrigger")).setAllowEmptySequence(true);
         this.sequenceOffset  = (new SequenceMatcherVariable(4, "SequenceOffset")).setAllowEmptySequence(true);
-        this.propertySequences = new SequenceMatcherVariable[4];
+        this.propertySequences = new SequenceMatcherVariable[NUM_PROPERTIES];
 
         this.getSequenceManager().add(this.sequenceMarkerHighBit, 1);
         this.getSequenceManager().add(this.sequenceTrigger);
@@ -80,6 +81,14 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
 
             return false;
         }
+    }
+
+    public boolean canConfigureProperties()
+    {
+        // In configuration phase, and just starting to configure the first block property
+        return this.getState() == State.CONFIGURE &&
+               this.getSequenceManager().getCurrentSequenceIndex() == 5 &&
+               this.propertySequences[0].getPosition() == 0;
     }
 
     private void parsePropertyValues()

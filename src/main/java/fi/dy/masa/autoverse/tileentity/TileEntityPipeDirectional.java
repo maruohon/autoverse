@@ -41,6 +41,16 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     }
 
     @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[3] = this.outputSidesMask;
+
+        return values;
+    }
+
+    @Override
     public void rotate(Rotation rotation)
     {
         super.rotate(rotation);

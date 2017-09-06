@@ -32,6 +32,7 @@ public class Configs
     public static boolean disableBlockSplitter;
     public static boolean disableBlockTrash;
 
+    public static boolean disableItemBlockPlacerConfigurator;
     public static boolean disableItemWand;
 
 
@@ -138,7 +139,8 @@ public class Configs
     {
         conf.getCategory(CATEGORY_ITEM_DISABLE).setRequiresMcRestart(true);
 
-        disableItemWand = conf.get(CATEGORY_ITEM_DISABLE, "disableItemWand", false).getBoolean();
+        disableItemBlockPlacerConfigurator  = conf.get(CATEGORY_ITEM_DISABLE, "disableItemBlockPlacerConfigurator", false).getBoolean();
+        disableItemWand                     = conf.get(CATEGORY_ITEM_DISABLE, "disableItemWand", false).getBoolean();
 
         if (conf.hasChanged())
         {

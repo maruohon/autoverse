@@ -75,6 +75,17 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     }
 
     @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.getFifoLength();
+        values[2] = this.delay;
+
+        return values;
+    }
+
+    @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
         super.setPlacementProperties(world, pos, stack, tag);

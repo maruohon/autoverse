@@ -43,6 +43,10 @@ autoverse.container.trash_buffer=Trash Buffer
 ###################################
 # Chat messages:
 ###################################
+autoverse.chat.configurator.error.items_not_found=§cFailed to find all marker items§r
+autoverse.chat.configurator.error.no_stored_properties_selected=§cNo stored properties in the selected sequence§r
+autoverse.chat.configurator.error.wrong_state=§cFailed: The Block Placer is not in the correct configuration phase (beginning of Property 1)§r
+autoverse.chat.configurator.properties_stored=§aSuccessfully stored properties§r
 autoverse.chat.wand.sequence_applied_failed=§cFailed: Only applied %d of %d items§r
 autoverse.chat.wand.sequence_applied_success=§aSuccessfully applied a sequence of %d items§r
 autoverse.chat.wand.sequence_stored=Sequence stored
@@ -160,6 +164,7 @@ autoverse.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties *
 # Tooltips displayed on items:
 ############################################
 
+item.autoverse.configurator.tooltips=- Can read and store the configurable properties from any blocks|lf- Can then be used to easily configure the block|lf   properties in the Programmable Block Placer|lf- Alt + scroll: Change the selected slot/sequence|lf- Toggle key: Name the currently selected property sequence|lf- Shift + middle click (pick block): Store the properties from the pointed block|lf- Sneak + right click on a Programmable Block Placer:|lf   Apply the block properties|lf- NOTE: The Block Placer must be configured up and including the Offset,|lf   ie. just in the beginning of the first block property,|lf   when this item is used to apply the property sequence|lf- The first found stackable item in the player's inventory|lf   (that is not the end marker or the high bit marker),|lf   is used for the low (= 0) bits marker item
 item.autoverse.wand.tooltips=- Can store item sequences and apply them to inventories/machines|lf- Alt + scroll: Change the selected sequence|lf- Toggle key: Name the currently selected sequence|lf- Shift + middle click (pick block): Store a sequence from the pointed block|lf   (this will store either the currently programmed sequence of an|lf   Autoverse machine, or simply the item sequence of any other inventory)|lf- Sneak + right click on a machine or inventory to apply the sequence|lf- Shift + middle click (pick block) when NOT looking at a TileEntity:|lf   Remove the currently selected sequence
 
 
@@ -288,6 +293,7 @@ tile.autoverse.trash_buffer.name=Trash Buffer
 ##############
 # Item names:
 ##############
+item.autoverse.configurator.name=Block Placer Property Configurator
 item.autoverse.wand.name=Wand of the Lazy Sequencer
 
 autoverse.tooltip.item.andmorestacksnotlisted=  ... and %s%d%s more stacks not listed
