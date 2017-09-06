@@ -207,11 +207,19 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     @Override
     protected void onRedstoneChange(boolean state)
     {
-        // If delay is set to 0, then the detection runs on the rising edge of a redstone pulse
-        if (state && this.delay == 0)
+        if (state)
         {
-            this.nextDetection = this.getWorld().getTotalWorldTime() + 1;
-            this.reScheduleUpdateIfSooner(1);
+            // If delay is set to 0, then the detection runs on the rising edge of a redstone pulse
+            if (this.delay == 0)
+            {
+                this.nextDetection = this.getWorld().getTotalWorldTime() + 1;
+                this.reScheduleUpdateIfSooner(1);
+            }
+        }
+        else if (this.nextDetection == 0 || this.nextDetection <= this.getWorld().getTotalWorldTime())
+        {
+            this.setNextDetectionTime();
+            this.scheduleUpdateIfNeeded(false);
         }
     }
 
@@ -299,7 +307,8 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         if (this.detectorRunning)
         {
             // In redstone mode nextDetection is initially 0, before a redstone pulse
-            if (this.nextDetection != 0 && this.nextDetection <= this.getWorld().getTotalWorldTime())
+            if ((this.delay == 0 || this.redstoneState == false) &&
+                (this.nextDetection != 0 && this.nextDetection <= this.getWorld().getTotalWorldTime()))
             {
                 this.detectBlocks();
                 this.setNextDetectionTime();
