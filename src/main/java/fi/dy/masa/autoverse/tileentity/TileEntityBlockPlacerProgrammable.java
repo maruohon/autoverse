@@ -164,20 +164,16 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         this.placer.deserializeNBT(nbt);
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
     private IBlockState getPlacementStateForPosition(ItemStack stack, World world, BlockPos pos, EntityPlayer player)
     {
-        if (stack.isEmpty() == false)
+        if (stack.isEmpty() == false && stack.getItem() instanceof ItemBlock)
         {
-            if (stack.getItem() instanceof ItemBlock)
-            {
-                ItemBlock itemBlock = (ItemBlock) stack.getItem();
-                int meta = itemBlock.getMetadata(stack.getMetadata());
-                player.rotationYaw = this.facingHorizontal.getHorizontalAngle();
+            ItemBlock itemBlock = (ItemBlock) stack.getItem();
+            int meta = itemBlock.getMetadata(stack.getMetadata());
+            player.rotationYaw = this.facingHorizontal.getHorizontalAngle();
 
-                return itemBlock.getBlock().getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
-            }
+            return itemBlock.getBlock().getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player, EnumHand.MAIN_HAND);
         }
 
         return null;
@@ -326,7 +322,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
 
         player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
         player.setHeldItem(EnumHand.MAIN_HAND, stack);
-        EnumActionResult result = stack.onItemUse(player, world, pos, EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 0.0f, 0.5f);
+        EnumActionResult result = stack.onItemUse(player, world, pos.down(), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 1.0f, 0.5f);
 
         if (result == EnumActionResult.SUCCESS)
         {
