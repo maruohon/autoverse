@@ -33,6 +33,7 @@ import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.BlockUtils;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInventory
@@ -292,7 +293,9 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
             world.getBlockState(pos).getBlock().isReplaceable(world, pos))
         {
             EntityPlayer player = this.getPlayer();
+            EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, stack);
             IBlockState stateInitial = this.getPlacementStateForPosition(stack, world, pos, player);
+            EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, ItemStack.EMPTY);
 
             if (stateInitial != null)
             {
@@ -321,9 +324,9 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         IBlockState stateOriginal = world.getBlockState(pos);
 
         player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
-        player.setHeldItem(EnumHand.MAIN_HAND, stack);
+        EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, stack);
         EnumActionResult result = stack.onItemUse(player, world, pos.down(), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 1.0f, 0.5f);
-        player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
+        EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, ItemStack.EMPTY);
 
         if (result == EnumActionResult.SUCCESS)
         {

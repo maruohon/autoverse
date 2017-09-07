@@ -11,6 +11,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
@@ -29,6 +30,7 @@ import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperSelective;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverseInventory;
 import fi.dy.masa.autoverse.util.BlockUtils;
+import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.PositionUtils;
 import fi.dy.masa.autoverse.util.TileUtils;
 
@@ -125,7 +127,11 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
                 int meta = itemBlock.getMetadata(stack.getMetadata());
                 player.rotationYaw = this.facingHorizontal.getHorizontalAngle();
 
-                return itemBlock.getBlock().getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player);
+                EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, stack);
+                IBlockState state = itemBlock.getBlock().getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 1f, 0.5f, meta, player, EnumHand.MAIN_HAND);
+                EntityUtils.setHeldItemWithoutEquipSound(player, EnumHand.MAIN_HAND, ItemStack.EMPTY);
+
+                return state;
             }
         }
 

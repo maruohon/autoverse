@@ -6,9 +6,11 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -45,6 +47,24 @@ public class EntityUtils
         }
 
         return ItemStack.EMPTY;
+    }
+
+    /**
+     * Sets the held item, without playing the equip sound.
+     * @param player
+     * @param hand
+     * @param stack
+     */
+    public static void setHeldItemWithoutEquipSound(EntityPlayer player, EnumHand hand, ItemStack stack)
+    {
+        if (hand == EnumHand.MAIN_HAND)
+        {
+            player.inventory.mainInventory.set(player.inventory.currentItem, stack);
+        }
+        else if (hand == EnumHand.OFF_HAND)
+        {
+            player.inventory.offHandInventory.set(0, stack);
+        }
     }
 
     @Nonnull

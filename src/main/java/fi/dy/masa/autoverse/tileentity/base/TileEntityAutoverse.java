@@ -219,7 +219,7 @@ public abstract class TileEntityAutoverse extends TileEntity
             int dim = this.getWorld().provider.getDimension();
 
             this.fakePlayer = FakePlayerFactory.get((WorldServer) this.getWorld(),
-                    new GameProfile(new UUID(dim, dim), Reference.MOD_ID + this.tileEntityName));
+                    new GameProfile(new UUID(dim, dim), Reference.MOD_ID + ":" + this.tileEntityName));
         }
 
         return this.fakePlayer;
