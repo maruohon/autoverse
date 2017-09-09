@@ -1,0 +1,32 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block",
+        "textures": {
+            "out_off_end":      "autoverse:blocks/latch_rs_out_off_end",
+            "out_off_side":     "autoverse:blocks/latch_rs_out_off_side",
+            "out_on_end":       "autoverse:blocks/latch_rs_out_on_end",
+            "out_on_side":      "autoverse:blocks/latch_rs_out_on_side"
+        }
+    },
+    "variants": {
+        "type": {
+            "latch_rs": {
+                "model": "autoverse:custom/latch_rs",
+                "textures": {
+                    "base":             "autoverse:blocks/latch_rs_base_side",
+                    "in_reset_end":     "autoverse:blocks/latch_rs_in_reset_end",
+                    "in_reset_side":    "autoverse:blocks/latch_rs_in_reset_side",
+                    "in_set_end":       "autoverse:blocks/latch_rs_in_set_end",
+                    "in_set_side":      "autoverse:blocks/latch_rs_in_set_side"
+                }
+            },
+            "latch_t": {
+                "model": "autoverse:custom/latch_t",
+                "textures": {
+                    "base":             "autoverse:blocks/latch_t_base_side"
+                }
+            }
+        }
+    }
+}

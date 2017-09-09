@@ -6,6 +6,7 @@ public class ReferenceNames
     public static final String NAME_BLOCK_BLOCK_READER              = "block_reader";
     public static final String NAME_BLOCK_BREAKER                   = "breaker";
     public static final String NAME_BLOCK_BUFFER                    = "buffer";
+    public static final String NAME_BLOCK_CIRCUIT                   = "circuit";
     public static final String NAME_BLOCK_CRAFTER                   = "crafter";
     public static final String NAME_BLOCK_DETECTOR                  = "detector";
     public static final String NAME_BLOCK_FILTER                    = "filter";
@@ -28,6 +29,7 @@ public class ReferenceNames
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO         = "buffer_fifo";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_AUTO    = "buffer_fifo_auto";
     public static final String NAME_TILE_ENTITY_BUFFER_FIFO_PULSED  = "buffer_fifo_pulsed";
+    public static final String NAME_TILE_ENTITY_LATCH               = "latch";
     public static final String NAME_TILE_ENTITY_PIPE_DIRECTIONAL    = "pipe_dir";
     public static final String NAME_TILE_ENTITY_PIPE_EXTRACTION     = "pipe_ex";
     public static final String NAME_TILE_ENTITY_PIPE_ROUNDROBIN     = "pipe_rr";

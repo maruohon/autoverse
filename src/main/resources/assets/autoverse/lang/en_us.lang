@@ -180,6 +180,8 @@ tile.autoverse.breaker_normal.tooltips=- Breaks blocks directly infront of itsel
 tile.autoverse.buffer_fifo.tooltips=- Stores items in a FIFO-type inventory|lf- This means that all items leave in the same order they arrived in|lf- Tries to push out one item at redstone pulse (Basic & Pulsed FIFOs)|lf- In GUI: Alt + Middle click: Set input position|lf- In GUI: Shift + Middle click: Set output position|lf- In GUI: Ctrl + Middle click on empty slot:|lf  Shift following items backward ("remove" that empty slot)|lf- In GUI: Ctrl + Middle click on slot with items:|lf  Shift following items forward ("add an empty slot")
 tile.autoverse.buffer_fifo_auto.tooltips=- See the regular FIFO for basic info|lf- Tries to automatically move/push out items|lf- Can be locked by powering with redstone (prevents auto-pushing)
 tile.autoverse.buffer_fifo_pulsed.tooltips=- See the regular FIFO for basic info|lf- Shifts the internal positions on a redstone pulse (only!)
+tile.autoverse.circuit_latch_rs.tooltips=- Right click to set output side (again for opposite)|lf- Sneak + right click to set the Set side|lf- Sneak + left click to set the Reset side
+tile.autoverse.circuit_latch_t.tooltips=- Right click to set output side (again for opposite)
 tile.autoverse.crafter.tooltips=- Automatic crafter, which can be programmed by an item sequence
 tile.autoverse.detector.tooltips=- Can detect blocks infront of itself|lf- Outputs a matching item when a block is detected|lf- Does one "ray trace" per detection attempt, at a random angle|lf- Needs to be fed the detection items it will then output|lf- Can be programmed in the following parameters:|lf  - Which blocks to detect|lf  - The maximum range to detect in (max 16 blocks)|lf  - The maximum angle to detect in (max +/- 45 deg, = "pyramid shape")|lf  - Detection interval (0 means redstone activated)
 tile.autoverse.filter_basic.tooltips=- A basic programmable filter|lf- Items matching the filter go out the secondary output side|lf- Sneak + right click with an empty hand to change the Filtered Out side
@@ -260,6 +262,8 @@ tile.autoverse.breaker_normal.name=Block Breaker
 tile.autoverse.buffer_fifo.name=FIFO Buffer
 tile.autoverse.buffer_fifo_auto.name=Auto-pushing FIFO Buffer
 tile.autoverse.buffer_fifo_pulsed.name=Pulsed FIFO Buffer
+tile.autoverse.circuit_latch_rs.name=RS-latch
+tile.autoverse.circuit_latch_t.name=T-latch
 tile.autoverse.crafter.name=Programmable Crafter
 tile.autoverse.detector.name=Programmable Block Detector
 tile.autoverse.filter_basic.name=Programmable Filter (Basic)

@@ -57,6 +57,12 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
         this.createHilightBoxMap();
     }
 
+    @Override
+    public boolean hasSpecialHitbox()
+    {
+        return true;
+    }
+
     public boolean hasMainOutput()
     {
         return this.hasMainOutput;

@@ -26,6 +26,7 @@ public class TileEntityInventoryReader extends TileEntityAutoverse
         this.output = strength;
         // Does this lead to an infinite loop?
         //this.markDirty();
+        this.getWorld().markChunkDirty(this.pos, this);
     }
 
     @Override

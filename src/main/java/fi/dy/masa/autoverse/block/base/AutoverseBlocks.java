@@ -24,6 +24,7 @@ public class AutoverseBlocks
     public static final BlockAutoverse BLOCK_PLACER             = new BlockPlacer(ReferenceNames.NAME_BLOCK_PLACER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse BLOCK_READER             = new BlockReader(ReferenceNames.NAME_BLOCK_BLOCK_READER,                           4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse BUFFER                   = new BlockBuffer(ReferenceNames.NAME_BLOCK_BUFFER,                                 4.0f, 10f, 1, Material.ROCK);
+    public static final BlockAutoverse CIRCUIT                  = new BlockCircuit(ReferenceNames.NAME_BLOCK_CIRCUIT,                               4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse CRAFTER                  = new BlockCrafter(ReferenceNames.NAME_BLOCK_CRAFTER,                               4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse FILTER                   = new BlockFilter(ReferenceNames.NAME_BLOCK_FILTER,                                 4.0f, 10f, 1, Material.ROCK);
     public static final BlockAutoverse INVENTORY_READER         = new BlockInventoryReader(ReferenceNames.NAME_BLOCK_INVENTORY_READER,              4.0f, 10f, 1, Material.ROCK);
@@ -48,6 +49,7 @@ public class AutoverseBlocks
         registerBlock(registry, BLOCK_PLACER,           Configs.disableBlockBlockPlacer);
         registerBlock(registry, BLOCK_READER,           Configs.disableBlockBlockReader);
         registerBlock(registry, BUFFER,                 Configs.disableBlockBuffer);
+        registerBlock(registry, CIRCUIT,                Configs.disableBlockCircuit);
         registerBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
@@ -75,6 +77,7 @@ public class AutoverseBlocks
         registerItemBlock(registry, BLOCK_PLACER,           Configs.disableBlockBlockPlacer);
         registerItemBlock(registry, BLOCK_READER,           Configs.disableBlockBlockReader);
         registerItemBlock(registry, BUFFER,                 Configs.disableBlockBuffer);
+        registerItemBlock(registry, CIRCUIT,                Configs.disableBlockCircuit);
         registerItemBlock(registry, CRAFTER,                Configs.disableBlockCrafter);
         registerItemBlock(registry, FILTER,                 Configs.disableBlockFilter);
         registerItemBlock(registry, INVENTORY_READER,       Configs.disableBlockInventoryReader);
@@ -132,6 +135,7 @@ public class AutoverseBlocks
         registerTileEntity(TileEntityFilterSequential.class,        ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL);
         registerTileEntity(TileEntityFilterSequentialStrict.class,  ReferenceNames.NAME_BLOCK_FILTER_SEQUENTIAL_STRICT);
         registerTileEntity(TileEntityInventoryReader.class,         ReferenceNames.NAME_BLOCK_INVENTORY_READER);
+        registerTileEntity(TileEntityLatch.class,                   ReferenceNames.NAME_TILE_ENTITY_LATCH);
         registerTileEntity(TileEntityMuxer.class,                   ReferenceNames.NAME_BLOCK_MUXER);
         registerTileEntity(TileEntityPipe.class,                    ReferenceNames.NAME_BLOCK_PIPE);
         registerTileEntity(TileEntityPipeDirectional.class,         ReferenceNames.NAME_TILE_ENTITY_PIPE_DIRECTIONAL);

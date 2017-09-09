@@ -43,7 +43,7 @@ public class ServerEventHandler
         {
             Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
-            if (block == AutoverseBlocks.PIPE)
+            if (block == AutoverseBlocks.PIPE || block == AutoverseBlocks.CIRCUIT)
             {
                 block.onBlockClicked(event.getWorld(), event.getPos(), event.getEntityPlayer());
                 event.setCanceled(true);

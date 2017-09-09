@@ -73,6 +73,11 @@ public class BlockAutoverse extends Block
         return this.hasFacing;
     }
 
+    public boolean hasSpecialHitbox()
+    {
+        return false;
+    }
+
     @Override
     public int damageDropped(IBlockState state)
     {

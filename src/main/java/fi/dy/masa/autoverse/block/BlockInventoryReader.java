@@ -67,6 +67,12 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     }
 
     @Override
+    public boolean hasSpecialHitbox()
+    {
+        return true;
+    }
+
+    @Override
     protected String[] generateUnlocalizedNames()
     {
         return new String[] {

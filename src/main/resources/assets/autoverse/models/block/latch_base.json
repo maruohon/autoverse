@@ -1,0 +1,17 @@
+{
+    "parent": "minecraft:block/block",
+    "elements": [ 
+        {
+            "from": [  4,  4,  4 ],
+            "to":   [ 12, 12, 12 ],
+            "faces": {
+                "down":  { "uv": [ 12, 12,  4,  4 ], "texture": "#latch_base" },
+                "up":    { "uv": [  4,  4, 12, 12 ], "texture": "#latch_base" },
+                "north": { "uv": [  4,  4, 12, 12 ], "texture": "#latch_base" },
+                "south": { "uv": [  4,  4, 12, 12 ], "texture": "#latch_base" },
+                "west":  { "uv": [  4,  4, 12, 12 ], "texture": "#latch_base" },
+                "east":  { "uv": [  4,  4, 12, 12 ], "texture": "#latch_base" }
+            }
+        }
+    ]
+}

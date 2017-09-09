@@ -19,6 +19,7 @@ public class Configs
     public static boolean disableBlockBlockPlacer;
     public static boolean disableBlockBlockReader;
     public static boolean disableBlockBuffer;
+    public static boolean disableBlockCircuit;
     public static boolean disableBlockCrafter;
     public static boolean disableBlockFilter;
     public static boolean disableBlockInventoryReader;
@@ -116,6 +117,7 @@ public class Configs
         disableBlockBlockPlacer             = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockPlacer", false).getBoolean();
         disableBlockBlockReader             = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBlockReader", false).getBoolean();
         disableBlockBuffer                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockBuffer", false).getBoolean();
+        disableBlockCircuit                 = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockCircuit", false).getBoolean();
         disableBlockCrafter                 = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockCrafter", false).getBoolean();
         disableBlockFilter                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockFilter", false).getBoolean();
         disableBlockInventoryReader         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockInventoryReader", false).getBoolean();

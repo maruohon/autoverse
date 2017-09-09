@@ -21,6 +21,7 @@ import fi.dy.masa.autoverse.block.BlockSensor;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
+import fi.dy.masa.autoverse.client.render.model.BakedModelCircuit;
 import fi.dy.masa.autoverse.client.render.model.BakedModelMachineSlim;
 import fi.dy.masa.autoverse.client.render.model.BakedModelPipe;
 import fi.dy.masa.autoverse.client.render.model.BakedModelRedstoneEmitter;
@@ -106,6 +107,9 @@ public class ClientProxy extends CommonProxy
     {
         ModelLoaderRegistry.registerLoader(new BakedModelMachineSlim.ModelLoaderMachineSlim());
 
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.CIRCUIT, new BakedModelCircuit.StateMapper());
+        ModelLoaderRegistry.registerLoader(new BakedModelCircuit.ModelLoaderCircuit());
+
         ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new BakedModelPipe.StateMapper());
         ModelLoaderRegistry.registerLoader(new BakedModelPipe.ModelLoaderPipe());
 
@@ -128,6 +132,8 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.BUFFER, 0, "facing=north,slim=false,type=fifo_normal");
         registerItemBlockModel(AutoverseBlocks.BUFFER, 1, "facing=north,slim=false,type=fifo_pulsed");
         registerItemBlockModel(AutoverseBlocks.BUFFER, 2, "facing=north,slim=false,type=fifo_auto");
+        registerItemBlockModel(AutoverseBlocks.CIRCUIT, 0, "type=latch_rs");
+        registerItemBlockModel(AutoverseBlocks.CIRCUIT, 1, "type=latch_t");
         registerItemBlockModel(AutoverseBlocks.CRAFTER, 0, "facing=north,slim=false");
         registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,slim=false,type=basic");
         registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,slim=false,type=sequential");

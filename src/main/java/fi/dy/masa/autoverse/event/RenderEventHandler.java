@@ -24,9 +24,7 @@ import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
-import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse.PlacementProperty;
 import fi.dy.masa.autoverse.reference.Reference;
@@ -81,7 +79,7 @@ public class RenderEventHandler
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
 
-            if (block == AutoverseBlocks.INVENTORY_READER || block instanceof BlockMachineSlimBase)
+            if (block instanceof BlockAutoverse && ((BlockAutoverse) block).hasSpecialHitbox())
             {
                 state = state.getActualState(world, pos);
                 this.updatePointedBlockHilight(world, trace.getBlockPos(), state, (BlockAutoverse) block, event.getPartialTicks());
