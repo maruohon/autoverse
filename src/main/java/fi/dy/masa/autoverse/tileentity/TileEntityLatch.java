@@ -25,6 +25,35 @@ public class TileEntityLatch extends TileEntityAutoverse
         super(ReferenceNames.NAME_TILE_ENTITY_LATCH);
     }
 
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        switch (propId)
+        {
+            case 1:
+                this.setFacing2(EnumFacing.getFront(value));
+                return true;
+
+            case 2:
+                this.setFacing3(EnumFacing.getFront(value));
+                return true;
+
+            default:
+                return super.applyProperty(propId, value);
+        }
+    }
+
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.facing2.getIndex();
+        values[2] = this.facing3.getIndex();
+
+        return values;
+    }
+
     public boolean externallyPowered()
     {
         return this.externalPower;

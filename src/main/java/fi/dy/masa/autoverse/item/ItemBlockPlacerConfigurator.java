@@ -104,7 +104,7 @@ public class ItemBlockPlacerConfigurator extends ItemAutoverse implements IKeyBo
             {
                 NBTTagCompound tag = this.getTagForSelectedProperties(stack, true);
                 tag.setString("BlockName", blockName);
-                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.MASTER, 0.2f, 1.0f);
+                world.playSound(null, player.getPosition(), SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.MASTER, 0.8f, 1.0f);
                 player.sendStatusMessage(new TextComponentTranslation("autoverse.chat.configurator.properties_stored"), true);
                 return true;
             }
@@ -190,6 +190,7 @@ public class ItemBlockPlacerConfigurator extends ItemAutoverse implements IKeyBo
                 {
                     PlayerTaskApplySequence task = new PlayerTaskApplySequence(player, pos, side, sequence);
                     PlayerTaskScheduler.getInstance().addTask(player, task, 4);
+                    player.getEntityWorld().playSound(null, player.getPosition(), SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.MASTER, 0.6f, 1.0f);
                 }
             }
             else
