@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -112,7 +113,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
                 return true;
 
             case 2:
-                this.delay = value;
+                this.setDelay(value);
                 return true;
 
             default:
@@ -129,6 +130,11 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         values[2] = this.delay;
 
         return values;
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
     }
 
     public void setSplitterType(BlockSplitter.SplitterType type)
@@ -276,7 +282,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         super.readFromNBTCustom(tag);
 
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
-        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
+        this.setDelay(tag.getByte("Delay"));
     }
 
     @Override

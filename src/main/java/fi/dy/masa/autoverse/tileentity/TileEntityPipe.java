@@ -127,9 +127,9 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
-        if (tag.hasKey("pipe.delay", Constants.NBT.TAG_INT))
+        if (tag.hasKey("pipe.delay", Constants.NBT.TAG_BYTE))
         {
-            this.setDelay(tag.getInteger("pipe.delay"));
+            this.setDelayFromByte(tag.getByte("pipe.delay"));
             this.markDirty();
         }
 
@@ -197,6 +197,11 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     public int getDelay()
     {
         return this.delay;
+    }
+
+    public void setDelayFromByte(byte delay)
+    {
+        this.setDelay(((int) delay) & 0xFF);
     }
 
     public void setDelay(int delay)
@@ -1015,7 +1020,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         super.readFromNBTCustom(nbt);
 
-        this.delay = nbt.getByte("Dl");
+        this.setDelayFromByte(nbt.getByte("Dl"));
         this.disabledSidesMask = nbt.getByte("Dis");
         this.connectedSidesMask = nbt.getByte("Conn");
         //this.cloggedItemsMask = nbt.getByte("Clgg");

@@ -128,7 +128,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
     public void setDelay(int delay)
     {
-        this.delay = MathHelper.clamp(delay, 0, 255);
+        this.delay = MathHelper.clamp(((int) delay) & 0xFF, 0, 255);
     }
 
     public void setDistance(int distance)
@@ -401,7 +401,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
         this.setDetectionOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
         this.angle = tag.getByte("Angle");
-        this.delay = ((int) tag.getByte("Delay")) & 0xFF;
+        this.setDelay(tag.getByte("Delay"));
         this.distance = tag.getByte("Distance");
         this.nextDetection = tag.getLong("Next");
         this.detectorRunning = tag.getBoolean("Running");

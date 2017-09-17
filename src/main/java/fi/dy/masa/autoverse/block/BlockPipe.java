@@ -104,7 +104,7 @@ public class BlockPipe extends BlockAutoverseInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockAutoverse item = new ItemBlockAutoverse(this);
-        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.delay", Constants.NBT.TAG_INT, 1, 127);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.delay", Constants.NBT.TAG_BYTE, 1, 127);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.max_stack", Constants.NBT.TAG_BYTE, 1, 64);
         return item;
     }

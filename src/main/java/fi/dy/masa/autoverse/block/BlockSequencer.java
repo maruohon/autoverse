@@ -65,10 +65,11 @@ public class BlockSequencer extends BlockMachineSlimBase
     @Override
     public ItemBlockAutoverse createItemBlock()
     {
-        ItemBlockAutoverse item = super.createItemBlock();
+        ItemBlockAutoverse item = new ItemBlockAutoverse(this);
         item.addPlacementProperty(0, "sequencer.length", Constants.NBT.TAG_BYTE, 1, TileEntitySequencer.MAX_LENGTH);
 
-        // These need to be added again for meta 0, because of the property above
+        // These need to be added specifically for meta 0, because of the property above
+        // prevents using the wild card property from the super class.
         // (the existence of a specific meta overrides/hides the wild card meta property - this is a design flaw in the pp system currently)
         item.addPlacementProperty(0, "machine.slim_model", Constants.NBT.TAG_BYTE, 0, 1);
         item.addPlacementPropertyValueNames(0, "machine.slim_model", new String[] { "false", "true" });

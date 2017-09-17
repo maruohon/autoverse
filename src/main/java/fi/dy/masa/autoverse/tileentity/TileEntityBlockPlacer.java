@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
@@ -77,7 +78,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
                 return true;
 
             case 2:
-                this.delay = value;
+                this.setDelay(value);
                 return true;
 
             default:
@@ -94,6 +95,11 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         values[2] = this.delay;
 
         return values;
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
     }
 
     @SuppressWarnings("deprecation")
@@ -267,7 +273,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
         this.position = nbt.getByte("Position");
         this.state = State.fromId(nbt.getByte("State"));
-        this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
+        this.setDelay(nbt.getByte("Delay"));
     }
 
     private class ItemHandlerWrapperPlacer extends ItemHandlerWrapperSelective

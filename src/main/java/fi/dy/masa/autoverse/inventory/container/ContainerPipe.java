@@ -60,7 +60,7 @@ public class ContainerPipe extends ContainerTile
                 break;
 
             case 1:
-                this.tepipe.setDelay(value);
+                this.tepipe.setDelayFromByte((byte) value);
                 break;
 
             default:

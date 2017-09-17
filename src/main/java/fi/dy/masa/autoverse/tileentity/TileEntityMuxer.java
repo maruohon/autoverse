@@ -10,6 +10,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -108,7 +109,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
                 return true;
 
             case 2:
-                this.delay = value & 0xFF;
+                this.setDelay(value);
                 return true;
 
             default:
@@ -125,6 +126,11 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
         values[2] = this.delay;
 
         return values;
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
     }
 
     public void setInputSide(EnumFacing side, boolean force)
@@ -314,7 +320,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     {
         this.setInputSide(EnumFacing.getFront(nbt.getByte("InFacing")), true);
         this.setMuxerType(BlockMuxer.MuxerType.fromBlockMeta(nbt.getByte("Type")));
-        this.delay = nbt.getByte("Delay");
+        this.setDelay(nbt.getByte("Delay"));
 
         super.readFromNBTCustom(nbt);
     }

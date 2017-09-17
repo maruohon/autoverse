@@ -98,8 +98,8 @@ public class PlacementProperties
         {
             switch (valueType)
             {
-                case Constants.NBT.TAG_BYTE:    return tag.getByte(key);
-                case Constants.NBT.TAG_SHORT:   return tag.getShort(key);
+                case Constants.NBT.TAG_BYTE:    return ((int) tag.getByte(key)) & 0xFF;
+                case Constants.NBT.TAG_SHORT:   return ((int) tag.getShort(key)) & 0xFFFF;
                 case Constants.NBT.TAG_INT:     return tag.getInteger(key);
             }
         }

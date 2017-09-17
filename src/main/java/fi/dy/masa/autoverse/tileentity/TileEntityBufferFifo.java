@@ -97,14 +97,13 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
 
         if (tag.hasKey("buffer.delay", Constants.NBT.TAG_BYTE))
         {
-            this.setDelay(tag.getByte("buffer.delay"));
+            this.setDelay(((int) tag.getByte("buffer.delay")) & 0xFF);
         }
     }
 
     public void setDelay(int delay)
     {
         this.delay = MathHelper.clamp(delay, 1, 255);
-        this.markDirty();
     }
 
     public int getDelay()
@@ -115,7 +114,6 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     public void setFifoLength(int length)
     {
         this.itemHandlerBase.setInventorySize(MathHelper.clamp(length, 1, MAX_LENGTH));
-        this.markDirty();
     }
 
     public int getFifoLength()
@@ -213,6 +211,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
             this.setFifoLength(newSize);
             this.getFifoInventory().wrapPositions();
             this.notifyBlockUpdate(this.getPos());
+            this.markDirty();
         }
     }
 
@@ -226,6 +225,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
         else if (action == 1)
         {
             this.setDelay(this.delay + element);
+            this.markDirty();
         }
     }
 

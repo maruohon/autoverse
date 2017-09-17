@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -76,7 +77,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
                 return true;
 
             case 2:
-                this.delay = value;
+                this.setDelay(value);
                 return true;
 
             default:
@@ -93,6 +94,11 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         values[2] = this.delay;
 
         return values;
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
     }
 
     public IItemHandler getInventoryInput()
@@ -229,7 +235,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         super.readFromNBTCustom(nbt);
 
         this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")), false);
-        this.delay = ((int) nbt.getByte("Delay")) & 0xFF;
+        this.setDelay(nbt.getByte("Delay"));
 
         this.inventoryInput.deserializeNBT(nbt);
         this.inventoryOutNormal.deserializeNBT(nbt);

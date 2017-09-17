@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -43,7 +44,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.delay = value;
+                this.setDelay(value);
                 return true;
 
             default:
@@ -59,6 +60,11 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         values[1] = this.delay;
 
         return values;
+    }
+
+    public void setDelay(int delay)
+    {
+        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
     }
 
     public void setIsGreedy(boolean isGreedy)
@@ -228,6 +234,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         nbt = super.writeToNBT(nbt);
         nbt.setBoolean("Greedy", this.isGreedy);
         nbt.setBoolean("Scheduled", this.breakScheduled);
+        nbt.setByte("Delay", (byte) this.delay);
         return nbt;
     }
 
@@ -238,6 +245,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 
         this.setIsGreedy(nbt.getBoolean("Greedy"));
         this.breakScheduled = nbt.getBoolean("Scheduled");
+        this.setDelay(nbt.getByte("Delay"));
     }
 
     @Override
