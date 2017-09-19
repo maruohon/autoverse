@@ -26,11 +26,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
-import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse.PlacementProperty;
 import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.util.EntityUtils;
 import fi.dy.masa.autoverse.util.ItemType;
 import fi.dy.masa.autoverse.util.PlacementProperties;
+import fi.dy.masa.autoverse.util.PlacementProperties.PlacementProperty;
 import fi.dy.masa.autoverse.util.PositionUtils;
 
 public class RenderEventHandler

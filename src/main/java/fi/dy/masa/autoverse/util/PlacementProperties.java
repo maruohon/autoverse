@@ -3,11 +3,14 @@ package fi.dy.masa.autoverse.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -365,6 +368,70 @@ public class PlacementProperties
 
             MessageSyncNBTTag message = new MessageSyncNBTTag(uuid, MessageSyncNBTTag.Type.PLACEMENT_PROPERTIES_FULL, tag);
             PacketHandler.INSTANCE.sendTo(message, player);
+        }
+    }
+
+    public static class PlacementProperty
+    {
+        private boolean isNBTSensitive;
+        private List<Pair<String, Integer>> propertyTypes = new ArrayList<Pair<String, Integer>>();
+        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<Pair<Integer, Integer>>();
+        private Map<String, String[]> propertyValueNames = new HashMap<String, String[]>();
+
+        public boolean hasPlacementProperties()
+        {
+            return this.propertyTypes.isEmpty() == false;
+        }
+
+        public boolean isNBTSensitive()
+        {
+            return this.isNBTSensitive;
+        }
+
+        public void setIsNBTSensitive(boolean checkNBT)
+        {
+            this.isNBTSensitive = checkNBT;
+        }
+
+        public void addProperty(String key, int type, int minValue, int maxValue)
+        {
+            this.propertyTypes.add(Pair.of(key, type));
+            this.propertyValueRange.add(Pair.of(minValue, maxValue));
+        }
+
+        public void addValueNames(String key, String[] names)
+        {
+            this.propertyValueNames.put(key, names);
+        }
+
+        @Nullable
+        public Pair<String, Integer> getProperty(int selection)
+        {
+            return selection >= 0 && selection < this.propertyTypes.size() ? this.propertyTypes.get(selection) : null;
+        }
+
+        @Nullable
+        public Pair<Integer, Integer> getPropertyValueRange(int selection)
+        {
+            return selection >= 0 && selection < this.propertyValueRange.size() ? this.propertyValueRange.get(selection) : null;
+        }
+
+        @Nullable
+        public String getPropertyValueName(String key, int value)
+        {
+            String[] names = this.propertyValueNames.get(key);
+
+            if (names != null && value >= 0 && value < names.length)
+            {
+                return names[value];
+            }
+
+            return null;
+        }
+
+        public int getPropertyCount()
+        {
+            return this.propertyTypes.size();
         }
     }
 }

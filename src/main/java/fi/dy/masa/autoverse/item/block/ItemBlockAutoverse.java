@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.item.block;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,76 +30,13 @@ import fi.dy.masa.autoverse.reference.Reference;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.util.ItemType;
 import fi.dy.masa.autoverse.util.PlacementProperties;
+import fi.dy.masa.autoverse.util.PlacementProperties.PlacementProperty;
 
 public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
 {
     protected String[] blockNames;
     protected String[] tooltipNames;
     private final HashMap<Integer, PlacementProperty> placementProperties = new HashMap<Integer, PlacementProperty>();
-
-    public static class PlacementProperty
-    {
-        private boolean isNBTSensitive;
-        private List<Pair<String, Integer>> propertyTypes = new ArrayList<Pair<String, Integer>>();
-        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<Pair<Integer, Integer>>();
-        private Map<String, String[]> propertyValueNames = new HashMap<String, String[]>();
-
-        public boolean hasPlacementProperties()
-        {
-            return this.propertyTypes.isEmpty() == false;
-        }
-
-        public boolean isNBTSensitive()
-        {
-            return this.isNBTSensitive;
-        }
-
-        public void setIsNBTSensitive(boolean checkNBT)
-        {
-            this.isNBTSensitive = checkNBT;
-        }
-
-        public void addProperty(String key, int type, int minValue, int maxValue)
-        {
-            this.propertyTypes.add(Pair.of(key, type));
-            this.propertyValueRange.add(Pair.of(minValue, maxValue));
-        }
-
-        public void addValueNames(String key, String[] names)
-        {
-            this.propertyValueNames.put(key, names);
-        }
-
-        @Nullable
-        public Pair<String, Integer> getProperty(int index)
-        {
-            return index >= 0 && index < this.propertyTypes.size() ? this.propertyTypes.get(index) : null;
-        }
-
-        @Nullable
-        public Pair<Integer, Integer> getPropertyValueRange(int index)
-        {
-            return index >= 0 && index < this.propertyValueRange.size() ? this.propertyValueRange.get(index) : null;
-        }
-
-        @Nullable
-        public String getPropertyValueName(String key, int index)
-        {
-            String[] names = this.propertyValueNames.get(key);
-
-            if (names != null && index >= 0 && index < names.length)
-            {
-                return names[index];
-            }
-
-            return null;
-        }
-
-        public int getPropertyCount()
-        {
-            return this.propertyTypes.size();
-        }
-    }
 
     public ItemBlockAutoverse(BlockAutoverse block)
     {
@@ -159,14 +95,13 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     public void addPlacementProperty(int stackMeta, String key, int type, int minValue, int maxValue)
     {
         PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
-        pp.propertyTypes.add(Pair.of(key, type));
-        pp.propertyValueRange.add(Pair.of(minValue, maxValue));
+        pp.addProperty(key, type, minValue, maxValue);
     }
 
     public void addPlacementPropertyValueNames(int stackMeta, String key, String[] names)
     {
         PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
-        pp.propertyValueNames.put(key, names);
+        pp.addValueNames(key, names);
     }
 
     @Override
@@ -196,9 +131,15 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
                 int minValue = range != null ? range.getLeft() : 0;
                 int maxValue = range != null ? range.getRight() : 1;
 
-                if (pair != null && EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode() && EnumKey.keypressContainsShift(key) == false)
+                if (pair != null && EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode() &&
+                    (EnumKey.keypressContainsShift(key) == false || EnumKey.keypressContainsControl(key) || EnumKey.keypressContainsAlt(key)))
                 {
                     int change = EnumKey.keypressActionIsReversed(key) ? -1 : 1;
+
+                    if (EnumKey.keypressContainsShift(key))
+                    {
+                        change *= 10;
+                    }
 
                     if (EnumKey.keypressContainsControl(key))
                     {
