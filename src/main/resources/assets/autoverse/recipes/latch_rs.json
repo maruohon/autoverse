@@ -1,0 +1,27 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:circuit"
+        }
+    ],
+    "group" : "autoverse:circuit",
+    "result" :
+    {
+        "item" : "autoverse:circuit",
+        "data" : 0
+    },
+    "pattern":
+    [
+        "CTC",
+        "RTR",
+        "CCC"
+    ],
+    "key":
+    {
+        "C" : { "item" : "#COBBLESTONE" },
+        "T" : { "item" : "#REDSTONE_TORCH" },
+        "R" : { "item" : "#REDSTONE_DUST" }
+    }
+}

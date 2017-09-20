@@ -1,0 +1,29 @@
+{
+    "type" : "minecraft:crafting_shaped",
+    "conditions": [
+        {
+            "type" : "minecraft:item_exists",
+            "item" : "autoverse:filter"
+        }
+    ],
+    "group" : "autoverse:filter",
+    "result" :
+    {
+        "item" : "autoverse:filter",
+        "data" : 2
+    },
+    "pattern":
+    [
+        "IHI",
+        "OCO",
+        "IRI"
+    ],
+    "key":
+    {
+        "I" : { "item" : "#ORE_INGOT_IRON" },
+        "H" : { "item" : "#HOPPER" },
+        "C" : { "item" : "#ORE_CHEST_WOOD" },
+        "O" : { "item" : "#COMPARATOR" },
+        "R" : { "item" : "#REPEATER" }
+    }
+}

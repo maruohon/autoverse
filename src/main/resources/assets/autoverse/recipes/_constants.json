@@ -6,6 +6,7 @@
     { "name" : "FURNACE",               "ingredient": { "item" : "minecraft:furnace"                } },
     { "name" : "HOPPER",                "ingredient": { "item" : "minecraft:hopper"                 } },
     { "name" : "PISTON",                "ingredient": { "item" : "minecraft:piston"                 } },
+    { "name" : "REDSTONE_BLOCK",        "ingredient": { "item" : "minecraft:redstone_block"         } },
     { "name" : "REDSTONE_DUST",         "ingredient": { "item" : "minecraft:redstone"               } },
     { "name" : "REDSTONE_TORCH",        "ingredient": { "item" : "minecraft:redstone_torch"         } },
     { "name" : "REPEATER",              "ingredient": { "item" : "minecraft:repeater"               } },
