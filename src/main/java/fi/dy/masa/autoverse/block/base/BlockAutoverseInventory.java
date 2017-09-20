@@ -33,17 +33,6 @@ public abstract class BlockAutoverseInventory extends BlockAutoverseTileEntity
     }
 
     @Override
-    public int tickRate(World world)
-    {
-        return 1;
-    }
-
-    @Override
-    public void randomTick(World world, BlockPos pos, IBlockState state, Random random)
-    {
-    }
-
-    @Override
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
     {
         if (world.isRemote == false)

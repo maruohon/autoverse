@@ -1,5 +1,6 @@
 package fi.dy.masa.autoverse.block.base;
 
+import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -56,6 +57,17 @@ public abstract class BlockAutoverseTileEntity extends BlockAutoverse
     protected EnumFacing getPlacementFacing(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         return EnumFacing.getDirectionFromEntityLiving(pos, placer);
+    }
+
+    @Override
+    public int tickRate(World world)
+    {
+        return 1;
+    }
+
+    @Override
+    public void randomTick(World world, BlockPos pos, IBlockState state, Random random)
+    {
     }
 
     @Override

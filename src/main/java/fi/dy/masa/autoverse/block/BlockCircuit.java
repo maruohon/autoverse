@@ -3,6 +3,7 @@ package fi.dy.masa.autoverse.block;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -218,18 +219,19 @@ public class BlockCircuit extends BlockAutoverseTileEntity
     }
 
     @Override
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        this.updateState(state, world, pos);
+        state = state.getActualState(world, pos);
+
+        super.breakBlock(world, pos, state);
+
+        this.notifyNeighbors(world, pos, state.getValue(FACING));
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state)
     {
-        super.breakBlock(world, pos, state);
-
-        state = state.getActualState(world, pos);
-        this.notifyNeighbors(world, pos, state.getValue(FACING));
+        world.scheduleUpdate(pos, state.getBlock(), 1);
     }
 
     @Override
@@ -240,7 +242,7 @@ public class BlockCircuit extends BlockAutoverseTileEntity
         // Don't update due to changes in the output face
         if (pos.offset(state.getValue(FACING)).equals(fromPos) == false)
         {
-            this.updateState(state, world, pos);
+            world.scheduleUpdate(pos, state.getBlock(), 1);
         }
     }
 
@@ -249,11 +251,12 @@ public class BlockCircuit extends BlockAutoverseTileEntity
     {
         if (blockAccess instanceof World)
         {
-            this.updateState(blockAccess.getBlockState(pos), (World) blockAccess, pos);
+            ((World) blockAccess).scheduleUpdate(pos, blockAccess.getBlockState(pos).getBlock(), 1);
         }
     }
 
-    private void updateState(IBlockState state, World world, BlockPos pos)
+    @Override
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand)
     {
         if (world.isRemote == false)
         {
@@ -261,13 +264,17 @@ public class BlockCircuit extends BlockAutoverseTileEntity
 
             if (te != null)
             {
-                if (state.getValue(TYPE) == CircuitType.LATCH_RS)
+                switch (state.getValue(TYPE))
                 {
-                    this.updateStateRS(state, world, pos, te);
-                }
-                else if (state.getValue(TYPE) == CircuitType.LATCH_T)
-                {
-                    this.updateStateT(state, world, pos, te);
+                    case LATCH_RS:
+                        this.updateStateRS(state, world, pos, te);
+                        break;
+
+                    case LATCH_T:
+                        this.updateStateT(state, world, pos, te);
+                        break;
+
+                    default:
                 }
             }
         }
