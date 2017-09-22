@@ -65,7 +65,7 @@ public class BlockSequencer extends BlockMachineSlimBase
     @Override
     public ItemBlockAutoverse createItemBlock()
     {
-        ItemBlockAutoverse item = new ItemBlockAutoverse(this);
+        ItemBlockAutoverse item = super.createItemBlock();
         item.addPlacementProperty(0, "sequencer.length", Constants.NBT.TAG_BYTE, 1, TileEntitySequencer.MAX_LENGTH);
 
         // These need to be added specifically for meta 0, because of the property above
