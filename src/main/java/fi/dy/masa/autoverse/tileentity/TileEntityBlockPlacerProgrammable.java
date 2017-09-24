@@ -108,16 +108,25 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         if (facing.getAxis().isHorizontal())
         {
             this.facingHorizontal = facing;
-            this.markDirty();
         }
+    }
+
+    @Override
+    public void setFacing(EnumFacing facing)
+    {
+        if (facing.getAxis().isHorizontal())
+        {
+            this.facingHorizontal = facing;
+        }
+
+        super.setFacing(facing);
     }
 
     @Override
     public void rotate(Rotation rotationIn)
     {
-        super.rotate(rotationIn);
-
         this.setHorizontalFacing(rotationIn.rotate(this.facingHorizontal));
+        super.rotate(rotationIn);
     }
 
     public void setPlacementOffset(int offset)

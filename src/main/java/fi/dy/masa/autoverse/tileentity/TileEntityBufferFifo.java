@@ -133,7 +133,7 @@ public class TileEntityBufferFifo extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);
+        this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.getFrontPosition(), this.getOppositeFacing(), this.spawnItemsInWorld);
     }
 
     @Override

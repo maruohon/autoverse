@@ -31,12 +31,12 @@ public class TileEntityPipeRoundRobin extends TileEntityPipeDirectional
     @Override
     public void rotate(Rotation rotation)
     {
-        super.rotate(rotation);
-
         if (rotation != Rotation.NONE)
         {
             this.rotateSidesPerSideArray(this.roundRobinOutputSidesPerSide, rotation);
         }
+
+        super.rotate(rotation);
     }
 
     @Override

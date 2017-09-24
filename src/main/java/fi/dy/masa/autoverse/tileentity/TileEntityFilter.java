@@ -30,9 +30,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     protected ItemStackHandlerTileEntity inventoryOutFiltered;
     protected ItemStackHandlerTileEntity inventoryOutNormal;
     protected ItemHandlerWrapperFilter filter;
-
     protected EnumFacing facingFilteredOut = EnumFacing.WEST;
-    protected BlockPos posFilteredOut;
     protected int delay = 1;
 
     public TileEntityFilter()
@@ -123,10 +121,9 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
 
     public void setFilterOutputSide(EnumFacing side, boolean force)
     {
-        if (side != this.facing || force)
+        if (side != this.getFacing() || force)
         {
             this.facingFilteredOut = side;
-            this.posFilteredOut = this.getPos().offset(side);
         }
     }
 
@@ -134,7 +131,6 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public void rotate(Rotation rotationIn)
     {
         this.setFilterOutputSide(rotationIn.rotate(this.facingFilteredOut), true);
-
         super.rotate(rotationIn);
     }
 
@@ -180,8 +176,8 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = false;
-        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.posFront, this.facingOpposite, false);
-        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.posFilteredOut, this.facingFilteredOut.getOpposite(), false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutNormal, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOutFiltered, 0, this.getPos().offset(this.facingFilteredOut), this.facingFilteredOut.getOpposite(), false);
         boolean movedIn = this.filter.moveItems();
 
         if (movedIn || movedOut)

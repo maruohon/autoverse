@@ -55,10 +55,13 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     @Override
     public void rotate(Rotation rotation)
     {
-        super.rotate(rotation);
+        if (rotation != Rotation.NONE)
+        {
+            this.disabledInputSides = PositionUtils.rotateFacingMask(this.disabledInputSides, rotation);
+            this.validInputSides = PositionUtils.rotateFacingMask(this.validInputSides, rotation);
+        }
 
-        this.disabledInputSides = PositionUtils.rotateFacingMask(this.disabledInputSides, rotation);
-        this.validInputSides = PositionUtils.rotateFacingMask(this.validInputSides, rotation);
+        super.rotate(rotation);
     }
 
     @Override
@@ -104,7 +107,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
 
     private boolean shouldOperatePull()
     {
-        return this.redstoneState == false;
+        return this.getRedstoneState() == false;
     }
 
     @Override

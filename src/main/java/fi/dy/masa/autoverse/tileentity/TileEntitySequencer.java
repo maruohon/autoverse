@@ -79,7 +79,7 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.posFront, this.facingOpposite, true);
+        this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.getFrontPosition(), this.getOppositeFacing(), true);
     }
 
     public int getOutputSlot()

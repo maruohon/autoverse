@@ -40,7 +40,6 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     private IItemHandler inventoryWrapperOutDetection;
 
     private EnumFacing facingDetectionOut = EnumFacing.EAST;
-    private BlockPos posDetectionOut;
     private int angle = 0;
     private int delay = 1;
     private int distance = 1;
@@ -151,22 +150,15 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
     public void setDetectionOutputSide(EnumFacing side, boolean force)
     {
-        if (force || side != this.facing)
+        if (force || side != this.getFacing())
         {
             this.facingDetectionOut = side;
-            this.posDetectionOut = this.getPos().offset(side);
         }
     }
 
     public EnumFacing getDetectionOutRelativeFacing()
     {
         return PositionUtils.getRelativeFacing(this.getFacing(), this.facingDetectionOut);
-    }
-
-    @Override
-    public void onLoad()
-    {
-        this.posDetectionOut = this.getPos().offset(this.facingDetectionOut);
     }
 
     @Override
@@ -226,7 +218,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     private BlockPos getDetectionPosition(int distance, float angle1, float angle2)
     {
         EnumFacing facing = this.getFacing();
-        BlockPos pos = this.posFront;
+        BlockPos pos = this.getFrontPosition();
         float offset1 = angle1 * (float) distance;
         float offset2 = angle2 * (float) distance;
 
@@ -301,13 +293,14 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedItems = false;
-        movedItems |= this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, this.posDetectionOut, this.facingOpposite, false);
+        BlockPos posDetectionOut = this.getPos().offset(this.facingDetectionOut);
+        movedItems |= this.pushItemsToAdjacentInventory(this.inventoryOutDetection, 0, posDetectionOut, this.getOppositeFacing(), false);
         movedItems |= this.detector.moveItems();
 
         if (this.detectorRunning)
         {
             // In redstone mode nextDetection is initially 0, before a redstone pulse
-            if ((this.delay == 0 || this.redstoneState == false) &&
+            if ((this.delay == 0 || this.getRedstoneState() == false) &&
                 (this.nextDetection != 0 && this.nextDetection <= this.getWorld().getTotalWorldTime()))
             {
                 this.detectBlocks();

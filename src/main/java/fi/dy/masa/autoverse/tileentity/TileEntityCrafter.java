@@ -69,7 +69,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         {
             FakePlayer player = this.getPlayer();
             this.inventoryCrafting.setPlayer(player);
-            this.inventoryCraftResult.init(this.inventoryCrafting, this.getWorld(), player, this.posFront);
+            this.inventoryCraftResult.init(this.inventoryCrafting, this.getWorld(), player, this.getFrontPosition());
             this.crafter.onLoad();
         }
     }
@@ -77,7 +77,7 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
+        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
         boolean movedIn = this.crafter.moveItems();
 
         if (movedIn || movedOut)
@@ -143,12 +143,6 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void readFromNBTCustom(NBTTagCompound nbt)
-    {
-        super.readFromNBTCustom(nbt);
-    }
-
-    @Override
     protected void readItemsFromNBT(NBTTagCompound nbt)
     {
         this.inventoryInput.deserializeNBT(nbt);
@@ -156,14 +150,6 @@ public class TileEntityCrafter extends TileEntityAutoverseInventory
         this.inventoryCraftingBase.deserializeNBT(nbt);
 
         this.crafter.deserializeNBT(nbt);
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
-        nbt = super.writeToNBT(nbt);
-
-        return nbt;
     }
 
     @Override

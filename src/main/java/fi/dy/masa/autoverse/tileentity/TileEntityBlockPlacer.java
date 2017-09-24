@@ -56,16 +56,14 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         if (facing.getAxis().isHorizontal())
         {
             this.facingHorizontal = facing;
-            this.markDirty();
         }
     }
 
     @Override
     public void rotate(Rotation rotationIn)
     {
-        super.rotate(rotationIn);
-
         this.setHorizontalFacing(rotationIn.rotate(this.facingHorizontal));
+        super.rotate(rotationIn);
     }
 
     @Override
@@ -211,9 +209,9 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
             }
         }
 
-        if (powered != this.redstoneState)
+        if (powered != this.getRedstoneState())
         {
-            this.redstoneState = powered;
+            this.setRedstoneState(powered);
             this.state = powered ? State.PLACE : State.IDLE;
 
             if (powered)

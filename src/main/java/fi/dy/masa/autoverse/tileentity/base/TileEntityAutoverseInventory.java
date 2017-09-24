@@ -25,8 +25,8 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 {
     protected ItemStackHandlerTileEntity itemHandlerBase;
     protected IItemHandler itemHandlerExternal;
-    protected String customInventoryName;
-    protected boolean useWrapperHandlerForContainerExtract;
+    private String customInventoryName;
+    private boolean useWrapperHandlerForContainerExtract;
 
     public TileEntityAutoverseInventory(String name)
     {
@@ -55,7 +55,7 @@ public abstract class TileEntityAutoverseInventory extends TileEntityAutoverse
 
     public String getName()
     {
-        return this.hasCustomName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.tileEntityName;
+        return this.hasCustomName() ? this.customInventoryName : Reference.MOD_ID + ".container." + this.getTEName();
     }
 
     /**

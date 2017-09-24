@@ -41,7 +41,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     private BlockSplitter.SplitterType type = BlockSplitter.SplitterType.REDSTONE;
     private EnumFacing facing2 = EnumFacing.EAST;
-    private BlockPos posOut2;
     private int delay = 2;
 
     public TileEntitySplitter()
@@ -134,7 +133,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public void setDelay(int delay)
     {
-        this.delay = MathHelper.clamp(delay & 0xFF, 1, 255);
+        this.delay = MathHelper.clamp(delay, 1, 255);
     }
 
     public void setSplitterType(BlockSplitter.SplitterType type)
@@ -155,7 +154,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
             case REDSTONE:
             default:
-                return this.redstoneState;
+                return this.getRedstoneState();
         }
     }
 
@@ -166,12 +165,10 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
     public void setSecondOutputSide(EnumFacing side, boolean force)
     {
-        if (force || side != this.facing)
+        if (force || side != this.getFacing())
         {
             this.facing2 = side;
         }
-
-        this.posOut2 = this.getPos().offset(this.facing2);
     }
 
     public EnumFacing getSecondOutputRelativeFacing()
@@ -183,7 +180,6 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public void rotate(Rotation rotationIn)
     {
         this.setSecondOutputSide(rotationIn.rotate(this.facing2), true);
-
         super.rotate(rotationIn);
     }
 
@@ -218,13 +214,13 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = false;
-        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.posFront, this.facingOpposite, false);
-        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.posOut2, this.facing2.getOpposite(), false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut1, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
+        movedOut |= this.pushItemsToAdjacentInventory(this.inventoryOut2, 0, this.getPos().offset(this.facing2), this.facing2.getOpposite(), false);
         boolean movedIn = false;
 
         if (this.type == BlockSplitter.SplitterType.REDSTONE)
         {
-            IItemHandler inv = this.redstoneState ? this.inventoryOut2 : this.inventoryOut1;
+            IItemHandler inv = this.getRedstoneState() ? this.inventoryOut2 : this.inventoryOut1;
             movedIn = InventoryUtils.tryMoveStack(this.inventoryInput, 0, inv, 0) != InvResult.MOVED_NOTHING;
         }
         else
@@ -282,7 +278,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         super.readFromNBTCustom(tag);
 
         this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
-        this.setDelay(tag.getByte("Delay"));
+        this.setDelay(((int) tag.getByte("Delay")) & 0xFF);
     }
 
     @Override

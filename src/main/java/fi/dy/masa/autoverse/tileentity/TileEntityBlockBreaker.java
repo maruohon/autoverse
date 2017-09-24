@@ -25,7 +25,6 @@ import fi.dy.masa.autoverse.util.InventoryUtils;
 
 public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 {
-    private BlockPos posBack = BlockPos.ORIGIN;
     private boolean isGreedy;
     private boolean breakScheduled;
     private int delay = 4;
@@ -74,27 +73,11 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void setPos(BlockPos posIn)
-    {
-        super.setPos(posIn);
-
-        this.posBack = this.getPos().offset(this.facingOpposite);
-    }
-
-    @Override
-    public void setFacing(EnumFacing facing)
-    {
-        super.setFacing(facing);
-
-        this.posBack = this.getPos().offset(this.facingOpposite);
-    }
-
-    @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
 
-        if (this.redstoneState == false)
+        if (this.getRedstoneState() == false)
         {
             this.breakScheduled = true;
             this.scheduleBlockUpdate(this.delay, false);
@@ -110,7 +93,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        if (this.breakScheduled && this.redstoneState == false)
+        if (this.breakScheduled && this.getRedstoneState() == false)
         {
             this.breakAdjacentBlocks();
             this.breakScheduled = false;
@@ -138,17 +121,19 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 
         if (slot != -1)
         {
-            BlockPos pos = this.posBack;
+            final EnumFacing facingOpposite = this.getOppositeFacing();
+            final EnumFacing facing = this.getFacing();
+            BlockPos pos = this.getPos().offset(facingOpposite);
             TileEntity te = this.getWorld().getTileEntity(pos);
 
             // If there is no inventory directly behind the breaker, then offset the position one more,
             // in case there is an inventory behind a Frame block for example.
-            if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.facing) == false)
+            if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing) == false)
             {
-                pos = pos.offset(this.facingOpposite);
+                pos = pos.offset(facingOpposite);
             }
 
-            return this.pushItemsToAdjacentInventory(this.itemHandlerBase, slot, 64, pos, this.facing, false);
+            return this.pushItemsToAdjacentInventory(this.itemHandlerBase, slot, 64, pos, facing, false);
         }
 
         return false;
@@ -164,7 +149,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         }
         else
         {
-            this.breakBlockOnPosition(this.getPos().offset(this.getFacing()));
+            this.breakBlockInPosition(this.getFrontPosition());
         }
 
         BlockBreakDropsHandler.setHarvestingInventory(null);
@@ -172,12 +157,15 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 
     private void breakBlocksGreedy()
     {
+        final EnumFacing facingOpposite = this.getOppositeFacing();
+        final EnumFacing facing = this.getFacing();
+
         switch (Configs.blockBreakerPattern)
         {
             case SHAPE_3x3:
             case SHAPE_5x5:
-                EnumFacing side1 = EnumFacing.getFront((this.facingOpposite.getIndex() + 2) % 6);
-                EnumFacing side2 = EnumFacing.getFront((this.facingOpposite.getIndex() + 4) % 6);
+                EnumFacing side1 = EnumFacing.getFront((facingOpposite.getIndex() + 2) % 6);
+                EnumFacing side2 = EnumFacing.getFront((facingOpposite.getIndex() + 4) % 6);
                 int r = Configs.blockBreakerPattern == Configs.BreakerPattern.SHAPE_5x5 ? 2 : 1;
 
                 for (int front = 0; front <= r; front++)
@@ -189,11 +177,11 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
                             // Don't break self
                             if (front != 0 || off1 != 0 || off2 != 0)
                             {
-                                int xDiff = side1.getFrontOffsetX() * off1 + side2.getFrontOffsetX() * off2 + this.facing.getFrontOffsetX() * front;
-                                int yDiff = side1.getFrontOffsetY() * off1 + side2.getFrontOffsetY() * off2 + this.facing.getFrontOffsetY() * front;
-                                int zDiff = side1.getFrontOffsetZ() * off1 + side2.getFrontOffsetZ() * off2 + this.facing.getFrontOffsetZ() * front;
+                                int xDiff = side1.getFrontOffsetX() * off1 + side2.getFrontOffsetX() * off2 + facing.getFrontOffsetX() * front;
+                                int yDiff = side1.getFrontOffsetY() * off1 + side2.getFrontOffsetY() * off2 + facing.getFrontOffsetY() * front;
+                                int zDiff = side1.getFrontOffsetZ() * off1 + side2.getFrontOffsetZ() * off2 + facing.getFrontOffsetZ() * front;
                                 BlockPos pos = this.getPos().add(xDiff, yDiff, zDiff);
-                                this.breakBlockOnPosition(pos);
+                                this.breakBlockInPosition(pos);
                             }
                         }
                     }
@@ -202,18 +190,18 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
 
             default:
                 // By default the Greedy variant breaks blocks on all sides except the back side
-                for (EnumFacing facing : EnumFacing.values())
+                for (EnumFacing facingTmp : EnumFacing.values())
                 {
-                    if (facing != this.facingOpposite)
+                    if (facingTmp != facingOpposite)
                     {
-                        this.breakBlockOnPosition(this.getPos().offset(facing));
+                        this.breakBlockInPosition(this.getPos().offset(facingTmp));
                     }
                 }
                 break;
         }
     }
 
-    private void breakBlockOnPosition(BlockPos pos)
+    private void breakBlockInPosition(BlockPos pos)
     {
         World world = this.getWorld();
 

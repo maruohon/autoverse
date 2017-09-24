@@ -30,7 +30,6 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     private boolean isPulsed;
     private int tier;
     private boolean isCreative;
-    private BlockPos posBottom = BlockPos.ORIGIN;
 
     public TileEntityBarrel()
     {
@@ -146,7 +145,6 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     @Override
     public void onLoad()
     {
-        this.posBottom = this.getPos().down();
         this.createInventoryWrapper();
     }
 
@@ -161,7 +159,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         // Pulsed variant, on rising edge
         else if (state)
         {
-            this.scheduleBlockUpdate(1, false);
+            this.scheduleBlockUpdate(2, false);
         }
     }
 
@@ -170,7 +168,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         if (this.isPulsed)
         {
-            this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posBottom, EnumFacing.UP, true);
+            this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.getPos().down(), EnumFacing.UP, true);
         }
     }
 

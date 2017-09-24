@@ -159,6 +159,12 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
             //this.cloggedItemsMask   = PositionUtils.rotateFacingMask(this.cloggedItemsMask, rotation);
 
             this.rotateSidesPerSideArray(this.validOutputSidesPerSide, rotation);
+
+            if (this.getWorld() != null && this.getWorld().isRemote == false)
+            {
+                this.markDirty();
+                this.notifyBlockUpdate(this.getPos());
+            }
         }
     }
 

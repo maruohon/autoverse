@@ -37,7 +37,6 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     private ItemStackHandlerTileEntity inventoryInput2;
     private ItemStackHandlerTileEntity inventoryOutput;
     private ItemHandlerWrapperMuxer muxer;
-    //private IItemHandler inventoryInputWrapper1;
     private IItemHandler inventoryInputWrapper2;
     private BlockMuxer.MuxerType type = BlockMuxer.MuxerType.REDSTONE;
     private EnumFacing facingInput = EnumFacing.EAST;
@@ -64,7 +63,6 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
 
         this.itemHandlerBase        = this.inventoryInput1;
 
-        //this.inventoryInputWrapper1 = new ItemHandlerWrapperInsertOnly(this.inventoryInput1);
         this.inventoryInputWrapper2 = new ItemHandlerWrapperInsertOnly(this.inventoryInput2);
     }
 
@@ -135,7 +133,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
 
     public void setInputSide(EnumFacing side, boolean force)
     {
-        if (force || side != this.facing)
+        if (force || side != this.getFacing())
         {
             this.facingInput = side;
         }
@@ -188,7 +186,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
                 return this.muxer.secondaryInputActive();
 
             case REDSTONE:
-                return this.redstoneState;
+                return this.getRedstoneState();
 
             case PRIORITY:
             default:
@@ -233,7 +231,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
+        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
         boolean movedIn = false;
 
         switch (this.type)
@@ -251,7 +249,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
 
             case REDSTONE:
             {
-                IItemHandler inv = this.redstoneState ? this.inventoryInput2 : this.inventoryInput1;
+                IItemHandler inv = this.getRedstoneState() ? this.inventoryInput2 : this.inventoryInput1;
                 movedIn = InventoryUtils.tryMoveStack(inv, 0, this.inventoryOutput, 0) != InvResult.MOVED_NOTHING;
                 break;
             }
@@ -306,8 +304,8 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
                 break;
 
             case REDSTONE:
-                if ((this.redstoneState == false && this.inventoryInput1.getStackInSlot(0).isEmpty() == false) ||
-                    (this.redstoneState          && this.inventoryInput2.getStackInSlot(0).isEmpty() == false))
+                if ((this.getRedstoneState() == false && this.inventoryInput1.getStackInSlot(0).isEmpty() == false) ||
+                    (this.getRedstoneState()          && this.inventoryInput2.getStackInSlot(0).isEmpty() == false))
                 {
                     this.scheduleBlockUpdate(this.delay, false);
                 }

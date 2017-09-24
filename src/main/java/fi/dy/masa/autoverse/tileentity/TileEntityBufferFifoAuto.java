@@ -21,9 +21,10 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        if (this.redstoneState == false)
+        if (this.getRedstoneState() == false)
         {
-            boolean success = this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0, this.posFront, this.facingOpposite, this.spawnItemsInWorld);
+            boolean success = this.pushItemsToAdjacentInventory(this.itemHandlerExternal, 0,
+                    this.getFrontPosition(), this.getOppositeFacing(), this.spawnItemsInWorld);
 
             if (success)
             {
@@ -43,7 +44,7 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
     {
         super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
 
-        if (this.redstoneState == false)
+        if (this.getRedstoneState() == false)
         {
             this.scheduleBlockUpdate(this.delay, false);
         }
@@ -52,7 +53,7 @@ public class TileEntityBufferFifoAuto extends TileEntityBufferFifo
     @Override
     public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        if (this.redstoneState == false)
+        if (this.getRedstoneState() == false)
         {
             this.scheduleBlockUpdate(this.delay, false);
         }

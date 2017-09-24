@@ -43,31 +43,20 @@ import fi.dy.masa.autoverse.util.PlacementProperties;
 
 public abstract class TileEntityAutoverse extends TileEntity
 {
-    protected String tileEntityName;
-    protected EnumFacing facing = EnumFacing.UP;
-    protected EnumFacing facingOpposite = EnumFacing.DOWN;
-    protected BlockPos posFront = BlockPos.ORIGIN;
-    protected boolean redstoneState;
+    private String tileEntityName;
+    private EnumFacing facing = BlockAutoverse.DEFAULT_FACING;
+    private boolean redstoneState;
     private boolean slimModel;
     private FakePlayer fakePlayer;
 
     public TileEntityAutoverse(String name)
     {
-        this.facing = BlockAutoverse.DEFAULT_FACING;
         this.tileEntityName = name;
     }
 
     public String getTEName()
     {
         return this.tileEntityName;
-    }
-
-    @Override
-    public void setPos(BlockPos posIn)
-    {
-        super.setPos(posIn);
-
-        this.posFront = this.getPos().offset(this.getFacing());
     }
 
     public boolean isSlimModel()
@@ -83,12 +72,10 @@ public abstract class TileEntityAutoverse extends TileEntity
     public void setFacing(EnumFacing facing)
     {
         this.facing = facing;
-        this.facingOpposite = facing.getOpposite();
-        this.posFront = this.getPos().offset(facing);
-        this.markDirty();
 
         if (this.getWorld() != null && this.getWorld().isRemote == false)
         {
+            this.markDirty();
             this.notifyBlockUpdate(this.getPos());
         }
     }
@@ -96,6 +83,29 @@ public abstract class TileEntityAutoverse extends TileEntity
     public EnumFacing getFacing()
     {
         return this.facing;
+    }
+
+    protected EnumFacing getOppositeFacing()
+    {
+        return this.facing.getOpposite();
+    }
+
+    public boolean getRedstoneState()
+    {
+        return this.redstoneState;
+    }
+
+    protected void setRedstoneState(boolean powered)
+    {
+        this.redstoneState = powered;
+    }
+
+    /**
+     * Returns the position on the front side of this tile
+     */
+    protected BlockPos getFrontPosition()
+    {
+        return this.getPos().offset(this.facing);
     }
 
     @Override
@@ -333,9 +343,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
         this.redstoneState = nbt.getBoolean("Redstone");
         this.slimModel = nbt.getBoolean("Slim");
-
-        // Update the opposite and the front and back BlockPos
-        this.setFacing(EnumFacing.getFront(nbt.getByte("Facing")));
+        this.facing = EnumFacing.getFront(nbt.getByte("Facing"));
     }
 
     @Override

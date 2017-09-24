@@ -53,9 +53,12 @@ public class TileEntityPipeDirectional extends TileEntityPipe
     @Override
     public void rotate(Rotation rotation)
     {
-        super.rotate(rotation);
+        if (rotation != Rotation.NONE)
+        {
+            this.outputSidesMask = PositionUtils.rotateFacingMask(this.outputSidesMask, rotation);
+        }
 
-        this.outputSidesMask = PositionUtils.rotateFacingMask(this.outputSidesMask, rotation);
+        super.rotate(rotation);
     }
 
     private void toggleOutputOnSide(EnumFacing side)

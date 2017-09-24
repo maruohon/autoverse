@@ -55,7 +55,7 @@ public class TileEntitySequencerProgrammable extends TileEntityAutoverseInventor
     @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
-        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.posFront, this.facingOpposite, false);
+        boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
         boolean movedIn = this.sequencer.moveItems();
 
         if (movedIn || movedOut)
