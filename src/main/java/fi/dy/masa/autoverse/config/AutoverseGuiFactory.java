@@ -28,6 +28,7 @@ public class AutoverseGuiFactory extends DefaultGuiFactory
 
         configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_CLIENT)));
         configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_GENERIC)));
+        configElements.add(new ConfigElement(Configs.config.getCategory(Configs.CATEGORY_BLOCK_PLACER)));
 
         return configElements;
     }

@@ -1,6 +1,10 @@
 package fi.dy.masa.autoverse.config;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -36,6 +40,8 @@ public class Configs
     public static boolean disableItemBlockPlacerConfigurator;
     public static boolean disableItemWand;
 
+    private static String[] blockPlacerIntegerPropertyWhitelistNames;
+    private static final Set<ResourceLocation> BLOCK_PLACER_WHITELIST_INTEGER = new HashSet<>();
 
     public static BreakerPattern blockBreakerPattern = BreakerPattern.ADJACENT;
 
@@ -44,6 +50,7 @@ public class Configs
     
     public static final String CATEGORY_CLIENT = "Client";
     public static final String CATEGORY_GENERIC = "Generic";
+    public static final String CATEGORY_BLOCK_PLACER = "BlockPlacer";
     public static final String CATEGORY_BLOCK_DISABLE = "DisableBlocks";
     public static final String CATEGORY_ITEM_DISABLE = "DisableItems";
 
@@ -73,6 +80,7 @@ public class Configs
         loadConfigsGeneric(config);
         loadConfigsBlockDisable(config);
         loadConfigsItemDisable(config);
+        loadConfigsBlockPlacer(config);
 
         if (config.hasChanged())
         {
@@ -148,6 +156,34 @@ public class Configs
         {
             conf.save();
         }
+    }
+
+    private static void loadConfigsBlockPlacer(Configuration conf)
+    {
+        Property prop;
+
+        prop = conf.get(CATEGORY_BLOCK_PLACER, "blockPlacerIntegerPropertyWhitelist", new String[] { "minecraft:repeater" });
+        prop.setComment("List of blocks for which the Programmable Block Placer should be allowed to set\n" +
+                        "PropertyInteger type blockstate properties to any values.\n" +
+                        "This list is required to prevent exploits like placing Cauldrons already filled with water,\n" +
+                        "or setting crops (like Carrots) directly to their fully-grown state.");
+        blockPlacerIntegerPropertyWhitelistNames = prop.getStringList();
+        BLOCK_PLACER_WHITELIST_INTEGER.clear();
+
+        for (String name : blockPlacerIntegerPropertyWhitelistNames)
+        {
+            BLOCK_PLACER_WHITELIST_INTEGER.add(new ResourceLocation(name));
+        }
+
+        if (conf.hasChanged())
+        {
+            conf.save();
+        }
+    }
+
+    public static boolean isBlockWhitelistedForIntegerProperties(Block block)
+    {
+        return BLOCK_PLACER_WHITELIST_INTEGER.contains(block.getRegistryName());
     }
 
     public enum BreakerPattern

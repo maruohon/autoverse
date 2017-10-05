@@ -24,6 +24,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiBlockPlacerProgrammable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBlockPlacerProgrammable;
@@ -249,8 +250,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                                 break;
                             }
                         }
-                        // TODO: Add some kind of property white listing system, since this may allow exploits!
-                        else if (property instanceof PropertyInteger)
+                        else if (property instanceof PropertyInteger && Configs.isBlockWhitelistedForIntegerProperties(state.getBlock()))
                         {
                             Integer intValue = Integer.valueOf(value);
 
