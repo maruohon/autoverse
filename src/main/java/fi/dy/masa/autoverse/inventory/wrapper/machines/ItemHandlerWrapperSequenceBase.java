@@ -204,7 +204,7 @@ public abstract class ItemHandlerWrapperSequenceBase implements IItemHandler, II
 
     protected boolean moveInputItemToInventory(IItemHandler inv)
     {
-        return InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), inv, 0, false) != InvResult.MOVED_NOTHING;
+        return InventoryUtils.tryMoveStackToOtherInventory(this.getInputInventory(), inv, 0) != InvResult.MOVED_NOTHING;
     }
 
     protected void createMatchingSlotsMap(NonNullList<ItemStack> items)

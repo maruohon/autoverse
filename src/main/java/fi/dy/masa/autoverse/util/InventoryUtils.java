@@ -451,23 +451,13 @@ public class InventoryUtils
      */
     public static InvResult tryMoveAllItems(IItemHandler invSrc, IItemHandler invDst)
     {
-        return tryMoveAllItemsWithinSlotRange(invSrc, invDst, 0, invSrc.getSlots(), 0, invDst.getSlots());
-    }
-
-    /**
-     * Tries to move all items from the inventory invSrc into invDst within the provided slot range.
-     */
-    public static InvResult tryMoveAllItemsWithinSlotRange(IItemHandler invSrc, IItemHandler invDst,
-            int fromStart, int fromLastExc, int toStart, int toLastExc)
-    {
         boolean movedAll = true;
         boolean movedSome = false;
-        final int lastSlot = Math.min(fromLastExc - 1, invSrc.getSlots() - 1);
+        final int invSize = invSrc.getSlots();
 
-        for (int slot = fromStart; slot <= lastSlot; slot++)
+        for (int slot = 0; slot < invSize; slot++)
         {
             ItemStack stack;
-
             int limit = SLOT_ITER_LIMIT;
 
             while (limit-- > 0)
@@ -479,11 +469,11 @@ public class InventoryUtils
                     break;
                 }
 
-                int origSize = stack.getCount();
+                final int sizeOrig = stack.getCount();
+                stack = tryInsertItemStackToInventory(invDst, stack, false);
+                final int sizeNew = stack.getCount();
 
-                stack = tryInsertItemStackToInventoryWithinSlotRange(invDst, stack, toStart, toLastExc);
-
-                if (stack.isEmpty() || stack.getCount() != origSize)
+                if (sizeNew != sizeOrig)
                 {
                     movedSome = true;
                 }
@@ -545,42 +535,41 @@ public class InventoryUtils
      * @param invSrc
      * @param invDst
      * @param slotSrc
-     * @param simulate
      */
-    public static InvResult tryMoveStackToOtherInventory(IItemHandler invSrc, IItemHandler invDst, int slotSrc, boolean simulate)
+    public static InvResult tryMoveStackToOtherInventory(IItemHandler invSrc, IItemHandler invDst, int slotSrc)
     {
         ItemStack stack;
         int limit = SLOT_ITER_LIMIT;
         InvResult result = InvResult.MOVED_NOTHING;
 
-        while (limit-- > 0)
+        while (limit > 0)
         {
-            stack = invSrc.extractItem(slotSrc, 64, simulate);
+            // Simulated extract
+            stack = invSrc.extractItem(slotSrc, 64, true);
 
             if (stack.isEmpty())
             {
-                return InvResult.MOVED_ALL;
+                return limit < SLOT_ITER_LIMIT ? InvResult.MOVED_ALL : InvResult.MOVED_NOTHING;
             }
 
-            int sizeOrig = stack.getCount();
-            stack = tryInsertItemStackToInventory(invDst, stack, simulate);
+            final int sizeOrig = stack.getCount();
+            stack = tryInsertItemStackToInventory(invDst, stack, false);
+            final int sizeNew = stack.getCount();
 
-            // Can't insert any more items
-            if (stack.isEmpty() == false)
+            if (sizeNew != sizeOrig)
             {
-                if (stack.getCount() != sizeOrig)
-                {
-                    result = InvResult.MOVED_SOME;
-                }
-
-                // Put the rest of the items back to the source inventory
-                stack = invSrc.insertItem(slotSrc, stack, simulate);
-                break;
-            }
-            else
-            {
+                // Actual extract - extract as many items as could be inserted from the simulate-extracted stack
+                invSrc.extractItem(slotSrc, sizeOrig - sizeNew, false);
                 result = InvResult.MOVED_SOME;
             }
+
+            // All items couldn't be inserted
+            if (sizeNew > 0)
+            {
+                break;
+            }
+
+            limit--;
         }
 
         return result;
@@ -614,26 +603,7 @@ public class InventoryUtils
 
         if (slotSmallest != -1)
         {
-            ItemStack stack = invSrc.extractItem(slotSrc, 64, true);
-            int sizeOrig = stack.getCount();
-
-            if (stack.isEmpty())
-            {
-                return InvResult.MOVED_NOTHING;
-            }
-
-            stack = invDst.insertItem(slotSmallest, stack, false);
-
-            if (stack.isEmpty())
-            {
-                invSrc.extractItem(slotSrc, sizeOrig, false);
-                return InvResult.MOVED_ALL;
-            }
-            else if (stack.getCount() < sizeOrig)
-            {
-                invSrc.extractItem(slotSrc, sizeOrig - stack.getCount(), false);
-                return InvResult.MOVED_SOME;
-            }
+            return tryMoveStack(invSrc, slotSrc, invDst, slotSmallest, 64);
         }
 
         return InvResult.MOVED_NOTHING;
@@ -654,23 +624,19 @@ public class InventoryUtils
      */
     public static InvResult tryMoveStack(IItemHandler invSrc, int slotSrc, IItemHandler invDst, int slotDst, int maxAmount)
     {
-        ItemStack stack = invSrc.extractItem(slotSrc, maxAmount, false);
+        ItemStack stack = invSrc.extractItem(slotSrc, maxAmount, true);
 
         if (stack.isEmpty() == false)
         {
-            int sizeOrig = stack.getCount();
+            final int sizeOrig = stack.getCount();
             stack = invDst.insertItem(slotDst, stack, false);
+            final int sizeNew = stack.getCount();
 
-            if (stack.isEmpty())
+            if (sizeNew != sizeOrig)
             {
-                return InvResult.MOVED_ALL;
-            }
-            else
-            {
-                boolean movedSome = stack.getCount() != sizeOrig;
-                invSrc.insertItem(slotSrc, stack, false);
-
-                return movedSome ? InvResult.MOVED_SOME : InvResult.MOVED_NOTHING;
+                // Actual extract - extract as many items as could be inserted from the simulate-extracted stack
+                invSrc.extractItem(slotSrc, sizeOrig - sizeNew, false);
+                return sizeNew == 0 ? InvResult.MOVED_ALL : InvResult.MOVED_SOME;
             }
         }
 

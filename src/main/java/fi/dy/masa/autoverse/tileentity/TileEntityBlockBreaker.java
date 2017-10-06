@@ -28,6 +28,7 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     private boolean isGreedy;
     private boolean breakScheduled;
     private int delay = 4;
+    private boolean preventUpdates;
 
     public TileEntityBlockBreaker()
     {
@@ -91,6 +92,15 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        if (this.preventUpdates == false)
+        {
+            this.scheduleUpdateIfNeeded();
+        }
+    }
+
+    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         if (this.breakScheduled && this.getRedstoneState() == false)
@@ -133,7 +143,11 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
                 pos = pos.offset(facingOpposite);
             }
 
-            return this.pushItemsToAdjacentInventory(this.itemHandlerBase, slot, 64, pos, facing, false);
+            this.preventUpdates = true;
+            boolean ret = this.pushItemsToAdjacentInventory(this.itemHandlerBase, slot, 64, pos, facing, false);
+            this.preventUpdates = false;
+
+            return ret;
         }
 
         return false;

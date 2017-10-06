@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import javax.annotation.Nullable;
+import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
@@ -21,6 +22,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
@@ -364,6 +366,20 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         */
 
         return false;
+    }
+
+    @Override
+    public void onNeighborTileChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    {
+        this.scheduleUpdateIfNeeded(false);
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
+    {
+        super.onNeighborBlockChange(worldIn, pos, state, neighborBlock);
+
+        this.scheduleUpdateIfNeeded(false);
     }
 
     @Override

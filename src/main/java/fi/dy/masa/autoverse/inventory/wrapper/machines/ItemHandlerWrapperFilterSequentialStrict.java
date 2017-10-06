@@ -162,7 +162,7 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
     {
         int slotSrc = this.position;
 
-        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, slotSrc, false) == InvResult.MOVED_ALL)
+        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, slotSrc) == InvResult.MOVED_ALL)
         {
             // Moved all items
             if (++this.position >= this.inventoryFilteredBuffer.getSlots() ||
@@ -182,7 +182,7 @@ public class ItemHandlerWrapperFilterSequentialStrict extends ItemHandlerWrapper
     {
         IItemHandler inv = this.getOutputInventory();
 
-        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, 0, false) == InvResult.MOVED_ALL)
+        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryFilteredBuffer, inv, 0) == InvResult.MOVED_ALL)
         {
             for (int i = 1; i < this.position; i++)
             {
