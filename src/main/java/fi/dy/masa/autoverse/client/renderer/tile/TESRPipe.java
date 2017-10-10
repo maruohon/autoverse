@@ -46,32 +46,32 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) lu / 1.0F, (float) lv / 1.0F);
 
             // Render the ItemStacks
-            for (int i = 0; i < 6; i++)
+            for (int sideIndex = 0; sideIndex < 6; sideIndex++)
             {
-                float fullDelay = (float) te.getDelayForSide(i);
+                float fullDelay = (float) te.getDelayForSide(sideIndex);
 
                 // Incoming stacks
-                if (te.delaysClient[i] >= -1)
+                if (te.delaysClient[sideIndex] >= -1)
                 {
-                    if (te.delaysClient[i] >= 0 && partialTicks < te.partialTicksLast)
+                    if (te.delaysClient[sideIndex] >= 0 && partialTicks < te.partialTicksLast)
                     {
-                        te.delaysClient[i]--;
+                        te.delaysClient[sideIndex]--;
                     }
 
-                    if (te.isInput[i] == 0 || te.delaysClient[i] < fullDelay / 2)
+                    if (te.isInput[sideIndex] == 0 || te.delaysClient[sideIndex] < fullDelay / 2)
                     {
-                        ItemStack stack = te.stacksLast.get(i);
+                        ItemStack stack = te.stacksLast.get(sideIndex);
                         float progress = 0f;
 
-                        if (te.delaysClient[i] >= 0)
+                        if (te.delaysClient[sideIndex] >= 0)
                         {
                             // 1 ... 0
-                            progress = (((float) te.delaysClient[i] + 1f - partialTicks) / fullDelay);
+                            progress = (((float) te.delaysClient[sideIndex] + 1f - partialTicks) / fullDelay);
                         }
 
                         // The item is (normally, see above) rendered moving from the center
                         // of the block on the input side, to the center of this block.
-                        EnumFacing inputSide = EnumFacing.getFront(i);
+                        EnumFacing inputSide = EnumFacing.getFront(sideIndex);
                         double posX = x + inputSide.getFrontOffsetX() * progress;
                         double posY = y + inputSide.getFrontOffsetY() * progress;
                         double posZ = z + inputSide.getFrontOffsetZ() * progress;
@@ -80,30 +80,30 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
                     }
                 }
 
-                if (te.delaysOut[i] >= -1 && partialTicks < te.partialTicksLast)
+                if (te.delaysOut[sideIndex] >= -1 && partialTicks < te.partialTicksLast)
                 {
-                    if (--te.delaysOut[i] < -1)
+                    if (--te.delaysOut[sideIndex] < -1)
                     {
-                        te.stacksOut.set(i, ItemStack.EMPTY);
+                        te.stacksOut.set(sideIndex, ItemStack.EMPTY);
                     }
                 }
 
                 // Outgoing stacks
-                if (te.delaysOut[i] >= -1)
+                if (te.delaysOut[sideIndex] >= -1)
                 {
-                    ItemStack stack = te.stacksOut.get(i);
+                    ItemStack stack = te.stacksOut.get(sideIndex);
                     float progress = 0.5f;
                     fullDelay /= 2;
 
-                    if (te.delaysOut[i] >= 0)
+                    if (te.delaysOut[sideIndex] >= 0)
                     {
                         // 0 ... 0.5
-                        progress = 0.5f * (1f - (((float) te.delaysOut[i] + 1f - partialTicks) / fullDelay));
+                        progress = 0.5f * (1f - (((float) te.delaysOut[sideIndex] + 1f - partialTicks) / fullDelay));
                     }
 
                     // The item is rendered moving from the center of this block
                     // to the edge of this block on the output side.
-                    EnumFacing outputSide = EnumFacing.getFront(te.outputDirections[i]);
+                    EnumFacing outputSide = EnumFacing.getFront(te.outputDirections[sideIndex]);
                     double posX = x + outputSide.getFrontOffsetX() * progress;
                     double posY = y + outputSide.getFrontOffsetY() * progress;
                     double posZ = z + outputSide.getFrontOffsetZ() * progress;

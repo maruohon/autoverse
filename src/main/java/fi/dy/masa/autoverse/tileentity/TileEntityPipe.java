@@ -65,7 +65,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this(ReferenceNames.NAME_BLOCK_PIPE);
     }
 
-    public TileEntityPipe(String name)
+    protected TileEntityPipe(String name)
     {
         super(name);
 
@@ -210,7 +210,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.setDelay(((int) delay) & 0xFF);
     }
 
-    public void setDelay(int delay)
+    private void setDelay(int delay)
     {
         this.delay = MathHelper.clamp(delay, 1, 127);
     }
@@ -241,11 +241,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return this.itemHandlerBase;
     }
 
-    protected IItemHandler getInputInventory(int side)
-    {
-        return this.inputInventories[side];
-    }
-
     public BlockPipe.Connection getConnectionType(int sideIndex)
     {
         return (this.connectedSidesMask & (1 << sideIndex)) != 0 ? BlockPipe.Connection.BASIC : BlockPipe.Connection.NONE;
@@ -272,7 +267,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return (this.disabledSidesMask & (1 << side.getIndex())) != 0;
     }
 
-    public boolean updateConnectedSides(boolean notify)
+    protected boolean updateConnectedSides(boolean notify)
     {
         int mask = 0;
 
@@ -301,7 +296,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return false;
     }
 
-    protected boolean checkCanConnectOnSide(EnumFacing side)
+    private boolean checkCanConnectOnSide(EnumFacing side)
     {
         if ((this.disabledSidesMask & (1 << side.getIndex())) == 0)
         {
@@ -342,7 +337,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
-    protected void setScheduledTimeForSide(int side, int delay)
+    private void setScheduledTimeForSide(int side, int delay)
     {
         int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
         this.scheduledTimes[side] = delay + currentTime;
@@ -790,7 +785,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
-    protected ItemStack pushItemIn(int slot, ItemStack stack, boolean simulate)
+    private ItemStack pushItemIn(int slot, ItemStack stack, boolean simulate)
     {
         if (simulate == false)
         {
@@ -805,7 +800,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         }
     }
 
-    protected void sendPacketPushToAdjacentPipe(int inputSide, int outputSide, int delayTarget, int count)
+    private void sendPacketPushToAdjacentPipe(int inputSide, int outputSide, int delayTarget, int count)
     {
         int val = (1 << 29);
         val |= (count << 22);
@@ -817,7 +812,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
     }
 
-    protected void sendPacketMoveItemOut(int inputSide, int outputSide, int count)
+    private void sendPacketMoveItemOut(int inputSide, int outputSide, int count)
     {
         int val = (2 << 29);
         val |= (count << 22);
@@ -828,7 +823,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
     }
 
-    protected void sendPacketRemoveItem(int inputSide)
+    private void sendPacketRemoveItem(int inputSide)
     {
         int val = (3 << 29);
         val |= (inputSide << 16);
@@ -1095,7 +1090,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         nbt.setByteArray(tagName, sidesMasks);
     }
 
-    protected EnumFacing[] createFacingArrayFromMask(int side, int mask)
+    private EnumFacing[] createFacingArrayFromMask(int side, int mask)
     {
         EnumFacing opposite = EnumFacing.getFront(side).getOpposite();
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
@@ -1121,7 +1116,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         return sides.toArray(new EnumFacing[sides.size()]);
     }
 
-    protected int createMaskFromFacingArray(EnumFacing[] sides)
+    private int createMaskFromFacingArray(EnumFacing[] sides)
     {
         int mask = 0;
 
