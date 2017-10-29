@@ -3,10 +3,12 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockSequenceDetector;
 import fi.dy.masa.autoverse.gui.client.GuiSequenceDetector;
@@ -24,6 +26,8 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     private ItemHandlerWrapperSequenceDetector detector;
     private boolean changePending;
     private boolean powered;
+    private int onTimeRSTicks = 1;
+    private int scheduledTime = -1;
 
     public TileEntitySequenceDetector()
     {
@@ -55,11 +59,58 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
         return this.detector;
     }
 
+    @Override
+    public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
+    {
+        super.setPlacementProperties(world, pos, stack, tag);
+
+        if (tag.hasKey("sequence_detector.on_time", Constants.NBT.TAG_BYTE))
+        {
+            this.setOnTime(tag.getByte("sequence_detector.on_time"), true);
+        }
+    }
+
+    @Override
+    public boolean applyProperty(int propId, int value)
+    {
+        if (propId == 1)
+        {
+            this.setOnTime(value, true);
+            return true;
+        }
+
+        return super.applyProperty(propId, value);
+    }
+
+    @Override
+    public int[] getProperties()
+    {
+        int[] values = super.getProperties();
+
+        values[1] = this.onTimeRSTicks;
+
+        return values;
+    }
+
+    private void setOnTime(int value, boolean markDirty)
+    {
+        this.onTimeRSTicks = Math.max(1, value & 0xFF);
+
+        if (markDirty)
+        {
+            this.markDirty();
+        }
+    }
+
     public void onSequenceMatch()
     {
-        this.powered = true;
-        this.changePending = true;
-        this.scheduleBlockUpdate(1, true);
+        // Don't allow new pulses if the previous one is still ON
+        if (this.changePending == false)
+        {
+            this.powered = true;
+            this.changePending = true;
+            this.scheduleBlockUpdate(1, false);
+        }
     }
 
     @Override
@@ -69,31 +120,60 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     }
 
     @Override
+    public void onLoad()
+    {
+        if (this.getWorld().isRemote == false)
+        {
+            this.setScheduledTimeFromDelay();
+        }
+    }
+
+    private void setScheduledTimeFromDelay()
+    {
+        // Set the scheduled times on chunk load from the relative delays loaded from NBT.
+        // This check is to ensure that the delays don't get modified multiple times.
+        // Valid delay values are 1..255, thus this check can avoid adding an extra boolean field "initialized".
+        if (this.scheduledTime >= 0 && this.scheduledTime <= 255)
+        {
+            final int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
+            this.scheduledTime += currentTime;
+        }
+    }
+
+    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         boolean movedOut = this.pushItemsToAdjacentInventory(this.inventoryOutput, 0, this.getFrontPosition(), this.getOppositeFacing(), false);
         boolean movedIn = this.detector.moveItems();
+        final int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
 
-        // Emit a 1 redstone tick pulse when the detector triggers
-        if (this.changePending)
+        if (this.changePending && this.scheduledTime <= currentTime)
         {
             IBlockState newState = this.getWorld().getBlockState(this.getPos());
             newState = newState.withProperty(BlockSequenceDetector.POWERED, this.powered);
             this.getWorld().setBlockState(this.getPos(), newState);
 
-            if (this.powered == false)
+            // Emit a redstone pulse when the detector triggers
+            if (this.powered)
             {
-                this.changePending = false;
+                final int delay = this.onTimeRSTicks * 2;
+                this.scheduledTime = delay + currentTime;
+                this.powered = false;
+                this.scheduleBlockUpdate(delay, false);
             }
             else
             {
-                this.powered = false;
-                this.scheduleBlockUpdate(2, true);
+                this.scheduledTime = -1;
+                this.changePending = false;
             }
         }
         else if (movedIn || movedOut)
         {
             this.scheduleUpdateIfNeeded(movedIn);
+        }
+        else if (this.scheduledTime >= currentTime)
+        {
+            this.scheduleBlockUpdate(this.scheduledTime - currentTime, false);
         }
     }
 
@@ -109,8 +189,14 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
             this.inventoryInput.getStackInSlot(0).isEmpty() == false ||
             this.inventoryOutput.getStackInSlot(0).isEmpty() == false)
         {
-            this.scheduleBlockUpdate(1, false);
+            this.scheduleBlockUpdate(1, force);
         }
+    }
+
+    @Override
+    public void inventoryChanged(int inventoryId, int slot)
+    {
+        this.scheduleUpdateIfNeeded(true);
     }
 
     @Override
@@ -122,19 +208,17 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     }
 
     @Override
-    public void inventoryChanged(int inventoryId, int slot)
-    {
-        this.scheduleUpdateIfNeeded(false);
-    }
-
-    @Override
     public void readFromNBTCustom(NBTTagCompound tag)
     {
         super.readFromNBTCustom(tag);
 
-        int mask = tag.getByte("StateMask");
+        final int mask = tag.getByte("StateMask");
         this.changePending = (mask & 0x40) != 0;
         this.powered = (mask & 0x80) != 0;
+        this.setOnTime(tag.getByte("OnTime"), false);
+
+        // See onLoad() and setScheduledTimeFromDelay()
+        this.scheduledTime = tag.getShort("Scheduled");
 
         this.inventoryInput.deserializeNBT(tag);
         this.inventoryOutput.deserializeNBT(tag);
@@ -151,6 +235,10 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
         mask |= (this.powered ? 0x80 : 0x00);
 
         nbt.setByte("StateMask", (byte) mask);
+        nbt.setByte("OnTime", (byte) this.onTimeRSTicks);
+
+        final int currentTime = (int) (this.getWorld().getTotalWorldTime() & 0x3FFFFFFF);
+        nbt.setShort("Scheduled", (short) (this.scheduledTime - currentTime));
 
         nbt.merge(this.detector.serializeNBT());
 

@@ -155,6 +155,7 @@ autoverse.placement_properties.buffer.size=Buffer size
 autoverse.placement_properties.machine.slim_model=Slim model
 autoverse.placement_properties.pipe.delay=Delay
 autoverse.placement_properties.pipe.max_stack=Max stack size
+autoverse.placement_properties.sequence_detector.on_time=On time (RS ticks)
 autoverse.placement_properties.sequencer.length=Length
 
 autoverse.tooltip.placementproperties.tooltips= |lf§f*** Placement Properties ***§r|lf- (Shift +) Toggle key to change property selection|lf- Ctrl and/or Alt + scroll to change the value

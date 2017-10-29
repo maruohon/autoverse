@@ -9,7 +9,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockMachineSlimBase;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequenceDetector;
 import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
@@ -37,6 +40,14 @@ public class BlockSequenceDetector extends BlockMachineSlimBase
     protected TileEntityAutoverse createTileEntityInstance(World world, IBlockState state)
     {
         return new TileEntitySequenceDetector();
+    }
+
+    @Override
+    public ItemBlockAutoverse createItemBlock()
+    {
+        ItemBlockAutoverse item = super.createItemBlock();
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "sequence_detector.on_time", Constants.NBT.TAG_BYTE, 1, 255);
+        return item;
     }
 
     @Override
