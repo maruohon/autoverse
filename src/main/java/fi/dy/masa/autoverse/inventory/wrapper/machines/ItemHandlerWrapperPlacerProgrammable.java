@@ -61,18 +61,13 @@ public class ItemHandlerWrapperPlacerProgrammable extends ItemHandlerWrapperSequ
     @Override
     protected boolean moveInputItemNormal(ItemStack stack)
     {
-        stack = stack.copy();
         boolean damageable = stack.getItem().isDamageable();
 
         if (this.subState == 1 || this.sequenceTrigger.isSequenceMatched())
         {
             if ((damageable == false || this.getOutputInventory().getStackInSlot(0).isEmpty()) && this.te.tryPlaceBlock(stack))
             {
-                if (damageable == false)
-                {
-                    this.getInputInventory().extractItem(0, 1, false);
-                }
-                else if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
+                if (this.getInputInventory().getStackInSlot(0).isEmpty() == false)
                 {
                     this.moveInputItemToOutput();
                 }

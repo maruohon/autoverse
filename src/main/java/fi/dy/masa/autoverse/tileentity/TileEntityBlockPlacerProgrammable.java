@@ -316,6 +316,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                     BlockUtils.setBlockStateWithPlaceSound(world, pos, placementState, 3))
                 {
                     this.applyTileEntityProperties(world, pos);
+                    stack.shrink(1);
                     return true;
                 }
             }
