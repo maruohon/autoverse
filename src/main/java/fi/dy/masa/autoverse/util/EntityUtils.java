@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -78,9 +77,9 @@ public class EntityUtils
     {
         double reach = 5D;
 
-        if (entity instanceof EntityPlayerMP)
+        if (entity instanceof EntityPlayer)
         {
-            reach = ((EntityPlayerMP) entity).interactionManager.getBlockReachDistance();
+            reach = ((EntityPlayer) entity).getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         }
 
         return getRayTraceFromEntity(world, entity, useLiquids, reach);
@@ -93,7 +92,7 @@ public class EntityUtils
         Vec3d rangedLookRot = entity.getLook(1f).scale(range);
         Vec3d lookVec = eyesVec.add(rangedLookRot);
 
-        RayTraceResult result = world.rayTraceBlocks(eyesVec, lookVec, useLiquids, !useLiquids, false);
+        RayTraceResult result = world.rayTraceBlocks(eyesVec, lookVec, useLiquids, false, false);
 
         if (result == null)
         {
