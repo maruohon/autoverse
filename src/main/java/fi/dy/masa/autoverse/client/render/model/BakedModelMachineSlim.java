@@ -164,7 +164,7 @@ public class BakedModelMachineSlim implements IBakedModel
 
     protected IBakedModel getBaseModel(IBlockState state, EnumFacing mainFacing)
     {
-        return this.baseModel.bake(new TRSRTransformation(mainFacing), this.format, this.bakedTextureGetter);
+        return this.baseModel.bake(TRSRTransformation.from(mainFacing), this.format, this.bakedTextureGetter);
     }
 
     @Nullable
@@ -183,7 +183,7 @@ public class BakedModelMachineSlim implements IBakedModel
             mainFacing = mainFacing.getOpposite();
         }
 
-        return this.outModel.bake(new TRSRTransformation(mainFacing), this.format, this.bakedTextureGetter);
+        return this.outModel.bake(TRSRTransformation.from(mainFacing), this.format, this.bakedTextureGetter);
     }
 
     protected List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
@@ -196,7 +196,7 @@ public class BakedModelMachineSlim implements IBakedModel
             EnumFacing relativeFacing = state.getValue(block.getPropertyFacing(side));
             EnumFacing absoluteFacing = PositionUtils.getAbsoluteFacingFromNorth(mainFacing, relativeFacing);
             IModel sideModel = this.sideModel.retexture(this.getSideModelTextures(state, side));
-            models.add(sideModel.bake(new TRSRTransformation(absoluteFacing), this.format, this.bakedTextureGetter));
+            models.add(sideModel.bake(TRSRTransformation.from(absoluteFacing), this.format, this.bakedTextureGetter));
         }
 
         return models;

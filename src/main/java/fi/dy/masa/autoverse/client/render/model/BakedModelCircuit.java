@@ -163,21 +163,21 @@ public class BakedModelCircuit implements IBakedModel
         ImmutableMap<String, String> baseTextures = this.getBaseModelTextures(state.getValue(BlockCircuit.TYPE), powered);
 
         model = this.baseModel.retexture(baseTextures);
-        models.add(model.bake(new TRSRTransformation(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter));
+        models.add(model.bake(TRSRTransformation.from(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter));
 
         side = state.getValue(BlockCircuit.FACING);
         model = this.sideModel.retexture(baseTextures);
-        models.add(model.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+        models.add(model.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
 
         if (state.getValue(BlockCircuit.TYPE) == CircuitType.LATCH_RS)
         {
             side = state.getValue(BlockCircuit.FACING2);
             model = this.sideModel.retexture(this.getSideModelTexturesLatchRS(state, false));
-            models.add(model.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+            models.add(model.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
 
             side = state.getValue(BlockCircuit.FACING3);
             model = this.sideModel.retexture(this.getSideModelTexturesLatchRS(state, true));
-            models.add(model.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+            models.add(model.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
         }
 
         return models;

@@ -60,18 +60,24 @@ public class BakedModelPipe implements IBakedModel
     // These are the transforms to get the vertical pipe edge strip model to the correct orientation for each of the pipe edges
     // From NORTH to NORTH, SOUTH, WEST, EAST
     private static final TRSRTransformation[] TRANSFORMS_Y = new TRSRTransformation[] {
-            new TRSRTransformation(ModelRotation.X0_Y0), new TRSRTransformation(ModelRotation.X0_Y180),
-            new TRSRTransformation(ModelRotation.X0_Y270), new TRSRTransformation(ModelRotation.X0_Y90) };
+            TRSRTransformation.from(ModelRotation.X0_Y0),
+            TRSRTransformation.from(ModelRotation.X0_Y180),
+            TRSRTransformation.from(ModelRotation.X0_Y270),
+            TRSRTransformation.from(ModelRotation.X0_Y90) };
 
     // From NORTH to DOWN, UP, NORTH, SOUTH
     private static final TRSRTransformation[] TRANSFORMS_X = new TRSRTransformation[] {
-            new TRSRTransformation(ModelRotation.X90_Y90), new TRSRTransformation(ModelRotation.X270_Y270),
-            new TRSRTransformation(ModelRotation.X90_Y270), new TRSRTransformation(ModelRotation.X270_Y90) };
+            TRSRTransformation.from(ModelRotation.X90_Y90),
+            TRSRTransformation.from(ModelRotation.X270_Y270),
+            TRSRTransformation.from(ModelRotation.X90_Y270),
+            TRSRTransformation.from(ModelRotation.X270_Y90) };
 
     // From NORTH to DOWN, UP, WEST, EAST
     private static final TRSRTransformation[] TRANSFORMS_Z = new TRSRTransformation[] {
-            new TRSRTransformation(ModelRotation.X90_Y180), new TRSRTransformation(ModelRotation.X270_Y0),
-            new TRSRTransformation(ModelRotation.X270_Y180), new TRSRTransformation(ModelRotation.X90_Y0) };
+            TRSRTransformation.from(ModelRotation.X90_Y180),
+            TRSRTransformation.from(ModelRotation.X270_Y0),
+            TRSRTransformation.from(ModelRotation.X270_Y180),
+            TRSRTransformation.from(ModelRotation.X90_Y0) };
 
     private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_BLOCK_SOLID = new HashMap<>();
     private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE_BLOCK_TRANSLUCENT = new HashMap<>();
@@ -194,7 +200,7 @@ public class BakedModelPipe implements IBakedModel
 
             if (quads == null)
             {
-                TRSRTransformation modelState = new TRSRTransformation(ModelRotation.X0_Y0);
+                TRSRTransformation modelState = TRSRTransformation.from(ModelRotation.X0_Y0);
 
                 quads = this.bakeFullModel(state, side, modelState, isTranslucentLayer);
 
@@ -263,7 +269,7 @@ public class BakedModelPipe implements IBakedModel
 
             this.addCorners(state, models, EnumFacing.UP, modelStateIn);
 
-            TRSRTransformation tr = new TRSRTransformation(ModelRotation.X180_Y180);
+            TRSRTransformation tr = TRSRTransformation.from(ModelRotation.X180_Y180);
             IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
             this.addCorners(state, models, EnumFacing.DOWN, modelState);
         }
@@ -399,7 +405,7 @@ public class BakedModelPipe implements IBakedModel
         for (EnumFacing side : EnumFacing.values())
         {
             BlockPipe.Connection conn = state.getValue(BlockPipe.CONNECTIONS.get(side.getIndex()));
-            TRSRTransformation tr = new TRSRTransformation(side);
+            TRSRTransformation tr = TRSRTransformation.from(side);
             IModelState modelState = modelStateIn != null ? new ModelStateComposition(tr, modelStateIn) : tr;
 
             if (isTranslucentLayer == false)

@@ -87,7 +87,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
             if (bakedModel == null)
             {
                 IModel model = this.fullBlockModel.retexture(this.getFullBlockModelTextures(state));
-                bakedModel = model.bake(new TRSRTransformation(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
+                bakedModel = model.bake(TRSRTransformation.from(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
 
                 MODEL_CACHE.put(state, bakedModel);
             }
@@ -100,7 +100,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
     protected IBakedModel getBaseModel(IBlockState state, EnumFacing mainFacing)
     {
         IModel baseModel = this.baseModel.retexture(this.getFullBlockModelTextures(state));
-        return baseModel.bake(new TRSRTransformation(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
+        return baseModel.bake(TRSRTransformation.from(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
             {
                 boolean powered = state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex())) == BlockRedstoneEmitter.SideStatus.POWERED;
                 IModel sideModel = this.sideModel.retexture(this.getSideModelTextures(state, powered));
-                models.add(sideModel.bake(new TRSRTransformation(side), this.format, this.bakedTextureGetter));
+                models.add(sideModel.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
             }
         }
 
