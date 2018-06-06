@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -153,6 +154,6 @@ public class AutoverseBlocks
 
     private static void registerTileEntity(Class<? extends TileEntity> clazz, String id)
     {
-        GameRegistry.registerTileEntity(clazz, Reference.MOD_ID + ":" + id);
+        GameRegistry.registerTileEntity(clazz, new ResourceLocation(Reference.MOD_ID, id));
     }
 }
