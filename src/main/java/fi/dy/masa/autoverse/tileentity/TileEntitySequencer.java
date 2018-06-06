@@ -77,9 +77,26 @@ public class TileEntitySequencer extends TileEntityAutoverseInventory
     }
 
     @Override
+    protected void onRedstoneChange(boolean state)
+    {
+        if (state)
+        {
+            this.scheduleUpdateIfNeeded(false);
+        }
+    }
+
+    @Override
     public void onScheduledBlockUpdate(World world, BlockPos pos, IBlockState state, Random rand)
     {
         this.pushItemsToAdjacentInventory(this.inventorySequencer, 0, this.getFrontPosition(), this.getOppositeFacing(), true);
+    }
+
+    private void scheduleUpdateIfNeeded(boolean force)
+    {
+        if (force || this.inventorySequencer.getStackInSlot(0).isEmpty() == false)
+        {
+            this.scheduleBlockUpdate(1, false);
+        }
     }
 
     public int getOutputSlot()
