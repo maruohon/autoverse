@@ -17,6 +17,8 @@ public class Configs
     public static boolean disableSounds;
     public static boolean fifoBufferOffsetSlots;
 
+    public static int barrelMaxTier;
+
     public static boolean disableBlockBarrel;
     public static boolean disableBlockBlockBreaker;
     public static boolean disableBlockBlockDetector;
@@ -97,13 +99,16 @@ public class Configs
                         "so that the current extract position is always at the top left of the GUI/slots.");
         fifoBufferOffsetSlots = prop.getBoolean();
 
+        prop = conf.get(CATEGORY_GENERIC, "barrelMaxTier", 15);
+        prop.setComment("The maximum allowed tier of a Barrel. Note: The value here is 0 - 15, but the displayd value in-game is 1 - 16");
+        barrelMaxTier = MathHelper.clamp(prop.getInt(), 0, 15);
+
         prop = conf.get(CATEGORY_GENERIC, "blockBreakerPattern", 0);
         prop.setComment("The block break pattern of the Greedy variant of Block Breaker.\n" +
                         "0 = adjacent blocks only (default)\n" +
                         "1 = a 3x3 shape around the breaker (not behind itself though)\n" +
                         "2 = a 5x5 shape around the breaker (not behind itself though)");
-        int value = MathHelper.clamp(prop.getInt(), 0, BreakerPattern.values().length - 1);
-        blockBreakerPattern = BreakerPattern.values()[value];
+        blockBreakerPattern = BreakerPattern.values()[MathHelper.clamp(prop.getInt(), 0, BreakerPattern.values().length - 1)];
 
         prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
         prop.setComment("Disable all sounds");

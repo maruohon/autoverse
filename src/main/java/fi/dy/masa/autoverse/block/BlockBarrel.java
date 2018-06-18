@@ -21,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.item.block.ItemBlockStorage;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
@@ -71,7 +72,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockStorage item = new ItemBlockStorage(this);
-        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "barrel.tier", Constants.NBT.TAG_BYTE, 0, 15);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "barrel.tier", Constants.NBT.TAG_BYTE, 0, Configs.barrelMaxTier);
 
         String[] names = new String[] {
                 "1 (max: 1)",     "2 (max: 2)",     "3 (max: 4)",      "4 (max: 8)",

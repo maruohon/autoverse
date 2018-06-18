@@ -13,6 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiBarrel;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
@@ -90,7 +91,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         int[] values = new int[4];
         Arrays.fill(values, -1);
 
-        values[0] = this.tier;
+        values[0] = this.getTier();
 
         return values;
     }
@@ -106,7 +107,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     private void setTier(int tier)
     {
-        this.tier = MathHelper.clamp(tier, 0, 15);
+        this.tier = MathHelper.clamp(tier, 0, Math.min(Configs.barrelMaxTier, 15));
         this.itemHandlerBase.setStackLimit(this.getMaxStackSize());
     }
 
@@ -139,7 +140,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
     public int getMaxStackSize()
     {
-        return (int) Math.pow(2, this.tier);
+        return (int) Math.pow(2, this.getTier());
     }
 
     @Override
@@ -185,7 +186,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
         nbt.setBoolean("Pulsed", this.isPulsed);
         nbt.setBoolean("Creative", this.isCreative);
-        nbt.setByte("Tier", (byte)this.tier);
+        nbt.setByte("Tier", (byte) this.getTier());
 
         return nbt;
     }
@@ -207,7 +208,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
     {
         tag = super.getUpdatePacketTag(tag);
 
-        byte mask = (byte) this.tier;
+        byte mask = (byte) this.getTier();
         mask |= (this.isPulsed ? 0x80 : 0);
         mask |= (this.isCreative() ? 0x40 : 0);
         tag.setByte("d", mask);
@@ -226,7 +227,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
 
         data = data & 0xF;
 
-        if (this.tier != data)
+        if (this.getTier() != data)
         {
             this.setTier(data);
             this.getWorld().markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
@@ -239,7 +240,7 @@ public class TileEntityBarrel extends TileEntityAutoverseInventory
         // Change Barrel tier
         if (action == 0)
         {
-            this.setTier(this.tier + element);
+            this.setTier(this.getTier() + element);
             this.markDirty();
             this.notifyBlockUpdate(this.getPos());
         }
