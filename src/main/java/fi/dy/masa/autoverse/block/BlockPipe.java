@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.RenderEventHandler;
 import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.tileentity.TileEntityPipe;
@@ -104,8 +105,8 @@ public class BlockPipe extends BlockAutoverseInventory
     public ItemBlock createItemBlock()
     {
         ItemBlockAutoverse item = new ItemBlockAutoverse(this);
-        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.delay", Constants.NBT.TAG_BYTE, 1, 127);
-        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.max_stack", Constants.NBT.TAG_BYTE, 1, 64);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.delay", Constants.NBT.TAG_BYTE, Configs.pipeMinimumDelay, 127, Configs.pipeDefaultDelay);
+        item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.max_stack", Constants.NBT.TAG_BYTE, 1, Configs.pipeMaxStackSize, 1);
         return item;
     }
 

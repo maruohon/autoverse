@@ -170,23 +170,23 @@ public class RenderEventHandler
         List<String> lines = new ArrayList<String>();
         PlacementProperties props = PlacementProperties.getInstance();
         UUID uuid = player.getUniqueID();
-        PlacementProperty pp = item.getPlacementProperty(stack);
-        boolean nbtSensitive = pp.isNBTSensitive();
+        PlacementProperty property = item.getPlacementProperty(stack);
+        boolean nbtSensitive = property.isNBTSensitive();
         ItemType type = new ItemType(stack, nbtSensitive);
         int index = props.getPropertyIndex(uuid, type);
-        int count = pp.getPropertyCount();
+        int count = property.getPropertyCount();
 
         for (int i = 0; i < count; i++)
         {
-            Pair<String, Integer> pair = pp.getProperty(i);
+            Pair<String, Integer> pair = property.getProperty(i);
 
             if (pair != null)
             {
                 String key = pair.getLeft();
                 String pre = (i == index) ? "> " : "  ";
                 String name = I18n.format(Reference.MOD_ID + ".placement_properties." + key);
-                int value = props.getPropertyValue(uuid, type, key, pair.getRight());
-                String valueName = pp.getPropertyValueName(key, value);
+                int value = props.getPropertyValue(uuid, type, property, i);
+                String valueName = property.getPropertyValueName(key, value);
 
                 if (valueName == null)
                 {

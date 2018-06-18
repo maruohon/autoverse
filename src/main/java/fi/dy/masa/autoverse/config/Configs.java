@@ -18,6 +18,9 @@ public class Configs
     public static boolean fifoBufferOffsetSlots;
 
     public static int barrelMaxTier;
+    public static int pipeDefaultDelay;
+    public static int pipeMaxStackSize;
+    public static int pipeMinimumDelay;
 
     public static boolean disableBlockBarrel;
     public static boolean disableBlockBlockBreaker;
@@ -113,6 +116,18 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "disableSounds", false);
         prop.setComment("Disable all sounds");
         disableSounds = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "pipeDefaultDelay", 4).setRequiresMcRestart(true);
+        prop.setComment("The default delay of newly placed Pipes, and of the placement property which hasn't been changed yet. Range: 1 - 127");
+        pipeDefaultDelay = MathHelper.clamp(prop.getInt(), 1, 127);
+
+        prop = conf.get(CATEGORY_GENERIC, "pipeMaxStackSize", 64).setRequiresMcRestart(true);
+        prop.setComment("The maximum stack size the pipes can take. Range: 1 - 64");
+        pipeMaxStackSize = MathHelper.clamp(prop.getInt(), 1, 64);
+
+        prop = conf.get(CATEGORY_GENERIC, "pipeMinimumDelay", 1).setRequiresMcRestart(true);
+        prop.setComment("The minimum allowed delay of any Pipes. Range: 1 - 127");
+        pipeMinimumDelay = MathHelper.clamp(prop.getInt(), 1, 127);
 
         if (conf.hasChanged())
         {

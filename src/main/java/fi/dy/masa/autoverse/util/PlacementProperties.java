@@ -69,41 +69,71 @@ public class PlacementProperties
         this.dirty = true;
     }
 
-    public void setPropertyValue(UUID uuid, ItemType itemType, String key, Integer valueType, int value)
+    public void setPropertyValue(UUID uuid, ItemType itemType, PlacementProperty property, int index, int value)
     {
-        NBTTagCompound tag = this.getOrCreatePropertyTag(uuid, itemType);
+        Pair<String, Integer> pair = property.getProperty(index);
 
-        switch (valueType)
+        if (pair != null)
         {
-            case Constants.NBT.TAG_BYTE:
-                tag.setByte(key, (byte) value);
-                break;
+            String key = pair.getLeft();
+            Integer valueType = pair.getRight();
+            NBTTagCompound tag = this.getOrCreatePropertyTag(uuid, itemType);
 
-            case Constants.NBT.TAG_SHORT:
-                tag.setShort(key, (short) value);
-                break;
-
-            case Constants.NBT.TAG_INT:
-                tag.setInteger(key, value);
-                break;
-
-            default:
-        }
-
-        this.dirty = true;
-    }
-
-    public int getPropertyValue(UUID uuid, ItemType itemType, String key, Integer valueType)
-    {
-        NBTTagCompound tag = this.getPropertyTag(uuid, itemType);
-
-        if (tag != null)
-        {
             switch (valueType)
             {
-                case Constants.NBT.TAG_BYTE:    return ((int) tag.getByte(key)) & 0xFF;
-                case Constants.NBT.TAG_SHORT:   return ((int) tag.getShort(key)) & 0xFFFF;
-                case Constants.NBT.TAG_INT:     return tag.getInteger(key);
+                case Constants.NBT.TAG_BYTE:
+                    tag.setByte(key, (byte) value);
+                    break;
+
+                case Constants.NBT.TAG_SHORT:
+                    tag.setShort(key, (short) value);
+                    break;
+
+                case Constants.NBT.TAG_INT:
+                    tag.setInteger(key, value);
+                    break;
+
+                default:
+            }
+
+            this.dirty = true;
+        }
+    }
+
+    public int getPropertyValue(UUID uuid, ItemType itemType, PlacementProperty property, int index)
+    {
+        Pair<String, Integer> pair = property.getProperty(index);
+
+        if (pair != null)
+        {
+            String key = pair.getLeft();
+            Integer valueType = pair.getRight();
+            NBTTagCompound tag = this.getPropertyTag(uuid, itemType);
+
+            if (tag != null && tag.hasKey(key))
+            {
+                switch (valueType)
+                {
+                    case Constants.NBT.TAG_BYTE:    return ((int) tag.getByte(key)) & 0xFF;
+                    case Constants.NBT.TAG_SHORT:   return ((int) tag.getShort(key)) & 0xFFFF;
+                    case Constants.NBT.TAG_INT:     return tag.getInteger(key);
+                }
+            }
+            else
+            {
+                Integer defaultValue = property.getDefaultValue(index);
+
+                if (defaultValue != null)
+                {
+                    int value = defaultValue.intValue();
+
+                    switch (valueType)
+                    {
+                        case Constants.NBT.TAG_BYTE:    return ((int) value) & 0xFF;
+                        case Constants.NBT.TAG_SHORT:   return ((int) value) & 0xFFFF;
+                        case Constants.NBT.TAG_INT:     return value;
+                    }
+                }
             }
         }
 
@@ -374,9 +404,10 @@ public class PlacementProperties
     public static class PlacementProperty
     {
         private boolean isNBTSensitive;
-        private List<Pair<String, Integer>> propertyTypes = new ArrayList<Pair<String, Integer>>();
-        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<Pair<Integer, Integer>>();
-        private Map<String, String[]> propertyValueNames = new HashMap<String, String[]>();
+        private List<Pair<String, Integer>> propertyTypes = new ArrayList<>();
+        private List<Pair<Integer, Integer>> propertyValueRange = new ArrayList<>();
+        private Map<String, String[]> propertyValueNames = new HashMap<>();
+        private Map<String, Integer> defaultValues = new HashMap<>();
 
         public boolean hasPlacementProperties()
         {
@@ -393,6 +424,12 @@ public class PlacementProperties
             this.isNBTSensitive = checkNBT;
         }
 
+        public void addProperty(String key, int type, int minValue, int maxValue, int defaultValue)
+        {
+            this.addProperty(key, type, minValue, maxValue);
+            this.defaultValues.put(key, defaultValue);
+        }
+
         public void addProperty(String key, int type, int minValue, int maxValue)
         {
             this.propertyTypes.add(Pair.of(key, type));
@@ -402,6 +439,12 @@ public class PlacementProperties
         public void addValueNames(String key, String[] names)
         {
             this.propertyValueNames.put(key, names);
+        }
+
+        @Nullable
+        public Integer getDefaultValue(int selection)
+        {
+            return selection >= 0 && selection < this.propertyTypes.size() ? this.defaultValues.get(this.propertyTypes.get(selection).getLeft()) : null;
         }
 
         @Nullable

@@ -26,6 +26,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.block.BlockPipe;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
+import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.gui.client.GuiPipe;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerPipe;
@@ -47,7 +48,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private int connectedSidesMask;
     private int disabledSidesMask;
     //protected int cloggedItemsMask;
-    private int delay = 8;
+    private int delay = Configs.pipeDefaultDelay;
     protected boolean disableUpdateScheduling;
     protected boolean disableNeighorNotification;
 
@@ -69,7 +70,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         super(name);
 
-        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 6, 64, false, "Items", this);
+        this.itemHandlerBase = new ItemStackHandlerTileEntity(0, 6, Configs.pipeMaxStackSize, false, "Items", this);
         this.itemHandlerBase.setStackLimit(1);
         this.inputInventories = new IItemHandler[6];
 
@@ -117,7 +118,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         int[] values = new int[4];
         Arrays.fill(values, -1);
 
-        values[0] = this.delay;
+        values[0] = this.getDelay();
         values[1] = this.itemHandlerBase.getInventoryStackLimit();
         values[2] = this.disabledSidesMask;
 
@@ -212,7 +213,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private void setDelay(int delay)
     {
-        this.delay = MathHelper.clamp(delay, 1, 127);
+        this.delay = MathHelper.clamp(delay, Configs.pipeMinimumDelay, 127);
     }
 
     public int getDelayForSide(int side)
@@ -222,7 +223,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     public void setMaxStackSize(int maxSize)
     {
-        this.itemHandlerBase.setStackLimit(MathHelper.clamp(maxSize, 1, 64));
+        this.itemHandlerBase.setStackLimit(MathHelper.clamp(maxSize, 1, Configs.pipeMaxStackSize));
     }
 
     public int getConnectedSidesMask()
@@ -249,7 +250,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     private void toggleSideDisabled(EnumFacing side)
     {
         this.setDisabledSidesMask(this.disabledSidesMask ^ (1 << side.getIndex()));
-        this.scheduleCurrentWork(this.delay);
+        this.scheduleCurrentWork(this.getDelay());
     }
 
     private void setDisabledSidesMask(int mask)
@@ -413,7 +414,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 {
                     if (this.tryMoveItemsForSide(world, pos, slot))
                     {
-                        this.setScheduledTimeForSide(slot, this.delay);
+                        this.setScheduledTimeForSide(slot, this.getDelay());
                     }
                     else
                     {
@@ -641,7 +642,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         if (worldIn.isRemote == false)
         {
             this.updateConnectedSides(true);
-            this.scheduleCurrentWork(this.delay);
+            this.scheduleCurrentWork(this.getDelay());
         }
     }
 
@@ -781,7 +782,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (this.scheduledTimes[slot] < 0 && (force || this.itemHandlerBase.getStackInSlot(slot).isEmpty() == false))
         {
-            this.scheduleCurrentWork(this.delay);
+            this.scheduleCurrentWork(this.getDelay());
         }
     }
 
@@ -807,7 +808,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         val |= (outputSide << 19);
         val |= (inputSide << 16);
         val |= (delayTarget & 0xFF) << 8;
-        val |= (this.delay & 0xFF);
+        val |= (this.getDelay() & 0xFF);
 
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
     }
@@ -818,7 +819,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
         val |= (count << 22);
         val |= (outputSide << 19);
         val |= (inputSide << 16);
-        val |= (this.delay & 0xFF);
+        val |= (this.getDelay() & 0xFF);
 
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(), val), this.getPos());
     }
@@ -835,7 +836,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         int val = 0;
         val |= (inputSide << 16);
-        val |= (this.delay & 0xFF);
+        val |= (this.getDelay() & 0xFF);
 
         this.sendPacketToWatchers(new MessageSyncTileEntity(this.getPos(),
                 new int[] { val }, new ItemStack[] { stack } ), this.getPos());
@@ -945,7 +946,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         if (action == 0)
         {
-            this.setDelay(this.delay + element);
+            this.setDelay(this.getDelay() + element);
         }
         else if (action == 1)
         {
@@ -1036,7 +1037,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     {
         nbt = super.writeToNBTCustom(nbt);
 
-        nbt.setByte("Dl", (byte) this.delay);
+        nbt.setByte("Dl", (byte) this.getDelay());
         nbt.setByte("Dis", (byte) this.disabledSidesMask);
         nbt.setByte("Conn", (byte) this.connectedSidesMask);
         nbt.setByte("Max", (byte) this.itemHandlerBase.getSlotLimit(0));

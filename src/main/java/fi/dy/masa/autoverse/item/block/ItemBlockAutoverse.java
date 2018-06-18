@@ -92,6 +92,12 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
         return pp;
     }
 
+    public void addPlacementProperty(int stackMeta, String key, int type, int minValue, int maxValue, int defaultValue)
+    {
+        PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
+        pp.addProperty(key, type, minValue, maxValue, defaultValue);
+    }
+
     public void addPlacementProperty(int stackMeta, String key, int type, int minValue, int maxValue)
     {
         PlacementProperty pp = this.getOrCreatePlacementProperty(stackMeta);
@@ -111,27 +117,22 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
 
         if (item.hasPlacementProperty(stack) && player instanceof EntityPlayerMP)
         {
-            PlacementProperty pp = this.getPlacementProperty(stack);
-            ItemType type = new ItemType(stack, pp.isNBTSensitive());
+            PlacementProperty property = this.getPlacementProperty(stack);
+            ItemType type = new ItemType(stack, property.isNBTSensitive());
             int index = PlacementProperties.getInstance().getPropertyIndex(player.getUniqueID(), type);
 
             if (EnumKey.TOGGLE.matches(key, HotKeys.MOD_NONE) || EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT))
             {
                 index += EnumKey.TOGGLE.matches(key, HotKeys.MOD_SHIFT) ? -1 : 1;
-                if (index < 0) { index = Math.max(0, pp.getPropertyCount() - 1); }
-                else if (index >= pp.getPropertyCount()) { index = 0; }
+                if (index < 0) { index = Math.max(0, property.getPropertyCount() - 1); }
+                else if (index >= property.getPropertyCount()) { index = 0; }
 
                 PlacementProperties.getInstance().setPropertyIndex(player.getUniqueID(), type, index);
                 PlacementProperties.getInstance().syncCurrentlyHeldItemDataForPlayer((EntityPlayerMP) player, stack);
             }
             else
             {
-                Pair<String, Integer> pair = pp.getProperty(index);
-                Pair<Integer, Integer> range = pp.getPropertyValueRange(index);
-                int minValue = range != null ? range.getLeft() : 0;
-                int maxValue = range != null ? range.getRight() : 1;
-
-                if (pair != null && EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode() &&
+                if (EnumKey.getBaseKey(key) == EnumKey.SCROLL.getKeyCode() &&
                     (EnumKey.keypressContainsShift(key) == false || EnumKey.keypressContainsControl(key) || EnumKey.keypressContainsAlt(key)))
                 {
                     int change = EnumKey.keypressActionIsReversed(key) ? -1 : 1;
@@ -146,13 +147,17 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
                         change *= EnumKey.keypressContainsAlt(key) ? 100 : 10;
                     }
 
-                    int value = PlacementProperties.getInstance().getPropertyValue(player.getUniqueID(), type, pair.getLeft(), pair.getRight());
+                    int value = PlacementProperties.getInstance().getPropertyValue(player.getUniqueID(), type, property, index);
                     value += change;
+
+                    Pair<Integer, Integer> range = property.getPropertyValueRange(index);
+                    int minValue = range != null ? range.getLeft() : 0;
+                    int maxValue = range != null ? range.getRight() : 1;
 
                     if (value < minValue) { value = maxValue; }
                     if (value > maxValue) { value = minValue; }
 
-                    PlacementProperties.getInstance().setPropertyValue(player.getUniqueID(), type, pair.getLeft(), pair.getRight(), value);
+                    PlacementProperties.getInstance().setPropertyValue(player.getUniqueID(), type, property, index, value);
                     PlacementProperties.getInstance().syncCurrentlyHeldItemDataForPlayer((EntityPlayerMP) player, stack);
                 }
             }
