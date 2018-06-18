@@ -12,6 +12,7 @@ public class ContainerSequenceDetector extends ContainerTile
     private final TileEntitySequenceDetector tesd;
     private final ItemHandlerWrapperSequenceDetector detector;
     private int matchedLength = -1;
+    private int pulseLength = -1;
 
     public ContainerSequenceDetector(EntityPlayer player, TileEntitySequenceDetector te)
     {
@@ -56,6 +57,14 @@ public class ContainerSequenceDetector extends ContainerTile
                 this.syncProperty(0, (byte) matchedLength);
                 this.matchedLength = matchedLength;
             }
+
+            int pulseLength = this.tesd.getPulseLength();
+
+            if (pulseLength != this.pulseLength)
+            {
+                this.syncProperty(1, (byte) pulseLength);
+                this.pulseLength = pulseLength;
+            }
         }
 
         super.detectAndSendChanges();
@@ -71,11 +80,19 @@ public class ContainerSequenceDetector extends ContainerTile
             case 0:
                 this.matchedLength = value;
                 break;
+            case 1:
+                this.pulseLength = value;
+                break;
         }
     }
 
     public int getMatchedLength()
     {
         return this.matchedLength;
+    }
+
+    public int getPulseLength()
+    {
+        return this.pulseLength;
     }
 }

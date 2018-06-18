@@ -1,22 +1,22 @@
 package fi.dy.masa.autoverse.gui.client;
 
 import net.minecraft.client.resources.I18n;
-import fi.dy.masa.autoverse.gui.client.base.GuiAutoverse;
+import fi.dy.masa.autoverse.gui.client.base.GuiAutoverseTile;
+import fi.dy.masa.autoverse.gui.client.button.GuiButtonHoverText;
 import fi.dy.masa.autoverse.inventory.container.ContainerSequenceDetector;
 import fi.dy.masa.autoverse.tileentity.TileEntitySequenceDetector;
 
-public class GuiSequenceDetector extends GuiAutoverse
+public class GuiSequenceDetector extends GuiAutoverseTile
 {
     private final ContainerSequenceDetector containerSD;
-    private final TileEntitySequenceDetector te;
+    private final TileEntitySequenceDetector tesd;
 
     public GuiSequenceDetector(ContainerSequenceDetector container, TileEntitySequenceDetector te)
     {
-        // Same GUI background as the filter
-        super(container, 176, 256, "gui.container.filter");
+        super(container, 176, 256, "gui.container.sequence_detector", te);
 
         this.containerSD = container;
-        this.te = te;
+        this.tesd = te;
         this.infoArea = new InfoArea(7, 147, 11, 11, "autoverse.gui.infoarea.sequence_detector");
     }
 
@@ -26,17 +26,19 @@ public class GuiSequenceDetector extends GuiAutoverse
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
 
         String unloc = "autoverse.container.sequence_detector";
-        String s = this.te.hasCustomName() ? this.te.getName() : I18n.format(unloc);
+        String s = this.tesd.hasCustomName() ? this.tesd.getName() : I18n.format(unloc);
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 5, 0x404040);
 
         s = I18n.format("autoverse.gui.label.rst");
         this.fontRenderer.drawString(s, 96 - this.fontRenderer.getStringWidth(s), 17, 0x404040);
 
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),                        45,  25, 0x404040);
-        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8, 45, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.end"),                            45,  25, 0x404040);
+        this.fontRenderer.drawString(I18n.format("autoverse.gui.label.sequencer_programmable.sequence"), 8,  45, 0x404040);
+
+        this.fontRenderer.drawString(String.valueOf(this.containerSD.getPulseLength()),                 37, 148, 0x404040);
 
         s = I18n.format("autoverse.gui.label.output_buffer");
-        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 150, 0x404040);
+        this.fontRenderer.drawString(s, this.xSize - 28 - this.fontRenderer.getStringWidth(s), 158, 0x404040);
 
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, 163, 0x404040);
     }
@@ -74,5 +76,14 @@ public class GuiSequenceDetector extends GuiAutoverse
                 x = this.guiLeft + 7;
             }
         }
+    }
+
+    @Override
+    protected void createButtons()
+    {
+        this.addButton(new GuiButtonHoverText(0, this.guiLeft + 26, this.guiTop + 148, 8, 8, 0, 0,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.pulse_length"));
+
+        this.setButtonMultipliers(4, 16);
     }
 }

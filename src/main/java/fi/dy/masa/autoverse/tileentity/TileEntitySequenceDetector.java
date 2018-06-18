@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -59,6 +60,11 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
         return this.detector;
     }
 
+    public int getPulseLength()
+    {
+        return this.onTimeRSTicks;
+    }
+
     @Override
     public void setPlacementProperties(World world, BlockPos pos, ItemStack stack, NBTTagCompound tag)
     {
@@ -94,7 +100,7 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
 
     private void setOnTime(int value, boolean markDirty)
     {
-        this.onTimeRSTicks = Math.max(1, value & 0xFF);
+        this.onTimeRSTicks = MathHelper.clamp(value, 1, 127);
 
         if (markDirty)
         {
@@ -256,6 +262,15 @@ public class TileEntitySequenceDetector extends TileEntityAutoverseInventory
     {
         nbt.merge(this.inventoryInput.serializeNBT());
         nbt.merge(this.inventoryOutput.serializeNBT());
+    }
+
+    @Override
+    public void performGuiAction(EntityPlayer player, int action, int element)
+    {
+        if (action == 0)
+        {
+            this.setOnTime(this.onTimeRSTicks + element, true);
+        }
     }
 
     @Override

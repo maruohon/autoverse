@@ -65,7 +65,7 @@ autoverse.gui.infoarea.buffer_fifo=- Stores items in a FIFO-type inventory|lf- T
 autoverse.gui.infoarea.crafter=- The empty marker is used in the programming|lf   phase to represent empty slots in the recipe|lf- The recipe is programmed left to right, top to bottom
 autoverse.gui.infoarea.muxer_programmable=- The active input side is switched every n-th item|lf- The two configuration sequences are the sequence|lf   lengths for both input sides, respectively|lf- The values are 16-bit integers, programmed Least Significant Bit first|lf- The marked (and configurable) input side|lf   of the block is the Input 2 side|lf- Any other side will input items to the Input 1 (= normal input) slot
 autoverse.gui.infoarea.redstone_emitter_basic=- The enabled marker is used to enable sides while programming|lf- The sides are programmed in the GUI's order,|lf   left to right, top to bottom (= D, U, N, S, W, E)|lf- All enabled sides will start emitting a redstone signal,|lf   when the ON sequence is detected and the Emitter turns on|lf- Tip: Use the same sequence for ON and OFF to make it a toggle
-autoverse.gui.infoarea.sequence_detector=- Outputs a 1-redstone-tick pulse on sequence match
+autoverse.gui.infoarea.sequence_detector=- Outputs a configurable length redstone pulse on sequence match
 autoverse.gui.infoarea.sequencer_basic=- Left or right click or scroll over the button to change the value|lf- Hold Shift and/or Control for bigger steps
 autoverse.gui.infoarea.sequencer_programmable=- The sequence items must be pulled out|lf  (from any side except the front, because of the next point)|lf- The block itself will push out the normal|lf   output items to the front side
 autoverse.gui.infoarea.splitter_length=- The active output side is switched every n-th item|lf- The two configuration sequences are the sequence|lf   lengths for both output sides, respectively|lf- The values are 16-bit integers, programmed Least Significant Bit first|lf- The marked (and configurable) output side|lf   of the block is the Output 2 side
@@ -116,6 +116,7 @@ autoverse.gui.label.out=Out
 autoverse.gui.label.out_filtered=Out (filtered)
 autoverse.gui.label.out_normal=Out (normal)
 autoverse.gui.label.output_buffer=Output buffer
+autoverse.gui.label.pulse_length=Pulse length
 autoverse.gui.label.rst=Rst.
 autoverse.gui.label.sequence_detector.sequence=Detection sequence
 autoverse.gui.label.sequencer_programmable.sequence=Sequence
