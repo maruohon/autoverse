@@ -1,12 +1,10 @@
 package fi.dy.masa.autoverse.tileentity;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -139,26 +137,13 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     }
 
     @Override
-    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
+    public boolean onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
-        if (world.isRemote == false && player.isSneaking())
-        {
-            this.toggleInputOnSide(side);
-            this.scheduleCurrentWork(this.getDelay());
-        }
-    }
-
-    @Override
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
-            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
-    {
-        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        if (super.onLeftClickBlock(world, pos, side, player))
         {
             return true;
         }
-        else if (player.isSneaking() &&
-                 player.getHeldItemMainhand().isEmpty() &&
-                 player.getHeldItemOffhand().isEmpty() == false)
+        else if (player.isSneaking())
         {
             if (world.isRemote == false)
             {

@@ -186,17 +186,24 @@ public class TileEntityLatch extends TileEntityAutoverse
     }
 
     @Override
-    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
+    public boolean onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
         // Sneaking - set the 'Reset' side
         if (player.isSneaking())
         {
             if (this.getHasExtraFacings() && side != this.getFacing() && side != this.facing2 && side != this.facing3)
             {
-                this.setFacing3(side);
-                this.notifyBlockUpdate(this.getPos());
+                if (world.isRemote == false)
+                {
+                    this.setFacing3(side);
+                    this.notifyBlockUpdate(this.getPos());
+                }
+
+                return true;
             }
         }
+
+        return false;
     }
 
     @Override

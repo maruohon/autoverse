@@ -17,6 +17,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -659,44 +660,43 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
     }
 
     @Override
-    public void onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
+    public boolean onLeftClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player)
     {
-        if (world.isRemote == false && player.isSneaking())
-        {
-            this.toggleSideDisabled(side);
-        }
-    }
-
-    @Override
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
-            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
-    {
-        if (player.isSneaking() && player.getHeldItemMainhand().isEmpty())
+        if (player.isSneaking())
         {
             ItemStack stackOffhand = player.getHeldItemOffhand();
 
-            // Sneak + right clicking with an empty main hand, and the same item
+            // Sneak + left clicking with an empty main hand, and the same item
             // in the off-hand - apply the placement properties from that item.
-            if (stackOffhand.isEmpty() == false &&
+            if (player.getHeldItemMainhand().isEmpty() && stackOffhand.isEmpty() == false &&
                 stackOffhand.getItem() instanceof ItemBlockAutoverse &&
                 ((ItemBlockAutoverse) stackOffhand.getItem()).getBlock() == this.getBlockType())
             {
                 if (world.isRemote == false)
                 {
                     this.applyPlacementPropertiesFrom(world, pos, player, stackOffhand);
+                    player.sendStatusMessage(new TextComponentTranslation("autoverse.chat.placement_properties.applied_from_held_item"), true);
                 }
 
                 return true;
             }
-            else if (stackOffhand.isEmpty())
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
+            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
+    {
+        if (player.isSneaking())
+        {
+            if (world.isRemote == false)
             {
-                if (world.isRemote == false)
-                {
-                    this.toggleSideDisabled(side);
-                }
-
-                return true;
+                this.toggleSideDisabled(side);
             }
+
+            return true;
         }
 
         return false;
