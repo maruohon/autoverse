@@ -83,7 +83,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
         switch (propId)
         {
             case 1:
-                this.setHorizontalFacing(EnumFacing.getFront(value));
+                this.setHorizontalFacing(EnumFacing.byIndex(value));
                 return true;
 
             case 2:
@@ -165,7 +165,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
     {
         super.readFromNBTCustom(nbt);
 
-        this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
+        this.setHorizontalFacing(EnumFacing.byIndex(nbt.getByte("FacingHorizontal")));
         this.setPlacementOffset(nbt.getByte("PlacementOffset"));
     }
 
@@ -244,7 +244,7 @@ public class TileEntityBlockPlacerProgrammable extends TileEntityAutoverseInvent
                     {
                         if (property instanceof PropertyDirection)
                         {
-                            EnumFacing facing = EnumFacing.getFront(value);
+                            EnumFacing facing = EnumFacing.byIndex(value);
 
                             if (property.getAllowedValues().contains(facing))
                             {

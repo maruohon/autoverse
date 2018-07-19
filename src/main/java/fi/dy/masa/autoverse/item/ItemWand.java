@@ -161,7 +161,7 @@ public class ItemWand extends ItemAutoverse implements IKeyBound, IStringInput
                 {
                     nbt.removeTag("Sequence_" + selection);
 
-                    if (nbt.hasNoTags())
+                    if (nbt.isEmpty())
                     {
                         stack.setTagCompound(null);
                     }

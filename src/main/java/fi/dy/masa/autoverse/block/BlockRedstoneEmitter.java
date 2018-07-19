@@ -229,7 +229,7 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
             // Redstone output side models
             for (int sideIndex = 0; sideIndex < 6; sideIndex++)
             {
-                final EnumFacing side = EnumFacing.getFront(sideIndex);
+                final EnumFacing side = EnumFacing.byIndex(sideIndex);
 
                 // This side should have its "connection"
                 if (side != mainFacing && (advanced || actualState.getValue(SIDES.get(sideIndex)) != SideStatus.DISABLED))

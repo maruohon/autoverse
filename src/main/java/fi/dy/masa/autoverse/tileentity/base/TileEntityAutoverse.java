@@ -134,7 +134,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         switch (propId)
         {
             case 0:
-                this.setFacing(EnumFacing.getFront(value));
+                this.setFacing(EnumFacing.byIndex(value));
                 return true;
 
             case 3:
@@ -167,9 +167,9 @@ public abstract class TileEntityAutoverse extends TileEntity
 
     protected Vec3d getSpawnedItemPosition(EnumFacing side)
     {
-        double x = this.getPos().getX() + 0.5 + side.getFrontOffsetX() * 0.625;
-        double y = this.getPos().getY() + 0.5 + side.getFrontOffsetY() * 0.5;
-        double z = this.getPos().getZ() + 0.5 + side.getFrontOffsetZ() * 0.625;
+        double x = this.getPos().getX() + 0.5 + side.getXOffset() * 0.625;
+        double y = this.getPos().getY() + 0.5 + side.getYOffset() * 0.5;
+        double z = this.getPos().getZ() + 0.5 + side.getZOffset() * 0.625;
 
         if (side == EnumFacing.DOWN)
         {
@@ -346,7 +346,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     {
         this.redstoneState = nbt.getBoolean("Redstone");
         this.slimModel = nbt.getBoolean("Slim");
-        this.facing = EnumFacing.getFront(nbt.getByte("Facing"));
+        this.facing = EnumFacing.byIndex(nbt.getByte("Facing"));
     }
 
     @Override
@@ -420,7 +420,7 @@ public abstract class TileEntityAutoverse extends TileEntity
         if (tag.hasKey("f"))
         {
             int value = tag.getByte("f");
-            this.setFacing(EnumFacing.getFront(value & 0x07));
+            this.setFacing(EnumFacing.byIndex(value & 0x07));
             this.slimModel = (value & 0x08) == 0x08;
         }
 

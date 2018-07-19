@@ -119,7 +119,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState()
-                .withProperty(FACING, EnumFacing.getFront(meta & 0x7))
+                .withProperty(FACING, EnumFacing.byIndex(meta & 0x7))
                 .withProperty(TYPE, ReaderType.fromBlockMeta((meta & 0x8)));
     }
 

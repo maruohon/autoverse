@@ -177,7 +177,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
     {
         boolean ret = super.tryMoveItemsForSide(world, pos, slot);
 
-        if (this.shouldOperatePull() && this.isAllowedToPullFromSide(EnumFacing.getFront(slot)))
+        if (this.shouldOperatePull() && this.isAllowedToPullFromSide(EnumFacing.byIndex(slot)))
         {
             InvResult result = this.tryPullInItemsFromSide(world, pos, slot);
 
@@ -209,7 +209,7 @@ public class TileEntityPipeExtraction extends TileEntityPipe
         // Empty input slot, try to pull in items
         if (this.itemHandlerBase.getStackInSlot(slot).isEmpty())
         {
-            EnumFacing side = EnumFacing.getFront(slot);
+            EnumFacing side = EnumFacing.byIndex(slot);
             TileEntity te = world.getTileEntity(posSelf.offset(side));
 
             if (te != null &&

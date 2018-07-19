@@ -71,7 +71,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setFilterOutputSide(EnumFacing.getFront(value), false);
+                this.setFilterOutputSide(EnumFacing.byIndex(value), false);
                 return true;
 
             case 2:
@@ -230,7 +230,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(nbt);
 
-        this.setFilterOutputSide(EnumFacing.getFront(nbt.getByte("FilterFacing")), false);
+        this.setFilterOutputSide(EnumFacing.byIndex(nbt.getByte("FilterFacing")), false);
         this.setDelay(nbt.getByte("Delay"));
 
         this.inventoryInput.deserializeNBT(nbt);
@@ -280,7 +280,7 @@ public class TileEntityFilter extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setFilterOutputSide(EnumFacing.getFront(facings >> 4), true);
+        this.setFilterOutputSide(EnumFacing.byIndex(facings >> 4), true);
 
         super.handleUpdateTag(tag);
     }

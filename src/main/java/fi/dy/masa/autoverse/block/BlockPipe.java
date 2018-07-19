@@ -248,7 +248,7 @@ public class BlockPipe extends BlockAutoverseInventory
         {
             if ((mask & bit) != 0)
             {
-                sides.add(EnumFacing.getFront(i));
+                sides.add(EnumFacing.byIndex(i));
             }
         }
 

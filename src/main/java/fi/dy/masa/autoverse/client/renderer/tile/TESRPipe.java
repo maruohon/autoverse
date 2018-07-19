@@ -71,10 +71,10 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
 
                         // The item is (normally, see above) rendered moving from the center
                         // of the block on the input side, to the center of this block.
-                        EnumFacing inputSide = EnumFacing.getFront(sideIndex);
-                        double posX = x + inputSide.getFrontOffsetX() * progress;
-                        double posY = y + inputSide.getFrontOffsetY() * progress;
-                        double posZ = z + inputSide.getFrontOffsetZ() * progress;
+                        EnumFacing inputSide = EnumFacing.byIndex(sideIndex);
+                        double posX = x + inputSide.getXOffset() * progress;
+                        double posY = y + inputSide.getYOffset() * progress;
+                        double posZ = z + inputSide.getZOffset() * progress;
 
                         this.renderStack(stack, posX, posY, posZ, partialTicks);
                     }
@@ -103,10 +103,10 @@ public class TESRPipe extends TileEntitySpecialRenderer<TileEntityPipe>
 
                     // The item is rendered moving from the center of this block
                     // to the edge of this block on the output side.
-                    EnumFacing outputSide = EnumFacing.getFront(te.outputDirections[sideIndex]);
-                    double posX = x + outputSide.getFrontOffsetX() * progress;
-                    double posY = y + outputSide.getFrontOffsetY() * progress;
-                    double posZ = z + outputSide.getFrontOffsetZ() * progress;
+                    EnumFacing outputSide = EnumFacing.byIndex(te.outputDirections[sideIndex]);
+                    double posX = x + outputSide.getXOffset() * progress;
+                    double posY = y + outputSide.getYOffset() * progress;
+                    double posZ = z + outputSide.getZOffset() * progress;
 
                     this.renderStack(stack, posX, posY, posZ, partialTicks);
                 }

@@ -103,7 +103,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setInputSide(EnumFacing.getFront(value), false);
+                this.setInputSide(EnumFacing.byIndex(value), false);
                 return true;
 
             case 2:
@@ -316,7 +316,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     @Override
     public void readFromNBTCustom(NBTTagCompound nbt)
     {
-        this.setInputSide(EnumFacing.getFront(nbt.getByte("InFacing")), true);
+        this.setInputSide(EnumFacing.byIndex(nbt.getByte("InFacing")), true);
         this.setMuxerType(BlockMuxer.MuxerType.fromBlockMeta(nbt.getByte("Type")));
         this.setDelay(nbt.getByte("Delay"));
 
@@ -374,7 +374,7 @@ public class TileEntityMuxer extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setInputSide(EnumFacing.getFront((facings >>> 4) & 0x7), true);
+        this.setInputSide(EnumFacing.byIndex((facings >>> 4) & 0x7), true);
         this.setMuxerType(BlockMuxer.MuxerType.fromBlockMeta(tag.getByte("t")));
 
         super.handleUpdateTag(tag);

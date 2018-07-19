@@ -72,7 +72,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setHorizontalFacing(EnumFacing.getFront(value));
+                this.setHorizontalFacing(EnumFacing.byIndex(value));
                 return true;
 
             case 2:
@@ -120,7 +120,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
                     IBlockState state = block.getStateFromMeta(tag.getByte("meta"));
                     // This is the facing of the Block State Reader when it read this block state from the world.
                     // We will now apply a relative rotation based on that facing, and the Placer's horizontal facing.
-                    EnumFacing facingOriginal = EnumFacing.getFront(tag.getByte("ReadFacing"));
+                    EnumFacing facingOriginal = EnumFacing.byIndex(tag.getByte("ReadFacing"));
                     Rotation rotation = PositionUtils.getRotation(facingOriginal, this.facingHorizontal);
                     return state.withRotation(rotation);
                 }
@@ -268,7 +268,7 @@ public class TileEntityBlockPlacer extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(nbt);
 
-        this.setHorizontalFacing(EnumFacing.getFront(nbt.getByte("FacingHorizontal")));
+        this.setHorizontalFacing(EnumFacing.byIndex(nbt.getByte("FacingHorizontal")));
         this.position = nbt.getByte("Position");
         this.state = State.fromId(nbt.getByte("State"));
         this.setDelay(nbt.getByte("Delay"));

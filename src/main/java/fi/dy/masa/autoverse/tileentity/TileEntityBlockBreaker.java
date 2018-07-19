@@ -178,8 +178,8 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         {
             case SHAPE_3x3:
             case SHAPE_5x5:
-                EnumFacing side1 = EnumFacing.getFront((facingOpposite.getIndex() + 2) % 6);
-                EnumFacing side2 = EnumFacing.getFront((facingOpposite.getIndex() + 4) % 6);
+                EnumFacing side1 = EnumFacing.byIndex((facingOpposite.getIndex() + 2) % 6);
+                EnumFacing side2 = EnumFacing.byIndex((facingOpposite.getIndex() + 4) % 6);
                 int r = Configs.blockBreakerPattern == Configs.BreakerPattern.SHAPE_5x5 ? 2 : 1;
 
                 for (int front = 0; front <= r; front++)
@@ -191,9 +191,9 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
                             // Don't break self
                             if (front != 0 || off1 != 0 || off2 != 0)
                             {
-                                int xDiff = side1.getFrontOffsetX() * off1 + side2.getFrontOffsetX() * off2 + facing.getFrontOffsetX() * front;
-                                int yDiff = side1.getFrontOffsetY() * off1 + side2.getFrontOffsetY() * off2 + facing.getFrontOffsetY() * front;
-                                int zDiff = side1.getFrontOffsetZ() * off1 + side2.getFrontOffsetZ() * off2 + facing.getFrontOffsetZ() * front;
+                                int xDiff = side1.getXOffset() * off1 + side2.getXOffset() * off2 + facing.getXOffset() * front;
+                                int yDiff = side1.getYOffset() * off1 + side2.getYOffset() * off2 + facing.getYOffset() * front;
+                                int zDiff = side1.getZOffset() * off1 + side2.getZOffset() * off2 + facing.getZOffset() * front;
                                 BlockPos pos = this.getPos().add(xDiff, yDiff, zDiff);
                                 this.breakBlockInPosition(pos);
                             }

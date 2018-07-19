@@ -92,7 +92,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setDetectionOutputSide(EnumFacing.getFront(value), false);
+                this.setDetectionOutputSide(EnumFacing.byIndex(value), false);
                 return true;
 
             default:
@@ -225,14 +225,14 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         switch (facing.getAxis())
         {
             case X:
-                return pos.add(facing.getFrontOffsetX() * distance + 0.5f, offset1 + 0.5f, offset2 + 0.5f);
+                return pos.add(facing.getXOffset() * distance + 0.5f, offset1 + 0.5f, offset2 + 0.5f);
 
             case Y:
-                return pos.add(offset1 + 0.5f, facing.getFrontOffsetY() * distance + 0.5f, offset2 + 0.5f);
+                return pos.add(offset1 + 0.5f, facing.getYOffset() * distance + 0.5f, offset2 + 0.5f);
 
             case Z:
             default:
-                return pos.add(offset1 + 0.5f, offset2 + 0.5f, facing.getFrontOffsetZ() * distance + 0.5f);
+                return pos.add(offset1 + 0.5f, offset2 + 0.5f, facing.getZOffset() * distance + 0.5f);
         }
     }
 
@@ -392,7 +392,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     {
         super.readFromNBTCustom(tag);
 
-        this.setDetectionOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
+        this.setDetectionOutputSide(EnumFacing.byIndex(tag.getByte("Facing2")), false);
         this.angle = tag.getByte("Angle");
         this.setDelay(tag.getByte("Delay"));
         this.distance = tag.getByte("Distance");
@@ -451,7 +451,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setDetectionOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), true);
+        this.setDetectionOutputSide(EnumFacing.byIndex((facings >>> 4) & 0x7), true);
 
         super.handleUpdateTag(tag);
     }

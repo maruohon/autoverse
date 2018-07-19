@@ -213,14 +213,14 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         if (this.blockNames != null && stack.getMetadata() < this.blockNames.length)
         {
             return "tile." + ReferenceNames.getDotPrefixedName(this.blockNames[stack.getMetadata()]);
         }
 
-        return super.getUnlocalizedName(stack);
+        return super.getTranslationKey(stack);
     }
 
     public String getTooltipName(ItemStack stack)
@@ -239,7 +239,7 @@ public class ItemBlockAutoverse extends ItemBlock implements IKeyBound
             }
         }
 
-        return this.getUnlocalizedName(stack);
+        return this.getTranslationKey(stack);
     }
 
     public void addTooltipLines(ItemStack stack, EntityPlayer player, List<String> list, boolean advancedTooltips, boolean verbose)

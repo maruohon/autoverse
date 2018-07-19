@@ -121,7 +121,7 @@ public class EntityUtils
     @Nullable
     public static <T> T getPointedBox(Vec3d eyesVec, Vec3d lookVec, double reach, Map<T, AxisAlignedBB> boxMap)
     {
-        Vec3d lookEndVec = eyesVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+        Vec3d lookEndVec = eyesVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
         double distance = reach;
         T key = null;
 

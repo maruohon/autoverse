@@ -31,11 +31,11 @@ public class TileEntityLatch extends TileEntityAutoverse
         switch (propId)
         {
             case 1:
-                this.setFacing2(EnumFacing.getFront(value));
+                this.setFacing2(EnumFacing.byIndex(value));
                 return true;
 
             case 2:
-                this.setFacing3(EnumFacing.getFront(value));
+                this.setFacing3(EnumFacing.byIndex(value));
                 return true;
 
             default:
@@ -235,8 +235,8 @@ public class TileEntityLatch extends TileEntityAutoverse
     {
         this.output = tag.getByte("str");
         byte f = tag.getByte("f2");
-        this.facing3 = EnumFacing.getFront(f >>> 4);
-        this.facing2 = EnumFacing.getFront(f & 0xF);
+        this.facing3 = EnumFacing.byIndex(f >>> 4);
+        this.facing2 = EnumFacing.byIndex(f & 0xF);
 
         super.handleUpdateTag(tag);
     }
@@ -250,8 +250,8 @@ public class TileEntityLatch extends TileEntityAutoverse
         this.externalPower = nbt.getBoolean("ExtPower");
 
         byte f = nbt.getByte("CircuitFacings");
-        this.facing3 = EnumFacing.getFront(f >>> 4);
-        this.facing2 = EnumFacing.getFront(f & 0xF);
+        this.facing3 = EnumFacing.byIndex(f >>> 4);
+        this.facing2 = EnumFacing.byIndex(f & 0xF);
     }
 
     @Override

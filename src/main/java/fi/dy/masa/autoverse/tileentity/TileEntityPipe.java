@@ -880,7 +880,7 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 // Move item to an adjacent pipe
                 case 1:
                     TileEntityPipe te = BlockAutoverse.getTileEntitySafely(this.getWorld(),
-                            this.getPos().offset(EnumFacing.getFront(sideOut)), TileEntityPipe.class);
+                            this.getPos().offset(EnumFacing.byIndex(sideOut)), TileEntityPipe.class);
 
                     if (te != null)
                     {
@@ -1093,14 +1093,14 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
 
     private EnumFacing[] createFacingArrayFromMask(int side, int mask)
     {
-        EnumFacing opposite = EnumFacing.getFront(side).getOpposite();
+        EnumFacing opposite = EnumFacing.byIndex(side).getOpposite();
         final List<EnumFacing> sides = new ArrayList<EnumFacing>();
 
         for (int i = 0, bit = 0x1; i < 6; i++, bit <<= 1)
         {
             if ((mask & bit) != 0)
             {
-                EnumFacing facing = EnumFacing.getFront(i);
+                EnumFacing facing = EnumFacing.byIndex(i);
 
                 // The "straight through" output side must be the first entry, if it's present
                 if (facing == opposite)

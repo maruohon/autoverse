@@ -21,7 +21,7 @@ public class NBTUtils
     @Nonnull
     public static ItemStack setRootCompoundTag(@Nonnull ItemStack stack, @Nullable NBTTagCompound nbt)
     {
-        if (nbt != null && nbt.hasNoTags())
+        if (nbt != null && nbt.isEmpty())
         {
             nbt = null;
         }

@@ -108,7 +108,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
         switch (propId)
         {
             case 1:
-                this.setSecondOutputSide(EnumFacing.getFront(value), false);
+                this.setSecondOutputSide(EnumFacing.byIndex(value), false);
                 return true;
 
             case 2:
@@ -277,7 +277,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
 
         super.readFromNBTCustom(tag);
 
-        this.setSecondOutputSide(EnumFacing.getFront(tag.getByte("Facing2")), false);
+        this.setSecondOutputSide(EnumFacing.byIndex(tag.getByte("Facing2")), false);
         this.setDelay(((int) tag.getByte("Delay")) & 0xFF);
     }
 
@@ -332,7 +332,7 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     public void handleUpdateTag(NBTTagCompound tag)
     {
         int facings = tag.getByte("f");
-        this.setSecondOutputSide(EnumFacing.getFront((facings >>> 4) & 0x7), true);
+        this.setSecondOutputSide(EnumFacing.byIndex((facings >>> 4) & 0x7), true);
         this.setSplitterType(BlockSplitter.SplitterType.fromMeta(tag.getByte("typ")));
 
         super.handleUpdateTag(tag);

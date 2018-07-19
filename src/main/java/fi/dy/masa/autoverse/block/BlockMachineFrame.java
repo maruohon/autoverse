@@ -21,7 +21,7 @@ public class BlockMachineFrame extends BlockAutoverse
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }

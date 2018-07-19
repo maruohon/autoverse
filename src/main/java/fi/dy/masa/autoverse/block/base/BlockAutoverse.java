@@ -179,7 +179,7 @@ public class BlockAutoverse extends Block
 
     protected EnumFacing getSideFromBoxId(Integer id, EnumFacing sideIn)
     {
-        return id == BOX_ID_MAIN ? sideIn : EnumFacing.getFront(id);
+        return id == BOX_ID_MAIN ? sideIn : EnumFacing.byIndex(id);
     }
 
     protected void createHilightBoxMap()

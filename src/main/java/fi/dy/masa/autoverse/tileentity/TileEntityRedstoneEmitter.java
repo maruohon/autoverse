@@ -147,7 +147,7 @@ public class TileEntityRedstoneEmitter extends TileEntityAutoverseInventory
 
     protected void notifyNeighbor(int sideIndex)
     {
-        EnumFacing side = EnumFacing.getFront(sideIndex);
+        EnumFacing side = EnumFacing.byIndex(sideIndex);
         this.getWorld().neighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
         this.getWorld().observedNeighborChanged(this.getPos().offset(side), this.getBlockType(), this.getPos());
     }

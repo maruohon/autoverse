@@ -39,7 +39,7 @@ public class ItemAutoverse extends Item
         this.name = name;
 
         this.setCreativeTab(CreativeTab.AUTOVERSE_TAB);
-        this.setUnlocalizedName(name);
+        this.setTranslationKey(name);
         this.addItemOverrides();
     }
 
@@ -49,9 +49,9 @@ public class ItemAutoverse extends Item
     }
 
     @Override
-    public Item setUnlocalizedName(String name)
+    public Item setTranslationKey(String name)
     {
-        return super.setUnlocalizedName(ReferenceNames.getDotPrefixedName(name));
+        return super.setTranslationKey(ReferenceNames.getDotPrefixedName(name));
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ItemAutoverse extends Item
 
     public void addTooltips(ItemStack stack, List<String> list, boolean verbose)
     {
-        addTranslatedTooltip(this.getUnlocalizedName(stack) + ".tooltips", list, verbose);
+        addTranslatedTooltip(this.getTranslationKey(stack) + ".tooltips", list, verbose);
 
         if (this.commonTooltip != null)
         {
