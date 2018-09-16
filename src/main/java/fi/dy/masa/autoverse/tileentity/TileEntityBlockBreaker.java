@@ -223,7 +223,9 @@ public class TileEntityBlockBreaker extends TileEntityAutoverseInventory
         {
             IBlockState state = world.getBlockState(pos);
 
-            if (state.getBlock().isAir(state, world, pos) == false && state.getBlockHardness(world, pos) >= 0f)
+            if (state.getBlock().isAir(state, world, pos) == false &&
+                state.getMaterial().isLiquid() == false &&
+                state.getBlockHardness(world, pos) >= 0f)
             {
                 world.destroyBlock(pos, true);
             }
