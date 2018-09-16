@@ -31,9 +31,5 @@
     { "name" : "ORE_SLIME_BLOCK",       "ingredient": { "type" : "forge:ore_dict", "ore" : "blockSlime"         } },
     { "name" : "ORE_STAIR_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stairWood"          } },
     { "name" : "ORE_STICK_WOOD",        "ingredient": { "type" : "forge:ore_dict", "ore" : "stickWood"          } },
-    { "name" : "ORE_WORKBENCH",         "ingredient": { "type" : "forge:ore_dict", "ore" : "workbench"          } },
-
-
-
-    { "name" : "MACHINE_FRAME",         "ingredient": { "item" : "autoverse:machine_frame",         "data" :  0 } }
+    { "name" : "ORE_WORKBENCH",         "ingredient": { "type" : "forge:ore_dict", "ore" : "workbench"          } }
 ]
