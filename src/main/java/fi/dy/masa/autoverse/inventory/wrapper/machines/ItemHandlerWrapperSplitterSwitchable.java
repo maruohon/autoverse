@@ -193,7 +193,8 @@ public class ItemHandlerWrapperSplitterSwitchable extends ItemHandlerWrapperSequ
         IItemHandler inv = this.getActiveOutputInventory();
         int slotSrc = this.position;
 
-        if (InventoryUtils.tryMoveStackToOtherInventory(this.inventoryMatchBuffer, inv, slotSrc) == InvResult.MOVED_ALL)
+        if (this.inventoryMatchBuffer.getStackInSlot(slotSrc).isEmpty() ||
+            InventoryUtils.tryMoveStackToOtherInventory(this.inventoryMatchBuffer, inv, slotSrc) == InvResult.MOVED_ALL)
         {
             // Moved all items
             if (++this.position >= this.inventoryMatchBuffer.getSlots() ||
