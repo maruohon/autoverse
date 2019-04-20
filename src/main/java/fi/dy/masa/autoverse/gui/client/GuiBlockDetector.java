@@ -94,16 +94,13 @@ public class GuiBlockDetector extends GuiAutoverseTile
         this.bindTexture(this.guiTextureWidgets);
         RenderHelper.enableGUIStandardItemLighting();
 
-        if (this.te.getUseIndicators())
-        {
-            // Draw the colored ring around the button
-            this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, 0, 10, 10);
-        }
-        else
-        {
-            // Draw the black ring around the button
-            this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, 20, 10, 10);
-        }
+        int v = this.te.getUseIndicators() ? 0 : 20;
+
+        // Draw the colored or black ring around the button
+        this.drawTexturedModalRect(this.guiLeft + 159, this.guiTop + 4, 210, v, 10, 10);
+
+        v = this.te.getPassThroughNonMatchingBlocks() ? 0 : 20;
+        this.drawTexturedModalRect(this.guiLeft + 145, this.guiTop + 4, 210, v, 10, 10);
     }
 
     @Override
@@ -135,5 +132,8 @@ public class GuiBlockDetector extends GuiAutoverseTile
     {
         this.addButton(new GuiButtonHoverText(0, this.guiLeft + 160, this.guiTop + 5, 8, 8, 0, 16,
                 this.guiTextureWidgets, 8, 0, "autoverse.gui.label.block_detector.use_indicators"));
+
+        this.addButton(new GuiButtonHoverText(1, this.guiLeft + 146, this.guiTop + 5, 8, 8, 0, 32,
+                this.guiTextureWidgets, 8, 0, "autoverse.gui.label.block_detector.pass_through_non_matching"));
     }
 }

@@ -19,6 +19,7 @@ public class ContainerBlockDetector extends ContainerTile
     private SlotRange slotRangeOthersBufferInventory;
     private int invSizeDetection = -1;
     private int invSizeOthers = -1;
+    private boolean passThroughNonMatching;
     private boolean useIndicators;
     private final BitSet lockedLastDetection = new BitSet(ItemHandlerWrapperBlockDetector.MAX_INV_SIZE);
     private final BitSet lockedLastOthers = new BitSet(1);
@@ -96,12 +97,19 @@ public class ContainerBlockDetector extends ContainerTile
 
         int invSize = this.detector.getDetectionInventory().getSlots();
         boolean useIndicators = this.ted.getUseIndicators();
+        boolean passThroughNonMatching = this.ted.getPassThroughNonMatchingBlocks();
         boolean sizeChanged = false;
 
         if (useIndicators != this.useIndicators)
         {
             this.syncProperty(2, (byte) (useIndicators ? 1 : 0));
             this.useIndicators = useIndicators;
+        }
+
+        if (passThroughNonMatching != this.passThroughNonMatching)
+        {
+            this.syncProperty(5, (byte) (passThroughNonMatching ? 1 : 0));
+            this.passThroughNonMatching = passThroughNonMatching;
         }
 
         // Force sync all slots before shrinking the inventory size,
@@ -179,6 +187,10 @@ public class ContainerBlockDetector extends ContainerTile
 
             case 4:
                 this.detector.getOthersBufferInventory().setSlotLocked(value & 0xFF, (value & 0x8000) != 0);
+                break;
+
+            case 5:
+                this.ted.setPassThroughNonMatchingBlocks(value == 1);
                 break;
         }
     }

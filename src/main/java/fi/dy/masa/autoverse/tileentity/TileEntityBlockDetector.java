@@ -45,6 +45,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     private int distance = 1;
     private long nextDetection;
     private boolean detectorRunning;
+    private boolean passThroughNonMatching;
     private boolean useIndicators;
 
     public TileEntityBlockDetector()
@@ -95,6 +96,10 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
                 this.setDetectionOutputSide(EnumFacing.byIndex(value), false);
                 return true;
 
+            case 2:
+                this.passThroughNonMatching = value != 0;
+                return true;
+
             default:
                 return super.applyProperty(propId, value);
         }
@@ -106,6 +111,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         int[] values = super.getProperties();
 
         values[1] = this.facingDetectionOut.getIndex();
+        values[2] = this.passThroughNonMatching ? 1 : 0;
 
         return values;
     }
@@ -118,6 +124,16 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     public void setUseIndicators(boolean useIndicators)
     {
         this.useIndicators = useIndicators;
+    }
+
+    public boolean getPassThroughNonMatchingBlocks()
+    {
+        return this.passThroughNonMatching;
+    }
+
+    public void setPassThroughNonMatchingBlocks(boolean passThroughNonMatching)
+    {
+        this.passThroughNonMatching = passThroughNonMatching;
     }
 
     public void setAngle(int angle)
@@ -247,6 +263,9 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
             this.getWorld().playSound(null, this.getPos(), SoundEvents.BLOCK_NOTE_HAT, SoundCategory.BLOCKS, 0.4f, 0.8f);
         }
 
+        boolean sawNonMatching = false;
+        IItemHandler invOthers = this.detector.getOthersBufferInventory();
+
         for (int distance = 0; distance <= this.distance; distance++)
         {
             BlockPos pos = this.getDetectionPosition(distance, angle1, angle2);
@@ -278,13 +297,22 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
                     }
                 }
 
-                // Other blocks than ones programmed to the detection inventory
-                IItemHandler inv = this.detector.getOthersBufferInventory();
-                return InventoryUtils.tryMoveStack(inv, 0, this.inventoryOutDetection, 0, 1) != InvResult.MOVED_NOTHING;
+                sawNonMatching = true;
+
+                if (this.passThroughNonMatching == false)
+                {
+                    // Other blocks than ones programmed to the detection inventory
+                    return InventoryUtils.tryMoveStack(invOthers, 0, this.inventoryOutDetection, 0, 1) != InvResult.MOVED_NOTHING;
+                }
 
                 // debugging
                 //BlockUtils.setBlockStateWithPlaceSound(this.getWorld(), pos, Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockStainedGlass.COLOR, EnumDyeColor.ORANGE), 3);
             }
+        }
+
+        if (sawNonMatching)
+        {
+            return InventoryUtils.tryMoveStack(invOthers, 0, this.inventoryOutDetection, 0, 1) != InvResult.MOVED_NOTHING;
         }
 
         return false;
@@ -362,6 +390,11 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
             this.useIndicators = ! this.useIndicators;
             this.markDirty();
         }
+        else if (action == 1)
+        {
+            this.passThroughNonMatching = ! this.passThroughNonMatching;
+            this.markDirty();
+        }
     }
 
     @Override
@@ -398,6 +431,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         this.setDelay(tag.getByte("Delay"));
         this.distance = tag.getByte("Distance");
         this.nextDetection = tag.getLong("Next");
+        this.passThroughNonMatching = tag.getBoolean("PassThrough");
         this.detectorRunning = tag.getBoolean("Running");
         this.useIndicators = tag.getBoolean("Indicators");
 
@@ -417,6 +451,7 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
         nbt.setByte("Delay", (byte) this.delay);
         nbt.setByte("Distance", (byte) this.distance);
         nbt.setLong("Next", this.nextDetection);
+        nbt.setBoolean("PassThrough", this.passThroughNonMatching);
         nbt.setBoolean("Running", this.detectorRunning);
         nbt.setBoolean("Indicators", this.useIndicators);
         return nbt;
