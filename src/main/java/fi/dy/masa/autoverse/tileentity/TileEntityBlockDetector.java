@@ -21,6 +21,7 @@ import net.minecraftforge.items.IItemHandler;
 import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.effects.Effects;
 import fi.dy.masa.autoverse.gui.client.GuiBlockDetector;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerTileEntity;
 import fi.dy.masa.autoverse.inventory.container.ContainerBlockDetector;
 import fi.dy.masa.autoverse.inventory.wrapper.ItemHandlerWrapperExtractOnly;
@@ -288,8 +289,8 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
 
                 if (stack.isEmpty() == false)
                 {
-                    IItemHandler inv = this.detector.getDetectionInventory();
-                    int slot = InventoryUtils.getSlotOfFirstMatchingItemStack(inv, stack);
+                    ItemStackHandlerLockable inv = this.detector.getDetectionInventory();
+                    int slot = InventoryUtils.getSlotOfFirstMatchingTemplateStack(this.detector.getDetectionInventory(), stack);
 
                     if (slot != -1)
                     {

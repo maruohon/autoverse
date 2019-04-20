@@ -11,6 +11,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.inventory.IItemHandlerSize;
 import fi.dy.masa.autoverse.inventory.ItemStackHandlerBasic;
+import fi.dy.masa.autoverse.inventory.ItemStackHandlerLockable;
 import fi.dy.masa.autoverse.inventory.container.base.SlotRange;
 
 public class InventoryUtils
@@ -193,6 +194,40 @@ public class InventoryUtils
         for (int slot = slotStart; slot <= slotLast; ++slot)
         {
             ItemStack stackSlot = inv.getStackInSlot(slot);
+
+            if (areItemStacksEqual(stackSlot, stack))
+            {
+                return slot;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize)
+     * in the template/locked stacks in given inventory.
+     * Note: stack can be empty.
+     * @return The slot number of the first slot with a matching ItemStack, or -1 if there were no matches.
+     */
+    public static int getSlotOfFirstMatchingTemplateStack(ItemStackHandlerLockable inv, ItemStack stack)
+    {
+        return getSlotOfFirstMatchingTemplateStackWithinSlotRange(inv, stack, 0, inv.getSlots());
+    }
+
+    /**
+     * Get the slot number of the first slot containing a matching ItemStack (including NBT, ignoring stackSize)
+     * in the template/locked stacks in given inventory, within the given slot range.
+     * Note: stack can be empty.
+     * @return The slot number of the first slot with a matching ItemStack, or -1 if there were no matches.
+     */
+    public static int getSlotOfFirstMatchingTemplateStackWithinSlotRange(ItemStackHandlerLockable inv, ItemStack stack, int slotStart, int slotLastExc)
+    {
+        final int slotLast = Math.min(inv.getSlots() - 1, slotLastExc - 1);
+
+        for (int slot = slotStart; slot <= slotLast; ++slot)
+        {
+            ItemStack stackSlot = inv.getTemplateStackInSlot(slot);
 
             if (areItemStacksEqual(stackSlot, stack))
             {
