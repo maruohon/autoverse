@@ -131,7 +131,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     @Override
     public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
-        if (willHarvest)
+        if (willHarvest && Configs.barrelsSpillContents == false)
         {
             this.onBlockHarvested(world, pos, state, player);
             return true;
@@ -175,13 +175,16 @@ public class BlockBarrel extends BlockAutoverseInventory
     {
         ItemStack stack = new ItemStack(this, 1, this.damageDropped(state));
 
-        TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
-
-        if (te != null)
+        if (Configs.barrelsSpillContents == false)
         {
-            if (InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
+            TileEntityBarrel te = getTileEntitySafely(world, pos, TileEntityBarrel.class);
+
+            if (te != null)
             {
-                return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+                if (InventoryUtils.getFirstNonEmptySlot(te.getBaseItemHandler()) != -1)
+                {
+                    return TileUtils.storeTileEntityInStackWithCachedInventory(stack, te, addNBTLore, 9);
+                }
             }
         }
 
@@ -189,10 +192,17 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState iBlockState)
+    public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
-        world.updateComparatorOutputLevel(pos, this);
-        world.removeTileEntity(pos);
+        if (Configs.barrelsSpillContents)
+        {
+            super.breakBlock(world, pos, state);
+        }
+        else
+        {
+            world.updateComparatorOutputLevel(pos, this);
+            world.removeTileEntity(pos);
+        }
     }
 
     @Override

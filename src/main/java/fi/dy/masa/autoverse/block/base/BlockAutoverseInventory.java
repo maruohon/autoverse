@@ -26,9 +26,9 @@ public abstract class BlockAutoverseInventory extends BlockAutoverseTileEntity
         if (te != null)
         {
             te.dropInventories();
-            world.updateComparatorOutputLevel(pos, this);
         }
 
+        world.updateComparatorOutputLevel(pos, this);
         world.removeTileEntity(pos);
     }
 
