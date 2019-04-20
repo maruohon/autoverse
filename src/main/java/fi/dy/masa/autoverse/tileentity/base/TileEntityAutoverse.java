@@ -24,6 +24,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.World;
@@ -203,6 +204,9 @@ public abstract class TileEntityAutoverse extends TileEntity
                     this.setPlacementProperties(world, pos, stack, tag);
                     this.markDirty();
                     this.notifyBlockUpdate(this.getPos());
+
+                    player.sendStatusMessage(new TextComponentTranslation("autoverse.chat.placement_properties.applied_from_held_item"), true);
+
                     return true;
                 }
             }

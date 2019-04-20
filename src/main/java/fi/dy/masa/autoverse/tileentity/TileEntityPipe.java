@@ -17,7 +17,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -675,7 +674,6 @@ public class TileEntityPipe extends TileEntityAutoverseInventory implements ISyn
                 if (world.isRemote == false)
                 {
                     this.applyPlacementPropertiesFrom(world, pos, player, stackOffhand);
-                    player.sendStatusMessage(new TextComponentTranslation("autoverse.chat.placement_properties.applied_from_held_item"), true);
                 }
 
                 return true;
