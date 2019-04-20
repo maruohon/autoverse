@@ -3,7 +3,6 @@ package fi.dy.masa.autoverse.tileentity;
 import java.util.Random;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -184,26 +183,27 @@ public class TileEntitySplitter extends TileEntityAutoverseInventory
     }
 
     @Override
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
-            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player, EnumHand hand)
     {
-        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        if (super.onRightClickBlock(world, pos, side, player, hand))
         {
             return true;
         }
 
-        ItemStack stack = player.getHeldItem(hand);
-
-        if (stack.isEmpty() && player.isSneaking())
+        if (player.isSneaking() && player.getHeldItem(hand).isEmpty())
         {
-            if (side == this.facing2)
+            if (world.isRemote == false)
             {
-                side = side.getOpposite();
+                if (side == this.facing2)
+                {
+                    side = side.getOpposite();
+                }
+
+                this.setSecondOutputSide(side, false);
+                this.markDirty();
+                this.notifyBlockUpdate(this.getPos());
             }
 
-            this.setSecondOutputSide(side, false);
-            this.markDirty();
-            this.notifyBlockUpdate(this.getPos());
             return true;
         }
 

@@ -170,26 +170,27 @@ public class TileEntityBlockDetector extends TileEntityAutoverseInventory
     }
 
     @Override
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
-            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player, EnumHand hand)
     {
-        if (super.onRightClickBlock(world, pos, state, side, player, hand, hitX, hitY, hitZ))
+        if (super.onRightClickBlock(world, pos, side, player, hand))
         {
             return true;
         }
 
-        ItemStack stack = player.getHeldItem(hand);
-
-        if (stack.isEmpty() && player.isSneaking())
+        if (player.isSneaking() && player.getHeldItem(hand).isEmpty())
         {
-            if (side == this.facingDetectionOut)
+            if (world.isRemote == false)
             {
-                side = side.getOpposite();
+                if (side == this.facingDetectionOut)
+                {
+                    side = side.getOpposite();
+                }
+
+                this.setDetectionOutputSide(side, false);
+                this.markDirty();
+                this.notifyBlockUpdate(this.getPos());
             }
 
-            this.setDetectionOutputSide(side, false);
-            this.markDirty();
-            this.notifyBlockUpdate(this.getPos());
             return true;
         }
 

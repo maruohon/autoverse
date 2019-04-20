@@ -3,6 +3,12 @@ package fi.dy.masa.autoverse.event;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -11,6 +17,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.event.tasks.scheduler.PlayerTaskScheduler;
+import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 import fi.dy.masa.autoverse.util.PlacementProperties;
 
 public class ServerEventHandler
@@ -47,6 +54,30 @@ public class ServerEventHandler
             {
                 block.onBlockClicked(event.getWorld(), event.getPos(), event.getEntityPlayer());
                 event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
+    {
+        if (event.getHand() == EnumHand.OFF_HAND && event.getEntityPlayer().isSneaking())
+        {
+            World world = event.getWorld();
+            TileEntity te = world.getTileEntity(event.getPos());
+
+            if (te != null && te instanceof TileEntityAutoverse)
+            {
+                BlockPos pos = event.getPos();
+                EnumFacing side = event.getFace();
+                EntityPlayer player = event.getEntityPlayer();
+                EnumHand hand = event.getHand();
+
+                if (((TileEntityAutoverse) te).onRightClickBlock(world, pos, side, player, hand))
+                {
+                    event.setCancellationResult(EnumActionResult.SUCCESS);
+                    event.setCanceled(true);
+                }
             }
         }
     }

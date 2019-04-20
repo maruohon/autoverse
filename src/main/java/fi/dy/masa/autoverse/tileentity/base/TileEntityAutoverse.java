@@ -238,8 +238,7 @@ public abstract class TileEntityAutoverse extends TileEntity
     /**
      * @return true if something happened, and further processing (such as opening the GUI) should not happen
      */
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side,
-            EntityPlayer player, EnumHand hand, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player, EnumHand hand)
     {
         if (player.isSneaking() && player.getHeldItemMainhand().isEmpty())
         {

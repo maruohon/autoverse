@@ -150,8 +150,7 @@ public class TileEntityLatch extends TileEntityAutoverse
     }
 
     @Override
-    public boolean onRightClickBlock(World world, BlockPos pos, IBlockState state, EnumFacing side, EntityPlayer player,
-            EnumHand hand, float hitX, float hitY, float hitZ)
+    public boolean onRightClickBlock(World world, BlockPos pos, EnumFacing side, EntityPlayer player, EnumHand hand)
     {
         if (world.isRemote)
         {
