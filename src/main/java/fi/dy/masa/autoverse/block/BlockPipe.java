@@ -208,7 +208,7 @@ public class BlockPipe extends BlockAutoverseInventory
         return BOUNDS_MIDDLE;
     }
 
-    //@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos,
             AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity, boolean p_185477_7_)

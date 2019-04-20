@@ -125,6 +125,7 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
         return state.getActualState(blockAccess, pos).getValue(SLIM) ? BOUNDS_SLIM_BASE_12 : FULL_BLOCK_AABB;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos,
             AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity, boolean p_185477_7_)
@@ -155,6 +156,7 @@ public abstract class BlockMachineSlimBase extends BlockAutoverseInventory
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected void addSideCollisionBox(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, EnumFacing side)
     {
         addCollisionBoxToList(pos, entityBox, collidingBoxes, this.getBoundsForSide(side));

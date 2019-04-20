@@ -192,6 +192,7 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
         return state.getActualState(blockAccess, pos).getValue(SLIM) ? BOUNDS_SLIM_BASE_10 : FULL_BLOCK_AABB;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void addAllSideCollisionBoxes(IBlockState actualState, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes)
     {
