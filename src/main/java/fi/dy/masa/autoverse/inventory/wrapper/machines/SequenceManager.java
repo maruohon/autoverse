@@ -55,7 +55,8 @@ public class SequenceManager
                 items.add(sequence.getSequence().get(slot).copy());
             }
 
-            if ((sequence instanceof SequenceMatcherVariable) && length < sequence.getMaxLength())
+            if (sequence.isConfigured() && length < sequence.getMaxLength() &&
+                (sequence instanceof SequenceMatcherVariable))
             {
                 items.add(((SequenceMatcherVariable) sequence).getSequenceEndMarker().copy());
             }
