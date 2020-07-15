@@ -212,7 +212,7 @@ tile.autoverse.splitter_length.tooltips=- The active output side changes based o
 tile.autoverse.splitter_redstone.tooltips=- The item output side can be switched with a redstone signal|lf- Sneak + right click with an empty hand to change the Output 2 side
 tile.autoverse.splitter_switchable.tooltips=- The item output side can be switched by a matching|lf  switch sequences in the incoming item stream|lf- Sneak + right click with an empty hand to change the Output 2 side
 tile.autoverse.trash_bin.tooltips=- Just an ordinary trash bin - deletes all inserted items
-tile.autoverse.trash_buffer.tooltips=- Trash Bin with a large buffer (36 slots, max 1024 items per slot)|lf- Or you could also think of it as a storage block with a void upgrade
+tile.autoverse.trash_buffer.tooltips=- Trash Bin with a large buffer (36 slots, max 1024 items per slot)|lf- Think of it as storage (one slot per item) with a void upgrade|lf- The items will try to go to the first valid slot. This means the|lf   first empty slot, or the first slot with an identical item.|lf   Thus there can only be one slot per item type that the items will|lf   try to go to, you can't "prime more slots" for an item type.
 
 
 ############################################
