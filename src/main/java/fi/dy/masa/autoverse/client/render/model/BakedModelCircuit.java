@@ -33,7 +33,6 @@ import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.BlockCircuit;
 import fi.dy.masa.autoverse.block.BlockCircuit.CircuitType;
 import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
-import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.reference.Reference;
 
 public class BakedModelCircuit implements IBakedModel
@@ -114,23 +113,21 @@ public class BakedModelCircuit implements IBakedModel
             state = AutoverseBlocks.CIRCUIT.getDefaultState().withProperty(BlockCircuit.TYPE, this.type);
         }
 
-        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = null;
-
-        quads = QUAD_CACHE.get(state);
+        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = QUAD_CACHE.get(state);
 
         if (quads == null)
         {
-            quads = this.bakeFullModel(state, state.getValue(BlockAutoverse.FACING));
+            quads = this.bakeFullModel(state);
             QUAD_CACHE.put(state, quads);
         }
 
         return quads.get(Optional.ofNullable(side));
     }
 
-    private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(IBlockState state, EnumFacing mainFacing)
+    private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(IBlockState state)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
-        List<IBakedModel> models = this.getModelParts(state, mainFacing);
+        List<IBakedModel> models = this.getModelParts(state);
 
         for (EnumFacing face : BakedModelPipe.MODEL_FACES)
         {
@@ -154,11 +151,11 @@ public class BakedModelCircuit implements IBakedModel
         return builder.build();
     }
 
-    private List<IBakedModel> getModelParts(IBlockState state, EnumFacing mainFacing)
+    private List<IBakedModel> getModelParts(IBlockState state)
     {
         EnumFacing side;
         IModel model;
-        List<IBakedModel> models = new ArrayList<IBakedModel>();
+        List<IBakedModel> models = new ArrayList<>();
         boolean powered = state.getValue(BlockCircuit.POWERED);
         ImmutableMap<String, String> baseTextures = this.getBaseModelTextures(state.getValue(BlockCircuit.TYPE), powered);
 
@@ -224,7 +221,7 @@ public class BakedModelCircuit implements IBakedModel
         private final IModel baseModel;
         private final IModel sideModel;
         private final ImmutableMap<String, String> textures;
-        private static ImmutableList<ResourceLocation> texture_deps = ImmutableList.of();
+        private static final ImmutableList<ResourceLocation> TEXTURE_DEPS;
 
         static
         {
@@ -241,7 +238,7 @@ public class BakedModelCircuit implements IBakedModel
             builder.add(new ResourceLocation("autoverse:blocks/latch_rs_in_set_end"));
             builder.add(new ResourceLocation("autoverse:blocks/latch_rs_in_set_side"));
 
-            texture_deps = builder.build();
+            TEXTURE_DEPS = builder.build();
         }
 
         protected ModelCircuit(BlockCircuit.CircuitType type, IModel baseModel, IModel sideModel, ImmutableMap<String, String> textures)
@@ -261,7 +258,7 @@ public class BakedModelCircuit implements IBakedModel
         @Override
         public Collection<ResourceLocation> getTextures()
         {
-            return texture_deps;
+            return TEXTURE_DEPS;
         }
 
         @Override
@@ -289,7 +286,7 @@ public class BakedModelCircuit implements IBakedModel
         }
 
         @Override
-        public IModel loadModel(ResourceLocation modelLocation) throws Exception
+        public IModel loadModel(ResourceLocation modelLocation)
         {
             IModel baseModel = ModelLoaderRegistry.getMissingModel();
             IModel sideModel = ModelLoaderRegistry.getMissingModel();

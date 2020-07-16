@@ -138,7 +138,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
 
         if (te != null)
         {
-            state = state.withProperty(POWERED, te.getOutpuStrength() > 0);
+            state = state.withProperty(POWERED, te.getOutputStrength() > 0);
         }
 
         return state;
@@ -168,7 +168,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         if (side == state.getValue(FACING).getOpposite())
         {
             TileEntityInventoryReader te = getTileEntitySafely(blockAccess, pos, TileEntityInventoryReader.class);
-            return te != null ? te.getOutpuStrength() : 0;
+            return te != null ? te.getOutputStrength() : 0;
         }
 
         return 0;
@@ -225,7 +225,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
 
                 if (output != -1)
                 {
-                    int old = te.getOutpuStrength();
+                    int old = te.getOutputStrength();
 
                     if (output != old)
                     {

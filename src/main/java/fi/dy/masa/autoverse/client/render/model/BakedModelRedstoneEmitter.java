@@ -81,8 +81,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         }
         else
         {
-            IBakedModel bakedModel = null;
-            bakedModel = MODEL_CACHE.get(state);
+            IBakedModel bakedModel = MODEL_CACHE.get(state);
 
             if (bakedModel == null)
             {
@@ -106,7 +105,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
     @Override
     protected List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
     {
-        List<IBakedModel> models = new ArrayList<IBakedModel>();
+        List<IBakedModel> models = new ArrayList<>();
         boolean advanced = this.type == EmitterType.ADVANCED;
 
         for (EnumFacing side : EnumFacing.VALUES)
@@ -174,11 +173,12 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
     {
         protected final IModel fullModel;
         private final BlockRedstoneEmitter.EmitterType type;
-        private static ImmutableList<ResourceLocation> texture_deps = ImmutableList.of();
+        private static final ImmutableList<ResourceLocation> TEXTURE_DEPS;
 
         static
         {
             ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
+
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_front"));
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_disabled"));
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_unpowered"));
@@ -196,7 +196,8 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_unpowered_slim_end_06"));
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_powered_slim_end_06"));
             builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_slim_side_06"));
-            texture_deps = builder.build();
+
+            TEXTURE_DEPS = builder.build();
         }
 
         protected ModelRedstoneEmitter(BlockRedstoneEmitter.EmitterType type,
@@ -217,7 +218,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         @Override
         public Collection<ResourceLocation> getTextures()
         {
-            return texture_deps;
+            return TEXTURE_DEPS;
         }
 
         @Override
@@ -249,7 +250,7 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         }
 
         @Override
-        public IModel loadModel(ResourceLocation modelLocation) throws Exception
+        public IModel loadModel(ResourceLocation modelLocation)
         {
             IModel fullModel = ModelLoaderRegistry.getMissingModel();
             IModel baseModel = ModelLoaderRegistry.getMissingModel();
@@ -295,8 +296,8 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         {
             switch (state.getValue(BlockRedstoneEmitter.TYPE))
             {
-                case BASIC:     return LOCATION_BASIC;
                 case ADVANCED:  return LOCATION_ADVANCED;
+                case BASIC:
                 default:        return LOCATION_BASIC;
             }
         }

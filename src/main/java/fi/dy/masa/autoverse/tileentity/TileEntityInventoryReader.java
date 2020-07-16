@@ -16,7 +16,7 @@ public class TileEntityInventoryReader extends TileEntityAutoverse
         super(ReferenceNames.NAME_BLOCK_INVENTORY_READER);
     }
 
-    public int getOutpuStrength()
+    public int getOutputStrength()
     {
         return this.output;
     }

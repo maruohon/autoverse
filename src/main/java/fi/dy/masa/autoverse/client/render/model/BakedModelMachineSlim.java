@@ -104,7 +104,7 @@ public class BakedModelMachineSlim implements IBakedModel
     @Override
     synchronized public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
     {
-        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = null;
+        ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads;
 
         // Item model - this should never be used, as the slim model isn't used for any items
         if (state == null)
@@ -189,7 +189,7 @@ public class BakedModelMachineSlim implements IBakedModel
     protected List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
     {
         BlockMachineSlimBase block = (BlockMachineSlimBase) state.getBlock();
-        List<IBakedModel> models = new ArrayList<IBakedModel>();
+        List<IBakedModel> models = new ArrayList<>();
 
         for (int side = 0; side < block.getNumModelSideFacings(); side++)
         {
@@ -282,7 +282,7 @@ public class BakedModelMachineSlim implements IBakedModel
         }
 
         @Override
-        public IModel loadModel(ResourceLocation modelLocation) throws Exception
+        public IModel loadModel(ResourceLocation modelLocation)
         {
             IModel baseModel = ModelLoaderRegistry.getMissingModel();
             IModel outModel  = ModelLoaderRegistry.getMissingModel();

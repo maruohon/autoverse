@@ -187,7 +187,7 @@ public class BakedModelPipe implements IBakedModel
                 TRSRTransformation trsca = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(1.5f, 1.5f, 1.5f), null);
                 IModelState modelState = new ModelStateComposition(this.modelState, TRSRTransformation.blockCenterToCorner(trsca));
 
-                quads = this.bakeFullModel(state, side, modelState, false);
+                quads = this.bakeFullModel(state, modelState, false);
 
                 QUAD_CACHE_ITEMS.put(state, quads);
             }
@@ -202,7 +202,7 @@ public class BakedModelPipe implements IBakedModel
             {
                 TRSRTransformation modelState = TRSRTransformation.from(ModelRotation.X0_Y0);
 
-                quads = this.bakeFullModel(state, side, modelState, isTranslucentLayer);
+                quads = this.bakeFullModel(state, modelState, isTranslucentLayer);
 
                 if (isTranslucentLayer)
                 {
@@ -219,7 +219,7 @@ public class BakedModelPipe implements IBakedModel
     }
 
     private ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> bakeFullModel(
-            IBlockState state, @Nullable EnumFacing side, @Nullable IModelState modelState, boolean isTranslucentLayer)
+            IBlockState state, @Nullable IModelState modelState, boolean isTranslucentLayer)
     {
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
         List<IBakedModel> connectionModels = this.getConnectionModels(state, modelState, isTranslucentLayer);
@@ -254,7 +254,7 @@ public class BakedModelPipe implements IBakedModel
 
     private List<IBakedModel> getMainModelPieces(IBlockState state, @Nullable IModelState modelStateIn, boolean isTranslucentLayer)
     {
-        List<IBakedModel> models = new ArrayList<IBakedModel>();
+        List<IBakedModel> models = new ArrayList<>();
 
         if (isTranslucentLayer)
         {
@@ -263,9 +263,9 @@ public class BakedModelPipe implements IBakedModel
         }
         else
         {
-            this.addEdges(state, PositionUtils.SIDES_Y, EnumFacing.UP,    models, modelStateIn);
-            this.addEdges(state, PositionUtils.SIDES_X, EnumFacing.EAST,  models, modelStateIn);
-            this.addEdges(state, PositionUtils.SIDES_Z, EnumFacing.SOUTH, models, modelStateIn);
+            this.addEdges(PositionUtils.SIDES_Y, models, modelStateIn);
+            this.addEdges(PositionUtils.SIDES_X, models, modelStateIn);
+            this.addEdges(PositionUtils.SIDES_Z, models, modelStateIn);
 
             this.addCorners(state, models, EnumFacing.UP, modelStateIn);
 
@@ -280,13 +280,10 @@ public class BakedModelPipe implements IBakedModel
     /**
      * Transforms a single vertical pipe model edge (strip) to all four sides around the given <b>rotationAxis</b>.
      * This method is then called for each of the three axes separately.
-     * @param state
      * @param sides
-     * @param rotationAxis
      * @param models
      */
-    private void addEdges(IBlockState state, EnumFacing[] sides, EnumFacing rotationAxis,
-            List<IBakedModel> models, @Nullable IModelState modelStateIn)
+    private void addEdges(EnumFacing[] sides, List<IBakedModel> models, @Nullable IModelState modelStateIn)
     {
         //for (EnumFacing side : sides)
         for (int i = 0; i < 4; i++)
@@ -328,7 +325,6 @@ public class BakedModelPipe implements IBakedModel
     /**
      * Transforms a single side model ("window") to all six sides, for sides which don't have a connection.
      * @param state
-     * @param sides
      * @param models
      * @param modelStateIn
      */
@@ -360,7 +356,7 @@ public class BakedModelPipe implements IBakedModel
      * @param state
      * @param models
      * @param upAxis
-     * @param modelState
+     * @param modelStateIn
      */
     private void addCorners(IBlockState state, List<IBakedModel> models, EnumFacing upAxis, @Nullable IModelState modelStateIn)
     {
@@ -400,7 +396,7 @@ public class BakedModelPipe implements IBakedModel
 
     private List<IBakedModel> getConnectionModels(IBlockState state, @Nullable IModelState modelStateIn, boolean isTranslucentLayer)
     {
-        List<IBakedModel> models = new ArrayList<IBakedModel>();
+        List<IBakedModel> models = new ArrayList<>();
 
         for (EnumFacing side : EnumFacing.values())
         {
@@ -449,7 +445,7 @@ public class BakedModelPipe implements IBakedModel
         private static final ResourceLocation CONNECTION_MODEL_SLIM  = new ResourceLocation(Reference.MOD_ID, "block/pipe_connection_slim");
 
         protected final BlockPipe.PipeType type;
-        protected final Map<String, String> textures = new HashMap<String, String>();
+        protected final Map<String, String> textures = new HashMap<>();
 
         protected ModelPipe(BlockPipe.PipeType type)
         {
@@ -595,7 +591,7 @@ public class BakedModelPipe implements IBakedModel
         }
 
         @Override
-        public IModel loadModel(ResourceLocation modelLocation) throws Exception
+        public IModel loadModel(ResourceLocation modelLocation)
         {
             if (modelLocation.equals(FAKE_LOCATION_EXTRACTION))
             {
