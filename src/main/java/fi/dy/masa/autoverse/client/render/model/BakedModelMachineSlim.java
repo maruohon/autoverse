@@ -132,7 +132,7 @@ public class BakedModelMachineSlim implements IBakedModel
         IBakedModel bakedOutModel = this.getOutputModel(state, mainFacing);
         List<IBakedModel> sideModels = this.getSideModels(state, mainFacing);
 
-        for (EnumFacing face : BakedModelPipe.MODEL_FACES)
+        for (EnumFacing face : BakedModelBase.MODEL_FACES)
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 

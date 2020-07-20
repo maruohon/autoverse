@@ -129,7 +129,7 @@ public class BakedModelCircuit implements IBakedModel
         ImmutableMap.Builder<Optional<EnumFacing>, ImmutableList<BakedQuad>> builder = ImmutableMap.builder();
         List<IBakedModel> models = this.getModelParts(state);
 
-        for (EnumFacing face : BakedModelPipe.MODEL_FACES)
+        for (EnumFacing face : BakedModelBase.MODEL_FACES)
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 

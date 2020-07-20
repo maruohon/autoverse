@@ -54,9 +54,6 @@ public class BakedModelPipe implements IBakedModel
 
     private static final String TEX_SIDE_WINDOW         = Reference.MOD_ID + ":blocks/pipe_side_window";
 
-    public static final EnumFacing[] MODEL_FACES = new EnumFacing[] {
-            EnumFacing.DOWN, EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST, null };
-
     // These are the transforms to get the vertical pipe edge strip model to the correct orientation for each of the pipe edges
     // From NORTH to NORTH, SOUTH, WEST, EAST
     private static final TRSRTransformation[] TRANSFORMS_Y = new TRSRTransformation[] {
@@ -225,7 +222,7 @@ public class BakedModelPipe implements IBakedModel
         List<IBakedModel> connectionModels = this.getConnectionModels(state, modelState, isTranslucentLayer);
         List<IBakedModel> middleModels = this.getMainModelPieces(state, modelState, isTranslucentLayer);
 
-        for (EnumFacing face : MODEL_FACES)
+        for (EnumFacing face : BakedModelBase.MODEL_FACES)
         {
             ImmutableList.Builder<BakedQuad> quads = ImmutableList.builder();
 

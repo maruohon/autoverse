@@ -22,6 +22,7 @@ import fi.dy.masa.autoverse.block.base.AutoverseBlocks;
 import fi.dy.masa.autoverse.block.base.BlockAutoverse;
 import fi.dy.masa.autoverse.client.HotKeys;
 import fi.dy.masa.autoverse.client.render.model.BakedModelCircuit;
+import fi.dy.masa.autoverse.client.render.model.BakedModelInventoryReader;
 import fi.dy.masa.autoverse.client.render.model.BakedModelMachineSlim;
 import fi.dy.masa.autoverse.client.render.model.BakedModelPipe;
 import fi.dy.masa.autoverse.client.render.model.BakedModelRedstoneEmitter;
@@ -117,6 +118,9 @@ public class ClientProxy extends CommonProxy
         ModelLoaderRegistry.registerLoader(new BakedModelRedstoneEmitter.ModelLoaderRedstoneEmitter());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.SENSOR, (new StateMap.Builder()).ignore(BlockSensor.POWER).build());
+
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.INVENTORY_READER, new BakedModelInventoryReader.StateMapper());
+        ModelLoaderRegistry.registerLoader(BakedModelInventoryReader.getModelLoader());
     }
 
     private static void registerItemBlockModels()
@@ -138,8 +142,8 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.FILTER, 0, "facing=north,facing_filter=east,slim=false,type=basic");
         registerItemBlockModel(AutoverseBlocks.FILTER, 1, "facing=north,facing_filter=east,slim=false,type=sequential");
         registerItemBlockModel(AutoverseBlocks.FILTER, 2, "facing=north,facing_filter=east,slim=false,type=sequential_strict");
-        registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "facing=north,powered=false,type=items");
-        registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "facing=north,powered=false,type=slots");
+        registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 0, "type=items");
+        registerItemBlockModel(AutoverseBlocks.INVENTORY_READER, 1, "type=slots");
         registerItemBlockModel(AutoverseBlocks.MACHINE_FRAME, 0, "inventory");
         registerItemBlockModel(AutoverseBlocks.MUXER, 0, "facing=north,facing_in2=east,slim=false,type=redstone");
         registerItemBlockModel(AutoverseBlocks.MUXER, 1, "facing=north,facing_in2=east,slim=false,type=priority");
