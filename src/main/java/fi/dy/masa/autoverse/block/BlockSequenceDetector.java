@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.block;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
@@ -18,8 +17,6 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockSequenceDetector extends BlockMachineSlimBase
 {
-    public static final PropertyBool POWERED = PropertyBool.create("powered");
-
     public BlockSequenceDetector(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);

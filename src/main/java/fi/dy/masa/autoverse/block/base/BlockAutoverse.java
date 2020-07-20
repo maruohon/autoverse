@@ -8,10 +8,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.BlockFlowerPot;
-import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -41,7 +40,9 @@ public class BlockAutoverse extends Block
     public static final int BOX_ID_MAIN = 123456;
     public static final EnumFacing DEFAULT_FACING = EnumFacing.NORTH;
     public static final PropertyDirection FACING = BlockDirectional.FACING;
-    public static final PropertyDirection FACING_H = BlockHorizontal.FACING;
+    public static final PropertyDirection FACING_OUT = PropertyDirection.create("facing_out");
+
+    public static final PropertyBool POWERED = PropertyBool.create("powered");
 
     protected String blockName;
     protected String[] unlocalizedNames;
@@ -179,12 +180,12 @@ public class BlockAutoverse extends Block
 
     protected EnumFacing getSideFromBoxId(Integer id, EnumFacing sideIn)
     {
-        return id == BOX_ID_MAIN ? sideIn : EnumFacing.byIndex(id);
+        return id >= BOX_ID_MAIN ? sideIn : EnumFacing.byIndex(id & 0xF);
     }
 
     protected void createHilightBoxMap()
     {
-        this.hilightBoxMap = new ConcurrentHashMap<Integer, AxisAlignedBB>();
+        this.hilightBoxMap = new ConcurrentHashMap<>();
     }
 
     public void updateBlockHilightBoxes(IBlockState actualState, World world, BlockPos pos)
@@ -197,7 +198,7 @@ public class BlockAutoverse extends Block
     {
         block.updateBlockHilightBoxes(state.getActualState(world, pos), world, pos);
 
-        List<RayTraceResult> list = new ArrayList<RayTraceResult>();
+        List<RayTraceResult> list = new ArrayList<>();
 
         for (AxisAlignedBB bb : block.getHilightBoxMap().values())
         {
@@ -233,7 +234,7 @@ public class BlockAutoverse extends Block
     /**
      * Returns the tile of the specified class, returns null if it is the wrong type or does not exist.
      * Avoids creating new tile entities when using a ChunkCache (off the main thread).
-     * see {@link BlockFlowerPot#getActualState(IBlockState, IBlockAccess, BlockPos)}
+     * see {@link net.minecraft.block.BlockFlowerPot#getActualState(IBlockState, IBlockAccess, BlockPos)}
      */
     @Nullable
     public static <T extends TileEntity> T getTileEntitySafely(IBlockAccess world, BlockPos pos, Class<T> tileClass)

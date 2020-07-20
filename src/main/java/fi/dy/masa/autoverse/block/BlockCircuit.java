@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -48,7 +47,6 @@ public class BlockCircuit extends BlockAutoverseTileEntity
     public static final PropertyEnum<CircuitType> TYPE = PropertyEnum.<CircuitType>create("type", CircuitType.class);
     public static final PropertyDirection FACING2 = PropertyDirection.create("facing2");
     public static final PropertyDirection FACING3 = PropertyDirection.create("facing3");
-    public static final PropertyBool POWERED = PropertyBool.create("powered");
 
     public BlockCircuit(String name, float hardness, float resistance, int harvestLevel, Material material)
     {

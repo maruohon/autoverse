@@ -2,7 +2,6 @@ package fi.dy.masa.autoverse.block;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,8 +16,6 @@ import fi.dy.masa.autoverse.tileentity.base.TileEntityAutoverse;
 
 public class BlockDetector extends BlockMachineSlimBase
 {
-    protected static final PropertyDirection FACING_OUT = PropertyDirection.create("facing_out");
-
     public BlockDetector(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
         super(name, hardness, resistance, harvestLevel, material);

@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -51,7 +50,6 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     private static final AxisAlignedBB BOUNDS_BASE_EAST  = new AxisAlignedBB(0.875, 0.125, 0.125,   1.0, 0.875, 0.875);
 
     public static final PropertyEnum<ReaderType> TYPE = PropertyEnum.<ReaderType>create("type", ReaderType.class);
-    public static final PropertyBool POWERED = PropertyBool.create("powered");
 
     public BlockInventoryReader(String name, float hardness, float resistance, int harvestLevel, Material material)
     {
