@@ -350,7 +350,8 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
         IItemHandler inv = null;
 
         // If there is no inventory adjacent to this block, then offset the position one more
-        if (te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide) == false)
+        if ((te == null || te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, targetSide) == false) &&
+            blockAccess.getBlockState(posTarget).isNormalCube())
         {
             posTarget = posTarget.offset(inputSide);
             te = blockAccess.getTileEntity(posTarget);
