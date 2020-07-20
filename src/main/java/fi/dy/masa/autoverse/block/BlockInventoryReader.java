@@ -285,12 +285,7 @@ public class BlockInventoryReader extends BlockAutoverseTileEntity
     private void updateStateIfFront(IBlockState state, World world, BlockPos pos, BlockPos posFrom)
     {
         state = state.getActualState(world, pos);
-
-        // Only update when changes happen on the input side
-        if (pos.offset(state.getValue(FACING)).equals(posFrom))
-        {
-            this.updateState(state, world, pos);
-        }
+        this.updateState(state, world, pos);
     }
 
     private void updateState(IBlockState state, World world, BlockPos pos)
