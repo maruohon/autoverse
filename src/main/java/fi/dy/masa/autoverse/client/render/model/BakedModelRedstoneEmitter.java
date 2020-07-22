@@ -1,7 +1,5 @@
 package fi.dy.masa.autoverse.client.render.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +7,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -18,15 +15,12 @@ import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
-import fi.dy.masa.autoverse.Autoverse;
 import fi.dy.masa.autoverse.block.BlockRedstoneEmitter;
 import fi.dy.masa.autoverse.block.BlockRedstoneEmitter.EmitterType;
 import fi.dy.masa.autoverse.block.BlockRedstoneEmitter.SideStatus;
@@ -36,34 +30,29 @@ import fi.dy.masa.autoverse.reference.Reference;
 
 public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
 {
-    protected static final ResourceLocation FULL_BLOCK_MODEL  = new ResourceLocation(Reference.MOD_ID, "block/cube_individual");
-    protected static final ResourceLocation BASE_MODEL_10     = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_main_10_tex_16");
-    protected static final ResourceLocation SIDE_MODEL_06x03  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_06x03_tex_06x03");
-    protected static final ResourceLocation SIDE_MODEL_08x03  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_08x03_tex_10x03");
+    private static final ResourceLocation FAKE_LOCATION_BASIC    = new ResourceLocation(Reference.MOD_ID, "models/block/custom/redstone_emitter_basic");
+    private static final ResourceLocation FAKE_LOCATION_ADVANCED = new ResourceLocation(Reference.MOD_ID, "models/block/custom/redstone_emitter_advanced");
+
+    private static final ResourceLocation FULL_BLOCK_MODEL  = new ResourceLocation(Reference.MOD_ID, "block/cube_individual");
+    private static final ResourceLocation BASE_MODEL_10     = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_main_10_tex_16");
+    private static final ResourceLocation SIDE_MODEL_06x03  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_06x03_tex_06x03");
+    private static final ResourceLocation SIDE_MODEL_08x03  = new ResourceLocation(Reference.MOD_ID, "block/machine_slim_side_08x03_tex_10x03");
+
     private static final Map<IBlockState, IBakedModel> MODEL_CACHE = new HashMap<>();
 
     protected final IModel fullBlockModel;
     private final BlockRedstoneEmitter.EmitterType type;
-    protected final TextureAtlasSprite particle;
 
-    private BakedModelRedstoneEmitter(
-            BlockRedstoneEmitter.EmitterType type,
-            IModel fullBlock, IModel baseModel, IModel outModel, IModel sideModel,
-            ImmutableMap<String, String> textures, IModelState modelState, VertexFormat format,
-            Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    private BakedModelRedstoneEmitter(ResourceLocation modelLocation,
+                                      ImmutableMap<String, String> textures,
+                                      IModelState modelState,
+                                      VertexFormat format,
+                                      Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        super(baseModel, outModel, sideModel, textures, modelState, format, bakedTextureGetter);
+        super(modelLocation, textures, modelState, format, bakedTextureGetter);
 
-        this.type = type;
-        this.fullBlockModel = fullBlock;
-        String typeName = type == BlockRedstoneEmitter.EmitterType.ADVANCED ? "advanced" : "basic";
-        this.particle = bakedTextureGetter.apply(new ResourceLocation("autoverse:blocks/redstone_emitter_" + typeName + "_front"));
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return this.particle;
+        this.type = modelLocation.equals(FAKE_LOCATION_ADVANCED) ? BlockRedstoneEmitter.EmitterType.ADVANCED : BlockRedstoneEmitter.EmitterType.BASIC;
+        this.fullBlockModel = getModelOrMissing(FULL_BLOCK_MODEL);
     }
 
     @Override
@@ -96,44 +85,36 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
     }
 
     @Override
-    protected IBakedModel getBaseModel(IBlockState state, EnumFacing mainFacing)
+    protected void getBaseModel(List<IBakedModel> models, IBlockState state, EnumFacing mainFacing)
     {
         IModel baseModel = this.baseModel.retexture(this.getFullBlockModelTextures(state));
-        return baseModel.bake(TRSRTransformation.from(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter);
+        models.add(baseModel.bake(TRSRTransformation.from(ModelRotation.X0_Y0), this.format, this.bakedTextureGetter));
     }
 
     @Override
-    protected List<IBakedModel> getSideModels(IBlockState state, EnumFacing mainFacing)
+    protected void getSideModels(List<IBakedModel> models, IBlockState state, EnumFacing mainFacing)
     {
-        List<IBakedModel> models = new ArrayList<>();
         boolean advanced = this.type == EmitterType.ADVANCED;
 
         for (EnumFacing side : EnumFacing.VALUES)
         {
-            if (side != mainFacing && (advanced || state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex())) != SideStatus.DISABLED))
+            BlockRedstoneEmitter.SideStatus sideStatus = state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex()));
+
+            if (side != mainFacing && (advanced || sideStatus != SideStatus.DISABLED))
             {
-                boolean powered = state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex())) == BlockRedstoneEmitter.SideStatus.POWERED;
-                IModel sideModel = this.sideModel.retexture(this.getSideModelTextures(state, powered));
+                boolean powered = sideStatus == BlockRedstoneEmitter.SideStatus.POWERED;
+                IModel sideModel = this.sideModel.retexture(this.getSideModelTextures(powered));
                 models.add(sideModel.bake(TRSRTransformation.from(side), this.format, this.bakedTextureGetter));
             }
         }
-
-        return models;
     }
 
-    private ImmutableMap<String, String> getSideModelTextures(IBlockState state, boolean powered)
+    private ImmutableMap<String, String> getSideModelTextures(boolean powered)
     {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
-        try
-        {
-            builder.put("slim_side_end", this.textures.get("rs_" + (powered ? "on" : "off") + "_slim_end"));
-            builder.put("slim_side_side", this.textures.get("rs_slim_side"));
-        }
-        catch (Exception e)
-        {
-            Autoverse.logger.warn("Failed to get side model texture name for block state {}", state, e);
-        }
+        builder.put("slim_side_end", this.textures.get("rs_" + (powered ? "on" : "off") + "_slim_end"));
+        builder.put("slim_side_side", this.textures.get("rs_slim_side"));
 
         return builder.build();
     }
@@ -144,146 +125,64 @@ public class BakedModelRedstoneEmitter extends BakedModelMachineSlim
         EnumFacing front = state.getValue(BlockAutoverse.FACING);
         boolean slim = state.getValue(BlockRedstoneEmitter.SLIM);
 
-        try
+        for (EnumFacing side : EnumFacing.VALUES)
         {
-            for (EnumFacing side : EnumFacing.values())
-            {
-                String key = slim ? "slim_" + side.toString().toLowerCase() : side.toString().toLowerCase();
+            String sideName = side.toString().toLowerCase();
+            String key = slim ? "slim_" + sideName : sideName;
 
-                if (side == front)
-                {
-                    builder.put(key, this.textures.get("front"));
-                }
-                else
-                {
-                    BlockRedstoneEmitter.SideStatus status = state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex()));
-                    builder.put(key, this.textures.get(status.toString().toLowerCase()));
-                }
+            if (side == front)
+            {
+                builder.put(key, this.textures.get("front"));
             }
-        }
-        catch (Exception e)
-        {
-            Autoverse.logger.warn("Failed to get side model texture name for block state {}", state, e);
+            else
+            {
+                BlockRedstoneEmitter.SideStatus status = state.getValue(BlockRedstoneEmitter.SIDES.get(side.getIndex()));
+                builder.put(key, this.textures.get(status.toString().toLowerCase()));
+            }
         }
 
         return builder.build();
     }
 
-    private static class ModelRedstoneEmitter extends ModelMachineSlim
+    private static void clearModelCache()
     {
-        protected final IModel fullModel;
-        private final BlockRedstoneEmitter.EmitterType type;
-        private static final ImmutableList<ResourceLocation> TEXTURE_DEPS;
-
-        static
-        {
-            ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
-
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_front"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_disabled"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_unpowered"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_powered"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_out_slim_end_10"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_out_slim_side_10"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_unpowered_slim_end_06"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_powered_slim_end_06"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_slim_side_06"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_front"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_side_unpowered"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_side_powered"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_out_slim_end_10"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_out_slim_side_10"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_unpowered_slim_end_06"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_powered_slim_end_06"));
-            builder.add(new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_slim_side_06"));
-
-            TEXTURE_DEPS = builder.build();
-        }
-
-        protected ModelRedstoneEmitter(BlockRedstoneEmitter.EmitterType type,
-                IModel fullBlock, IModel baseModel, IModel outModel, IModel sideModel, ImmutableMap<String, String> textures)
-        {
-            super(baseModel, outModel, sideModel, textures);
-
-            this.type = type;
-            this.fullModel = fullBlock;
-        }
-
-        @Override
-        public List<ResourceLocation> getDependencies()
-        {
-            return Lists.newArrayList(FULL_BLOCK_MODEL, BASE_MODEL_10, SIDE_MODEL_08x03, SIDE_MODEL_06x03);
-        }
-
-        @Override
-        public Collection<ResourceLocation> getTextures()
-        {
-            return TEXTURE_DEPS;
-        }
-
-        @Override
-        public IModel retexture(ImmutableMap<String, String> textures)
-        {
-            IModel outModel = this.outModel.retexture(textures);
-            // The full block model, the slim base model and the slim side models will be re-textured later, based on the IBlockState
-
-            return new ModelRedstoneEmitter(this.type, this.fullModel, this.baseModel, outModel, this.sideModel, textures);
-        }
-
-        @Override
-        public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
-        {
-            return new BakedModelRedstoneEmitter(this.type, this.fullModel, this.baseModel, this.outModel, this.sideModel,
-                    this.textures, state, format, bakedTextureGetter);
-        }
+        MODEL_CACHE.clear();
     }
 
-    public static class ModelLoaderRedstoneEmitter implements ICustomModelLoader
+    private static ImmutableMap<ResourceLocation, ModelLoaderBase.IModelFactory> getModelFactories()
     {
-        private static final ResourceLocation FAKE_LOCATION_BASIC    = new ResourceLocation(Reference.MOD_ID, "models/block/custom/redstone_emitter_basic");
-        private static final ResourceLocation FAKE_LOCATION_ADVANCED = new ResourceLocation(Reference.MOD_ID, "models/block/custom/redstone_emitter_advanced");
+        ImmutableMap.Builder<ResourceLocation, ModelLoaderBase.IModelFactory> builder = ImmutableMap.builder();
 
-        @Override
-        public boolean accepts(ResourceLocation modelLocation)
-        {
-            return modelLocation.equals(FAKE_LOCATION_BASIC) || modelLocation.equals(FAKE_LOCATION_ADVANCED);
-        }
+        final ImmutableList<ResourceLocation> modelDeps = ImmutableList.of(FULL_BLOCK_MODEL, BASE_MODEL_10, SIDE_MODEL_06x03, SIDE_MODEL_08x03);
+        final ImmutableList<ResourceLocation> textureDeps = ImmutableList.of(
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_front"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_disabled"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_unpowered"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_side_powered"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_out_slim_end_10"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_out_slim_side_10"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_unpowered_slim_end_06"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_powered_slim_end_06"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_basic_rs_slim_side_06"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_front"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_side_unpowered"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_side_powered"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_out_slim_end_10"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_out_slim_side_10"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_unpowered_slim_end_06"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_powered_slim_end_06"),
+                new ResourceLocation("autoverse:blocks/redstone_emitter_advanced_rs_slim_side_06")
+        );
 
-        @Override
-        public IModel loadModel(ResourceLocation modelLocation)
-        {
-            IModel fullModel = ModelLoaderRegistry.getMissingModel();
-            IModel baseModel = ModelLoaderRegistry.getMissingModel();
-            IModel outModel  = ModelLoaderRegistry.getMissingModel();
-            IModel sideModel = ModelLoaderRegistry.getMissingModel();
+        builder.put(FAKE_LOCATION_BASIC,    (ml) -> new ModelBase(ml, BakedModelRedstoneEmitter::new, modelDeps, textureDeps, ImmutableMap.of()));
+        builder.put(FAKE_LOCATION_ADVANCED, (ml) -> new ModelBase(ml, BakedModelRedstoneEmitter::new, modelDeps, textureDeps, ImmutableMap.of()));
 
-            try
-            {
-                fullModel  = ModelLoaderRegistry.getModel(FULL_BLOCK_MODEL);
-                baseModel  = ModelLoaderRegistry.getModel(BASE_MODEL_10);
-                outModel   = ModelLoaderRegistry.getModel(SIDE_MODEL_08x03);
-                sideModel  = ModelLoaderRegistry.getModel(SIDE_MODEL_06x03);
-            }
-            catch (Exception e)
-            {
-                Autoverse.logger.warn("Failed to load a model for a Redstone Emitter", e);
-            }
+        return builder.build();
+    }
 
-            if (modelLocation.equals(FAKE_LOCATION_ADVANCED))
-            {
-                return new ModelRedstoneEmitter(BlockRedstoneEmitter.EmitterType.ADVANCED, fullModel, baseModel, outModel, sideModel, ImmutableMap.of());
-            }
-            else
-            {
-                return new ModelRedstoneEmitter(BlockRedstoneEmitter.EmitterType.BASIC, fullModel, baseModel, outModel, sideModel, ImmutableMap.of());
-            }
-        }
-
-        @Override
-        public void onResourceManagerReload(IResourceManager resourceManager)
-        {
-            MODEL_CACHE.clear();
-        }
+    public static ICustomModelLoader getModelLoader()
+    {
+        return new ModelLoaderBase(getModelFactories(), BakedModelRedstoneEmitter::clearModelCache);
     }
 
     public static class StateMapper extends StateMapperBase

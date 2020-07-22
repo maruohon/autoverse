@@ -1,13 +1,21 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "transform": "forge:default-block"
+        "transform": "forge:default-block",
+        "textures": {
+            "back":     "autoverse:blocks/redstone_emitter_basic_side_disabled",
+            "top":      "autoverse:blocks/redstone_emitter_basic_side_disabled",
+            "bottom":   "autoverse:blocks/redstone_emitter_basic_side_disabled",
+            "left":     "autoverse:blocks/redstone_emitter_basic_side_disabled",
+            "right":    "autoverse:blocks/redstone_emitter_basic_side_disabled"
+        }
     },
     "variants": {
         "type": {
             "basic": {
                 "model": "autoverse:custom/redstone_emitter_basic",
                 "textures": {
+                    "particle":         "autoverse:blocks/redstone_emitter_basic_front",
                     "front":            "autoverse:blocks/redstone_emitter_basic_front",
                     "disabled":         "autoverse:blocks/redstone_emitter_basic_side_disabled",
                     "unpowered":        "autoverse:blocks/redstone_emitter_basic_side_unpowered",
@@ -22,7 +30,9 @@
             "advanced": {
                 "model": "autoverse:custom/redstone_emitter_advanced",
                 "textures": {
+                    "particle":         "autoverse:blocks/redstone_emitter_advanced_front",
                     "front":            "autoverse:blocks/redstone_emitter_advanced_front",
+                    "disabled":         "autoverse:blocks/redstone_emitter_basic_side_disabled",
                     "unpowered":        "autoverse:blocks/redstone_emitter_advanced_side_unpowered",
                     "powered":          "autoverse:blocks/redstone_emitter_advanced_side_powered",
                     "slim_side_end":    "autoverse:blocks/redstone_emitter_advanced_out_slim_end_10",

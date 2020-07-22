@@ -106,16 +106,16 @@ public class ClientProxy extends CommonProxy
 
     private static void registerBlockModels()
     {
-        ModelLoaderRegistry.registerLoader(new BakedModelMachineSlim.ModelLoaderMachineSlim());
+        ModelLoaderRegistry.registerLoader(BakedModelMachineSlim.getModelLoader());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.CIRCUIT, new BakedModelCircuit.StateMapper());
-        ModelLoaderRegistry.registerLoader(new BakedModelCircuit.ModelLoaderCircuit());
+        ModelLoaderRegistry.registerLoader(BakedModelCircuit.getModelLoader());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new BakedModelPipe.StateMapper());
         ModelLoaderRegistry.registerLoader(new BakedModelPipe.ModelLoaderPipe());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.REDSTONE_EMITTER, new BakedModelRedstoneEmitter.StateMapper());
-        ModelLoaderRegistry.registerLoader(new BakedModelRedstoneEmitter.ModelLoaderRedstoneEmitter());
+        ModelLoaderRegistry.registerLoader(BakedModelRedstoneEmitter.getModelLoader());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.SENSOR, (new StateMap.Builder()).ignore(BlockSensor.POWER).build());
 

@@ -31,10 +31,9 @@ public abstract class BakedModelBase implements IBakedModel
     protected final ImmutableMap<String, String> textures;
     protected final VertexFormat format;
     protected final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter;
-    protected final TextureAtlasSprite particle;
+    @Nullable protected TextureAtlasSprite particle;
 
     protected BakedModelBase(ResourceLocation baseModelLocation,
-                             ResourceLocation particleTexture,
                              ImmutableMap<String, String> textures,
                              Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> quadCache,
                              IModelState modelState,
@@ -42,12 +41,11 @@ public abstract class BakedModelBase implements IBakedModel
                              Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         this.baseModel = getModelOrMissing(baseModelLocation);
-        this.bakedBaseModel = this.baseModel.bake(modelState, format, bakedTextureGetter);
+        this.bakedBaseModel = this.baseModel.retexture(textures).bake(modelState, format, bakedTextureGetter);
         this.textures = textures;
         this.quadCache = quadCache;
         this.format = format;
         this.bakedTextureGetter = bakedTextureGetter;
-        this.particle = bakedTextureGetter.apply(particleTexture);
     }
 
     @Override
@@ -84,7 +82,7 @@ public abstract class BakedModelBase implements IBakedModel
     @Override
     public TextureAtlasSprite getParticleTexture()
     {
-        return this.particle;
+        return this.bakedBaseModel.getParticleTexture();
     }
 
     @Override
@@ -94,6 +92,11 @@ public abstract class BakedModelBase implements IBakedModel
         if (state == null)
         {
             state = this.getBaseStateForItemModel();
+        }
+
+        if (state == null)
+        {
+            return ImmutableList.of();
         }
 
         ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>> quads = this.quadCache.get(state);
@@ -129,6 +132,7 @@ public abstract class BakedModelBase implements IBakedModel
 
     protected abstract List<IBakedModel> getModelParts(IBlockState state);
 
+    @Nullable
     protected abstract IBlockState getBaseStateForItemModel();
 
     public static IModel getModelOrMissing(ResourceLocation modelLocation)

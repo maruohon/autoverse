@@ -1,7 +1,6 @@
 {
     "parent": "minecraft:block/block",
     "textures": {
-        "particle":     "#front",
         "slim_north":   "#front",
         "slim_south":   "#back",
         "slim_up":      "#top",

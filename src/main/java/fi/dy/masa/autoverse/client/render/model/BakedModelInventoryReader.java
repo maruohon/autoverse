@@ -33,9 +33,6 @@ public class BakedModelInventoryReader extends BakedModelBase
     public static final ResourceLocation READER_BASE_MODEL   = new ResourceLocation(Reference.MOD_ID, "block/inventory_reader_base");
     public static final ResourceLocation READER_OUTPUT_MODEL = new ResourceLocation(Reference.MOD_ID, "block/inventory_reader_output");
 
-    private static final ResourceLocation PARTICLE_TEXTURE_SLOTS = new ResourceLocation(Reference.MOD_ID, "blocks/inventory_reader_rod_bulge_slots");
-    private static final ResourceLocation PARTICLE_TEXTURE_ITEMS = new ResourceLocation(Reference.MOD_ID, "blocks/inventory_reader_rod_bulge_items");
-
     private static final Map<IBlockState, ImmutableMap<Optional<EnumFacing>, ImmutableList<BakedQuad>>> QUAD_CACHE = new HashMap<>();
 
     private final BlockInventoryReader.ReaderType type;
@@ -47,8 +44,7 @@ public class BakedModelInventoryReader extends BakedModelBase
                                       VertexFormat format,
                                       Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
-        super(READER_BASE_MODEL, modelLocation.equals(FAKE_LOCATION_ITEMS) ? PARTICLE_TEXTURE_ITEMS : PARTICLE_TEXTURE_SLOTS,
-              textures, QUAD_CACHE, modelState, format, bakedTextureGetter);
+        super(READER_BASE_MODEL, textures, QUAD_CACHE, modelState, format, bakedTextureGetter);
 
         this.type = modelLocation.equals(FAKE_LOCATION_ITEMS) ? BlockInventoryReader.ReaderType.ITEMS : BlockInventoryReader.ReaderType.SLOTS;
         this.outputModel = getModelOrMissing(READER_OUTPUT_MODEL);

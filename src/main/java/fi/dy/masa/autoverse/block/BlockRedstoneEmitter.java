@@ -41,16 +41,16 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
     private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_W = new AxisAlignedBB(0.0,    0.25,   0.25,   0.1875, 0.75,   0.75  );
     private static final AxisAlignedBB BOUNDS_SLIM_SIDE_08x03_E = new AxisAlignedBB(0.8125, 0.25,   0.25,   1.0,    0.75,   0.75  );
 
-    public static final PropertyEnum<EmitterType> TYPE = PropertyEnum.<EmitterType>create("type", EmitterType.class);
+    public static final PropertyEnum<EmitterType> TYPE = PropertyEnum.create("type", EmitterType.class);
 
-    public static final PropertyEnum<SideStatus> DOWN  = PropertyEnum.<SideStatus>create("down",  SideStatus.class);
-    public static final PropertyEnum<SideStatus> UP    = PropertyEnum.<SideStatus>create("up",    SideStatus.class);
-    public static final PropertyEnum<SideStatus> NORTH = PropertyEnum.<SideStatus>create("north", SideStatus.class);
-    public static final PropertyEnum<SideStatus> SOUTH = PropertyEnum.<SideStatus>create("south", SideStatus.class);
-    public static final PropertyEnum<SideStatus> WEST  = PropertyEnum.<SideStatus>create("west",  SideStatus.class);
-    public static final PropertyEnum<SideStatus> EAST  = PropertyEnum.<SideStatus>create("east",  SideStatus.class);
+    public static final PropertyEnum<SideStatus> DOWN  = PropertyEnum.create("down",  SideStatus.class);
+    public static final PropertyEnum<SideStatus> UP    = PropertyEnum.create("up",    SideStatus.class);
+    public static final PropertyEnum<SideStatus> NORTH = PropertyEnum.create("north", SideStatus.class);
+    public static final PropertyEnum<SideStatus> SOUTH = PropertyEnum.create("south", SideStatus.class);
+    public static final PropertyEnum<SideStatus> WEST  = PropertyEnum.create("west",  SideStatus.class);
+    public static final PropertyEnum<SideStatus> EAST  = PropertyEnum.create("east",  SideStatus.class);
 
-    public static final List<PropertyEnum<SideStatus>> SIDES = new ArrayList<PropertyEnum<SideStatus>>();
+    public static final List<PropertyEnum<SideStatus>> SIDES = new ArrayList<>();
 
     static
     {
@@ -157,14 +157,14 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
 
             if (state.getValue(TYPE) == EmitterType.ADVANCED)
             {
-                for (EnumFacing side : EnumFacing.values())
+                for (EnumFacing side : EnumFacing.VALUES)
                 {
                     state = state.withProperty(SIDES.get(side.getIndex()), (poweredMask & (1 << side.getIndex())) != 0 ? SideStatus.POWERED : SideStatus.UNPOWERED);
                 }
             }
             else
             {
-                for (EnumFacing side : EnumFacing.values())
+                for (EnumFacing side : EnumFacing.VALUES)
                 {
                     state = state.withProperty(SIDES.get(side.getIndex()), this.getSideStatus(side, sideMask, poweredMask));
                 }
@@ -284,7 +284,7 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
         }
     }
 
-    public static enum EmitterType implements IStringSerializable
+    public enum EmitterType implements IStringSerializable
     {
         BASIC       (0, 0, "basic"),
         ADVANCED    (1, 1, "advanced");
@@ -293,7 +293,7 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
         private final int itemMeta;
         private final String name;
 
-        private EmitterType(int blockMeta, int itemMeta, String name)
+        EmitterType(int blockMeta, int itemMeta, String name)
         {
             this.blockMeta = blockMeta;
             this.itemMeta = itemMeta;
@@ -342,7 +342,7 @@ public class BlockRedstoneEmitter extends BlockMachineSlimBase
 
         private final String name;
 
-        private SideStatus(String name)
+        SideStatus(String name)
         {
             this.name = name;
         }
