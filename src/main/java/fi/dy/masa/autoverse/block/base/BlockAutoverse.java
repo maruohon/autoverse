@@ -15,7 +15,6 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -121,7 +120,7 @@ public class BlockAutoverse extends Block
         return this;
     }
 
-    public ItemBlock createItemBlock()
+    public ItemBlockAutoverse createItemBlock()
     {
         return new ItemBlockAutoverse(this);
     }

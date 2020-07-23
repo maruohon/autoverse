@@ -10,7 +10,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -102,7 +101,7 @@ public class BlockPipe extends BlockAutoverseInventory
     }
 
     @Override
-    public ItemBlock createItemBlock()
+    public ItemBlockAutoverse createItemBlock()
     {
         ItemBlockAutoverse item = new ItemBlockAutoverse(this);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "pipe.delay", Constants.NBT.TAG_BYTE, Configs.pipeMinimumDelay, 127, Configs.pipeDefaultDelay);

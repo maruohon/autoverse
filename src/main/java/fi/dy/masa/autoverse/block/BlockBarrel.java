@@ -10,7 +10,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
@@ -22,6 +21,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.oredict.OreDictionary;
 import fi.dy.masa.autoverse.block.base.BlockAutoverseInventory;
 import fi.dy.masa.autoverse.config.Configs;
+import fi.dy.masa.autoverse.item.block.ItemBlockAutoverse;
 import fi.dy.masa.autoverse.item.block.ItemBlockStorage;
 import fi.dy.masa.autoverse.reference.ReferenceNames;
 import fi.dy.masa.autoverse.tileentity.TileEntityBarrel;
@@ -69,7 +69,7 @@ public class BlockBarrel extends BlockAutoverseInventory
     }
 
     @Override
-    public ItemBlock createItemBlock()
+    public ItemBlockAutoverse createItemBlock()
     {
         ItemBlockStorage item = new ItemBlockStorage(this);
         item.addPlacementProperty(OreDictionary.WILDCARD_VALUE, "barrel.tier", Constants.NBT.TAG_BYTE, 0, Configs.barrelMaxTier);

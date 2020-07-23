@@ -1,0 +1,42 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block",
+        "model": "autoverse:custom/repeater",
+        "textures": {
+            "particle":             "autoverse:blocks/repeater_rod_bulge_base",
+            "base_front":           "autoverse:blocks/repeater_base_front",
+            "base_back":            "autoverse:blocks/repeater_base_back",
+            "base_side":            "autoverse:blocks/repeater_base_side",
+            "rod_side_unpowered":   "autoverse:blocks/repeater_rod_side_unpowered",
+            "rod_side_powered":     "autoverse:blocks/repeater_rod_side_powered",
+            "rod_end_unpowered":    "autoverse:blocks/repeater_rod_end_unpowered",
+            "rod_end_powered":      "autoverse:blocks/repeater_rod_end_powered",
+            "rod_bulge_base":       "autoverse:blocks/repeater_rod_bulge_base",
+            "delay_01":             "autoverse:blocks/repeater_delay_01",
+            "delay_02":             "autoverse:blocks/repeater_delay_02",
+            "delay_03":             "autoverse:blocks/repeater_delay_03",
+            "delay_04":             "autoverse:blocks/repeater_delay_04",
+            "delay_05":             "autoverse:blocks/repeater_delay_05",
+            "delay_06":             "autoverse:blocks/repeater_delay_06",
+            "delay_07":             "autoverse:blocks/repeater_delay_07",
+            "delay_08":             "autoverse:blocks/repeater_delay_08",
+            "delay_09":             "autoverse:blocks/repeater_delay_09",
+            "delay_10":             "autoverse:blocks/repeater_delay_10",
+            "delay_11":             "autoverse:blocks/repeater_delay_11",
+            "delay_12":             "autoverse:blocks/repeater_delay_12",
+            "delay_13":             "autoverse:blocks/repeater_delay_13",
+            "delay_14":             "autoverse:blocks/repeater_delay_14",
+            "delay_15":             "autoverse:blocks/repeater_delay_15",
+            "delay_16":             "autoverse:blocks/repeater_delay_16",
+            "delay_17":             "autoverse:blocks/repeater_delay_17",
+            "delay_18":             "autoverse:blocks/repeater_delay_18",
+            "delay_19":             "autoverse:blocks/repeater_delay_19",
+            "delay_20":             "autoverse:blocks/repeater_delay_20"
+        }
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}]
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "parent": "minecraft:block/block",
+    "elements": [    
+        {
+            "__comment": "Base",
+            "from": [  4,  4, 0 ],
+            "to":   [ 12, 12, 1 ],
+            "faces": {
+                "down":  { "uv": [ 0, 4,  1, 12 ], "texture": "#base_side", "rotation": 90 },
+                "up":    { "uv": [ 0, 4,  1, 12 ], "texture": "#base_side", "rotation": 90 },
+                "north": { "uv": [ 4, 4, 12, 12 ], "texture": "#base_front" },
+                "south": { "uv": [ 4, 4, 12, 12 ], "texture": "#base_back"  },
+                "west":  { "uv": [ 0, 4,  1, 12 ], "texture": "#base_side"  },
+                "east":  { "uv": [ 0, 4,  1, 12 ], "texture": "#base_side"  }
+            }
+        },
+        {
+            "__comment": "Rod Base",
+            "from": [  5,  5, 1 ],
+            "to":   [ 11, 11, 4 ],
+            "faces": {
+                "down": { "uv": [ 5, 11, 2,  5 ], "texture": "#rod_side", "rotation": 90 },
+                "up":   { "uv": [ 2,  5, 5, 11 ], "texture": "#rod_side", "rotation": 90 },
+                "west": { "uv": [ 2,  5, 5, 11 ], "texture": "#rod_side"                 },
+                "east": { "uv": [ 5,  5, 2, 11 ], "texture": "#rod_side"                 }
+            }
+        },
+        {
+            "__comment": "Rod Bulge",
+            "from": [  4,  4,  4 ],
+            "to":   [ 12, 12, 12 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" },
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#rod_bulge" }
+            }
+        },
+        {
+            "__comment": "Rod Bulge - Delay display",
+            "from": [  3.99,  3.99,  3.99 ],
+            "to":   [ 12.01, 12.01, 12.01 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#delay", "rotation": 270 },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#delay", "rotation":  90 },
+                "north": { "uv": [ 0, 0, 16, 16 ], "texture": "#delay"                  },
+                "south": { "uv": [ 0, 0, 16, 16 ], "texture": "#delay"                  },
+                "west":  { "uv": [ 0, 0, 16, 16 ], "texture": "#delay"                  },
+                "east":  { "uv": [ 0, 0, 16, 16 ], "texture": "#delay"                  }
+            }
+        }
+    ]
+}

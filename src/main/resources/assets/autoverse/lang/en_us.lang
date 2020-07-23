@@ -1,7 +1,3 @@
-language.name=English
-language.region=US
-language.code=en_US
-
 category.autoverse=Autoverse
 autoverse.key.togglemode=Toggle/action
 
@@ -158,6 +154,7 @@ autoverse.placement_properties.buffer.size=Buffer size
 autoverse.placement_properties.machine.slim_model=Slim model
 autoverse.placement_properties.pipe.delay=Delay
 autoverse.placement_properties.pipe.max_stack=Max stack size
+autoverse.placement_properties.repeater.delay=Delay
 autoverse.placement_properties.sequence_detector.on_time=On time (RS ticks)
 autoverse.placement_properties.sequencer.length=Length
 
@@ -204,6 +201,7 @@ tile.autoverse.placer.tooltips=- A basic Block Placer|lf- Meant to be used with 
 tile.autoverse.placer_programmable.tooltips=- Can place blocks in specific states and apply|lf  properties to the TileEntity (Autoverse-TEs only atm)|lf- For non-Autoverse blocks:|lf  - The properties are applied first to any PropertyDirection|lf    type properties, then to PropertyInteger types|lf  - The properties are sorted alphabetically within both types|lf- Basically allows placing blocks with specific orientations/settings|lf- The placement position can be offset to a maximum of 15 blocks
 tile.autoverse.redstone_emitter_advanced.tooltips=- Per-side item sequence-controllable redstone output
 tile.autoverse.redstone_emitter_basic.tooltips=- Configurable output sides|lf- Switched on/off by arriving item sequences
+tile.autoverse.repeater.tooltips=- A redstone repeater that can be placed in any direction|lf- The output side can also be turned to the sides|lf- Supports delays of 1 - 20 game ticks|lf   (a vanilla repeater is 1 - 4 "redstone ticks" = 2 - 8 game ticks)|lf- Right click: Add delay|lf- Sneak + Left click: decrease delay|lf- Sneak + Right click: Set the output side
 tile.autoverse.sensor_height.tooltips=- Outputs a redstone signal strength based on its y-position|lf- Because only a signal strength of 0..15 is possible,|lf   the signal changes by one every 16 blocks up/down
 tile.autoverse.sequence_detector.tooltips=- Outputs a 1-tick redstone pulse, when it detects|lf  a sequence of items matching the programmed detection sequence
 tile.autoverse.sequencer_basic.tooltips=- Adjustable number of slots (up to 18)|lf- Outputs one item at a time from the current slot,|lf  and then advances the output slot position|lf- The items can be pulled out, or they will be pushed|lf  out one item at a time on a redstone pulse
@@ -248,6 +246,7 @@ tile.autoverse.placer.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facin
 tile.autoverse.placer_programmable.config_props=- Prop 1: Facing|lf- Prop 2: Horizontal facing|lf- Prop 3: Placement offset (0..15)
 tile.autoverse.redstone_emitter_advanced.config_props=- Prop 1: Facing
 tile.autoverse.redstone_emitter_basic.config_props=- Prop 1: Facing
+tile.autoverse.repeater.config_props=- Prop 1: Facing|lf- Prop 2: Delay (1 .. 20)
 tile.autoverse.sequence_detector.config_props=- Prop 1: Facing
 tile.autoverse.sequencer_basic.config_props=- Prop 1: Facing|lf- Prop 2: Inventory Size
 tile.autoverse.sequencer_programmable.config_props=- Prop 1: Facing
@@ -289,6 +288,7 @@ tile.autoverse.placer.name=Block Placer
 tile.autoverse.placer_programmable.name=Programmable Block Placer
 tile.autoverse.redstone_emitter_advanced.name=Programmable Redstone Emitter (Advanced)
 tile.autoverse.redstone_emitter_basic.name=Programmable Redstone Emitter (Basic)
+tile.autoverse.repeater.name=Repeater
 tile.autoverse.sensor_height.name=Height Sensor
 tile.autoverse.sequence_detector.name=Sequence Detector
 tile.autoverse.sequencer_basic.name=Sequencer (Basic)

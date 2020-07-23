@@ -37,6 +37,7 @@ public class Configs
     public static boolean disableBlockMuxer;
     public static boolean disableBlockPipe;
     public static boolean disableBlockRedstoneEmitter;
+    public static boolean disableBlockRepeater;
     public static boolean disableBlockSensor;
     public static boolean disableBlockSequenceDetector;
     public static boolean disableBlockSequencer;
@@ -158,6 +159,7 @@ public class Configs
         disableBlockMuxer                   = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockMuxer", false).getBoolean();
         disableBlockPipe                    = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockPipe", false).getBoolean();
         disableBlockRedstoneEmitter         = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRedstoneEmitter", false).getBoolean();
+        disableBlockRepeater                = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockRepeater", false).getBoolean();
         disableBlockSensor                  = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSensor", false).getBoolean();
         disableBlockSequenceDetector        = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequenceDetector", false).getBoolean();
         disableBlockSequencer               = conf.get(CATEGORY_BLOCK_DISABLE, "disableBlockSequencer", false).getBoolean();

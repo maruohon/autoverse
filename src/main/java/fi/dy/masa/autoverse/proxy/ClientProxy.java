@@ -26,6 +26,7 @@ import fi.dy.masa.autoverse.client.render.model.BakedModelInventoryReader;
 import fi.dy.masa.autoverse.client.render.model.BakedModelMachineSlim;
 import fi.dy.masa.autoverse.client.render.model.BakedModelPipe;
 import fi.dy.masa.autoverse.client.render.model.BakedModelRedstoneEmitter;
+import fi.dy.masa.autoverse.client.render.model.BakedModelRepeater;
 import fi.dy.masa.autoverse.client.renderer.tile.TESRPipe;
 import fi.dy.masa.autoverse.config.Configs;
 import fi.dy.masa.autoverse.event.InputEventHandler;
@@ -111,16 +112,19 @@ public class ClientProxy extends CommonProxy
         ModelLoader.setCustomStateMapper(AutoverseBlocks.CIRCUIT, new BakedModelCircuit.StateMapper());
         ModelLoaderRegistry.registerLoader(BakedModelCircuit.getModelLoader());
 
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.INVENTORY_READER, new BakedModelInventoryReader.StateMapper());
+        ModelLoaderRegistry.registerLoader(BakedModelInventoryReader.getModelLoader());
+
         ModelLoader.setCustomStateMapper(AutoverseBlocks.PIPE, new BakedModelPipe.StateMapper());
         ModelLoaderRegistry.registerLoader(new BakedModelPipe.ModelLoaderPipe());
 
         ModelLoader.setCustomStateMapper(AutoverseBlocks.REDSTONE_EMITTER, new BakedModelRedstoneEmitter.StateMapper());
         ModelLoaderRegistry.registerLoader(BakedModelRedstoneEmitter.getModelLoader());
 
-        ModelLoader.setCustomStateMapper(AutoverseBlocks.SENSOR, (new StateMap.Builder()).ignore(BlockSensor.POWER).build());
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.REPEATER, new BakedModelRepeater.StateMapper());
+        ModelLoaderRegistry.registerLoader(BakedModelRepeater.getModelLoader());
 
-        ModelLoader.setCustomStateMapper(AutoverseBlocks.INVENTORY_READER, new BakedModelInventoryReader.StateMapper());
-        ModelLoaderRegistry.registerLoader(BakedModelInventoryReader.getModelLoader());
+        ModelLoader.setCustomStateMapper(AutoverseBlocks.SENSOR, (new StateMap.Builder()).ignore(BlockSensor.POWER).build());
     }
 
     private static void registerItemBlockModels()
@@ -154,6 +158,7 @@ public class ClientProxy extends CommonProxy
         registerItemBlockModel(AutoverseBlocks.PIPE, 3, "type=roundrobin");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 0, "type=basic");
         registerItemBlockModel(AutoverseBlocks.REDSTONE_EMITTER, 1, "type=advanced");
+        registerItemBlockModel(AutoverseBlocks.REPEATER, 0, "inventory");
         registerItemBlockModel(AutoverseBlocks.SENSOR, 0, "inventory");
         registerItemBlockModel(AutoverseBlocks.SEQUENCE_DETECTOR, 0, "facing=north,powered=false,slim=false");
         registerItemBlockModel(AutoverseBlocks.SEQUENCER, 0, "facing=north,slim=false,type=basic");

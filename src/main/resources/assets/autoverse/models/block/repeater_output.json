@@ -1,0 +1,17 @@
+{
+    "parent": "minecraft:block/block",
+    "elements": [    
+        {
+            "__comment": "Rod End",
+            "from": [  5,  5, 12 ],
+            "to":   [ 11, 11, 16 ],
+            "faces": {
+                "down":  { "uv": [ 16, 5, 12, 11 ], "texture": "#rod_side", "rotation":  90 },
+                "up":    { "uv": [ 16, 5, 12, 11 ], "texture": "#rod_side", "rotation": 270 },
+                "south": { "uv": [  5, 5, 11, 11 ], "texture": "#rod_end"  },
+                "west":  { "uv": [ 12, 5, 16, 11 ], "texture": "#rod_side" },
+                "east":  { "uv": [ 16, 5, 12, 11 ], "texture": "#rod_side" }
+            }
+        }
+    ]
+}
